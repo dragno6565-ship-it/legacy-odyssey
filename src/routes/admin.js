@@ -168,8 +168,6 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
     email,
     temp_password,
     book_password,
-    child_first_name,
-    child_last_name,
     custom_domain,
     subdomain,
     subscription_status,
@@ -188,7 +186,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
 
   try {
     // Validate required fields
-    if (!display_name || !email || !temp_password || !subdomain || !child_first_name) {
+    if (!display_name || !email || !temp_password || !subdomain) {
       return renderError('Please fill in all required fields.');
     }
 
@@ -255,20 +253,10 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
       return renderError(`Failed to create family: ${familyError.message}`);
     }
 
-    // 4. Create book with defaults
-    const book = await bookService.createBookWithDefaults(family.id);
+    // 4. Create book with defaults (customer fills in details via the app)
+    await bookService.createBookWithDefaults(family.id);
 
-    // 5. Update book with child name
-    await supabaseAdmin
-      .from('books')
-      .update({
-        child_first_name: child_first_name.trim(),
-        child_last_name: (child_last_name || '').trim(),
-      })
-      .eq('id', book.id);
-
-    // 6. Render success page
-    const childName = `${child_first_name.trim()} ${(child_last_name || '').trim()}`.trim();
+    // 5. Render success page
     const apkUrl = 'https://expo.dev/artifacts/eas/dEWDhAKzbdohggvEofzuEy.apk';
     const expoGoUrl = 'https://expo.dev/accounts/dragno65/projects/legacy-odyssey/updates/6eb62faf-2a25-4892-a438-7339b8d9df19';
 
@@ -279,7 +267,6 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
         email: email.trim().toLowerCase(),
         temp_password,
         book_password: book_password || 'legacy',
-        child_name: childName,
         custom_domain: custom_domain ? custom_domain.trim().toLowerCase() : null,
         subdomain: subdomain.trim().toLowerCase(),
         subscription_status: subscription_status || 'trialing',

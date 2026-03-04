@@ -36,7 +36,7 @@
       <div class="page-header">
         <a href="/admin" style="font-size: 0.9rem; color: var(--ink-light);">&#8592; Back to Dashboard</a>
         <h1>Add New Customer</h1>
-        <p>Create a new customer account, website, and baby book</p>
+        <p>Create a new customer account and website</p>
       </div>
 
       <% if (error) { %>
@@ -70,21 +70,6 @@
                   <label for="book_password">Book Viewing Password</label>
                   <input type="text" id="book_password" name="book_password" placeholder="e.g. legacy" value="<%= formData.book_password || 'legacy' %>">
                   <div class="help-text">Password visitors need to view the published book</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Child Info -->
-            <div class="detail-card">
-              <h3>Child Information</h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="child_first_name">Child's First Name</label>
-                  <input type="text" id="child_first_name" name="child_first_name" placeholder="e.g. Emma" value="<%= formData.child_first_name || '' %>" required>
-                </div>
-                <div class="form-group">
-                  <label for="child_last_name">Child's Last Name</label>
-                  <input type="text" id="child_last_name" name="child_last_name" placeholder="e.g. Cherry" value="<%= formData.child_last_name || '' %>">
                 </div>
               </div>
             </div>

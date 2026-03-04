@@ -60,7 +60,7 @@
           <div class="detail-card">
             <h3>Ready-to-Send Invite Message</h3>
             <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">Copy this message and send it to your customer via email or text:</p>
-            <div class="invite-message" id="inviteMessage">Hi <%= customer.display_name.split(' ')[0] %>! Your Legacy Odyssey baby book is ready for <%= customer.child_name %>. Here's how to get started:
+            <div class="invite-message" id="inviteMessage">Hi <%= customer.display_name.split(' ')[0] %>! Your Legacy Odyssey account is ready. Here's how to get started:
 
 FOR iPHONE:
 1. Download "Expo Go" from the App Store (it's free)
@@ -75,12 +75,12 @@ LOG IN WITH:
    Email: <%= customer.email %>
    Password: <%= customer.temp_password %>
 
-Start adding photos, stories, and memories to build <%= customer.child_name %>'s baby book!
+Once you're in, start adding photos, stories, and memories to build your Legacy Odyssey!
 
-<% if (customer.custom_domain) { %>Your book will be published at: www.<%= customer.custom_domain %>
-<% } else { %>Your book will be published at: <%= customer.subdomain %>.legacyodyssey.com
+<% if (customer.custom_domain) { %>Your site will be published at: www.<%= customer.custom_domain %>
+<% } else { %>Your site will be published at: <%= customer.subdomain %>.legacyodyssey.com
 <% } %>
-The book viewing password is: <%= customer.book_password %>
+The site viewing password is: <%= customer.book_password %>
 
 Welcome to Legacy Odyssey!</div>
             <button type="button" class="btn btn-primary" onclick="copyInvite()" id="copyBtn" style="margin-top: 12px;">
@@ -96,10 +96,6 @@ Welcome to Legacy Odyssey!</div>
             <div class="summary-row">
               <label>Account Name</label>
               <span><%= customer.display_name %></span>
-            </div>
-            <div class="summary-row">
-              <label>Child</label>
-              <span><%= customer.child_name %></span>
             </div>
             <div class="summary-row">
               <label>Website</label>
