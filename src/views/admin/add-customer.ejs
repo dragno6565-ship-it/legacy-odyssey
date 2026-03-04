@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Customer — Legacy Odyssey Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <h2>&#10022; Legacy Odyssey</h2>
+        <span>Admin Portal</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/admin">
+          <span class="nav-icon">&#128202;</span> Dashboard
+        </a>
+        <a href="/admin/customers/new" class="active">
+          <span class="nav-icon">&#128100;</span> Add Customer
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-email"><%= admin.email %></div>
+        <form action="/admin/logout" method="POST" style="display:inline;">
+          <button type="submit" class="logout-btn">&#x2192; Sign Out</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="page-header">
+        <a href="/admin" style="font-size: 0.9rem; color: var(--ink-light);">&#8592; Back to Dashboard</a>
+        <h1>Add New Customer</h1>
+        <p>Create a new customer account, website, and baby book</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="flash-message flash-error"><%= error %></div>
+      <% } %>
+
+      <form action="/admin/customers/new" method="POST" class="add-customer-form">
+        <div class="detail-grid">
+          <!-- Left Column: Form -->
+          <div>
+            <!-- Customer Info -->
+            <div class="detail-card">
+              <h3>Customer Information</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="display_name">Parent / Account Name</label>
+                  <input type="text" id="display_name" name="display_name" placeholder="e.g. Lindsey Cherry" value="<%= formData.display_name || '' %>" required>
+                </div>
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input type="email" id="email" name="email" placeholder="e.g. lindsey@example.com" value="<%= formData.email || '' %>" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="temp_password">Temporary Password</label>
+                  <input type="text" id="temp_password" name="temp_password" value="<%= formData.temp_password || generatedPassword %>" required>
+                  <div class="help-text">Customer will use this to log into the app for the first time</div>
+                </div>
+                <div class="form-group">
+                  <label for="book_password">Book Viewing Password</label>
+                  <input type="text" id="book_password" name="book_password" placeholder="e.g. legacy" value="<%= formData.book_password || 'legacy' %>">
+                  <div class="help-text">Password visitors need to view the published book</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Child Info -->
+            <div class="detail-card">
+              <h3>Child Information</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="child_first_name">Child's First Name</label>
+                  <input type="text" id="child_first_name" name="child_first_name" placeholder="e.g. Emma" value="<%= formData.child_first_name || '' %>" required>
+                </div>
+                <div class="form-group">
+                  <label for="child_last_name">Child's Last Name</label>
+                  <input type="text" id="child_last_name" name="child_last_name" placeholder="e.g. Cherry" value="<%= formData.child_last_name || '' %>">
+                </div>
+              </div>
+            </div>
+
+            <!-- Website -->
+            <div class="detail-card">
+              <h3>Website Setup</h3>
+              <div class="form-group">
+                <label for="custom_domain">Custom Domain</label>
+                <input type="text" id="custom_domain" name="custom_domain" placeholder="e.g. emmacherry.com" value="<%= formData.custom_domain || '' %>">
+                <div class="help-text">The customer's purchased domain (leave blank if none)</div>
+              </div>
+              <div class="form-group">
+                <label for="subdomain">Subdomain</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input type="text" id="subdomain" name="subdomain" placeholder="e.g. emmacherry" value="<%= formData.subdomain || '' %>" style="flex: 1;" required>
+                  <span style="color: var(--ink-light); font-size: 0.9rem; white-space: nowrap;">.legacyodyssey.com</span>
+                </div>
+                <div class="help-text">Used for the default URL and internal routing</div>
+              </div>
+            </div>
+
+            <!-- Subscription -->
+            <div class="detail-card">
+              <h3>Subscription</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="subscription_status">Status</label>
+                  <select id="subscription_status" name="subscription_status">
+                    <option value="trialing" <%= formData.subscription_status === 'trialing' ? 'selected' : '' %>>Trialing</option>
+                    <option value="active" <%= formData.subscription_status === 'active' ? 'selected' : '' %>>Active</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="trial_days">Trial Period (days)</label>
+                  <input type="number" id="trial_days" name="trial_days" value="<%= formData.trial_days || '14' %>" min="0" max="365">
+                  <div class="help-text">Number of days before trial expires (0 for no trial)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Preview -->
+          <div>
+            <div class="detail-card">
+              <h3>What Happens Next</h3>
+              <div class="steps-list">
+                <div class="step-item">
+                  <div class="step-number">1</div>
+                  <div>
+                    <strong>Account Created</strong>
+                    <p>A Supabase auth account, family record, and baby book are set up automatically.</p>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-number">2</div>
+                  <div>
+                    <strong>Invite Details Shown</strong>
+                    <p>You'll get the customer's login credentials and a ready-to-send invite message.</p>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-number">3</div>
+                  <div>
+                    <strong>Customer Downloads App</strong>
+                    <p>Send the invite link. The customer downloads the app and logs in with their temp password.</p>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-number">4</div>
+                  <div>
+                    <strong>They Build Their Book</strong>
+                    <p>The customer adds photos, stories, and memories to their baby book website.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-card">
+              <h3>Auto-Fill from Domain</h3>
+              <p style="font-size: 0.9rem; color: var(--ink-light); margin-bottom: 12px;">Enter a custom domain above and click to auto-fill the subdomain.</p>
+              <button type="button" class="btn btn-secondary" onclick="autoFillSubdomain()">Auto-Fill Subdomain</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="action-bar">
+          <button type="submit" class="btn btn-primary" style="padding: 12px 32px; font-size: 1rem;">&#10022; Create Customer</button>
+          <a href="/admin" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    function autoFillSubdomain() {
+      const domain = document.getElementById('custom_domain').value.trim();
+      if (domain) {
+        // Strip www. and .com/.net/.org etc
+        const sub = domain.replace(/^www\./, '').replace(/\.[a-z]{2,}$/i, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+        document.getElementById('subdomain').value = sub;
+      }
+    }
+
+    // Auto-fill subdomain when custom domain changes
+    document.getElementById('custom_domain').addEventListener('blur', function() {
+      const subField = document.getElementById('subdomain');
+      if (!subField.value && this.value) {
+        autoFillSubdomain();
+      }
+    });
+  </script>
+</body>
+</html>

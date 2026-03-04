@@ -144,6 +144,155 @@ router.post('/families/:id', requireAdmin, async (req, res, next) => {
   }
 });
 
+// Add Customer (GET)
+router.get('/customers/new', requireAdmin, (req, res) => {
+  // Generate a simple random password
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let generatedPassword = '';
+  for (let i = 0; i < 10; i++) {
+    generatedPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  res.render('admin/add-customer', {
+    admin: req.admin,
+    error: null,
+    formData: {},
+    generatedPassword,
+  });
+});
+
+// Add Customer (POST)
+router.post('/customers/new', requireAdmin, async (req, res, next) => {
+  const {
+    display_name,
+    email,
+    temp_password,
+    book_password,
+    child_first_name,
+    child_last_name,
+    custom_domain,
+    subdomain,
+    subscription_status,
+    trial_days,
+  } = req.body;
+
+  // Re-render helper for errors
+  const renderError = (errorMsg) => {
+    res.render('admin/add-customer', {
+      admin: req.admin,
+      error: errorMsg,
+      formData: req.body,
+      generatedPassword: temp_password,
+    });
+  };
+
+  try {
+    // Validate required fields
+    if (!display_name || !email || !temp_password || !subdomain || !child_first_name) {
+      return renderError('Please fill in all required fields.');
+    }
+
+    // Check if subdomain already taken
+    const existingSubdomain = await familyService.findBySubdomain(subdomain);
+    if (existingSubdomain) {
+      return renderError(`The subdomain "${subdomain}" is already taken.`);
+    }
+
+    // Check if custom domain already taken
+    if (custom_domain) {
+      const existingDomain = await familyService.findByCustomDomain(custom_domain);
+      if (existingDomain) {
+        return renderError(`The domain "${custom_domain}" is already assigned to another customer.`);
+      }
+    }
+
+    // 1. Create Supabase Auth user
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: email.trim().toLowerCase(),
+      password: temp_password,
+      email_confirm: true, // Skip email verification
+      user_metadata: {
+        display_name: display_name.trim(),
+      },
+    });
+
+    if (authError) {
+      console.error('Auth user creation error:', authError);
+      if (authError.message.includes('already been registered')) {
+        return renderError('A user with this email already exists.');
+      }
+      return renderError(`Failed to create auth user: ${authError.message}`);
+    }
+
+    const authUserId = authData.user.id;
+
+    // 2. Calculate trial end date
+    const trialDays = parseInt(trial_days) || 14;
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + trialDays);
+
+    // 3. Create family record
+    const { data: family, error: familyError } = await supabaseAdmin
+      .from('families')
+      .insert({
+        email: email.trim().toLowerCase(),
+        auth_user_id: authUserId,
+        display_name: display_name.trim(),
+        subdomain: subdomain.trim().toLowerCase(),
+        custom_domain: custom_domain ? custom_domain.trim().toLowerCase() : null,
+        book_password: book_password || 'legacy',
+        subscription_status: subscription_status || 'trialing',
+        trial_ends_at: trialDays > 0 ? trialEndsAt.toISOString() : null,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (familyError) {
+      // Clean up: delete the auth user we just created
+      await supabaseAdmin.auth.admin.deleteUser(authUserId);
+      console.error('Family creation error:', familyError);
+      return renderError(`Failed to create family: ${familyError.message}`);
+    }
+
+    // 4. Create book with defaults
+    const book = await bookService.createBookWithDefaults(family.id);
+
+    // 5. Update book with child name
+    await supabaseAdmin
+      .from('books')
+      .update({
+        child_first_name: child_first_name.trim(),
+        child_last_name: (child_last_name || '').trim(),
+      })
+      .eq('id', book.id);
+
+    // 6. Render success page
+    const childName = `${child_first_name.trim()} ${(child_last_name || '').trim()}`.trim();
+    const apkUrl = 'https://expo.dev/artifacts/eas/dEWDhAKzbdohggvEofzuEy.apk';
+
+    res.render('admin/customer-created', {
+      admin: req.admin,
+      customer: {
+        display_name: display_name.trim(),
+        email: email.trim().toLowerCase(),
+        temp_password,
+        book_password: book_password || 'legacy',
+        child_name: childName,
+        custom_domain: custom_domain ? custom_domain.trim().toLowerCase() : null,
+        subdomain: subdomain.trim().toLowerCase(),
+        subscription_status: subscription_status || 'trialing',
+        family_id: family.id,
+      },
+      apkUrl,
+    });
+
+  } catch (err) {
+    console.error('Add customer error:', err);
+    renderError('An unexpected error occurred. Please try again.');
+  }
+});
+
 // Toggle active status
 router.get('/families/:id/toggle-active', requireAdmin, async (req, res, next) => {
   try {

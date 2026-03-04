@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Created — Legacy Odyssey Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <h2>&#10022; Legacy Odyssey</h2>
+        <span>Admin Portal</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/admin">
+          <span class="nav-icon">&#128202;</span> Dashboard
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-email"><%= admin.email %></div>
+        <form action="/admin/logout" method="POST" style="display:inline;">
+          <button type="submit" class="logout-btn">&#x2192; Sign Out</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="page-header">
+        <a href="/admin" style="font-size: 0.9rem; color: var(--ink-light);">&#8592; Back to Dashboard</a>
+        <h1>&#10003; Customer Created Successfully</h1>
+        <p><%= customer.display_name %>'s account is ready to go</p>
+      </div>
+
+      <div class="detail-grid">
+        <!-- Left: Credentials & Invite -->
+        <div>
+          <!-- Login Credentials -->
+          <div class="detail-card">
+            <h3>Login Credentials</h3>
+            <div class="credential-row">
+              <label>Email</label>
+              <div class="credential-value" id="cred-email"><%= customer.email %></div>
+            </div>
+            <div class="credential-row">
+              <label>Temporary Password</label>
+              <div class="credential-value" id="cred-password"><%= customer.temp_password %></div>
+            </div>
+            <div class="credential-row">
+              <label>Book Viewing Password</label>
+              <div class="credential-value" id="cred-book-pw"><%= customer.book_password %></div>
+            </div>
+          </div>
+
+          <!-- Invite Message -->
+          <div class="detail-card">
+            <h3>Ready-to-Send Invite Message</h3>
+            <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">Copy this message and send it to your customer via email or text:</p>
+            <div class="invite-message" id="inviteMessage">Hi <%= customer.display_name.split(' ')[0] %>! Your Legacy Odyssey baby book is ready for <%= customer.child_name %>. Here's how to get started:
+
+1. Download the Legacy Odyssey app:
+   <%= apkUrl %>
+
+2. Log in with these credentials:
+   Email: <%= customer.email %>
+   Password: <%= customer.temp_password %>
+
+3. Start adding photos, stories, and memories to build <%= customer.child_name %>'s baby book!
+
+<% if (customer.custom_domain) { %>Your book will be published at: www.<%= customer.custom_domain %>
+<% } else { %>Your book will be published at: <%= customer.subdomain %>.legacyodyssey.com
+<% } %>
+The book viewing password is: <%= customer.book_password %>
+
+Welcome to Legacy Odyssey!</div>
+            <button type="button" class="btn btn-primary" onclick="copyInvite()" id="copyBtn" style="margin-top: 12px;">
+              &#128203; Copy Invite Message
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div>
+          <div class="detail-card">
+            <h3>Account Summary</h3>
+            <div class="summary-row">
+              <label>Account Name</label>
+              <span><%= customer.display_name %></span>
+            </div>
+            <div class="summary-row">
+              <label>Child</label>
+              <span><%= customer.child_name %></span>
+            </div>
+            <div class="summary-row">
+              <label>Website</label>
+              <span>
+                <% if (customer.custom_domain) { %>
+                  <%= customer.custom_domain %>
+                <% } else { %>
+                  <%= customer.subdomain %>.legacyodyssey.com
+                <% } %>
+              </span>
+            </div>
+            <div class="summary-row">
+              <label>Status</label>
+              <span class="badge badge-<%= customer.subscription_status %>"><%= customer.subscription_status %></span>
+            </div>
+            <div class="summary-row">
+              <label>App Download Link</label>
+              <a href="<%= apkUrl %>" target="_blank" style="font-size: 0.85rem; word-break: break-all;"><%= apkUrl %></a>
+            </div>
+          </div>
+
+          <div class="detail-card">
+            <h3>Quick Actions</h3>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <a href="/admin/families/<%= customer.family_id %>" class="btn btn-secondary">View Customer Details</a>
+              <a href="/book/<%= customer.subdomain %>" class="btn btn-secondary" target="_blank">Preview Book</a>
+              <a href="/admin/customers/new" class="btn btn-secondary">Add Another Customer</a>
+              <a href="/admin" class="btn btn-primary">Return to Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function copyInvite() {
+      const msg = document.getElementById('inviteMessage').innerText;
+      navigator.clipboard.writeText(msg).then(function() {
+        const btn = document.getElementById('copyBtn');
+        btn.innerHTML = '&#10003; Copied!';
+        btn.style.background = 'var(--sage)';
+        setTimeout(function() {
+          btn.innerHTML = '&#128203; Copy Invite Message';
+          btn.style.background = '';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

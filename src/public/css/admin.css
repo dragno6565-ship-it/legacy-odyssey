@@ -616,6 +616,120 @@ a:hover { color: var(--gold); text-decoration: underline; }
   border-top: 1px solid #f0ebe3;
 }
 
+/* ===================== STEPS LIST (Add Customer) ===================== */
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.step-item strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.step-item p {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  line-height: 1.4;
+}
+
+/* ===================== CREDENTIALS (Customer Created) ===================== */
+.credential-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0ebe3;
+}
+
+.credential-row:last-child {
+  border-bottom: none;
+}
+
+.credential-row label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-light);
+  font-weight: 500;
+}
+
+.credential-value {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--cream);
+  padding: 6px 14px;
+  border-radius: 6px;
+  user-select: all;
+}
+
+/* ===================== INVITE MESSAGE ===================== */
+.invite-message {
+  background: var(--cream);
+  border: 1px solid #e8dfd0;
+  border-radius: 8px;
+  padding: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* ===================== SUMMARY ROWS (Customer Created) ===================== */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0ebe3;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-row label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-light);
+  font-weight: 500;
+}
+
+.summary-row span, .summary-row a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 1024px) {
   .detail-grid {
