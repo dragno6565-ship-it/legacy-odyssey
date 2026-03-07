@@ -15,6 +15,9 @@ validateEnv();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Railway's reverse proxy (needed for req.hostname with custom domains)
+app.set('trust proxy', true);
+
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -65,9 +68,16 @@ app.use('/api/domains/search', domainSearchLimiter);
 
 // --- Routes ---
 
-// Health check
+// Health check (includes hostname debug info)
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.1.0', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    version: '2.2.0',
+    timestamp: new Date().toISOString(),
+    hostname: req.hostname,
+    hostHeader: req.headers.host,
+    xForwardedHost: req.headers['x-forwarded-host'] || null,
+  });
 });
 
 // API routes (JSON — consumed by mobile app)
