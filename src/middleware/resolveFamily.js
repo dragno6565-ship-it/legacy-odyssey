@@ -8,10 +8,12 @@ async function resolveFamily(req, res, next) {
 
   // 1. Check custom domain (not our app domain or its subdomains)
   if (!host.endsWith(`.${appDomain}`) && host !== appDomain && host !== `www.${appDomain}`) {
+    // Strip www. prefix for custom domain lookup (DB stores bare domain)
+    const customDomainHost = host.startsWith('www.') ? host.slice(4) : host;
     const { data } = await supabaseAdmin
       .from('families')
       .select('*')
-      .eq('custom_domain', host)
+      .eq('custom_domain', customDomainHost)
       .eq('is_active', true)
       .single();
     family = data;
