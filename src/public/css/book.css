@@ -787,7 +787,7 @@ body {
 }
 
 .family-photo {
-  height: 200px;
+  aspect-ratio: 3 / 4;
   background: var(--blush);
   overflow: hidden;
 }
@@ -796,7 +796,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center center;
 }
 
 .family-photo.placeholder {
