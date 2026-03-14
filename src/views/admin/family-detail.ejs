@@ -240,6 +240,23 @@
                 <% } %>
               </div>
             </div>
+
+            <!-- Send Welcome Email -->
+            <div class="detail-card">
+              <h3>&#9993; Send Welcome Email</h3>
+              <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">
+                Send a branded welcome email with login credentials, app download link, and book URL.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="form-group">
+                  <label>App Password (for email)</label>
+                  <input type="text" id="welcomePassword" placeholder="Enter the customer's app password" value="">
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="sendWelcomeEmail()" id="sendEmailBtn">
+                  &#9993; Send Welcome Email to <%= family.email %>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -264,5 +281,29 @@
       </form>
     </main>
   </div>
+  <script>
+    function sendWelcomeEmail() {
+      const password = document.getElementById('welcomePassword').value;
+      if (!password) {
+        alert('Please enter the app password to include in the email.');
+        return;
+      }
+      if (!confirm('Send welcome email to <%= family.email %>?')) return;
+
+      // Create a hidden form and submit it
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/admin/families/<%= family.id %>/send-welcome';
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'temp_password';
+      input.value = password;
+      form.appendChild(input);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
 </body>
 </html>

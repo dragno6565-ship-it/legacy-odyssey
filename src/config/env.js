@@ -12,6 +12,7 @@ const optional = [
   'RAILWAY_API_TOKEN',
   'RAILWAY_SERVICE_ID',
   'RAILWAY_ENVIRONMENT_ID',
+  'RESEND_API_KEY',
 ];
 
 function validateEnv() {

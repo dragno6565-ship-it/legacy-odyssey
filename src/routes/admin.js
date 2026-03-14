@@ -2,6 +2,7 @@ const { Router } = require('express');
 const requireAdmin = require('../middleware/requireAdmin');
 const familyService = require('../services/familyService');
 const bookService = require('../services/bookService');
+const emailService = require('../services/emailService');
 const { supabaseAdmin } = require('../config/supabase');
 
 const router = Router();
@@ -279,6 +280,34 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
   } catch (err) {
     console.error('Add customer error:', err);
     renderError('An unexpected error occurred. Please try again.');
+  }
+});
+
+// Send welcome email
+router.post('/families/:id/send-welcome', requireAdmin, async (req, res, next) => {
+  try {
+    const family = await familyService.findById(req.params.id);
+    if (!family) return res.status(404).send('Family not found');
+
+    const apkUrl = 'https://expo.dev/artifacts/eas/dEWDhAKzbdohggvEofzuEy.apk';
+
+    // Get the temp password from the form or use a placeholder
+    const tempPassword = req.body.temp_password || '(check with admin)';
+
+    await emailService.sendWelcomeEmail({
+      to: family.email,
+      displayName: family.display_name,
+      tempPassword,
+      bookPassword: family.book_password || 'legacy',
+      subdomain: family.subdomain,
+      customDomain: family.custom_domain,
+      apkUrl,
+    });
+
+    res.redirect(`/admin/families/${family.id}?success=Welcome+email+sent+to+${encodeURIComponent(family.email)}`);
+  } catch (err) {
+    console.error('Send welcome email error:', err);
+    res.redirect(`/admin/families/${req.params.id}?error=Failed+to+send+welcome+email:+${encodeURIComponent(err.message)}`);
   }
 });
 
