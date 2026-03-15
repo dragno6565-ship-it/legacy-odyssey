@@ -15,7 +15,7 @@ const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssy.com>';
  * Send welcome email to a new customer with their login credentials,
  * book URL, and APK download link.
  */
-async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, subdomain, customDomain, apkUrl }) {
+async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, subdomain, customDomain, apkUrl, expoGoUrl }) {
   const client = getResend();
   if (!client) {
     console.warn('Resend not configured — skipping welcome email');
@@ -34,6 +34,7 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
     subdomain,
     customDomain,
     apkUrl,
+    expoGoUrl,
   });
 
   const { data, error } = await client.emails.send({
@@ -56,7 +57,7 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
  * Build the welcome email HTML.
  * Inline styles for maximum email client compatibility.
  */
-function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, subdomain, customDomain, apkUrl }) {
+function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, subdomain, customDomain, apkUrl, expoGoUrl }) {
   const firstName = displayName.split(' ')[0];
   const websiteDisplay = customDomain ? `www.${customDomain}` : `legacyodyssy.com/book/${subdomain}`;
   const hasDomain = !!customDomain;
@@ -175,24 +176,58 @@ function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, su
                   </td>
                   <td style="padding-left:12px;">
                     <h4 style="margin:0 0 6px;font-family:'Georgia','Times New Roman',serif;font-size:16px;color:#1A1A2E;">
-                      Download the App
+                      Get the App
                     </h4>
                     <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
-                      Tap the button below on your Android phone to install Legacy Odyssey. <span style="color:#8A8A9A;font-size:12px;">(iOS coming soon!)</span>
+                      Choose your device below to install Legacy Odyssey:
                     </p>
                   </td>
                 </tr>
               </table>
 
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 32px;">
+              <!-- iPhone / Android buttons side by side -->
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 12px;">
                 <tr>
                   <td align="center">
-                    <a href="${apkUrl}" target="_blank" style="display:inline-block;padding:16px 40px;background-color:#C9A96E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.5px;">
-                      &#128242; Download App
-                    </a>
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        ${expoGoUrl ? `<td align="center" style="padding-right:10px;">
+                          <a href="https://apps.apple.com/app/expo-go/id982107779" target="_blank" style="display:inline-block;padding:14px 24px;background-color:#1A1A2E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
+                            &#127822; iPhone
+                          </a>
+                        </td>` : ''}
+                        ${apkUrl ? `<td align="center" style="padding-left:10px;">
+                          <a href="${apkUrl}" target="_blank" style="display:inline-block;padding:14px 24px;background-color:#C9A96E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
+                            &#129302; Android
+                          </a>
+                        </td>` : ''}
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
+
+              ${expoGoUrl ? `<!-- iPhone Instructions -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+                <tr>
+                  <td style="padding:16px 20px;background-color:#F5F0FF;border:1px solid #E0D8F0;border-radius:8px;">
+                    <p style="margin:0 0 8px;font-family:'Georgia','Times New Roman',serif;font-size:14px;color:#1A1A2E;font-weight:bold;">
+                      &#127822; iPhone Instructions
+                    </p>
+                    <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A4A5A;line-height:1.6;">
+                      1. Tap the <strong>iPhone</strong> button above to install the free <strong>Expo Go</strong> app from the App Store.
+                    </p>
+                    <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A4A5A;line-height:1.6;">
+                      2. Once installed, tap this link to open Legacy Odyssey:
+                    </p>
+                    <p style="margin:0;text-align:center;">
+                      <a href="${expoGoUrl}" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#C9A96E;text-decoration:none;font-weight:bold;">
+                        &#128279; Open in Expo Go
+                      </a>
+                    </p>
+                  </td>
+                </tr>
+              </table>` : `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 32px;"><tr><td>&nbsp;</td></tr></table>`}
 
               <!-- Step 2 -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
