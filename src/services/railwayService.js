@@ -1,13 +1,14 @@
 const axios = require('axios');
 
-const RAILWAY_API_URL = 'https://backboard.railway.com/graphql/v2';
+const RAILWAY_API_URL = 'https://backboard.railway.app/graphql/v2';
 const RAILWAY_TOKEN = process.env.RAILWAY_API_TOKEN;
+const PROJECT_ID = process.env.RAILWAY_PROJECT_ID;
 const SERVICE_ID = process.env.RAILWAY_SERVICE_ID;
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 
 /**
  * Add a custom domain to the Railway service.
- * Returns the Railway domain ID on success.
+ * Returns { id, cnameTarget } on success.
  */
 async function addCustomDomain(domain) {
   if (!RAILWAY_TOKEN || !SERVICE_ID || !ENVIRONMENT_ID) {
@@ -19,6 +20,12 @@ async function addCustomDomain(domain) {
       customDomainCreate(input: $input) {
         id
         domain
+        status {
+          dnsRecords {
+            requiredValue
+            hostlabel
+          }
+        }
       }
     }
   `;
@@ -28,6 +35,7 @@ async function addCustomDomain(domain) {
     variables: {
       input: {
         domain,
+        projectId: PROJECT_ID,
         serviceId: SERVICE_ID,
         environmentId: ENVIRONMENT_ID,
       },
@@ -49,8 +57,12 @@ async function addCustomDomain(domain) {
     throw new Error('Railway returned no domain data');
   }
 
-  console.log(`Railway custom domain added: ${result.domain} (id: ${result.id})`);
-  return result.id;
+  // Extract the CNAME target Railway assigned for this domain
+  const cnameRecord = result.status?.dnsRecords?.find(r => r.requiredValue);
+  const cnameTarget = cnameRecord?.requiredValue || null;
+
+  console.log(`Railway custom domain added: ${result.domain} (id: ${result.id}, cname: ${cnameTarget})`);
+  return { id: result.id, cnameTarget };
 }
 
 module.exports = {
