@@ -205,19 +205,22 @@ async function purchaseAndSetupDomain(orderId) {
     await updateDomainOrder(orderId, { status: 'registered', registered_at: new Date().toISOString() });
     console.log(`Domain registered: ${order.domain}`);
 
-    // Step 3: Set up DNS
-    await spaceshipService.setupDns(order.domain);
-    await updateDomainOrder(orderId, { status: 'dns_setup', dns_configured_at: new Date().toISOString() });
-
-    // Step 4: Add custom domain to Railway
+    // Step 3: Add custom domain to Railway (do this BEFORE DNS so we get the assigned CNAME target)
     let railwayDomainId = null;
+    let cnameTarget = null;
     try {
       const railwayService = require('./railwayService');
-      railwayDomainId = await railwayService.addCustomDomain(order.domain);
+      const result = await railwayService.addCustomDomain(order.domain);
+      railwayDomainId = result.id;
+      cnameTarget = result.cnameTarget;
     } catch (err) {
       console.error(`Railway custom domain setup failed for ${order.domain}:`, err.message);
-      // Non-fatal — domain is registered and DNS is configured. Railway can be added manually.
+      // Non-fatal — will fall back to RAILWAY_CNAME_TARGET env var for DNS
     }
+
+    // Step 4: Set up DNS (using Railway-assigned CNAME target if available)
+    await spaceshipService.setupDns(order.domain, cnameTarget);
+    await updateDomainOrder(orderId, { status: 'dns_setup', dns_configured_at: new Date().toISOString() });
 
     // Step 5: Update family record with custom domain
     if (order.family_id) {

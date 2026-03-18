@@ -123,11 +123,12 @@ async function pollOperation(operationId) {
  * Set DNS records for a domain to point to Railway.
  * Adds CNAME records for @ and www.
  */
-async function setupDns(domain) {
+async function setupDns(domain, cnameTarget) {
   if (!spaceship) throw new Error('Spaceship API not configured');
 
-  const target = process.env.RAILWAY_CNAME_TARGET;
-  if (!target) throw new Error('RAILWAY_CNAME_TARGET not configured');
+  // Use the Railway-assigned CNAME target if provided, fall back to env var
+  const target = cnameTarget || process.env.RAILWAY_CNAME_TARGET;
+  if (!target) throw new Error('No CNAME target provided and RAILWAY_CNAME_TARGET not configured');
 
   // Set CNAME for root and www
   await spaceship.put('/dns-records', {
