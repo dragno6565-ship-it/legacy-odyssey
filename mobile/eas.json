@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 3.0.0"
+    "version": ">= 3.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "preview": {
@@ -9,9 +10,35 @@
       },
       "distribution": "internal"
     },
+    "testflight": {
+      "ios": {
+        "autoIncrement": true
+      },
+      "distribution": "store"
+    },
     "production": {
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "autoIncrement": true
+      },
+      "distribution": "store"
+    }
+  },
+  "submit": {
+    "testflight": {
+      "ios": {
+        "appleId": "dragno6565@gmail.com",
+        "ascAppId": "6760883565",
+        "appleTeamId": "Y3J2B5YA4N"
+      }
+    },
+    "production": {
+      "ios": {
+        "appleId": "dragno6565@gmail.com",
+        "ascAppId": "6760883565",
+        "appleTeamId": "Y3J2B5YA4N"
       }
     }
   }
