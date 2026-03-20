@@ -76,7 +76,7 @@ async function checkMultipleTlds(baseName, tlds = PRIMARY_TLDS) {
 
 /**
  * Register a domain via Spaceship. Returns the async operation ID.
- * Domain registration is asynchronous — poll with pollOperation().
+ * Domain registration is asynchronous â€” poll with pollOperation().
  */
 async function registerDomain(domain) {
   if (!spaceship) throw new Error('Spaceship API not configured');
@@ -139,7 +139,7 @@ async function setupDns(domain, cnameTarget) {
     ],
   });
 
-  console.log(`DNS configured for ${domain} → ${target}`);
+  console.log(`DNS configured for ${domain} â†’ ${target}`);
 }
 
 module.exports = {

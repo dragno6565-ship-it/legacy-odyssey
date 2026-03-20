@@ -8,7 +8,7 @@ const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 
 /**
  * Add a custom domain to the Railway service.
- * Returns the Railway domain ID on success.
+ * Returns { id, cnameTarget } on success.
  */
 async function addCustomDomain(domain) {
   if (!RAILWAY_TOKEN || !SERVICE_ID || !ENVIRONMENT_ID) {
