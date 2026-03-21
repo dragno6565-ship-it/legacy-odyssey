@@ -10,6 +10,7 @@ import { colors, typography } from './src/theme';
 // Auth screens
 import LoginScreen from './src/auth/LoginScreen';
 import SignupScreen from './src/auth/SignupScreen';
+import ForgotPasswordScreen from './src/auth/ForgotPasswordScreen';
 
 // App screens
 import DashboardScreen from './src/screens/DashboardScreen';
@@ -59,6 +60,7 @@ function AuthNavigator() {
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Signup" component={SignupScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
   );
 }

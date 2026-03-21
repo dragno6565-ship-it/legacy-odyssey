@@ -140,4 +140,57 @@ router.post('/refresh', async (req, res, next) => {
   }
 });
 
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'email is required' });
+    }
+
+    const { supabaseAnon } = require('../../config/supabase');
+    const { error } = await supabaseAnon.auth.resetPasswordForEmail(email, {
+      redirectTo: `https://${process.env.APP_DOMAIN || 'legacyodyssey.com'}/reset-callback`,
+    });
+
+    if (error) {
+      console.error('Password reset error:', error);
+    }
+
+    // Always return success to prevent email enumeration
+    res.json({ success: true, message: 'If an account exists with that email, a reset link has been sent.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/auth/update-password
+router.post('/update-password', async (req, res, next) => {
+  try {
+    const { access_token, new_password } = req.body;
+    if (!access_token || !new_password) {
+      return res.status(400).json({ error: 'access_token and new_password are required' });
+    }
+
+    if (new_password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Use the access token from the reset link to update the password
+    const { supabaseAnon } = require('../../config/supabase');
+    const { error } = await supabaseAnon.auth.updateUser(
+      { password: new_password },
+      { accessToken: access_token }
+    );
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.json({ success: true, message: 'Password updated successfully.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
