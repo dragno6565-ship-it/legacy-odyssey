@@ -301,6 +301,127 @@ function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, su
 `;
 }
 
+/**
+ * Send a simple onboarding nudge email.
+ * Used for the drip campaign (day 1, 3, 7, 13).
+ */
+async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaText, ctaUrl }) {
+  const client = getResend();
+  if (!client) return null;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:Georgia,'Times New Roman',serif;">
+  <span style="display:none;max-height:0;overflow:hidden;">${preheader || ''}</span>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr><td style="background:#1a1a2e;padding:24px;text-align:center;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:#c8a96e;letter-spacing:2px;">LEGACY ODYSSEY</span>
+        </td></tr>
+        <tr><td style="padding:36px 32px;">
+          <h1 style="font-family:Georgia,serif;font-size:22px;color:#1a1a2e;margin:0 0 16px;">${heading}</h1>
+          <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 24px;">${body}</p>
+          ${ctaText ? `<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+            <a href="${ctaUrl}" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;">${ctaText}</a>
+          </td></tr></table>` : ''}
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your family's story, beautifully told</p>
+          <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const { data, error } = await client.emails.send({
+    from: FROM_ADDRESS,
+    to,
+    subject,
+    html,
+  });
+
+  if (error) {
+    console.error(`Onboarding email error (${subject}):`, error);
+    return null;
+  }
+
+  console.log(`Onboarding email sent to ${to}: "${subject}" (id: ${data.id})`);
+  return data;
+}
+
+/**
+ * Send Day 1 nudge: "Upload your first photo"
+ */
+async function sendDay1Email({ to, displayName }) {
+  const firstName = displayName?.split(' ')[0] || 'there';
+  return sendOnboardingEmail({
+    to,
+    subject: `${firstName}, your book is waiting for its first photo`,
+    preheader: 'Upload a photo to get started with your Legacy Odyssey book.',
+    heading: `Hey ${firstName}, ready to get started?`,
+    body: `Your Legacy Odyssey book is set up and ready to go! The best way to start is by uploading your first photo. Open the app, tap any section, and add a photo that means something to your family. It only takes a minute, and it'll make your book feel like home.`,
+    ctaText: 'Open the App',
+    ctaUrl: 'https://legacyodyssey.com',
+  });
+}
+
+/**
+ * Send Day 3 nudge: "Your book is waiting"
+ */
+async function sendDay3Email({ to, displayName }) {
+  const firstName = displayName?.split(' ')[0] || 'there';
+  return sendOnboardingEmail({
+    to,
+    subject: `Your family's story is waiting to be told`,
+    preheader: 'Add milestones, letters, and memories to your Legacy Odyssey book.',
+    heading: `${firstName}, there's so much to capture`,
+    body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you preserve the moments that matter most. Pick one and start filling it in today.`,
+    ctaText: 'Add a Memory',
+    ctaUrl: 'https://legacyodyssey.com',
+  });
+}
+
+/**
+ * Send Day 7 nudge: "Share your book"
+ */
+async function sendDay7Email({ to, displayName }) {
+  const firstName = displayName?.split(' ')[0] || 'there';
+  return sendOnboardingEmail({
+    to,
+    subject: `Share your book with the people who matter`,
+    preheader: 'Your family and friends would love to see your book.',
+    heading: `${firstName}, your book is ready to share`,
+    body: `Your Legacy Odyssey book is looking great! Now's the perfect time to share it with grandparents, aunts, uncles, and friends. Just send them your book's website link and password. They'll be able to see everything you've added from any device.`,
+    ctaText: 'View Your Book',
+    ctaUrl: 'https://legacyodyssey.com',
+  });
+}
+
+/**
+ * Send Day 13 nudge: "Trial ending soon"
+ */
+async function sendTrialEndingEmail({ to, displayName }) {
+  const firstName = displayName?.split(' ')[0] || 'there';
+  return sendOnboardingEmail({
+    to,
+    subject: `${firstName}, your free trial ends tomorrow`,
+    preheader: 'Keep your family memories safe — subscribe to Legacy Odyssey.',
+    heading: `Your trial ends tomorrow`,
+    body: `${firstName}, your Legacy Odyssey trial is ending soon. If you've been enjoying building your family's book, subscribe now to keep your memories safe and your website live. All your photos, stories, and milestones will be preserved exactly as you left them.`,
+    ctaText: 'Subscribe Now',
+    ctaUrl: 'https://legacyodyssey.com',
+  });
+}
+
 module.exports = {
   sendWelcomeEmail,
+  sendOnboardingEmail,
+  sendDay1Email,
+  sendDay3Email,
+  sendDay7Email,
+  sendTrialEndingEmail,
 };
