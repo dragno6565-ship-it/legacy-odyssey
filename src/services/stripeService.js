@@ -3,61 +3,59 @@ const familyService = require('./familyService');
 const bookService = require('./bookService');
 
 /**
- * Map of plan + period → Stripe price env var names.
- * Each plan tier has a monthly and annual price ID configured via env vars.
+ * Stripe Price IDs — single plan with two billing options + domain add-ons.
+ *
+ * Subscription: $4.99/month or $49.99/year
+ * Custom domain: $10.99 one-time setup fee
+ * Additional domains: $12.99/year
  */
-const PRICE_MAP = {
-  starter: {
-    monthly: 'STRIPE_PRICE_STARTER_MONTHLY',
-    annual: 'STRIPE_PRICE_STARTER_ANNUAL',
+const PRICES = {
+  subscription: {
+    monthly: process.env.STRIPE_PRICE_MONTHLY || 'price_1TDVGGQzzNThrLYKcu32HMg1',
+    annual: process.env.STRIPE_PRICE_ANNUAL || 'price_1TDVMiQzzNThrLYKNwthzxO8',
   },
-  family: {
-    monthly: 'STRIPE_PRICE_FAMILY_MONTHLY',
-    annual: 'STRIPE_PRICE_FAMILY_ANNUAL',
-  },
-  legacy: {
-    monthly: 'STRIPE_PRICE_LEGACY_MONTHLY',
-    annual: 'STRIPE_PRICE_LEGACY_ANNUAL',
-  },
+  domainSetup: process.env.STRIPE_PRICE_DOMAIN_SETUP || 'price_1TDVHGQzzNThrLYKzOoEoN0I',
+  additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN || 'price_1TDVIAQzzNThrLYKNnMljEkp',
 };
 
 /**
- * Resolve the Stripe price ID for a given plan and billing period.
- * Falls back to STRIPE_PRICE_MONTHLY for backwards compatibility.
+ * Resolve the Stripe subscription price ID for a billing period.
  */
 function resolvePriceId(plan, period) {
-  const tier = PRICE_MAP[plan];
-  if (tier) {
-    const envVar = tier[period] || tier.monthly;
-    const priceId = process.env[envVar];
-    if (priceId) return priceId;
-  }
-
-  // Fallback: legacy single-price env var
-  const fallback = process.env.STRIPE_PRICE_MONTHLY;
-  if (fallback) return fallback;
-
-  throw new Error(`No Stripe price configured for plan="${plan}" period="${period}"`);
+  const resolvedPeriod = period || 'monthly';
+  const priceId = PRICES.subscription[resolvedPeriod];
+  if (priceId) return priceId;
+  throw new Error(`No Stripe price configured for period="${resolvedPeriod}"`);
 }
 
-async function createCheckoutSession({ email, subdomain, domain, plan, period, successUrl, cancelUrl }) {
+async function createCheckoutSession({ email, subdomain, domain, period, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
-  const resolvedPlan = plan || 'starter';
   const resolvedPeriod = period || 'monthly';
-  const priceId = resolvePriceId(resolvedPlan, resolvedPeriod);
+  const priceId = resolvePriceId(null, resolvedPeriod);
 
-  const metadata = { subdomain, plan: resolvedPlan, period: resolvedPeriod };
+  const metadata = { subdomain, period: resolvedPeriod };
   if (domain) metadata.domain = domain;
+
+  // Build line items: subscription + optional domain setup fee
+  const line_items = [{
+    price: priceId,
+    quantity: 1,
+  }];
+
+  // Add domain setup fee if customer wants a custom domain
+  if (domain) {
+    line_items.push({
+      price: PRICES.domainSetup,
+      quantity: 1,
+    });
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
     customer_email: email,
-    line_items: [{
-      price: priceId,
-      quantity: 1,
-    }],
+    line_items,
     metadata,
     success_url: successUrl,
     cancel_url: cancelUrl,
@@ -70,7 +68,6 @@ async function handleCheckoutComplete(session) {
   const email = session.customer_email || session.customer_details?.email;
   const subdomain = session.metadata?.subdomain;
   const domain = session.metadata?.domain || null;
-  const plan = session.metadata?.plan || 'starter';
   const period = session.metadata?.period || 'monthly';
   const stripeCustomerId = session.customer;
   const stripeSubscriptionId = session.subscription;
@@ -98,7 +95,6 @@ async function handleCheckoutComplete(session) {
   await familyService.update(family.id, {
     stripe_subscription_id: stripeSubscriptionId,
     subscription_status: 'active',
-    plan,
     billing_period: period,
   });
 
@@ -145,6 +141,7 @@ async function createPortalSession(stripeCustomerId, returnUrl) {
 }
 
 module.exports = {
+  PRICES,
   createCheckoutSession,
   handleCheckoutComplete,
   syncSubscriptionStatus,

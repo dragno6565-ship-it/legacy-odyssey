@@ -7,7 +7,7 @@ const router = Router();
 // POST /api/stripe/create-checkout
 router.post('/create-checkout', async (req, res, next) => {
   try {
-    const { email, domain, plan, period, subdomain: legacySubdomain } = req.body;
+    const { email, domain, period, subdomain: legacySubdomain } = req.body;
 
     // Support both new domain flow and legacy subdomain flow
     const subdomain = domain
@@ -18,10 +18,7 @@ router.post('/create-checkout', async (req, res, next) => {
       return res.status(400).json({ error: 'email and domain (or subdomain) are required' });
     }
 
-    // Validate plan and period
-    const validPlans = ['starter', 'family', 'legacy'];
     const validPeriods = ['monthly', 'annual'];
-    const resolvedPlan = validPlans.includes(plan) ? plan : 'starter';
     const resolvedPeriod = validPeriods.includes(period) ? period : 'monthly';
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
@@ -29,10 +26,9 @@ router.post('/create-checkout', async (req, res, next) => {
       email,
       subdomain,
       domain: domain || null,
-      plan: resolvedPlan,
       period: resolvedPeriod,
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `https://${appDomain}/pricing`,
+      cancelUrl: `https://${appDomain}`,
     });
 
     res.json({ url: session.url, sessionId: session.id });
