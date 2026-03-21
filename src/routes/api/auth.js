@@ -19,11 +19,11 @@ router.post('/signup', async (req, res, next) => {
       return res.status(409).json({ error: 'This subdomain is already taken' });
     }
 
-    // Create auth user
+    // Create auth user (email_confirm: false sends verification email)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
+      email_confirm: false,
     });
     if (authError) {
       return res.status(400).json({ error: authError.message });

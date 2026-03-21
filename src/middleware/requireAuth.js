@@ -33,6 +33,15 @@ async function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 
+  // Check email verification (allow unverified users to access limited endpoints)
+  if (!user.email_confirmed_at) {
+    return res.status(403).json({
+      error: 'Email not verified',
+      code: 'EMAIL_NOT_VERIFIED',
+      message: 'Please check your email and click the verification link to continue.',
+    });
+  }
+
   // Get all family IDs this user has access to
   const accessibleFamilyIds = await getUserFamilyIds(user);
 

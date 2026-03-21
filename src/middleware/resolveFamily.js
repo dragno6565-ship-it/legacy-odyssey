@@ -68,9 +68,20 @@ async function resolveFamily(req, res, next) {
   }
 
   // Check subscription status
-  const blocked = ['canceled', 'unpaid'];
-  if (blocked.includes(family.subscription_status)) {
+  const status = family.subscription_status;
+
+  // Immediately blocked statuses
+  if (status === 'canceled' || status === 'unpaid') {
     return res.status(403).render('book/expired', { family });
+  }
+
+  // Past due: allow a 7-day grace period before blocking
+  if (status === 'past_due') {
+    const updatedAt = new Date(family.updated_at || family.created_at);
+    const daysSincePastDue = (Date.now() - updatedAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSincePastDue > 7) {
+      return res.status(403).render('book/expired', { family });
+    }
   }
 
   req.family = family;
