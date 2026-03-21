@@ -1063,6 +1063,53 @@ h1, h2, h3, h4, h5 {
   line-height: 1.7;
 }
 
+/* ===================== HELP ===================== */
+.help-section {
+  padding: 5rem 2rem;
+  text-align: center;
+  background: var(--cream);
+}
+
+.help-contact {
+  max-width: 500px;
+  margin: 2.5rem auto 0;
+  padding: 2.5rem;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.help-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.help-contact p {
+  color: var(--ink-mid);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.help-email {
+  display: inline-block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+  margin-bottom: 1rem;
+  transition: color 0.2s;
+}
+
+.help-email:hover {
+  color: var(--gold-dark);
+}
+
+.help-response {
+  font-size: 0.9rem !important;
+  color: var(--ink-light) !important;
+}
+
 /* ===================== FOOTER ===================== */
 .marketing-footer {
   padding: 3rem 2rem;

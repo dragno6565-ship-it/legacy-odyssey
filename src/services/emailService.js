@@ -9,7 +9,7 @@ function getResend() {
   return resend;
 }
 
-const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssy.com>';
+const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssey.com>';
 
 /**
  * Send welcome email to a new customer with their login credentials,
@@ -24,7 +24,7 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
 
   const bookUrl = customDomain
     ? `https://www.${customDomain}`
-    : `https://www.legacyodyssy.com/book/${subdomain}`;
+    : `https://www.legacyodyssey.com/book/${subdomain}`;
 
   const html = buildWelcomeHtml({
     displayName,
@@ -59,7 +59,7 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
  */
 function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, subdomain, customDomain, apkUrl, expoGoUrl }) {
   const firstName = displayName.split(' ')[0];
-  const websiteDisplay = customDomain ? `www.${customDomain}` : `legacyodyssy.com/book/${subdomain}`;
+  const websiteDisplay = customDomain ? `www.${customDomain}` : `legacyodyssey.com/book/${subdomain}`;
   const hasDomain = !!customDomain;
 
   return `
