@@ -6,6 +6,16 @@ const { getPublicUrl } = require('../utils/imageUrl');
 
 const router = Router();
 
+// GET /terms — Terms of Service
+router.get('/terms', (req, res) => {
+  res.render('marketing/terms');
+});
+
+// GET /privacy — Privacy Policy
+router.get('/privacy', (req, res) => {
+  res.render('marketing/privacy');
+});
+
 // POST /verify-password
 router.post('/verify-password', resolveFamily, async (req, res) => {
   // If resolveFamily couldn't find the family (e.g. Railway URL, not a subdomain),

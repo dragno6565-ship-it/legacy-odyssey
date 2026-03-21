@@ -1110,6 +1110,81 @@ h1, h2, h3, h4, h5 {
   color: var(--ink-light) !important;
 }
 
+/* ===================== LEGAL PAGES ===================== */
+.legal-page {
+  padding: 8rem 2rem 5rem;
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.legal-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.legal-container h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.legal-updated {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  margin-bottom: 3rem;
+  font-style: italic;
+}
+
+.legal-container h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(184, 147, 90, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.legal-container h3 {
+  font-family: 'Jost', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.legal-container p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink-mid);
+  margin-bottom: 1rem;
+}
+
+.legal-container ul {
+  margin: 0.5rem 0 1.5rem 1.5rem;
+  padding: 0;
+}
+
+.legal-container li {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink-mid);
+  margin-bottom: 0.4rem;
+}
+
+.legal-container a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.legal-container a:hover {
+  border-bottom-color: var(--gold);
+}
+
 /* ===================== FOOTER ===================== */
 .marketing-footer {
   padding: 3rem 2rem;
