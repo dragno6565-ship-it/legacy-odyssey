@@ -1,5 +1,7 @@
 require('dotenv').config();
+require('./instrument'); // Sentry must be initialized before everything else
 
+const Sentry = require('@sentry/node');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -93,6 +95,9 @@ app.use('/', require('./routes/book'));
 
 // Admin routes
 app.use('/admin', require('./routes/admin'));
+
+// Sentry error handler (must be before app error handler)
+Sentry.setupExpressErrorHandler(app);
 
 // Error handler
 app.use(errorHandler);
