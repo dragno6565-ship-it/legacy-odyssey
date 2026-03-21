@@ -205,14 +205,25 @@ async function purchaseAndSetupDomain(orderId) {
     await updateDomainOrder(orderId, { status: 'registered', registered_at: new Date().toISOString() });
     console.log(`Domain registered: ${order.domain}`);
 
-    // Step 3: Add custom domain to Railway (do this BEFORE DNS so we get the assigned CNAME target)
+    // Step 3: Add custom domains to Railway — BOTH root and www so the site
+    // works with and without the www prefix.
     let railwayDomainId = null;
     let cnameTarget = null;
     try {
       const railwayService = require('./railwayService');
-      const result = await railwayService.addCustomDomain(order.domain);
-      railwayDomainId = result.id;
-      cnameTarget = result.cnameTarget;
+
+      // Add root domain (e.g. example.com)
+      const rootResult = await railwayService.addCustomDomain(order.domain);
+      railwayDomainId = rootResult.id;
+      cnameTarget = rootResult.cnameTarget;
+
+      // Add www domain (e.g. www.example.com)
+      try {
+        await railwayService.addCustomDomain(`www.${order.domain}`);
+        console.log(`Railway www domain added: www.${order.domain}`);
+      } catch (wwwErr) {
+        console.error(`Railway www domain failed for www.${order.domain}:`, wwwErr.message);
+      }
     } catch (err) {
       console.error(`Railway custom domain setup failed for ${order.domain}:`, err.message);
       // Non-fatal — will fall back to RAILWAY_CNAME_TARGET env var for DNS
