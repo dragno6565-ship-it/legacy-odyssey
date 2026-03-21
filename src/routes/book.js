@@ -6,6 +6,46 @@ const { getPublicUrl } = require('../utils/imageUrl');
 
 const router = Router();
 
+// GET /sitemap.xml — Dynamic sitemap
+router.get('/sitemap.xml', async (req, res) => {
+  const { supabaseAdmin } = require('../config/supabase');
+  const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+
+  const { data: families } = await supabaseAdmin
+    .from('families')
+    .select('subdomain, custom_domain, updated_at')
+    .eq('is_active', true);
+
+  const urls = [
+    { loc: `https://${appDomain}/`, priority: '1.0', changefreq: 'weekly' },
+    { loc: `https://${appDomain}/terms`, priority: '0.3', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/privacy`, priority: '0.3', changefreq: 'monthly' },
+  ];
+
+  if (families) {
+    for (const f of families) {
+      if (f.custom_domain) {
+        urls.push({
+          loc: `https://www.${f.custom_domain}/`,
+          priority: '0.6',
+          changefreq: 'weekly',
+          lastmod: f.updated_at ? new Date(f.updated_at).toISOString().split('T')[0] : undefined,
+        });
+      }
+    }
+  }
+
+  res.set('Content-Type', 'application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url>
+    <loc>${u.loc}</loc>
+    <priority>${u.priority}</priority>
+    <changefreq>${u.changefreq}</changefreq>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ''}
+  </url>`).join('\n')}
+</urlset>`);
+});
+
 // GET /terms — Terms of Service
 router.get('/terms', (req, res) => {
   res.render('marketing/terms');

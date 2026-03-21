@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /stripe/
+
+Sitemap: https://legacyodyssey.com/sitemap.xml
