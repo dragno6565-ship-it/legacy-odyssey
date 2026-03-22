@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, put } from '../api/client';
+import PhotoPicker from '../components/PhotoPicker';
 
 export default function ChildInfoScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,7 @@ export default function ChildInfoScreen({ navigation }) {
   const [state, setState] = useState('');
   const [hospital, setHospital] = useState('');
   const [nameMeaning, setNameMeaning] = useState('');
+  const [heroImage, setHeroImage] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -51,6 +53,7 @@ export default function ChildInfoScreen({ navigation }) {
         setState(child.state || '');
         setHospital(child.hospital || '');
         setNameMeaning(child.name_meaning || child.nameMeaning || '');
+        setHeroImage(book.hero_image_path || '');
       } catch (err) {
         setError(err.message || 'Failed to load child info.');
       } finally {
@@ -65,6 +68,7 @@ export default function ChildInfoScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine', {
+        hero_image_path: heroImage || null,
         child: {
           first_name: firstName.trim(),
           middle_name: middleName.trim(),
@@ -109,6 +113,15 @@ export default function ChildInfoScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.sectionTitle}>Child Information</Text>
+
+        <Text style={styles.label}>Hero Photo</Text>
+        <Text style={styles.helperText}>
+          This photo appears on the Welcome page of your book website
+        </Text>
+        <PhotoPicker
+          currentPhoto={heroImage}
+          onPhotoSelected={(photoPath) => setHeroImage(photoPath)}
+        />
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -303,6 +316,11 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: spacing.xs,
     marginTop: spacing.md,
+  },
+  helperText: {
+    fontSize: typography.sizes.xs,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   input: {
     backgroundColor: colors.white,
