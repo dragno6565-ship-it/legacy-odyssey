@@ -164,14 +164,57 @@ export default function ChildInfoScreen({ navigation }) {
           </View>
         </View>
 
-        <Text style={styles.label}>Birth Date (YYYY-MM-DD)</Text>
-        <TextInput
-          style={styles.input}
-          value={birthDate}
-          onChangeText={setBirthDate}
-          placeholder="2024-01-15"
-          placeholderTextColor={colors.placeholder}
-        />
+        <Text style={styles.label}>Birth Date</Text>
+        <View style={styles.row}>
+          <View style={styles.thirdField}>
+            <Text style={styles.helperText}>Month</Text>
+            <TextInput
+              style={styles.input}
+              value={birthDate ? String(parseInt(birthDate.split('-')[1]) || '') : ''}
+              onChangeText={(val) => {
+                const parts = (birthDate || '--').split('-');
+                parts[1] = val.replace(/[^0-9]/g, '').slice(0, 2).padStart(2, '0');
+                setBirthDate(parts.join('-'));
+              }}
+              placeholder="3"
+              placeholderTextColor={colors.placeholder}
+              keyboardType="numeric"
+              maxLength={2}
+            />
+          </View>
+          <View style={styles.thirdField}>
+            <Text style={styles.helperText}>Day</Text>
+            <TextInput
+              style={styles.input}
+              value={birthDate ? String(parseInt(birthDate.split('-')[2]) || '') : ''}
+              onChangeText={(val) => {
+                const parts = (birthDate || '--').split('-');
+                parts[2] = val.replace(/[^0-9]/g, '').slice(0, 2).padStart(2, '0');
+                setBirthDate(parts.join('-'));
+              }}
+              placeholder="15"
+              placeholderTextColor={colors.placeholder}
+              keyboardType="numeric"
+              maxLength={2}
+            />
+          </View>
+          <View style={styles.thirdField}>
+            <Text style={styles.helperText}>Year</Text>
+            <TextInput
+              style={styles.input}
+              value={birthDate ? birthDate.split('-')[0] : ''}
+              onChangeText={(val) => {
+                const parts = (birthDate || '--').split('-');
+                parts[0] = val.replace(/[^0-9]/g, '').slice(0, 4);
+                setBirthDate(parts.join('-'));
+              }}
+              placeholder="2024"
+              placeholderTextColor={colors.placeholder}
+              keyboardType="numeric"
+              maxLength={4}
+            />
+          </View>
+        </View>
 
         <Text style={styles.label}>Birth Time</Text>
         <TextInput

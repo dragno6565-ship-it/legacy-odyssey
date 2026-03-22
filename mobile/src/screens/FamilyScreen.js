@@ -105,6 +105,23 @@ export default function FamilyScreen({ navigation }) {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.grid}
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          <TouchableOpacity
+            style={styles.addButton}
+            activeOpacity={0.7}
+            onPress={() => {
+              const newKey = `member_${Date.now()}`;
+              navigation.navigate('FamilyMember', {
+                memberKey: newKey,
+                memberName: 'New Family Member',
+                isNew: true,
+              });
+            }}
+          >
+            <Text style={styles.addButtonIcon}>+</Text>
+            <Text style={styles.addButtonText}>Add Family Member</Text>
+          </TouchableOpacity>
+        }
       />
     </View>
   );
@@ -126,4 +143,7 @@ const styles = StyleSheet.create({
   memberEmoji: { fontSize: 32 },
   memberName: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.md, fontWeight: typography.weights.semibold, color: colors.textPrimary, textAlign: 'center' },
   memberRelation: { fontSize: typography.sizes.xs, color: colors.textSecondary, marginTop: 2 },
+  addButton: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.xl, width: '100%', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.gold, borderStyle: 'dashed', minHeight: 100, ...shadows.card },
+  addButtonIcon: { fontSize: 32, color: colors.gold, marginBottom: spacing.xs },
+  addButtonText: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.md, fontWeight: typography.weights.semibold, color: colors.gold },
 });
