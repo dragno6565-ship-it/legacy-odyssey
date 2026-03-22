@@ -106,10 +106,12 @@ export default function ChildInfoScreen({ navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.sectionTitle}>Child Information</Text>
@@ -290,7 +292,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 150,
   },
   sectionTitle: {
     fontFamily: typography.fontFamily.serif,

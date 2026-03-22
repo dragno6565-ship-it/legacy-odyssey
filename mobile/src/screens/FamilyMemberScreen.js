@@ -145,10 +145,12 @@ export default function FamilyMemberScreen({ route, navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
         {error ? (
@@ -245,7 +247,7 @@ export default function FamilyMemberScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
-  scrollContent: { padding: spacing.lg, paddingBottom: spacing.xxl },
+  scrollContent: { padding: spacing.lg, paddingBottom: 150 },
   errorContainer: { backgroundColor: colors.errorLight, borderRadius: borderRadius.sm, padding: spacing.md, marginBottom: spacing.md },
   errorText: { color: colors.error, fontSize: typography.sizes.sm, textAlign: 'center' },
   section: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.lg, ...shadows.card },
