@@ -137,6 +137,18 @@ export default function SettingsScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      {/* Help & Support */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Help & Support</Text>
+        <TouchableOpacity
+          style={styles.outlineButton}
+          onPress={() => navigation.navigate('Help')}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.outlineButtonText}>Get Help</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Logout */}
       <View style={styles.section}>
         <TouchableOpacity

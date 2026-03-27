@@ -1086,7 +1086,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .help-contact {
-  max-width: 500px;
+  max-width: 540px;
   margin: 2.5rem auto 0;
   padding: 2.5rem;
   background: var(--white);
@@ -1094,35 +1094,73 @@ h1, h2, h3, h4, h5 {
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
 
-.help-icon {
-  font-size: 2.5rem;
+.contact-form .form-row {
   margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
-.help-contact p {
-  color: var(--ink-mid);
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--cream);
+  transition: border-color 0.2s;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.contact-submit {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.contact-success {
+  color: #2e7d32;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.contact-error {
+  color: #c62828;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.help-or {
+  color: var(--ink-light);
+  font-size: 0.9rem;
+  margin: 1.5rem 0 0.5rem;
 }
 
 .help-email {
   display: inline-block;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--gold);
   text-decoration: none;
-  margin-bottom: 1rem;
   transition: color 0.2s;
 }
 
 .help-email:hover {
   color: var(--gold-dark);
-}
-
-.help-response {
-  font-size: 0.9rem !important;
-  color: var(--ink-light) !important;
 }
 
 /* ===================== LEGAL PAGES ===================== */

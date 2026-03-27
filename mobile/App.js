@@ -30,6 +30,7 @@ import VaultScreen from './src/screens/VaultScreen';
 import ManageSectionsScreen from './src/screens/ManageSectionsScreen';
 import NewWebsiteScreen from './src/screens/NewWebsiteScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import HelpScreen from './src/screens/HelpScreen';
 import PreviewScreen from './src/screens/PreviewScreen';
 
 const AuthStack = createNativeStackNavigator();
@@ -97,6 +98,7 @@ function AppNavigator() {
       <AppStack.Screen name="ManageSections" component={ManageSectionsScreen} options={{ title: 'Website Sections' }} />
       <AppStack.Screen name="NewWebsite" component={NewWebsiteScreen} options={{ title: 'New Website' }} />
       <AppStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <AppStack.Screen name="Help" component={HelpScreen} options={{ title: 'Help & Support' }} />
       <AppStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Book Preview' }} />
     </AppStack.Navigator>
   );

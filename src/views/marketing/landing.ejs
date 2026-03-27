@@ -234,7 +234,7 @@
   <section class="pricing" id="pricing">
     <h2 class="section-title">Invest in Memories That Last</h2>
     <p class="section-subtitle">
-      Less than a cup of coffee a week. Choose monthly flexibility
+      Less than a cup of coffee a month. Choose monthly flexibility
       or save with an annual plan.
     </p>
 
@@ -355,10 +355,29 @@
       need help getting started, or just want to say hello &mdash; we'd love to hear from you.
     </p>
     <div class="help-contact fade-up">
-      <div class="help-icon">&#9993;</div>
-      <p>Email us anytime at</p>
+      <form class="contact-form" id="contactForm" action="/api/contact" method="POST">
+        <div class="form-row">
+          <input type="text" name="name" placeholder="Your Name" required>
+          <input type="email" name="email" placeholder="Your Email" required>
+        </div>
+        <div class="form-row">
+          <select name="topic">
+            <option value="general">General Question</option>
+            <option value="account">Account Help</option>
+            <option value="billing">Billing Question</option>
+            <option value="bug">Report a Problem</option>
+            <option value="feature">Feature Request</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <textarea name="message" placeholder="How can we help?" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn-primary contact-submit">Send Message</button>
+        <p class="contact-success" id="contactSuccess" style="display:none;">Thanks! We'll get back to you within 24 hours.</p>
+        <p class="contact-error" id="contactError" style="display:none;">Something went wrong. Please email us directly at help@legacyodyssey.com</p>
+      </form>
+      <p class="help-or">or email us directly at</p>
       <a href="mailto:help@legacyodyssey.com" class="help-email">help@legacyodyssey.com</a>
-      <p class="help-response">We typically respond within 24 hours.</p>
     </div>
   </section>
 
@@ -427,6 +446,41 @@
     monthlyLabel.classList.add('active');
   </script>
   <script src="/js/domain-search.js"></script>
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector('.contact-submit');
+      const success = document.getElementById('contactSuccess');
+      const error = document.getElementById('contactError');
+      success.style.display = 'none';
+      error.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name.value,
+            email: form.email.value,
+            topic: form.topic.value,
+            message: form.message.value,
+          }),
+        });
+        if (res.ok) {
+          success.style.display = 'block';
+          form.reset();
+        } else {
+          error.style.display = 'block';
+        }
+      } catch (err) {
+        error.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
+    });
+  </script>
 
 </body>
 </html>

@@ -89,6 +89,7 @@ app.use('/api', require('./routes/api/upload'));
 app.use('/api/stripe', require('./routes/api/stripe'));
 app.use('/api/domains', require('./routes/api/domains'));
 app.use('/api/families', require('./routes/api/families'));
+app.use('/api/contact', require('./routes/api/contact'));
 
 // Web routes (SSR — book viewing)
 app.use('/', require('./routes/book'));
