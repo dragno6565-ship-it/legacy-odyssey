@@ -101,6 +101,22 @@ async function handleCheckoutComplete(session) {
   // Create book with default content
   await bookService.createBookWithDefaults(family.id);
 
+  // Send welcome email with credentials
+  try {
+    const { sendWelcomeEmail } = require('./emailService');
+    await sendWelcomeEmail({
+      to: email,
+      displayName: family.display_name || subdomain,
+      tempPassword,
+      bookPassword: 'legacy',
+      subdomain,
+      customDomain: domain || null,
+    });
+  } catch (emailErr) {
+    console.error('Failed to send welcome email after checkout:', emailErr.message);
+    // Non-fatal: account is created, email can be resent from admin
+  }
+
   // If a custom domain was selected, kick off async domain purchase
   if (domain) {
     try {
