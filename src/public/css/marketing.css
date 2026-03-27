@@ -835,6 +835,25 @@ h1, h2, h3, h4, h5 {
   margin-bottom: 0.8rem;
 }
 
+.no-setup-badge {
+  display: inline-block;
+  background: var(--sage);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.annual-savings {
+  font-size: 0.85rem;
+  color: var(--sage);
+  font-weight: 600;
+}
+
 .pricing-addon {
   text-align: center;
   margin-top: 2rem;
