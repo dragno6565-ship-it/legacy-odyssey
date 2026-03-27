@@ -156,9 +156,34 @@ async function createPortalSession(stripeCustomerId, returnUrl) {
   return session;
 }
 
+async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientEmail, message, successUrl, cancelUrl }) {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    payment_method_types: ['card'],
+    customer_email: buyerEmail,
+    line_items: [
+      { price: PRICES.subscription.annual, quantity: 1 },
+      { price: PRICES.domainSetup, quantity: 1 },
+    ],
+    metadata: {
+      type: 'gift',
+      buyer_name: buyerName || '',
+      recipient_email: recipientEmail || '',
+      gift_message: message || '',
+    },
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  });
+
+  return session;
+}
+
 module.exports = {
   PRICES,
   createCheckoutSession,
+  createGiftCheckoutSession,
   handleCheckoutComplete,
   syncSubscriptionStatus,
   createPortalSession,

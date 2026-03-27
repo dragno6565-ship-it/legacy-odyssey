@@ -27,7 +27,35 @@ router.post('/stripe/webhook', async (req, res) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        await stripeService.handleCheckoutComplete(session);
+        if (session.metadata?.type === 'gift') {
+          const giftService = require('../services/giftService');
+          const { sendGiftPurchaseEmail, sendGiftNotificationEmail } = require('../services/emailService');
+          const gift = await giftService.createGiftCode({
+            buyerEmail: session.customer_email || session.customer_details?.email,
+            buyerName: session.metadata.buyer_name,
+            recipientEmail: session.metadata.recipient_email,
+            recipientMessage: session.metadata.gift_message,
+            stripeSessionId: session.id,
+          });
+          const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+          const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+          await sendGiftPurchaseEmail({
+            to: gift.buyer_email,
+            buyerName: gift.buyer_name,
+            giftCode: gift.code,
+            redeemUrl,
+          });
+          if (gift.recipient_email) {
+            await sendGiftNotificationEmail({
+              to: gift.recipient_email,
+              buyerName: gift.buyer_name,
+              message: gift.recipient_message,
+              redeemUrl,
+            });
+          }
+        } else {
+          await stripeService.handleCheckoutComplete(session);
+        }
         break;
       }
       case 'customer.subscription.updated': {

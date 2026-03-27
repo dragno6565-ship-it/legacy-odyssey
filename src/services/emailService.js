@@ -417,6 +417,42 @@ async function sendTrialEndingEmail({ to, displayName }) {
   });
 }
 
+/**
+ * Send gift purchase confirmation email to the buyer.
+ */
+async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl }) {
+  const firstName = buyerName?.split(' ')[0] || 'there';
+  return sendOnboardingEmail({
+    to,
+    subject: 'Your Legacy Odyssey gift is ready!',
+    preheader: `Gift code: ${giftCode} — share it with someone special.`,
+    heading: `Hey ${firstName}, your gift is ready!`,
+    body: `Thank you for purchasing a Legacy Odyssey gift! Here's the gift code to share:<br><br>
+      <div style="background:#f5f0eb;border:2px dashed #c8a96e;border-radius:8px;padding:16px;text-align:center;font-size:20px;font-weight:bold;letter-spacing:2px;color:#1a1a2e;margin:8px 0;">${giftCode}</div><br>
+      The recipient can redeem this at:<br>
+      <a href="${redeemUrl}" style="color:#c8a96e;">${redeemUrl}</a><br><br>
+      This gift includes one year of Legacy Odyssey plus a custom domain setup (one-time, non-recurring). The code is valid for one year from today.`,
+    ctaText: 'Copy Redemption Link',
+    ctaUrl: redeemUrl,
+  });
+}
+
+/**
+ * Send gift notification email to the recipient (optional).
+ */
+async function sendGiftNotificationEmail({ to, buyerName, message, redeemUrl }) {
+  const from = buyerName || 'Someone special';
+  return sendOnboardingEmail({
+    to,
+    subject: `${from} sent you a Legacy Odyssey gift!`,
+    preheader: 'You received a gift — a beautiful digital baby book or family album.',
+    heading: `${from} sent you a gift!`,
+    body: `You've been gifted a year of Legacy Odyssey — a beautiful digital baby book or family album with your own custom .com domain.${message ? `<br><br><em>"${message}"</em>` : ''}<br><br>Click below to redeem your gift, create your account, and pick your domain.`,
+    ctaText: 'Redeem Your Gift',
+    ctaUrl: redeemUrl,
+  });
+}
+
 module.exports = {
   sendWelcomeEmail,
   sendOnboardingEmail,
@@ -424,4 +460,6 @@ module.exports = {
   sendDay3Email,
   sendDay7Email,
   sendTrialEndingEmail,
+  sendGiftPurchaseEmail,
+  sendGiftNotificationEmail,
 };

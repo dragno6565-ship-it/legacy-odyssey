@@ -151,6 +151,65 @@ router.get('/stripe/success', async (req, res) => {
   res.redirect('/');
 });
 
+// Gift purchase page
+router.get('/gift', (req, res) => {
+  res.render('marketing/gift');
+});
+
+// Gift success page
+router.get('/gift/success', async (req, res) => {
+  const { stripe } = require('../config/stripe');
+  const giftService = require('../services/giftService');
+  const sessionId = req.query.session_id;
+  if (!sessionId || !stripe) return res.redirect('/gift');
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status !== 'paid') return res.redirect('/gift');
+
+    // Find the gift code created by the webhook
+    const { supabaseAdmin } = require('../config/supabase');
+    const { data: gift } = await supabaseAdmin
+      .from('gift_codes')
+      .select('*')
+      .eq('stripe_session_id', sessionId)
+      .single();
+
+    if (!gift) {
+      // Webhook hasn't fired yet — create the gift code now
+      const newGift = await giftService.createGiftCode({
+        buyerEmail: session.customer_email || session.customer_details?.email,
+        buyerName: session.metadata?.buyer_name,
+        recipientEmail: session.metadata?.recipient_email,
+        recipientMessage: session.metadata?.gift_message,
+        stripeSessionId: session.id,
+      });
+      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+      return res.render('marketing/gift-success', {
+        giftCode: newGift.code,
+        redeemUrl: `https://${appDomain}/redeem?code=${newGift.code}`,
+        buyerEmail: newGift.buyer_email,
+      });
+    }
+
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    res.render('marketing/gift-success', {
+      giftCode: gift.code,
+      redeemUrl: `https://${appDomain}/redeem?code=${gift.code}`,
+      buyerEmail: gift.buyer_email,
+    });
+  } catch (err) {
+    console.error('Gift success handler error:', err);
+    res.redirect('/gift');
+  }
+});
+
+// Gift redemption page
+router.get('/redeem', (req, res) => {
+  const code = req.query.code || '';
+  res.render('marketing/redeem', { code, error: null });
+});
+
 // GET / — Main book route (or marketing landing page)
 router.get('/', resolveFamily, (req, res, next) => {
   // If no family found, show the marketing landing page

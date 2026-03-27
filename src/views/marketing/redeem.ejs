@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redeem Your Gift — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/marketing.css">
+  <style>
+    .redeem-page { padding-top: 100px; min-height: 100vh; }
+
+    .redeem-container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+    }
+
+    .redeem-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 400;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .redeem-subtext {
+      text-align: center;
+      color: var(--ink-light);
+      font-weight: 300;
+      font-size: 1.05rem;
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    .redeem-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .redeem-form label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    .redeem-form input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(184, 147, 90, 0.25);
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 1rem;
+      background: var(--white);
+      color: var(--ink);
+      transition: border-color 0.2s ease;
+    }
+
+    .redeem-form input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(184, 147, 90, 0.1);
+    }
+
+    .domain-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .domain-input-group input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: none;
+    }
+
+    .domain-suffix {
+      padding: 0.85rem 1rem;
+      background: var(--cream);
+      border: 1px solid rgba(184, 147, 90, 0.25);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Jost', sans-serif;
+      font-size: 1rem;
+      color: var(--ink-light);
+      white-space: nowrap;
+    }
+
+    .domain-hint {
+      font-size: 0.8rem;
+      color: var(--ink-light);
+      font-weight: 300;
+      margin-top: 0.3rem;
+    }
+
+    .redeem-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      background: var(--gold);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .redeem-btn:hover { background: var(--gold-dark); }
+    .redeem-btn:active { transform: scale(0.98); }
+    .redeem-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .redeem-error {
+      color: var(--rose);
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .redeem-error:empty { display: none; }
+
+    .redeem-success {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      background: var(--cream);
+      border-radius: 12px;
+      margin-top: 1.5rem;
+    }
+
+    .redeem-success h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+
+    .redeem-success p {
+      color: var(--ink-mid);
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    .redeem-success a {
+      color: var(--gold-dark);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+    }
+
+    .redeem-success a:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <!-- ====== NAV ====== -->
+  <nav class="marketing-nav">
+    <div class="nav-inner">
+      <a href="https://legacyodyssey.com" class="nav-logo">Legacy <span>Odyssey</span></a>
+    </div>
+  </nav>
+
+  <!-- ====== REDEEM FORM ====== -->
+  <main class="redeem-page">
+    <div class="redeem-container">
+      <h1 class="redeem-heading">Redeem Your Gift</h1>
+      <p class="redeem-subtext">
+        Enter your gift code below to set up your Legacy Odyssey site with a custom domain.
+      </p>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p class="redeem-error"><%= error %></p>
+      <% } %>
+
+      <form id="redeemForm" class="redeem-form">
+        <div>
+          <label for="giftCode">Gift Code <span style="color: var(--rose);">*</span></label>
+          <input type="text" id="giftCode" name="giftCode" required
+            placeholder="e.g. GIFT-XXXX-XXXX"
+            value="<%= typeof code !== 'undefined' && code ? code : '' %>">
+        </div>
+
+        <div>
+          <label for="recipientEmail">Your Email <span style="color: var(--rose);">*</span></label>
+          <input type="email" id="recipientEmail" name="recipientEmail" required
+            placeholder="you@example.com">
+        </div>
+
+        <div>
+          <label for="domain">Choose Your Domain <span style="color: var(--rose);">*</span></label>
+          <div class="domain-input-group">
+            <input type="text" id="domain" name="domain" required
+              placeholder="yourfamilyname"
+              pattern="[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]"
+              title="Letters, numbers, and hyphens only">
+            <span class="domain-suffix">.com</span>
+          </div>
+          <p class="domain-hint">We'll check availability and help you set it up.</p>
+        </div>
+
+        <button type="submit" class="redeem-btn" id="redeemBtn">Redeem Gift</button>
+        <p class="redeem-error" id="redeemError"></p>
+      </form>
+
+      <div class="redeem-success" id="redeemSuccess">
+        <h2>Welcome to Legacy Odyssey!</h2>
+        <p>Your account has been created. Check your email for login credentials and next steps.</p>
+        <p style="margin-top: 1rem;">
+          <a href="/login" id="loginLink">Sign in to your new site</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="marketing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">Legacy <span>Odyssey</span></div>
+      <ul class="footer-links">
+        <li><a href="https://legacyodyssey.com">Home</a></li>
+        <li><a href="/terms">Terms</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+      <div class="footer-copy">&copy; 2026 Legacy Odyssey. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('redeemForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('redeemBtn');
+      const errorEl = document.getElementById('redeemError');
+      errorEl.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Redeeming...';
+
+      try {
+        const res = await fetch('/api/stripe/redeem-gift', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            giftCode: document.getElementById('giftCode').value.trim(),
+            recipientEmail: document.getElementById('recipientEmail').value,
+            domain: document.getElementById('domain').value.trim(),
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+        document.getElementById('redeemForm').style.display = 'none';
+        document.getElementById('redeemSuccess').style.display = 'block';
+
+        if (data.loginUrl) {
+          document.getElementById('loginLink').href = data.loginUrl;
+        }
+      } catch (err) {
+        errorEl.textContent = err.message;
+        btn.disabled = false;
+        btn.textContent = 'Redeem Gift';
+      }
+    });
+  </script>
+
+</body>
+</html>
