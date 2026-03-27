@@ -105,6 +105,10 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Legacy Odyssey server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Start onboarding email scheduler
+  const { startOnboardingScheduler } = require('./jobs/onboardingEmails');
+  startOnboardingScheduler();
 });
 
 module.exports = app;
