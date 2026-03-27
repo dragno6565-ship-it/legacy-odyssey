@@ -180,10 +180,40 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientEmail
   return session;
 }
 
+/**
+ * Create a Stripe Checkout session for purchasing an additional site ($12.99/yr).
+ * Used by existing authenticated customers who want another book/domain.
+ */
+async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subdomain, domain, bookName, successUrl, cancelUrl }) {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  const metadata = {
+    type: 'additional_site',
+    auth_user_id: authUserId,
+    subdomain,
+    book_name: bookName || '',
+  };
+  if (domain) metadata.domain = domain;
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    customer: stripeCustomerId,
+    line_items: [
+      { price: PRICES.additionalDomain, quantity: 1 },
+    ],
+    metadata,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  });
+
+  return session;
+}
+
 module.exports = {
   PRICES,
   createCheckoutSession,
   createGiftCheckoutSession,
+  createAdditionalSiteCheckout,
   handleCheckoutComplete,
   syncSubscriptionStatus,
   createPortalSession,

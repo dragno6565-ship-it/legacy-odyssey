@@ -10,13 +10,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 
 export default function NewWebsiteScreen({ navigation }) {
-  const { refreshFamilies, switchFamily } = useAuth();
+  const { refreshFamilies } = useAuth();
   const [subdomain, setSubdomain] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [customDomain, setCustomDomain] = useState('');
@@ -36,25 +37,34 @@ export default function NewWebsiteScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const res = await post('/api/families', {
-        subdomain: cleanSubdomain || null,
-        displayName: displayName.trim() || 'New Website',
-        customDomain: customDomain.trim() || null,
+      // Create Stripe checkout for additional site ($12.99/yr)
+      const res = await post('/api/stripe/create-additional-site-checkout', {
+        subdomain: cleanSubdomain || customDomain.trim().split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, ''),
+        domain: customDomain.trim() || null,
+        bookName: displayName.trim() || 'New Website',
       });
 
-      const newFamily = res.data.family;
+      const checkoutUrl = res.data.url;
+      if (checkoutUrl) {
+        // Open Stripe Checkout in browser
+        await Linking.openURL(checkoutUrl);
 
-      // Refresh families list and switch to new family
-      await refreshFamilies();
-      await switchFamily(newFamily.id);
-
-      Alert.alert(
-        'Website Created!',
-        `Your new website is ready. Start editing your book!`,
-        [{ text: 'OK', onPress: () => navigation.navigate('Dashboard') }]
-      );
+        // Show instructions for when they return
+        Alert.alert(
+          'Complete Payment',
+          'After completing payment in your browser, return here and pull down to refresh to see your new site.',
+          [{
+            text: 'OK',
+            onPress: async () => {
+              // Try to refresh families in case webhook already fired
+              await refreshFamilies();
+              navigation.navigate('Dashboard');
+            },
+          }]
+        );
+      }
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Failed to create website.';
+      const msg = err.response?.data?.error || err.message || 'Failed to start checkout.';
       Alert.alert('Error', msg);
     } finally {
       setLoading(false);
@@ -67,13 +77,13 @@ export default function NewWebsiteScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Create a New Website</Text>
+        <Text style={styles.title}>Add Another Site</Text>
         <Text style={styles.subtitle}>
-          Add another baby book website to your account.
+          Create another baby book or family photo album. Additional sites are $12.99/year.
         </Text>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Display Name</Text>
+          <Text style={styles.label}>Site Name</Text>
           <TextInput
             style={styles.input}
             value={displayName}
@@ -124,8 +134,13 @@ export default function NewWebsiteScreen({ navigation }) {
             keyboardType="url"
           />
           <Text style={styles.hint}>
-            You can set up a custom domain later in Settings
+            We'll register and set up the domain for you
           </Text>
+        </View>
+
+        <View style={styles.priceBox}>
+          <Text style={styles.priceText}>$12.99 / year</Text>
+          <Text style={styles.priceHint}>Includes domain, hosting, and SSL</Text>
         </View>
 
         <TouchableOpacity
@@ -137,7 +152,7 @@ export default function NewWebsiteScreen({ navigation }) {
           {loading ? (
             <ActivityIndicator color={colors.dark} />
           ) : (
-            <Text style={styles.createButtonText}>Create Website</Text>
+            <Text style={styles.createButtonText}>Continue to Payment</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -224,6 +239,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     fontSize: typography.sizes.sm,
     color: colors.textSecondary,
+  },
+  priceBox: {
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    alignItems: 'center',
+    marginTop: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  priceText: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.gold,
+  },
+  priceHint: {
+    fontSize: typography.sizes.xs,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
   createButton: {
     backgroundColor: colors.gold,

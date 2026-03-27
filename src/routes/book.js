@@ -204,6 +204,11 @@ router.get('/gift/success', async (req, res) => {
   }
 });
 
+// Additional site success page
+router.get('/additional-site/success', (req, res) => {
+  res.render('marketing/additional-site-success');
+});
+
 // Gift redemption page
 router.get('/redeem', (req, res) => {
   const code = req.query.code || '';

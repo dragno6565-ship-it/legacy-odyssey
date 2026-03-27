@@ -53,6 +53,54 @@ router.post('/stripe/webhook', async (req, res) => {
               redeemUrl,
             });
           }
+        } else if (session.metadata?.type === 'additional_site') {
+          // Handle additional site purchase for existing customer
+          const familyService = require('../services/familyService');
+          const bookService = require('../services/bookService');
+          const domainService = require('../services/domainService');
+          const { supabaseAdmin } = require('../config/supabase');
+
+          const authUserId = session.metadata.auth_user_id;
+          const subdomain = session.metadata.subdomain;
+          const domain = session.metadata.domain || null;
+          const bookName = session.metadata.book_name || '';
+
+          // Get existing user's email for the new family record
+          const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(authUserId);
+          const baseEmail = authUser?.user?.email || '';
+          const familyEmail = `${baseEmail.split('@')[0]}+${subdomain}@${baseEmail.split('@')[1]}`;
+
+          // Create new family (auth_user_id = null to avoid UNIQUE constraint)
+          const family = await familyService.create({
+            email: familyEmail,
+            auth_user_id: null,
+            subdomain,
+            display_name: bookName || subdomain,
+            stripe_customer_id: session.customer,
+            subscription_status: 'active',
+            custom_domain: domain,
+          });
+
+          // Link to user via metadata
+          const existingMeta = authUser?.user?.user_metadata || {};
+          const linkedIds = existingMeta.linked_family_ids || [];
+          linkedIds.push(family.id);
+          await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+            user_metadata: { ...existingMeta, linked_family_ids: linkedIds },
+          });
+
+          // Create book with defaults
+          await bookService.createBookWithDefaults(family.id);
+
+          // If custom domain requested, start async domain setup
+          if (domain) {
+            const order = await domainService.createDomainOrder(family.id, domain);
+            domainService.purchaseAndSetupDomain(order.id).catch(err => {
+              console.error(`Domain setup failed for ${domain}:`, err);
+            });
+          }
+
+          console.log(`Additional site created: ${subdomain} for user ${authUserId}`);
         } else {
           await stripeService.handleCheckoutComplete(session);
         }

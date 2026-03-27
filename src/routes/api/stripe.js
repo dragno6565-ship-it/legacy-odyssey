@@ -85,6 +85,35 @@ router.post('/redeem-gift', async (req, res, next) => {
   }
 });
 
+// POST /api/stripe/create-additional-site-checkout — Purchase another site
+router.post('/create-additional-site-checkout', requireAuth, async (req, res, next) => {
+  try {
+    const { subdomain, domain, bookName } = req.body;
+    if (!subdomain) {
+      return res.status(400).json({ error: 'subdomain is required' });
+    }
+
+    if (!req.family.stripe_customer_id) {
+      return res.status(400).json({ error: 'No Stripe customer found. Please contact support.' });
+    }
+
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    const session = await stripeService.createAdditionalSiteCheckout({
+      stripeCustomerId: req.family.stripe_customer_id,
+      authUserId: req.user.id,
+      subdomain,
+      domain: domain || null,
+      bookName: bookName || '',
+      successUrl: `https://${appDomain}/additional-site/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `https://${appDomain}`,
+    });
+
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/stripe/portal — Billing management
 router.post('/portal', requireAuth, async (req, res, next) => {
   try {
