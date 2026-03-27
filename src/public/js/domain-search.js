@@ -190,10 +190,11 @@
     if (!email || !email.includes('@')) return;
 
     // Final confirmation with domain refund warning
+    var priceText = period === 'annual' ? '$49.99/year' : '$4.99/month';
     var finalConfirm = confirm(
       'You are about to purchase:\n\n' +
-      'Plan: ' + planName.charAt(0).toUpperCase() + planName.slice(1) + ' (' + period + ')\n' +
-      'Domain: www.' + selectedDomain + '\n\n' +
+      'Legacy Odyssey (' + priceText + ')\n' +
+      'Domain: www.' + selectedDomain + ' + $10.99 setup fee\n\n' +
       'REMINDER: Domain name purchases are NON-REFUNDABLE.\n' +
       'Please verify the domain spelling one last time.\n\n' +
       'Proceed to checkout?'
