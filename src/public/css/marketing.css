@@ -829,6 +829,12 @@ h1, h2, h3, h4, h5 {
   margin-bottom: 0.8rem;
 }
 
+.monthly-setup-note {
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  margin-bottom: 0.8rem;
+}
+
 .pricing-addon {
   text-align: center;
   margin-top: 2rem;

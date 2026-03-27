@@ -258,7 +258,8 @@
           <span class="pricing-period monthly-period">/ month</span>
           <span class="pricing-period annual-period" style="display:none;">/ month</span>
         </div>
-        <p class="annual-note" style="display:none;">Billed at $49.99/year</p>
+        <p class="monthly-setup-note">+ $5.99 one-time setup fee</p>
+        <p class="annual-note" style="display:none;">Billed at $49.99/year &mdash; no setup fee!</p>
         <p class="pricing-desc">Everything you need to preserve your family's story.</p>
         <ul class="pricing-features">
           <li>Your own custom .com domain</li>
@@ -277,10 +278,10 @@
       </div>
     </div>
     <div class="pricing-addons">
-      <p class="pricing-addon">Want additional sites? <strong>$10.99</strong> one-time domain setup + <strong>$12.99/yr</strong> per additional domain.</p>
+      <p class="pricing-addon">Need additional sites? Additional domains are <strong>$12.99/yr</strong> each.</p>
       <p class="pricing-addon" style="margin-top:1rem;"><a href="/gift" class="btn-secondary" style="display:inline-block;padding:12px 28px;">Give as a Gift &rarr;</a></p>
     </div>
-    <p class="pricing-note">Cancel your subscription anytime. Domain name purchases are non-refundable &mdash; please double-check spelling before confirming.</p>
+    <p class="pricing-note">Cancel your subscription anytime. A one-time setup fee of $5.99 applies to monthly plans. Domain name purchases are non-refundable &mdash; please double-check spelling before confirming.</p>
   </section>
 
   <!-- ====== TESTIMONIALS ====== -->
@@ -439,6 +440,7 @@
       document.querySelectorAll('.monthly-period').forEach(el => el.style.display = isAnnual ? 'none' : '');
       document.querySelectorAll('.annual-period').forEach(el => el.style.display = isAnnual ? '' : 'none');
       document.querySelectorAll('.annual-note').forEach(el => el.style.display = isAnnual ? '' : 'none');
+      document.querySelectorAll('.monthly-setup-note').forEach(el => el.style.display = isAnnual ? 'none' : '');
       monthlyLabel.classList.toggle('active', !isAnnual);
       annualLabel.classList.toggle('active', isAnnual);
     });

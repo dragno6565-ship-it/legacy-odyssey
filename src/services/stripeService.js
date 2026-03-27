@@ -7,6 +7,7 @@ const bookService = require('./bookService');
  *
  * Subscription: $4.99/month or $49.99/year
  * Custom domain: $10.99 one-time setup fee
+ * Setup fee: $5.99 one-time (monthly subscribers only)
  * Additional domains: $12.99/year
  */
 const PRICES = {
@@ -14,7 +15,7 @@ const PRICES = {
     monthly: process.env.STRIPE_PRICE_MONTHLY || 'price_1TDVGGQzzNThrLYKcu32HMg1',
     annual: process.env.STRIPE_PRICE_ANNUAL || 'price_1TDVMiQzzNThrLYKNwthzxO8',
   },
-  domainSetup: process.env.STRIPE_PRICE_DOMAIN_SETUP || 'price_1TDVHGQzzNThrLYKzOoEoN0I',
+  setupFee: process.env.STRIPE_PRICE_SETUP_FEE || 'price_1TFegHQzzNThrLYKhVm1TZim',
   additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN || 'price_1TDVIAQzzNThrLYKNnMljEkp',
 };
 
@@ -37,16 +38,16 @@ async function createCheckoutSession({ email, subdomain, domain, period, success
   const metadata = { subdomain, period: resolvedPeriod };
   if (domain) metadata.domain = domain;
 
-  // Build line items: subscription + optional domain setup fee
+  // Build line items: subscription + setup fee for monthly only
   const line_items = [{
     price: priceId,
     quantity: 1,
   }];
 
-  // Add domain setup fee if customer wants a custom domain
-  if (domain) {
+  // Add one-time setup fee for monthly subscribers only (annual = no setup fee)
+  if (resolvedPeriod === 'monthly') {
     line_items.push({
-      price: PRICES.domainSetup,
+      price: PRICES.setupFee,
       quantity: 1,
     });
   }
@@ -165,7 +166,6 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientEmail
     customer_email: buyerEmail,
     line_items: [
       { price: PRICES.subscription.annual, quantity: 1 },
-      { price: PRICES.domainSetup, quantity: 1 },
     ],
     metadata: {
       type: 'gift',
