@@ -63,13 +63,10 @@
             <div class="invite-message" id="inviteMessage">Hi <%= customer.display_name.split(' ')[0] %>! Your Legacy Odyssey account is ready. Here's how to get started:
 
 FOR iPHONE:
-1. Download "Expo Go" from the App Store (it's free)
-2. Open this link on your phone:
-   <%= expoGoUrl %>
+1. Search "Legacy Odyssey" on the App Store and download it
 
 FOR ANDROID:
-1. Download the Legacy Odyssey app:
-   <%= apkUrl %>
+1. Search "Legacy Odyssey" on the Google Play Store and download it
 
 LOG IN WITH:
    Email: <%= customer.email %>
@@ -112,8 +109,8 @@ Welcome to Legacy Odyssey!</div>
               <span class="badge badge-<%= customer.subscription_status %>"><%= customer.subscription_status %></span>
             </div>
             <div class="summary-row">
-              <label>iPhone (Expo Go)</label>
-              <a href="<%= expoGoUrl %>" target="_blank" style="font-size: 0.85rem; word-break: break-all;">Open in Expo Go</a>
+              <label>iPhone</label>
+              <span style="font-size: 0.85rem;">Search "Legacy Odyssey" on App Store</span>
             </div>
             <div class="summary-row">
               <label>Android (APK)</label>

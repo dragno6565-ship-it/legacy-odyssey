@@ -215,15 +215,10 @@ function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, su
                       &#127822; iPhone Instructions
                     </p>
                     <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A4A5A;line-height:1.6;">
-                      1. Tap the <strong>iPhone</strong> button above to install the free <strong>Expo Go</strong> app from the App Store.
+                      1. Search <strong>"Legacy Odyssey"</strong> on the App Store and download it.
                     </p>
                     <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A4A5A;line-height:1.6;">
-                      2. Once installed, tap this link to open Legacy Odyssey:
-                    </p>
-                    <p style="margin:0;text-align:center;">
-                      <a href="${expoGoUrl}" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#C9A96E;text-decoration:none;font-weight:bold;">
-                        &#128279; Open in Expo Go
-                      </a>
+                      2. Open the app and sign in with your credentials above.
                     </p>
                   </td>
                 </tr>
