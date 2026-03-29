@@ -326,4 +326,28 @@ router.get('/families/:id/toggle-active', requireAdmin, async (req, res, next) =
   }
 });
 
+// Delete family (and all related data)
+router.post('/families/:id/delete', requireAdmin, async (req, res, next) => {
+  try {
+    const family = await familyService.findById(req.params.id);
+    if (!family) return res.status(404).send('Family not found');
+
+    // Delete in order: books → family → auth user
+    await supabaseAdmin.from('books').delete().eq('family_id', family.id);
+    await supabaseAdmin.from('families').delete().eq('id', family.id);
+
+    if (family.email) {
+      const { data: authUser } = await supabaseAdmin.auth.admin.listUsers();
+      const user = authUser?.users?.find(u => u.email === family.email);
+      if (user) {
+        await supabaseAdmin.auth.admin.deleteUser(user.id);
+      }
+    }
+
+    res.redirect('/admin?success=Account+deleted');
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

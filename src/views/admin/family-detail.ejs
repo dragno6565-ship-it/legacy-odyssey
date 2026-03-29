@@ -277,6 +277,12 @@
               Reactivate Account
             </a>
           <% } %>
+          <form action="/admin/families/<%= family.id %>/delete" method="POST" style="margin-left: 8px;"
+                onsubmit="return confirm('PERMANENTLY DELETE this account and all data? This cannot be undone.');">
+            <button type="submit" class="btn btn-sm" style="background:#8b0000;color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;">
+              Delete Account
+            </button>
+          </form>
         </div>
       </form>
     </main>
