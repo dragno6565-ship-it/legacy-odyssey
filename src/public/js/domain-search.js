@@ -194,7 +194,7 @@
     var finalConfirm = confirm(
       'You are about to purchase:\n\n' +
       'Legacy Odyssey (' + priceText + ')\n' +
-      'Domain: www.' + selectedDomain + ' + $10.99 setup fee\n\n' +
+      'Domain: www.' + selectedDomain + ' + $5.99 setup fee\n\n' +
       'REMINDER: Domain name purchases are NON-REFUNDABLE.\n' +
       'Please verify the domain spelling one last time.\n\n' +
       'Proceed to checkout?'

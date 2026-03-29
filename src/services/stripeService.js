@@ -6,17 +6,17 @@ const bookService = require('./bookService');
  * Stripe Price IDs — single plan with two billing options + domain add-ons.
  *
  * Subscription: $4.99/month or $49.99/year
- * Custom domain: $10.99 one-time setup fee
+ * Custom domain: $5.99 one-time setup fee
  * Setup fee: $5.99 one-time (monthly subscribers only)
  * Additional domains: $12.99/year
  */
 const PRICES = {
   subscription: {
-    monthly: process.env.STRIPE_PRICE_MONTHLY || 'price_1TDVGGQzzNThrLYKcu32HMg1',
-    annual: process.env.STRIPE_PRICE_ANNUAL || 'price_1TDVMiQzzNThrLYKNwthzxO8',
+    monthly: process.env.STRIPE_PRICE_MONTHLY,
+    annual: process.env.STRIPE_PRICE_ANNUAL,
   },
-  setupFee: process.env.STRIPE_PRICE_SETUP_FEE || 'price_1TFegHQzzNThrLYKhVm1TZim',
-  additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN || 'price_1TDVIAQzzNThrLYKNnMljEkp',
+  setupFee: process.env.STRIPE_PRICE_SETUP,
+  additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
 };
 
 /**
