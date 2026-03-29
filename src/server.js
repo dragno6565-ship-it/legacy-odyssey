@@ -18,7 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Trust Railway's reverse proxy (needed for req.hostname with custom domains)
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 // View engine
 app.set('view engine', 'ejs');

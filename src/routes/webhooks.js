@@ -116,6 +116,13 @@ router.post('/stripe/webhook', async (req, res) => {
         await stripeService.syncSubscriptionStatus(sub.customer, 'canceled');
         break;
       }
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        if (invoice.customer) {
+          await stripeService.syncSubscriptionStatus(invoice.customer, 'active');
+        }
+        break;
+      }
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
         await stripeService.syncSubscriptionStatus(invoice.customer, 'past_due');
