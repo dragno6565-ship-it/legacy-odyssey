@@ -137,11 +137,10 @@ async function setupDns(domain, cnameTarget) {
   const target = cnameTarget || process.env.RAILWAY_CNAME_TARGET;
   if (!target) throw new Error('No CNAME target provided and RAILWAY_CNAME_TARGET not configured');
 
-  // Set CNAME for root and www
+  // Set CNAME for www (root @ cannot use CNAME per DNS standard)
   await spaceship.put('/dns-records', {
     domain,
     records: [
-      { type: 'CNAME', name: '@', content: target, ttl: 300 },
       { type: 'CNAME', name: 'www', content: target, ttl: 300 },
     ],
   });
