@@ -68,7 +68,7 @@ async function checkMultipleTlds(baseName, tlds = PRIMARY_TLDS) {
         return { domain: domains[i], tld: tlds[i], available: false, price: null, underBudget: false };
       }
       const v = r.value;
-      const underBudget = v.price != null ? v.price <= MAX_PRICE_YEARLY : true;
+      const underBudget = v.price != null ? v.price <= MAX_REGISTRATION_PRICE : true;
       return { domain: v.domain, tld: tlds[i], available: v.available, price: v.price, underBudget };
     });
   }
@@ -83,6 +83,13 @@ async function registerDomain(domain) {
 
   const contactId = process.env.SPACESHIP_CONTACT_ID;
   if (!contactId) throw new Error('SPACESHIP_CONTACT_ID not configured');
+
+  // Safety check: verify domain isn't premium before purchasing
+  const check = await checkAvailability(domain);
+  if (!check || !check.available) throw new Error(`Domain ${domain} is not available`);
+  if (check.price != null && check.price > MAX_REGISTRATION_PRICE) {
+    throw new Error(`Domain ${domain} costs $${check.price}/yr — exceeds max $${MAX_REGISTRATION_PRICE}`);
+  }
 
   const { headers } = await spaceship.post(`/domains/${encodeURIComponent(domain)}`, {
     autoRenew: true,
