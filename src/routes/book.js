@@ -7,14 +7,17 @@ const { getPublicUrl } = require('../utils/imageUrl');
 
 const router = Router();
 
-// Serve static demo sites for specific domains
-const DEMO_DOMAINS = {
+// Serve static demo sites for specific domains and subdomains
+const DEMO_SITES = {
   'your-family-photo-album.com': 'family-album-demo.html',
+  'your-family-photo-album': 'family-album-demo.html', // subdomain match
 };
 
 router.use((req, res, next) => {
   const host = req.hostname.startsWith('www.') ? req.hostname.slice(4) : req.hostname;
-  const demoFile = DEMO_DOMAINS[host];
+  const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+  const subdomain = host.endsWith(`.${appDomain}`) ? host.replace(`.${appDomain}`, '') : null;
+  const demoFile = DEMO_SITES[host] || (subdomain && DEMO_SITES[subdomain]);
   if (demoFile && (req.path === '/' || req.path === '')) {
     return res.sendFile(path.join(__dirname, '../public', demoFile));
   }
