@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Anderson Family — A Legacy Odyssey Family Album</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F8F2E6;
+  --ivory: #FFFCF5;
+  --gold: #B8935A;
+  --gold-light: #D4B483;
+  --gold-dark: #8C6A35;
+  --ink: #1E1812;
+  --ink-mid: #4A3F32;
+  --ink-light: #9C8B78;
+  --sage: #7A9E7E;
+  --rose: #C17F7F;
+  --blush: #EDD9D0;
+  --dusty-blue: #8BA7BC;
+  --nav-width: 240px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 16px;
+  overflow: hidden;
+  height: 100vh;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* ── PASSWORD SCREEN ── */
+#password-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+#password-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.pw-box {
+  text-align: center;
+  max-width: 420px;
+  padding: 2rem;
+}
+.pw-box h1 {
+  font-size: 2.8rem;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.02em;
+}
+.pw-box .pw-subtitle {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+}
+.pw-box .pw-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 auto 2rem;
+}
+.pw-box input {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--gold-light);
+  border-radius: 8px;
+  background: var(--ivory);
+  font-family: 'Jost', sans-serif;
+  font-size: 1rem;
+  text-align: center;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.3s;
+  margin-bottom: 1rem;
+}
+.pw-box input:focus { border-color: var(--gold); }
+.pw-box button {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Jost', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+  letter-spacing: 0.02em;
+}
+.pw-box button:hover { background: var(--gold-dark); }
+.pw-hint {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  margin-top: 1rem;
+}
+.pw-error {
+  color: var(--rose);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+/* ── APP LAYOUT ── */
+#app {
+  display: none;
+  height: 100vh;
+}
+#app.visible {
+  display: flex;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--nav-width);
+  min-width: var(--nav-width);
+  background: var(--ink);
+  color: var(--cream);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-header {
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(184,147,90,0.2);
+  margin-bottom: 1rem;
+}
+.sidebar-header h2 {
+  font-size: 1.25rem;
+  color: var(--gold);
+  margin-bottom: 0.15rem;
+}
+.sidebar-header p {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.nav-group-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-light);
+  padding: 1rem 1.25rem 0.4rem;
+}
+.nav-item {
+  display: block;
+  padding: 0.55rem 1.25rem;
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover {
+  background: rgba(184,147,90,0.1);
+  color: var(--gold-light);
+}
+.nav-item.active {
+  background: rgba(184,147,90,0.15);
+  color: var(--gold);
+  border-left-color: var(--gold);
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1.5rem 1.25rem 0;
+  border-top: 1px solid rgba(184,147,90,0.15);
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  text-align: center;
+  line-height: 1.5;
+}
+.sidebar-footer a {
+  color: var(--gold-light);
+  text-decoration: none;
+}
+
+/* ── HAMBURGER ── */
+#hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--ink);
+  border: none;
+  color: var(--gold);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+#navOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+#navOverlay.show { display: block; }
+
+/* ── MAIN CONTENT ── */
+#main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 3rem 3.5rem 4rem;
+  max-width: 900px;
+}
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ── TYPOGRAPHY & COMPONENTS ── */
+.eyebrow {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+.chapter-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+.section-title {
+  font-size: 2.4rem;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+.section-divider {
+  width: 50px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 0 2rem;
+}
+
+.quote-block {
+  border-left: 3px solid var(--gold);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  background: var(--ivory);
+  border-radius: 0 8px 8px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+.quote-block .attribution {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+.body-text {
+  font-size: 1rem;
+  color: var(--ink-mid);
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+}
+
+.subsection {
+  margin-top: 2.5rem;
+}
+.subsection h3 {
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: flex;
+  gap: 2rem;
+  margin: 2.5rem 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(184,147,90,0.25);
+  border-bottom: 1px solid rgba(184,147,90,0.25);
+  flex-wrap: wrap;
+}
+.stat-item {
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+}
+.stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  margin-bottom: 0.3rem;
+}
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ── CHECKLIST ── */
+.checklist {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  border: 1px solid rgba(184,147,90,0.15);
+}
+.checklist h4 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+.checklist-item {
+  padding: 0.4rem 0;
+  color: var(--ink-mid);
+  font-size: 0.95rem;
+}
+.checklist-item .check {
+  color: var(--sage);
+  margin-right: 0.5rem;
+  font-weight: 600;
+}
+
+/* ── IMAGE PLACEHOLDER ── */
+.img-placeholder {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  margin: 1.5rem 0;
+}
+
+/* ── YEAR CARDS GRID ── */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.year-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(184,147,90,0.12);
+}
+.year-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+  border-color: var(--gold-light);
+}
+.year-card .year-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.year-card .year-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+.year-card .year-highlight {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,24,18,0.6);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+  background: var(--cream);
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 2.5rem;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--ink); }
+.modal-content .year-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+.modal-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.modal-content .highlight {
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+}
+.modal-content .note {
+  color: var(--ink-mid);
+  line-height: 1.8;
+}
+
+/* ── FAMILY MEMBER CARDS ── */
+.family-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.family-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(184,147,90,0.12);
+}
+.family-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+  border-color: var(--gold-light);
+}
+.family-card .member-emoji {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.family-card .member-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.15rem;
+}
+.family-card .member-role {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── FAMILY DETAIL PANEL ── */
+#family-detail {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  width: 480px;
+  max-width: 100vw;
+  height: 100vh;
+  background: var(--cream);
+  z-index: 2000;
+  overflow-y: auto;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -4px 0 24px rgba(30,24,18,0.15);
+  padding: 2.5rem;
+}
+#family-detail.open { right: 0; }
+#family-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,24,18,0.5);
+  z-index: 1999;
+  display: none;
+}
+#family-detail-overlay.show { display: block; }
+.detail-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+.detail-close:hover { color: var(--ink); }
+.detail-emoji {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+.detail-name {
+  font-size: 1.8rem;
+  margin-bottom: 0.15rem;
+}
+.detail-role {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+.detail-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.meta-item {
+  background: var(--ivory);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+.meta-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-light);
+  margin-bottom: 0.15rem;
+}
+.meta-value {
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.detail-story {
+  color: var(--ink-mid);
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+.detail-quote {
+  border-left: 3px solid var(--gold);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  background: var(--ivory);
+  border-radius: 0 8px 8px 0;
+}
+
+/* ── ADVENTURE CARDS ── */
+.adventure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.adventure-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(184,147,90,0.12);
+}
+.adventure-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+  border-color: var(--gold-light);
+}
+.adventure-img {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+.adventure-body {
+  padding: 1.25rem;
+}
+.adventure-body h4 {
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+.adventure-body .adv-dest {
+  font-size: 0.82rem;
+  color: var(--gold);
+  margin-bottom: 0.15rem;
+}
+.adventure-body .adv-tagline {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ── LETTER SECTION ── */
+.letter-block {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin: 2rem 0;
+  border: 1px solid rgba(184,147,90,0.15);
+}
+.letter-heading {
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.04em;
+}
+.letter-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--ink-mid);
+  line-height: 2;
+}
+.letter-body p { margin-bottom: 1rem; }
+
+/* ── RECIPE CARDS ── */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.recipe-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(184,147,90,0.12);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.recipe-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+}
+.recipe-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.recipe-card h4 {
+  font-size: 1.2rem;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+.recipe-note {
+  font-size: 0.9rem;
+  color: var(--ink-mid);
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.recipe-ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.recipe-ingredients span {
+  background: var(--cream);
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: var(--ink-mid);
+}
+
+/* ── VAULT ── */
+.vault-container {
+  text-align: center;
+  padding: 3rem 0;
+}
+.vault-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+}
+.vault-box {
+  background: var(--ivory);
+  border: 2px solid var(--gold-light);
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
+.countdown-row {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin: 2rem 0;
+}
+.cd-unit {
+  text-align: center;
+}
+.cd-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+.cd-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  margin-top: 0.3rem;
+}
+.vault-sealed {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  margin-top: 1rem;
+}
+
+/* ── FOOTER ── */
+.page-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(184,147,90,0.2);
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+}
+.page-footer a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    left: -280px;
+    z-index: 1000;
+    width: 280px;
+    min-width: 280px;
+    transition: left 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  #sidebar.open { left: 0; }
+  #hamburger { display: flex; }
+  #main-content {
+    padding: 2rem 1.25rem 3rem;
+    margin-left: 0;
+  }
+  .section-title { font-size: 1.8rem; }
+  .stats-row { gap: 1rem; }
+  .year-grid, .family-grid, .adventure-grid, .recipe-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .detail-meta { grid-template-columns: 1fr; }
+  #family-detail { width: 100vw; right: -100vw; }
+  .countdown-row { gap: 1.5rem; }
+  .cd-num { font-size: 2.2rem; }
+}
+@media (max-width: 480px) {
+  .year-grid, .family-grid, .adventure-grid, .recipe-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="password-screen">
+  <div class="pw-box">
+    <h1>The Anderson Family</h1>
+    <p class="pw-subtitle">A Legacy Odyssey Family Album</p>
+    <div class="pw-divider"></div>
+    <input type="password" id="pw-input" placeholder="Enter password" autocomplete="off">
+    <button id="pw-btn">Open the Album &rarr;</button>
+    <p class="pw-hint">Demo password: family</p>
+    <p class="pw-error" id="pw-error">Incorrect password. Please try again.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- Hamburger -->
+  <button id="hamburger">&#9776;</button>
+  <div id="navOverlay"></div>
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <h2>The Andersons</h2>
+      <p>Family Album</p>
+    </div>
+
+    <div class="nav-group-label">The Album</div>
+    <a class="nav-item active" data-page="page-welcome">&#127775; Welcome</a>
+    <a class="nav-item" data-page="page-our-story">&#128145; Our Story</a>
+    <a class="nav-item" data-page="page-roots">&#127758; Where We Come From</a>
+    <a class="nav-item" data-page="page-home">&#127969; Our Home</a>
+    <a class="nav-item" data-page="page-years">&#128197; Year by Year</a>
+
+    <div class="nav-group-label">Family &amp; Moments</div>
+    <a class="nav-item" data-page="page-family">&#128104;&#8205;&#128105;&#8205;&#128103;&#8205;&#128102; The Family</a>
+    <a class="nav-item" data-page="page-adventures">&#9992;&#65039; Adventures</a>
+    <a class="nav-item" data-page="page-traditions">&#127881; Traditions</a>
+    <a class="nav-item" data-page="page-letters">&#128140; Letters</a>
+    <a class="nav-item" data-page="page-recipes">&#127858; Family Recipes</a>
+
+    <div class="nav-group-label">The Vault</div>
+    <a class="nav-item" data-page="page-vault">&#128274; Time Capsule</a>
+
+    <div class="sidebar-footer">
+      Crafted with love by Legacy Odyssey<br><a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+
+    <!-- ============ WELCOME ============ -->
+    <div id="page-welcome" class="page-section active">
+      <p class="eyebrow">&#10022; The Anderson Family &#10022;</p>
+      <h1 class="section-title">The Anderson Family</h1>
+      <p class="section-subtitle">Est. 2009 &middot; Portland, Oregon</p>
+      <div class="section-divider"></div>
+
+      <div class="quote-block">
+        &ldquo;A family is a collection of people who share the same memories, the same table, and &mdash; on the best days &mdash; the same laugh.&rdquo;
+        <span class="attribution">&mdash; The Andersons</span>
+      </div>
+
+      <p class="body-text">This is the family album of The Anderson Family &mdash; a living record of where we've been, who we are, and the moments we never want to forget.</p>
+      <p class="body-text">You'll find photos here from ordinary Tuesdays and extraordinary vacations. Letters written in the middle of the night and recipes passed down without measurements. Stories we've told a hundred times and ones we almost forgot to write down.</p>
+      <p class="body-text">This album belongs to everyone in it. And one day, it will be the truest thing we leave behind.</p>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-label">Established</div>
+          <div class="stat-value">2009</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Members</div>
+          <div class="stat-value">6</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Years Together</div>
+          <div class="stat-value">15</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Miles Traveled</div>
+          <div class="stat-value">and counting</div>
+        </div>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ OUR STORY ============ -->
+    <div id="page-our-story" class="page-section">
+      <p class="chapter-label">Chapter One</p>
+      <h1 class="section-title">Our Story</h1>
+      <p class="section-subtitle">How this family came to be &mdash; and what it took to get here.</p>
+      <div class="section-divider"></div>
+
+      <div class="img-placeholder" style="background:var(--blush);">&#128145;</div>
+
+      <div class="subsection">
+        <h3>How It Started</h3>
+        <p class="body-text">Every family has a beginning &mdash; a moment, a decision, a place where two paths became one. This is where that story lives.</p>
+        <p class="body-text">Write about how you met, what drew you together, the early years before the family grew. The first apartment, the inside jokes, the moments you knew this was it. The story of how "you and me" became "us."</p>
+      </div>
+
+      <div class="subsection">
+        <h3>The Decision to Build a Family</h3>
+        <p class="body-text">Some families are built slowly, deliberately &mdash; over long conversations and careful plans. Others grow in ways nobody fully anticipated. Either way, there was a moment when you decided: this is the family we're making.</p>
+        <p class="body-text">Write about that turning point. What you were thinking, what you were hoping for, what you were afraid of. The moment the idea of your family became real.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>The Early Years</h3>
+        <p class="body-text">Before the traditions were traditions. Before everyone had a role and a nickname and a seat at the table. These were the years when the family was still figuring itself out &mdash; what it believed in, what it celebrated, how it handled hard things.</p>
+        <p class="body-text">Write about what the early years looked like. What you got wrong, what you got right, and what surprised you most about becoming a family.</p>
+      </div>
+
+      <div class="checklist">
+        <h4>How We Got Here</h4>
+        <div class="checklist-item"><span class="check">&#10003;</span> Found each other</div>
+        <div class="checklist-item"><span class="check">&#10003;</span> Chose to stay</div>
+        <div class="checklist-item"><span class="check">&#10003;</span> Built a home</div>
+        <div class="checklist-item"><span class="check">&#10003;</span> Grew the family</div>
+        <div class="checklist-item"><span class="check">&#10003;</span> Created our traditions</div>
+        <div class="checklist-item"><span class="check">&#10003;</span> Learned to be us</div>
+        <div class="checklist-item"><span class="check">&#10003;</span> Still figuring it out</div>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ WHERE WE COME FROM ============ -->
+    <div id="page-roots" class="page-section">
+      <p class="chapter-label">Chapter Two</p>
+      <h1 class="section-title">Where We Come From</h1>
+      <p class="section-subtitle">The roots that run beneath everything this family is.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">A family doesn't start when you do. It starts generations back &mdash; with people whose names you know and people you've never met, who carried languages, recipes, stories, and ways of seeing the world all the way to you.</p>
+      <p class="body-text">This chapter is about that longer story. Where the Anderson family came from. What was carried. What was lost. What survived.</p>
+
+      <div class="img-placeholder" style="background:var(--dusty-blue);">&#127758;</div>
+
+      <div class="subsection">
+        <h3>Mom's Side of the Family</h3>
+        <p class="body-text">Write about the maternal heritage here. Where her family came from, what generation immigrated or what region they've always called home, what traditions and recipes and beliefs came down through her line. The grandparents, the great-grandparents &mdash; what you know of them and what you wish you knew more of.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>Dad's Side of the Family</h3>
+        <p class="body-text">Write about the paternal heritage here. The places, the stories, the language if there was one. The things his family held onto through hard times and the things they let go of. The traits that show up in the kids without anyone trying.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>What We're Passing Down</h3>
+        <p class="body-text">Heritage isn't just what happened before you. It's what you choose to carry forward &mdash; and what you choose to add to. This section is for the things your family is intentionally giving to the next generation: the language lessons, the religious traditions, the recipes, the stories told at the table.</p>
+        <p class="body-text">What parts of where you come from do you most want your children to carry? Write that here.</p>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ OUR HOME ============ -->
+    <div id="page-home" class="page-section">
+      <p class="chapter-label">Chapter Three</p>
+      <h1 class="section-title">Our Home</h1>
+      <p class="section-subtitle">The place where everything happened.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">A home is more than an address. It's the smell of Sunday mornings and the corner of the couch everyone fights over. It's the wall where you mark heights and the drawer that never quite closes and the spot in the kitchen where everyone ends up at parties.</p>
+      <p class="body-text">This chapter is about the places your family has lived &mdash; and what made them yours.</p>
+
+      <div class="img-placeholder" style="background:var(--sage); opacity:0.35;">&#127969;</div>
+
+      <div class="subsection">
+        <h3>The House</h3>
+        <p class="body-text">Describe the home. Where it is, what it looks like, how you found it or built it or grew into it. The details that make it specific &mdash; the creaky third stair, the backyard you transformed slowly over summers, the room that was repainted three times before it was right.</p>
+        <p class="body-text">A house becomes a home through accumulated ordinary moments. Record some of them here.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>The Neighborhood</h3>
+        <p class="body-text">The street, the neighbors, the coffee shop two blocks over, the park the kids could walk to on their own once they were old enough. The neighborhood is part of the story. Write about the community your family lives inside.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>The Homes Before This One</h3>
+        <p class="body-text">The starter apartment. The house you outgrew. The places you lived when you were still figuring out what kind of home you wanted. Each address is a chapter of the family's story. Don't let them disappear.</p>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ YEAR BY YEAR ============ -->
+    <div id="page-years" class="page-section">
+      <p class="chapter-label">Chapter Four</p>
+      <h1 class="section-title">Year by Year</h1>
+      <p class="section-subtitle">Every year the family was together.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">The years go fast. A decade can feel like a long time until you try to summarize it &mdash; and then it feels impossibly full. This chapter captures the years: the highlights, the low points, the things that changed everything, and the quiet years where nothing seemed to happen but everything did.</p>
+
+      <div class="year-grid" id="yearGrid"></div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ THE FAMILY ============ -->
+    <div id="page-family" class="page-section">
+      <p class="chapter-label">Chapter Five</p>
+      <h1 class="section-title">The Family</h1>
+      <p class="section-subtitle">The people who make up The Anderson Family.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">Every person in this section arrived in the family's story differently &mdash; some by birth, some by marriage, some by decades of Sunday dinners and choosing to show up. Together, they are The Anderson Family.</p>
+
+      <div class="family-grid" id="familyGrid"></div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ ADVENTURES ============ -->
+    <div id="page-adventures" class="page-section">
+      <p class="chapter-label">Chapter Six</p>
+      <h1 class="section-title">Adventures</h1>
+      <p class="section-subtitle">The places we went and the things that happened when we got there.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">Families are forged on road trips. In cramped hotel rooms and lost luggage and the moment when everything goes wrong and somehow it becomes the best story you have. These are the places the Anderson family went &mdash; and what happened there.</p>
+
+      <div class="adventure-grid" id="adventureGrid"></div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ TRADITIONS ============ -->
+    <div id="page-traditions" class="page-section">
+      <p class="chapter-label">Chapter Seven</p>
+      <h1 class="section-title">Traditions &amp; Celebrations</h1>
+      <p class="section-subtitle">The rituals that mark every year of being a family.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">A family's traditions are its fingerprint &mdash; the specific combination of habits and holidays and rituals that no other family has in quite the same way. Some were inherited. Some were invented. All of them are yours.</p>
+
+      <div class="img-placeholder" style="background:var(--rose); opacity:0.3;">&#127881;</div>
+
+      <div class="subsection">
+        <h3>How We Celebrate</h3>
+        <p class="body-text">Write about the holidays your family celebrates and how you celebrate them. Not the generic version &mdash; the specific version. What your Christmas morning looks like, who makes what at Thanksgiving, what your family does on the 4th of July that nobody else does. The traditions that have become load-bearing parts of the year.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>The Things We Do Every Year</h3>
+        <p class="body-text">Beyond the major holidays, most families develop their own annual rituals &mdash; the summer camping trip, the March Madness bracket, the birthday breakfast tradition, the annual photo in front of the same tree. Write about the ones that belong specifically to this family. Where did they come from? Who would be devastated if they were skipped?</p>
+      </div>
+
+      <div class="subsection">
+        <h3>A Tradition From Our Heritage</h3>
+        <p class="body-text">This section is for the traditions that connect the Anderson family to where it came from &mdash; the holiday foods, the songs, the religious observances, the stories told in a particular way, the things that wouldn't make sense to someone outside the culture but mean everything to the people inside it. Write about the tradition and where it comes from. What it means now and what you hope it means to the next generation.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>A Tradition We Started Ourselves</h3>
+        <p class="body-text">Some traditions are born the year a family decides to start them. A new tradition doesn't need to be ancient to be meaningful &mdash; it just needs to be repeated until it becomes expected. Write about a tradition your family created from scratch. Why did it start? What does it mean now? What do the kids say when you suggest skipping it?</p>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ LETTERS ============ -->
+    <div id="page-letters" class="page-section">
+      <p class="chapter-label">Chapter Eight</p>
+      <h1 class="section-title">Letters</h1>
+      <p class="section-subtitle">Words written across time, for the people who matter most.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">The most treasured pages of any family album aren't the photos &mdash; they're the words. These are the letters written by the people who love this family, at specific moments, for specific people. They will outlast everything else.</p>
+
+      <!-- Letter 1: From Mom -->
+      <div class="letter-block">
+        <p class="letter-heading">&#10022; From Mom &middot; Written Today</p>
+        <div class="letter-body">
+          <p>My family,</p>
+          <p>I don't say this enough, and I want it written down somewhere permanent: I am proud of all of you. Not for what you've accomplished &mdash; though you've accomplished plenty &mdash; but for who you are when things are hard. For the way this family shows up for each other. For the ordinary Tuesday evenings that, I've come to realize, are the whole point.</p>
+          <p>There is no version of my life I would want more than this one. With all its noise and mess and logistics and arguments about whose turn it is to empty the dishwasher &mdash; this is the life I would choose again, without hesitating, every single time.</p>
+          <p>I love you all more than I'll ever be able to say. But I'm going to keep trying.</p>
+          <p>All my love,<br>Mom<br><em>[Date]</em></p>
+        </div>
+      </div>
+
+      <!-- Letter 2: From Dad -->
+      <div class="letter-block">
+        <p class="letter-heading">&#10022; From Dad &middot; Written Today</p>
+        <div class="letter-body">
+          <p>To my family,</p>
+          <p>I was not a naturally expressive person before all of you. I want you to know that you changed that. You taught me, slowly, that saying the thing out loud matters. That the people in the room need to hear it, not just sense it.</p>
+          <p>So here is the thing out loud: this family is the best thing that ever happened to me. Not something I built &mdash; something I got to be part of. There's a difference, and I understand it now in a way I didn't when we were starting out.</p>
+          <p>I'm still learning how to be the person this family deserves. I think I always will be. But I'm grateful for the chance to keep trying.</p>
+          <p>With all of it,<br>Dad<br><em>[Date]</em></p>
+        </div>
+      </div>
+
+      <!-- Letter 3: From Grandma -->
+      <div class="letter-block">
+        <p class="letter-heading">&#10022; From Grandma &middot; Written This Year</p>
+        <div class="letter-body">
+          <p>To the Anderson family,</p>
+          <p>I have watched this family grow from the very beginning &mdash; before it was even this family, when it was just two people who hadn't figured out yet what they were starting.</p>
+          <p>I want to tell you what I see from where I stand. I see a family that argues and repairs. That travels and returns. That has hard years and good years and years where you're just trying to keep up. And through all of it, I see people who choose each other.</p>
+          <p>That is not a small thing. That is everything.</p>
+          <p>Keep choosing each other. The rest takes care of itself.</p>
+          <p>With all my love,<br>Grandma<br><em>[Date]</em></p>
+        </div>
+      </div>
+
+      <!-- Letter 4: For the Children -->
+      <div class="letter-block">
+        <p class="letter-heading">&#10022; For Our Children &middot; From Mom &amp; Dad</p>
+        <div class="letter-body">
+          <p>To our kids,</p>
+          <p>You didn't ask to be part of this family. You arrived and we rearranged our entire lives around you, and we would do it again without thinking.</p>
+          <p>Here is what we hope for you: not success, exactly &mdash; though we hope you find work that means something to you. Not happiness, exactly &mdash; though we hope you have more of it than not. What we hope for is that you always have a place to come back to. That when the world gets heavy, you know where home is.</p>
+          <p>This album is part of that. It's here so that one day, when you need to remember where you come from &mdash; who these people were, what this family was made of &mdash; it will be here waiting for you.</p>
+          <p>We love you completely.</p>
+          <p>Mom &amp; Dad<br><em>[Date]</em></p>
+        </div>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ RECIPES ============ -->
+    <div id="page-recipes" class="page-section">
+      <p class="chapter-label">Chapter Nine</p>
+      <h1 class="section-title">Family Recipes</h1>
+      <p class="section-subtitle">The flavors that always mean home.</p>
+      <div class="section-divider"></div>
+
+      <p class="body-text">Every family has a cuisine &mdash; not a national one, necessarily, but a private one. The dishes that appear at every holiday, the things only one person knows how to make right, the recipe that's been in the family so long nobody remembers where it started. Food is memory. These are the recipes that will always mean the Anderson family.</p>
+
+      <div class="recipe-grid">
+        <div class="recipe-card">
+          <p class="recipe-label">Grandma's Recipe</p>
+          <h4>Grandma's [Recipe Name]</h4>
+          <p class="recipe-note">This recipe has been in the family for as long as anyone can remember. Write where it comes from, who makes it, when it gets made, and what it tastes like to the people who grew up with it.</p>
+          <div class="recipe-ingredients">
+            <span>Ingredient 1</span><span>Ingredient 2</span><span>Ingredient 3</span><span>Add your own</span>
+          </div>
+        </div>
+        <div class="recipe-card">
+          <p class="recipe-label">The Holiday Dish</p>
+          <h4>[Holiday] [Recipe Name]</h4>
+          <p class="recipe-note">The dish that only appears at a certain time of year, which makes it feel magical every time. Write about when it gets made and who makes it &mdash; and what the house smells like when it's cooking.</p>
+          <div class="recipe-ingredients">
+            <span>Ingredient 1</span><span>Ingredient 2</span><span>Ingredient 3</span><span>Add your own</span>
+          </div>
+        </div>
+        <div class="recipe-card">
+          <p class="recipe-label">The Sunday Staple</p>
+          <h4>[Day/Meal] [Recipe Name]</h4>
+          <p class="recipe-note">The meal that appears most often &mdash; the one the kids ask for when they haven't been home in a while. Simple, reliable, and more comforting than anything a restaurant could offer.</p>
+          <div class="recipe-ingredients">
+            <span>Ingredient 1</span><span>Ingredient 2</span><span>Ingredient 3</span><span>Add your own</span>
+          </div>
+        </div>
+        <div class="recipe-card">
+          <p class="recipe-label">Dad's Specialty</p>
+          <h4>Dad's Famous [Recipe Name]</h4>
+          <p class="recipe-note">Every family has at least one dish that belongs exclusively to one person. Write about who makes it, what's in it, and why nobody else's version is ever quite right.</p>
+          <div class="recipe-ingredients">
+            <span>Ingredient 1</span><span>Ingredient 2</span><span>Ingredient 3</span><span>Love</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ TIME CAPSULE ============ -->
+    <div id="page-vault" class="page-section">
+      <p class="chapter-label">The Vault</p>
+      <h1 class="section-title">The Family Time Capsule</h1>
+      <div class="section-divider" style="margin-left:auto;margin-right:auto;"></div>
+
+      <div class="vault-container">
+        <div class="vault-icon">&#128274;</div>
+        <div class="vault-box">
+          <p class="body-text">Behind this lock are letters, photos, and memories sealed by the Anderson family &mdash; written for a future moment, not this one. They were placed here with intention and love, and they will wait as long as they need to.</p>
+          <p class="body-text" style="margin-bottom:0;">This capsule unlocks on the family's <strong>25th anniversary</strong>.</p>
+
+          <div class="countdown-row">
+            <div class="cd-unit">
+              <div class="cd-num" id="cdYears">--</div>
+              <div class="cd-label">Years</div>
+            </div>
+            <div class="cd-unit">
+              <div class="cd-num" id="cdMonths">--</div>
+              <div class="cd-label">Months</div>
+            </div>
+            <div class="cd-unit">
+              <div class="cd-num" id="cdDays">--</div>
+              <div class="cd-label">Days</div>
+            </div>
+          </div>
+
+          <p class="vault-sealed">&#128274; Sealed by Legacy Odyssey &middot; Protected Until 2034</p>
+        </div>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- Year Modal -->
+<div class="modal-overlay" id="yearModal">
+  <div class="modal-content">
+    <button class="modal-close" id="yearModalClose">&times;</button>
+    <div class="year-num" id="modalYear"></div>
+    <h3 id="modalLabel"></h3>
+    <p class="highlight" id="modalHighlight"></p>
+    <p class="note" id="modalNote"></p>
+  </div>
+</div>
+
+<!-- Adventure Modal -->
+<div class="modal-overlay" id="advModal">
+  <div class="modal-content">
+    <button class="modal-close" id="advModalClose">&times;</button>
+    <h3 id="advModalTitle"></h3>
+    <p class="highlight" id="advModalDest"></p>
+    <p class="highlight" id="advModalTagline"></p>
+    <p class="note" id="advModalStory"></p>
+  </div>
+</div>
+
+<!-- Family Detail Panel -->
+<div id="family-detail-overlay"></div>
+<div id="family-detail">
+  <button class="detail-close" id="detailClose">&times;</button>
+  <div class="detail-emoji" id="detailEmoji"></div>
+  <h2 class="detail-name" id="detailName"></h2>
+  <p class="detail-role" id="detailRole"></p>
+  <div class="detail-meta" id="detailMeta"></div>
+  <p class="detail-story" id="detailStory1"></p>
+  <div class="detail-quote" id="detailQuote"></div>
+  <p class="detail-story" id="detailStory2"></p>
+</div>
+
+<script>
+// ── DATA ──
+const years = [
+  { year:2009, label:"The Beginning", highlight:"The family officially began.", note:"This was the year that started everything. Write about what life looked like this year \u2014 where you were living, what you were building, what you were dreaming about. The family was new and so was the feeling of it." },
+  { year:2011, label:"The First Big Change", highlight:"Everything shifted.", note:"Some years are pivot points. This was one of them. A move, a new job, a new baby, a loss \u2014 something arrived that changed the shape of the family. Write about what happened and how you came through it." },
+  { year:2013, label:"Finding Our Rhythm", highlight:"Life settled into something beautiful.", note:"After years of figuring it out, this was the year things clicked. Not perfectly \u2014 never perfectly \u2014 but in a way that felt like yours. Write about what the rhythm of daily life looked like this year." },
+  { year:2015, label:"The Adventure Year", highlight:"We went further than we\u2019d ever gone.", note:"Something happened this year that took the family outside its comfort zone \u2014 a trip, a challenge, a big decision. Write about what it was and what it taught the family about itself." },
+  { year:2017, label:"The Hard Year", highlight:"We got through it together.", note:"Not every year is easy. This one asked more of the family than most. Write honestly about what was hard, and what the family discovered about itself by surviving it. The hard years matter as much as the good ones \u2014 maybe more." },
+  { year:2018, label:"The Milestone Year", highlight:"Something big happened.", note:"Graduations, anniversaries, retirements, new arrivals \u2014 some years are dense with milestones. Write about what this year held and why it will always stand out when you look back." },
+  { year:2020, label:"The Year Everything Stopped", highlight:"We learned what really mattered.", note:"Some years mark the whole world, not just a family. This was one of them. Write about what the year was like inside your home \u2014 what you lost, what you found, what unexpected gifts arrived inside a hard time." },
+  { year:2022, label:"Coming Back", highlight:"Life opened up again.", note:"After years of holding back, this was the year the family went out into the world again. The first big trip back, the first reunion, the first time everything felt normal and you noticed it. Write about what it felt like to come back." },
+  { year:2023, label:"The Good Year", highlight:"One of the best in recent memory.", note:"Every family has a year that, in retrospect, was just right. Not too much, not too little. The kids at a good age, the parents at a good place, the house at its warmest. Write about what made this one of the good years." },
+  { year:2024, label:"Right Now", highlight:"The year we\u2019re living in.", note:"This is the hardest chapter to write, because you\u2019re still inside it. But write it anyway \u2014 what the family looks like today, what everyone is doing, what you\u2019re hoping for. Future you will be glad you did." }
+];
+
+const familyMembers = [
+  {
+    name:"Your Mom\u2019s Name", role:"Mother", emoji:"\ud83d\udc69",
+    meta:[["Hometown","Her Hometown"],["Heritage","Her Cultural Background"],["Brings to the family","Her Gift to the Family"],["Known for","The Thing Everyone Loves About Her"]],
+    story1:"Write her full story here \u2014 where she grew up, what she studied, what she was like before she became Mom. The things about her that have nothing to do with parenting but are entirely part of who she is. Her laugh, her fears, the thing she\u2019s most proud of, the thing she\u2019d do differently.",
+    quote:"\u201cA family is the people you\u2019d choose even if you didn\u2019t have to.\u201d",
+    story2:"Write about her role in the family \u2014 the invisible things she holds, the way she keeps track of everything, the moments when the whole family looked to her. And write about what she hopes for \u2014 for herself, not just for everyone else."
+  },
+  {
+    name:"Your Dad\u2019s Name", role:"Father", emoji:"\ud83d\udc68",
+    meta:[["Hometown","His Hometown"],["Heritage","His Cultural Background"],["Brings to the family","His Gift to the Family"],["Known for","The Thing Everyone Loves About Him"]],
+    story1:"Write his story \u2014 the man before the father. Where he\u2019s from, what shaped him, what he wanted for himself, what surprised him about family life. The things he does without being asked and the things he had to learn. Who he was at 25 and who he is now.",
+    quote:"\u201cI didn\u2019t know what I was signing up for. I\u2019m glad I didn\u2019t know \u2014 I might have been too nervous to do it.\u201d",
+    story2:"His relationship with the family \u2014 the way he shows up, what he teaches without teaching, what the kids will say about him when they\u2019re grown. And what he still wants: for his family, for himself, for the years ahead."
+  },
+  {
+    name:"Your Child\u2019s Name", role:"The Eldest", emoji:"\ud83e\uddd2",
+    meta:[["Born","Their Birthday"],["Personality","A Word That Describes Them Perfectly"],["Currently into","Their Latest Obsession"],["Superpower","The Thing They Do Better Than Anyone"]],
+    story1:"Write about this child \u2014 who they were as a baby and who they\u2019re becoming. The traits that were there from day one and the ones that appeared slowly. What makes them laugh, what makes them cry, what they\u2019re working hard at, and what comes effortlessly.",
+    quote:"\u201cThe moment they were born, the family became a different thing than it was before.\u201d",
+    story2:"Where they\u2019re headed \u2014 what their dreams are, what the family hopes for them, and what they\u2019ve already taught the adults around them without realizing it."
+  },
+  {
+    name:"Your Second Child\u2019s Name", role:"The Youngest", emoji:"\ud83e\uddd2",
+    meta:[["Born","Their Birthday"],["Personality","A Word That Describes Them Perfectly"],["Currently into","Their Latest Obsession"],["Superpower","The Thing They Do Better Than Anyone"]],
+    story1:"Write about this child specifically \u2014 not in comparison to any sibling, but on their own terms. What\u2019s purely theirs: their humor, their way of seeing things, their role in the family ecosystem.",
+    quote:"\u201cThey arrived and rearranged everything \u2014 including all of us.\u201d",
+    story2:"Their relationship with the family \u2014 how they fit, how they push back, what they add that nobody else does."
+  },
+  {
+    name:"Grandma\u2019s Name", role:"Grandmother", emoji:"\ud83d\udc75",
+    meta:[["Hometown","Her Hometown"],["Heritage","Her Cultural Background"],["Calls the grandkids","Her Nickname for Them"],["Specialty","What She Makes / Does Best"]],
+    story1:"Write her story \u2014 full and complete. Where she came from, what her life looked like before grandchildren, what she carried across decades to arrive at this family. The things only she knows. The recipes nobody wrote down. The history that lives in her.",
+    quote:"\u201cI raised your parent, and now I get to watch them raise you. That is the greatest gift of my life.\u201d",
+    story2:"Her relationship with the grandchildren \u2014 what she gives them that nobody else can, the traditions she\u2019s established, what she hopes they remember about her long after she\u2019s gone."
+  },
+  {
+    name:"Grandpa\u2019s Name", role:"Grandfather", emoji:"\ud83d\udc74",
+    meta:[["Hometown","His Hometown"],["Heritage","His Cultural Background"],["Teaches","The Skills He Passes Down"],["Legacy","What He Leaves Behind"]],
+    story1:"Write about him \u2014 the quiet patriarch, the man of few words or many, the one who shows love through doing. Where he\u2019s from, what he built, what he survived. The things he\u2019s proud of and the things he keeps to himself.",
+    quote:"\u201cI don\u2019t say much. But I watch everything. And I have never been prouder of anything in my life than this family.\u201d",
+    story2:"His place in the family \u2014 the fishing trips, the woodworking, the handshake he gives, the way he tears up at graduations even though he\u2019d deny it. What his presence means, and what the family will carry from him forever."
+  }
+];
+
+const adventures = [
+  { title:"The First Big Family Trip", dest:"[Destination Name]", year:"[Year]", tagline:"The one that started it all.", emoji:"\u2708\ufe0f", color:"var(--dusty-blue)", story:"Every family has a first big trip \u2014 the one that proved you could actually do it together, that the car rides and the shared bathrooms and the overdone itineraries were worth it. This is that trip. Write about where you went, what went wrong, what surprised you, and what the family talked about on the drive home." },
+  { title:"The Annual Tradition", dest:"[Same Place, Every Year]", year:"[Year \u2013 ongoing]", tagline:"We keep coming back.", emoji:"\ud83c\udfd5\ufe0f", color:"var(--sage)", story:"Some places become part of a family\u2019s identity \u2014 the lake house, the beach town, the mountain cabin. The kind of place where you have the same argument about who gets which bedroom every single time. Write about the place your family returns to and why it still feels like coming home every time you arrive." },
+  { title:"The Unexpected One", dest:"[Somewhere You Didn\u2019t Plan]", year:"[Year]", tagline:"It wasn\u2019t in the plan. It was the best part.", emoji:"\ud83c\udf0d", color:"var(--gold-light)", story:"The detour that became the destination. The trip that happened because something fell through and you scrambled. The weekend that nobody planned for that turned into the one everyone talks about years later. Write about the unplanned adventure." },
+  { title:"The Hard Trip", dest:"[A Difficult Journey]", year:"[Year]", tagline:"We went because we had to.", emoji:"\ud83d\udda4", color:"var(--ink-light)", story:"Not every trip is a vacation. Sometimes you travel for a funeral, or to help someone move, or because a family member needed you across the country. This is for those trips \u2014 the ones that weren\u2019t fun but that showed you what this family is made of." },
+  { title:"The Bucket List Trip", dest:"[Dream Destination]", year:"[Year]", tagline:"We finally did it.", emoji:"\u2728", color:"var(--rose)", story:"The trip everyone had been talking about for years. Write about what it took to finally make it happen, what you found when you got there, whether it lived up to the dream, and what the family said about it afterward." }
+];
+
+// ── PASSWORD ──
+document.getElementById('pw-btn').addEventListener('click', checkPassword);
+document.getElementById('pw-input').addEventListener('keydown', function(e) { if(e.key==='Enter') checkPassword(); });
+function checkPassword() {
+  var val = document.getElementById('pw-input').value.trim().toLowerCase();
+  if (val === 'family') {
+    document.getElementById('password-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    startCountdown();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.querySelector('.nav-item[data-page="'+id+'"]').classList.add('active');
+  document.getElementById('main-content').scrollTop = 0;
+  closeMobileNav();
+}
+document.querySelectorAll('.nav-item').forEach(function(n){
+  n.addEventListener('click', function(){ showPage(this.getAttribute('data-page')); });
+});
+
+// ── MOBILE NAV ──
+var hamburger = document.getElementById('hamburger');
+var sidebar = document.getElementById('sidebar');
+var navOverlay = document.getElementById('navOverlay');
+hamburger.addEventListener('click', function(){
+  sidebar.classList.toggle('open');
+  navOverlay.classList.toggle('show');
+});
+navOverlay.addEventListener('click', closeMobileNav);
+function closeMobileNav(){
+  sidebar.classList.remove('open');
+  navOverlay.classList.remove('show');
+}
+
+// ── RENDER YEAR CARDS ──
+var yearGrid = document.getElementById('yearGrid');
+var yearColors = ['var(--blush)','var(--dusty-blue)','var(--sage)','var(--gold-light)','var(--rose)','var(--blush)','var(--ink-light)','var(--dusty-blue)','var(--sage)','var(--gold-light)'];
+years.forEach(function(y, i){
+  var card = document.createElement('div');
+  card.className = 'year-card';
+  card.innerHTML = '<div class="year-num">'+y.year+'</div><div class="year-label">'+y.label+'</div><div class="year-highlight">'+y.highlight+'</div>';
+  card.addEventListener('click', function(){ openYearModal(i); });
+  yearGrid.appendChild(card);
+});
+
+// ── YEAR MODAL ──
+var yearModal = document.getElementById('yearModal');
+function openYearModal(i){
+  var y = years[i];
+  document.getElementById('modalYear').textContent = y.year;
+  document.getElementById('modalLabel').textContent = y.label;
+  document.getElementById('modalHighlight').textContent = y.highlight;
+  document.getElementById('modalNote').textContent = y.note;
+  yearModal.classList.add('show');
+}
+document.getElementById('yearModalClose').addEventListener('click', function(){ yearModal.classList.remove('show'); });
+yearModal.addEventListener('click', function(e){ if(e.target===yearModal) yearModal.classList.remove('show'); });
+
+// ── RENDER FAMILY CARDS ──
+var familyGrid = document.getElementById('familyGrid');
+familyMembers.forEach(function(m, i){
+  var card = document.createElement('div');
+  card.className = 'family-card';
+  card.innerHTML = '<span class="member-emoji">'+m.emoji+'</span><div class="member-name">'+m.name+'</div><div class="member-role">'+m.role+'</div>';
+  card.addEventListener('click', function(){ openFamilyDetail(i); });
+  familyGrid.appendChild(card);
+});
+
+// ── FAMILY DETAIL PANEL ──
+var detailPanel = document.getElementById('family-detail');
+var detailOverlay = document.getElementById('family-detail-overlay');
+function openFamilyDetail(i){
+  var m = familyMembers[i];
+  document.getElementById('detailEmoji').textContent = m.emoji;
+  document.getElementById('detailName').textContent = m.name;
+  document.getElementById('detailRole').textContent = m.role;
+  var metaHtml = '';
+  m.meta.forEach(function(pair){
+    metaHtml += '<div class="meta-item"><div class="meta-label">'+pair[0]+'</div><div class="meta-value">'+pair[1]+'</div></div>';
+  });
+  document.getElementById('detailMeta').innerHTML = metaHtml;
+  document.getElementById('detailStory1').textContent = m.story1;
+  document.getElementById('detailQuote').textContent = m.quote;
+  document.getElementById('detailStory2').textContent = m.story2;
+  detailPanel.classList.add('open');
+  detailOverlay.classList.add('show');
+}
+function closeFamilyDetail(){
+  detailPanel.classList.remove('open');
+  detailOverlay.classList.remove('show');
+}
+document.getElementById('detailClose').addEventListener('click', closeFamilyDetail);
+detailOverlay.addEventListener('click', closeFamilyDetail);
+
+// ── RENDER ADVENTURE CARDS ──
+var adventureGrid = document.getElementById('adventureGrid');
+adventures.forEach(function(a, i){
+  var card = document.createElement('div');
+  card.className = 'adventure-card';
+  card.innerHTML = '<div class="adventure-img" style="background:'+a.color+'; opacity:0.35;">'+a.emoji+'</div><div class="adventure-body"><h4>'+a.title+'</h4><p class="adv-dest">'+a.dest+' &middot; '+a.year+'</p><p class="adv-tagline">&ldquo;'+a.tagline+'&rdquo;</p></div>';
+  card.addEventListener('click', function(){ openAdvModal(i); });
+  adventureGrid.appendChild(card);
+});
+
+// ── ADVENTURE MODAL ──
+var advModal = document.getElementById('advModal');
+function openAdvModal(i){
+  var a = adventures[i];
+  document.getElementById('advModalTitle').textContent = a.title;
+  document.getElementById('advModalDest').textContent = a.dest + ' \u00b7 ' + a.year;
+  document.getElementById('advModalTagline').textContent = '\u201c' + a.tagline + '\u201d';
+  document.getElementById('advModalStory').textContent = a.story;
+  advModal.classList.add('show');
+}
+document.getElementById('advModalClose').addEventListener('click', function(){ advModal.classList.remove('show'); });
+advModal.addEventListener('click', function(e){ if(e.target===advModal) advModal.classList.remove('show'); });
+
+// ── VAULT COUNTDOWN ──
+function startCountdown() {
+  var familyStartYear = 2009;
+  var unlockDate = new Date(familyStartYear + 25, 0, 1);
+  function update() {
+    var now = new Date();
+    var diff = unlockDate - now;
+    if (diff <= 0) {
+      document.getElementById('cdYears').textContent = '0';
+      document.getElementById('cdMonths').textContent = '0';
+      document.getElementById('cdDays').textContent = '0';
+      return;
+    }
+    var totalDays = Math.floor(diff / (1000*60*60*24));
+    var yrs = Math.floor(totalDays / 365);
+    var mos = Math.floor((totalDays % 365) / 30);
+    var dys = totalDays % 30;
+    document.getElementById('cdYears').textContent = yrs;
+    document.getElementById('cdMonths').textContent = mos;
+    document.getElementById('cdDays').textContent = dys;
+  }
+  update();
+  setInterval(update, 60000);
+}
+
+// ── KEYBOARD: ESC closes modals/panels ──
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') {
+    yearModal.classList.remove('show');
+    advModal.classList.remove('show');
+    closeFamilyDetail();
+    closeMobileNav();
+  }
+});
+</script>
+</body>
+</html>

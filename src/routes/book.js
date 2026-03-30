@@ -1,10 +1,25 @@
 const { Router } = require('express');
+const path = require('path');
 const resolveFamily = require('../middleware/resolveFamily');
 const { requireBookPassword, hashPassword } = require('../middleware/requireBookPassword');
 const bookService = require('../services/bookService');
 const { getPublicUrl } = require('../utils/imageUrl');
 
 const router = Router();
+
+// Serve static demo sites for specific domains
+const DEMO_DOMAINS = {
+  'your-family-photo-album.com': 'family-album-demo.html',
+};
+
+router.use((req, res, next) => {
+  const host = req.hostname.startsWith('www.') ? req.hostname.slice(4) : req.hostname;
+  const demoFile = DEMO_DOMAINS[host];
+  if (demoFile && (req.path === '/' || req.path === '')) {
+    return res.sendFile(path.join(__dirname, '../public', demoFile));
+  }
+  next();
+});
 
 // GET /sitemap.xml — Dynamic sitemap
 router.get('/sitemap.xml', async (req, res) => {
