@@ -273,6 +273,33 @@ h1, h2, h3, h4, h5 {
   color: var(--gold-dark);
 }
 
+.hero-demos {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-demos-label {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  margin: 0;
+}
+
+.demo-link {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.demo-link:hover {
+  color: var(--gold-dark);
+}
+
 .hero-note {
   margin-top: 1.5rem;
   font-size: 0.85rem;
