@@ -164,6 +164,52 @@ router.post('/reset-password', async (req, res, next) => {
   }
 });
 
+// DELETE /api/auth/account
+// Permanently deletes the authenticated user's account, all family/book data, and Stripe subscriptions.
+router.delete('/account', require('../../middleware/requireAuth'), async (req, res, next) => {
+  try {
+    const { stripe } = require('../../config/stripe');
+    const familyService = require('../../services/familyService');
+
+    const userId = req.user.id;
+
+    // Get all families for this user
+    const families = await familyService.findAllByAuthUserId(userId);
+
+    // Cancel all Stripe subscriptions
+    for (const family of families) {
+      if (family.stripe_subscription_id) {
+        try {
+          await stripe.subscriptions.cancel(family.stripe_subscription_id);
+        } catch (stripeErr) {
+          // Log but don't block deletion if subscription is already cancelled
+          console.error(`Failed to cancel subscription ${family.stripe_subscription_id}:`, stripeErr.message);
+        }
+      }
+    }
+
+    // Delete all family records (books/sections cascade via DB foreign keys)
+    for (const family of families) {
+      await supabaseAdmin.from('book_sections').delete().eq('book_id',
+        (await supabaseAdmin.from('books').select('id').eq('family_id', family.id).single()).data?.id
+      );
+      await supabaseAdmin.from('books').delete().eq('family_id', family.id);
+      await supabaseAdmin.from('families').delete().eq('id', family.id);
+    }
+
+    // Delete the Supabase auth user
+    const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (deleteUserError) {
+      console.error('Failed to delete auth user:', deleteUserError.message);
+      // Don't expose this error — data is already deleted
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/auth/update-password
 router.post('/update-password', async (req, res, next) => {
   try {

@@ -8,9 +8,10 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Linking,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
-import { get, put } from '../api/client';
+import { get, put, del, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 
 const APP_VERSION = '1.0.0';
@@ -71,6 +72,52 @@ export default function SettingsScreen({ navigation }) {
         },
       },
     ]);
+  }
+
+  async function handleManageSubscription() {
+    try {
+      const res = await post('/api/stripe/portal', {
+        return_url: 'https://legacyodyssey.com',
+      });
+      await Linking.openURL(res.data.url);
+    } catch (err) {
+      Alert.alert('Error', 'Could not open subscription management. Please try again.');
+    }
+  }
+
+  function handleDeleteAccount() {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account, all book data, and cancel your subscription. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Continue',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Are you absolutely sure?',
+              'All your memories, photos, and book data will be permanently deleted.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete Forever',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await del('/api/auth/account');
+                      await logout();
+                    } catch (err) {
+                      Alert.alert('Error', err.message || 'Failed to delete account. Please contact support.');
+                    }
+                  },
+                },
+              ]
+            );
+          },
+        },
+      ]
+    );
   }
 
   if (loading) {
@@ -149,6 +196,21 @@ export default function SettingsScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      {/* Subscription */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Subscription & Billing</Text>
+        <Text style={styles.sectionDescription}>
+          View your plan, update billing details, or cancel your subscription.
+        </Text>
+        <TouchableOpacity
+          style={styles.outlineButton}
+          onPress={handleManageSubscription}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.outlineButtonText}>Manage Subscription</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Logout */}
       <View style={styles.section}>
         <TouchableOpacity
@@ -157,6 +219,21 @@ export default function SettingsScreen({ navigation }) {
           activeOpacity={0.8}
         >
           <Text style={styles.logoutButtonText}>Log Out</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Delete Account */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Delete Account</Text>
+        <Text style={styles.sectionDescription}>
+          Permanently delete your account and all book data. This cannot be undone.
+        </Text>
+        <TouchableOpacity
+          style={styles.deleteAccountButton}
+          onPress={handleDeleteAccount}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.deleteAccountButtonText}>Delete Account</Text>
         </TouchableOpacity>
       </View>
 
@@ -272,6 +349,20 @@ const styles = StyleSheet.create({
   },
   logoutButtonText: {
     color: colors.white,
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+  },
+  deleteAccountButton: {
+    borderWidth: 1,
+    borderColor: colors.error,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 46,
+  },
+  deleteAccountButtonText: {
+    color: colors.error,
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.semibold,
   },
