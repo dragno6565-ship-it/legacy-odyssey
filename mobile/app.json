@@ -17,7 +17,8 @@
       "bundleIdentifier": "com.legacyodyssey.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "Legacy Odyssey uses your camera to take photos for your baby book sections, such as capturing monthly milestones, family member portraits, and memorable moments to add to your book."
+        "NSCameraUsageDescription": "Legacy Odyssey uses your camera to take photos for your baby book sections, such as capturing monthly milestones, family member portraits, and memorable moments to add to your book.",
+        "NSPhotoLibraryUsageDescription": "Legacy Odyssey uses your photo library to let you add photos to your baby book — for example, uploading a birth story photo, a monthly milestone image, a family portrait, or a recipe photo to preserve in your family's keepsake book."
       }
     },
     "android": {

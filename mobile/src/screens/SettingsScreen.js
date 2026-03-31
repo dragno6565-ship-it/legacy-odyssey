@@ -79,7 +79,18 @@ export default function SettingsScreen({ navigation }) {
       const res = await post('/api/stripe/portal', {
         return_url: 'https://legacyodyssey.com',
       });
-      await Linking.openURL(res.data.url);
+      if (!res.data.isPortal) {
+        Alert.alert(
+          'Free Trial',
+          'You\'re currently on a free trial. To subscribe and manage your plan, visit legacyodyssey.com.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Subscribe', onPress: () => Linking.openURL(res.data.url) },
+          ]
+        );
+      } else {
+        await Linking.openURL(res.data.url);
+      }
     } catch (err) {
       Alert.alert('Error', 'Could not open subscription management. Please try again.');
     }

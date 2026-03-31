@@ -117,17 +117,20 @@ router.post('/create-additional-site-checkout', requireAuth, async (req, res, ne
 // POST /api/stripe/portal — Billing management
 router.post('/portal', requireAuth, async (req, res, next) => {
   try {
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+
     if (!req.family.stripe_customer_id) {
-      return res.status(400).json({ error: 'No Stripe customer found' });
+      // No Stripe customer yet (e.g. trial account) — send them to the website to subscribe
+      return res.json({ url: `https://${appDomain}/#pricing`, isPortal: false });
     }
 
-    const returnUrl = req.body.return_url || `https://${process.env.APP_DOMAIN || 'legacyodyssey.com'}`;
+    const returnUrl = req.body.return_url || `https://${appDomain}`;
     const session = await stripeService.createPortalSession(
       req.family.stripe_customer_id,
       returnUrl
     );
 
-    res.json({ url: session.url });
+    res.json({ url: session.url, isPortal: true });
   } catch (err) {
     next(err);
   }

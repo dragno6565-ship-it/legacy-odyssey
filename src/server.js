@@ -94,6 +94,9 @@ app.use('/api/contact', require('./routes/api/contact'));
 // Web routes (SSR — book viewing)
 app.use('/', require('./routes/book'));
 
+// Account management (web login + subscription portal)
+app.use('/account', require('./routes/account'));
+
 // Admin routes
 app.use('/admin', require('./routes/admin'));
 

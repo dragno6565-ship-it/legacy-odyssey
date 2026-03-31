@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Jost', sans-serif;
+      background: #faf7f2;
+      color: #2c2416;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .wrap {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .logout-link {
+      font-size: 0.85rem;
+      color: #8a7e6b;
+      text-decoration: none;
+    }
+    .logout-link:hover { color: #c0392b; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #2c2416;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #f0ebe3;
+      font-size: 0.95rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #8a7e6b; }
+    .info-value { font-weight: 500; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .badge-active { background: #e8f5e9; color: #2e7d32; }
+    .badge-trialing { background: #fff8e1; color: #f57f17; }
+    .badge-cancelled { background: #fdecea; color: #c0392b; }
+    .badge-other { background: #f0ebe3; color: #6b5f4f; }
+    .error {
+      background: #fdf2f2;
+      border: 1px solid #e0b4b4;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      color: #c0392b;
+      margin-bottom: 1.25rem;
+    }
+    .btn-gold {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      background: #c8a96e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+      margin-top: 1rem;
+    }
+    .btn-gold:hover { background: #b08e4a; }
+    .portal-note {
+      font-size: 0.82rem;
+      color: #8a7e6b;
+      margin-top: 0.6rem;
+      line-height: 1.5;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.82rem;
+      color: #8a7e6b;
+    }
+    .footer a { color: #c8a96e; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="header">
+      <h1>My Account</h1>
+      <a href="/account/logout" class="logout-link">Sign out</a>
+    </div>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <% if (family) { %>
+
+    <!-- Account Info -->
+    <div class="card">
+      <h2>Account Details</h2>
+      <div class="info-row">
+        <span class="info-label">Name</span>
+        <span class="info-value"><%= family.display_name || '—' %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value"><%= family.email %></span>
+      </div>
+    </div>
+
+    <!-- Subscription -->
+    <div class="card">
+      <h2>Subscription & Billing</h2>
+      <div class="info-row">
+        <span class="info-label">Status</span>
+        <span class="info-value">
+          <%
+            const status = family.subscription_status || 'unknown';
+            let badgeClass = 'badge-other';
+            let statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+            if (status === 'active') badgeClass = 'badge-active';
+            else if (status === 'trialing') { badgeClass = 'badge-trialing'; statusLabel = 'Free Trial'; }
+            else if (status === 'canceled' || status === 'cancelled') { badgeClass = 'badge-cancelled'; statusLabel = 'Cancelled'; }
+          %>
+          <span class="badge <%= badgeClass %>"><%= statusLabel %></span>
+        </span>
+      </div>
+      <% if (family.billing_period) { %>
+      <div class="info-row">
+        <span class="info-label">Plan</span>
+        <span class="info-value"><%= family.billing_period.charAt(0).toUpperCase() + family.billing_period.slice(1) %></span>
+      </div>
+      <% } %>
+
+      <% if (family.stripe_customer_id) { %>
+        <form method="POST" action="/account/portal">
+          <button type="submit" class="btn-gold">Manage Subscription</button>
+        </form>
+        <p class="portal-note">Update your payment method, view invoices, or cancel your subscription.</p>
+      <% } else { %>
+        <a href="https://<%= appDomain %>/#pricing" class="btn-gold">View Plans</a>
+        <p class="portal-note">You're on a free trial. Visit our pricing page to subscribe.</p>
+      <% } %>
+    </div>
+
+    <% } %>
+
+    <div class="footer">
+      <a href="https://legacyodyssey.com">← Back to Legacy Odyssey</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:hello@legacyodyssey.com">Contact Support</a>
+    </div>
+
+  </div>
+</body>
+</html>
