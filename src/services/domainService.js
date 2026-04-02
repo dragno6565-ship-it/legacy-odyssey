@@ -205,32 +205,30 @@ async function purchaseAndSetupDomain(orderId) {
     await updateDomainOrder(orderId, { status: 'registered', registered_at: new Date().toISOString() });
     console.log(`Domain registered: ${order.domain}`);
 
-    // Step 3: Add custom domains to Railway — BOTH root and www so the site
-    // works with and without the www prefix.
+    // Step 3: Add www domain to Railway only. Root domains cannot use CNAME
+    // so Railway can never issue TLS for them. Root traffic is handled by
+    // a Spaceship URL redirect → https://www.{domain}.
     let railwayDomainId = null;
     let cnameTarget = null;
     try {
       const railwayService = require('./railwayService');
-
-      // Add root domain (e.g. example.com)
-      const rootResult = await railwayService.addCustomDomain(order.domain);
-      railwayDomainId = rootResult.id;
-      cnameTarget = rootResult.cnameTarget;
-
-      // Add www domain (e.g. www.example.com)
-      try {
-        await railwayService.addCustomDomain(`www.${order.domain}`);
-        console.log(`Railway www domain added: www.${order.domain}`);
-      } catch (wwwErr) {
-        console.error(`Railway www domain failed for www.${order.domain}:`, wwwErr.message);
-      }
+      const wwwResult = await railwayService.addCustomDomain(`www.${order.domain}`);
+      railwayDomainId = wwwResult.id;
+      cnameTarget = wwwResult.cnameTarget;
+      console.log(`Railway www domain added: www.${order.domain} (cname: ${cnameTarget})`);
     } catch (err) {
-      console.error(`Railway custom domain setup failed for ${order.domain}:`, err.message);
+      console.error(`Railway custom domain setup failed for www.${order.domain}:`, err.message);
       // Non-fatal — will fall back to RAILWAY_CNAME_TARGET env var for DNS
     }
 
-    // Step 4: Set up DNS (using Railway-assigned CNAME target if available)
+    // Step 4: Set up DNS (www CNAME → Railway) and root URL redirect → www
     await spaceshipService.setupDns(order.domain, cnameTarget);
+    try {
+      await spaceshipService.setupUrlRedirect(order.domain);
+    } catch (redirectErr) {
+      console.error(`URL redirect setup failed for ${order.domain}:`, redirectErr.message);
+      // Non-fatal — www still works without root redirect
+    }
     await updateDomainOrder(orderId, { status: 'dns_setup', dns_configured_at: new Date().toISOString() });
 
     // Step 5: Update family record with custom domain

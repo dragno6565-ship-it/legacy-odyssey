@@ -128,7 +128,7 @@ async function pollOperation(operationId) {
 
 /**
  * Set DNS records for a domain to point to Railway.
- * Adds CNAME records for @ and www.
+ * Sets CNAME for www (root @ cannot use CNAME per DNS standard).
  */
 async function setupDns(domain, cnameTarget) {
   if (!spaceship) throw new Error('Spaceship API not configured');
@@ -148,12 +148,34 @@ async function setupDns(domain, cnameTarget) {
   console.log(`DNS configured for ${domain} â†’ ${target}`);
 }
 
+/**
+ * Set up a 301 URL redirect from the root domain to https://www.{domain}.
+ * This handles root-domain traffic since root cannot use CNAME.
+ */
+async function setupUrlRedirect(domain) {
+  if (!spaceship) throw new Error('Spaceship API not configured');
+
+  await spaceship.put(`/domains/${encodeURIComponent(domain)}/url-forwardings`, {
+    forwardings: [
+      {
+        source: '@',
+        destination: `https://www.${domain}`,
+        type: 'permanent', // 301
+        includeSubdomains: false,
+      },
+    ],
+  });
+
+  console.log(`URL redirect configured: ${domain} -> https://www.${domain}`);
+}
+
 module.exports = {
   checkAvailability,
   checkMultipleTlds,
   registerDomain,
   pollOperation,
   setupDns,
+  setupUrlRedirect,
   PRIMARY_TLDS,
   MAX_REGISTRATION_PRICE,
 };
