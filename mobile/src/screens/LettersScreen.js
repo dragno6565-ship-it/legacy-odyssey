@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 
 const DEFAULT_LETTERS = [
@@ -21,6 +22,7 @@ const DEFAULT_LETTERS = [
 ];
 
 export default function LettersScreen({ navigation }) {
+  const headerHeight = useHeaderHeight();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -86,7 +88,7 @@ export default function LettersScreen({ navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={headerHeight}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}

@@ -12,12 +12,14 @@ import {
   Platform,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { get, post } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 
 const ITEM_TYPES = ['letter', 'photo', 'memory', 'message'];
 
 export default function VaultScreen({ navigation }) {
+  const headerHeight = useHeaderHeight();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -87,7 +89,7 @@ export default function VaultScreen({ navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={headerHeight}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
