@@ -40,6 +40,10 @@
         "appleId": "dragno6565@gmail.com",
         "ascAppId": "6760883565",
         "appleTeamId": "Y3J2B5YA4N"
+      },
+      "android": {
+        "serviceAccountKeyPath": "C:/Users/dragn/Downloads/warm-practice-349716-6414eeb91dbe.json",
+        "track": "production"
       }
     }
   }
