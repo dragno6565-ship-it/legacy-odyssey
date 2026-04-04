@@ -124,20 +124,18 @@ document.addEventListener('DOMContentLoaded', () => {
       '</div>'
     ).join('');
 
-    // Stories
-    const storyEl = document.getElementById('fdetail-story');
-    if (m.story) {
-      storyEl.innerHTML = m.story.split('\n\n').map(p => '<p style="margin-bottom:1.25rem;">' + p + '</p>').join('');
-    } else {
-      storyEl.innerHTML = '';
+    // Stories — content is HTML from Quill, render directly
+    function renderStory(el, content) {
+      if (!content) { el.innerHTML = ''; return; }
+      // Quill HTML: render directly. Plain text fallback: wrap in paragraphs.
+      if (content.includes('<p>') || content.includes('<ul>') || content.includes('<ol>') || content.includes('<blockquote>')) {
+        el.innerHTML = content;
+      } else {
+        el.innerHTML = content.split('\n\n').map(p => '<p style="margin-bottom:1.25rem;">' + p + '</p>').join('');
+      }
     }
-
-    const story2El = document.getElementById('fdetail-story2');
-    if (m.story2) {
-      story2El.innerHTML = m.story2.split('\n\n').map(p => '<p style="margin-bottom:1.25rem;">' + p + '</p>').join('');
-    } else {
-      story2El.innerHTML = '';
-    }
+    renderStory(document.getElementById('fdetail-story'), m.story);
+    renderStory(document.getElementById('fdetail-story2'), m.story2);
 
     // Quote
     const quoteEl = document.getElementById('fdetail-quote');

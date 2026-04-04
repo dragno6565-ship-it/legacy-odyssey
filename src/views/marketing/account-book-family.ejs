@@ -52,10 +52,12 @@
     .btn-delete-member:hover { color: #c0392b; background: #fdf2f2; }
 
     .drag-handle {
-      color: #c8c0b0; font-size: 1.1rem; cursor: grab; padding: 0 0.4rem;
+      color: #b8ad9e; font-size: 1.25rem; cursor: grab; padding: 0.5rem 0.6rem;
       flex-shrink: 0; user-select: none; display: flex; align-items: center;
+      border-radius: 6px; transition: background 0.15s, color 0.15s;
     }
-    .drag-handle:active { cursor: grabbing; }
+    .drag-handle:hover { background: #f0ebe3; color: #8a7e6b; }
+    .drag-handle:active { cursor: grabbing; background: #e8e0d4; }
     .member-item { display: flex; align-items: center; gap: 0.5rem; }
     .member-item .member-card { flex: 1; margin: 0; }
     .sortable-ghost { opacity: 0.4; }
@@ -112,7 +114,7 @@
         const displayName = (m.name && m.name !== def.label && !m.name.includes("'s Name")) ? m.name : null;
       %>
       <div class="member-item" data-key="<%= def.key %>">
-        <span class="drag-handle" title="Drag to reorder">&#8942;</span>
+        <span class="drag-handle" title="Drag to reorder">&#9776;</span>
         <a href="/account/book/family/<%= def.key %>" class="member-card">
           <div class="member-photo">
             <% if (m.photoUrl) { %>
@@ -136,7 +138,7 @@
         const displayName = m.name || m.member_key;
       %>
       <div class="member-item" data-key="<%= m.member_key %>">
-        <span class="drag-handle" title="Drag to reorder">&#8942;</span>
+        <span class="drag-handle" title="Drag to reorder">&#9776;</span>
         <a href="/account/book/family/<%= m.member_key %>" class="member-card">
           <div class="member-photo">
             <% if (m.photoUrl) { %>

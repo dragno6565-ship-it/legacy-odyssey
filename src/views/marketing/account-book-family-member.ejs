@@ -38,6 +38,20 @@
     }
     input[type="text"]:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
     textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    select {
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #e0d5c4;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      color: #2c2416;
+      background: #fff;
+      transition: border-color 0.2s;
+      width: 100%;
+      appearance: auto;
+    }
+    select:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    .meta-label-custom { margin-top: 0.5rem; }
 
     /* Quill */
     .ql-container.ql-snow { border: 1.5px solid #e0d5c4; border-top: none; border-radius: 0 0 8px 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; min-height: 140px; }
@@ -160,32 +174,49 @@
       <!-- Meta / Fun Facts -->
       <div class="card">
         <h2>Quick Facts <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional)</span></h2>
-        <datalist id="meta-label-suggestions">
-          <option value="Hometown">
-          <option value="Birthday">
-          <option value="Nickname">
-          <option value="Occupation">
-          <option value="Favorite Color">
-          <option value="Favorite Food">
-          <option value="Hobbies">
-          <option value="Fun Fact">
-          <option value="Years Known">
-          <option value="Lives In">
-          <option value="Born In">
-          <option value="Relationship">
-          <option value="Alma Mater">
-        </datalist>
-        <% for (let i = 1; i <= 4; i++) { %>
+        <%
+          const META_OPTIONS = [
+            { label: 'Full Name',     placeholder: 'e.g. Ronald Charles Ragno' },
+            { label: 'Born',          placeholder: 'e.g. 1951, Smithfield, RI' },
+            { label: 'Nickname',      placeholder: 'e.g. Papa Roni' },
+            { label: 'Birthday',      placeholder: 'e.g. March 7, 1951' },
+            { label: 'Hometown',      placeholder: 'e.g. Phoenix, AZ' },
+            { label: 'Town Born',     placeholder: 'e.g. Providence, RI' },
+            { label: 'Occupation',    placeholder: 'e.g. Retired Firefighter' },
+            { label: 'Maiden Name',   placeholder: 'e.g. Smith' },
+            { label: 'Favorite Color',placeholder: 'e.g. Navy Blue' },
+            { label: 'Favorite Food', placeholder: "e.g. Grandma's Lasagna" },
+            { label: 'Hobbies',       placeholder: 'e.g. Fishing, Baseball' },
+            { label: 'Fun Fact',      placeholder: 'e.g. Coached Little League for 12 years' },
+            { label: 'Years Known',   placeholder: 'e.g. Since 1985' },
+          ];
+          const META_LABEL_SET = new Set(META_OPTIONS.map(o => o.label));
+        %>
+        <% for (let i = 1; i <= 4; i++) {
+            const curLabel = member['meta_' + i + '_label'] || '';
+            const curValue = member['meta_' + i + '_value'] || '';
+            const isPredefined = META_LABEL_SET.has(curLabel);
+            const isCustom = curLabel && !isPredefined;
+        %>
         <div class="meta-pair">
           <div class="form-group" style="margin-bottom:0;">
             <label>Label</label>
-            <input type="text" name="meta_<%= i %>_label" list="meta-label-suggestions"
-              value="<%= member['meta_' + i + '_label'] || '' %>" placeholder="e.g. Hometown">
+            <select class="meta-label-select" data-idx="<%= i %>" onchange="handleMetaLabel(this)">
+              <option value="">— Pick a label —</option>
+              <% META_OPTIONS.forEach(function(opt) { %>
+                <option value="<%= opt.label %>" data-ph="<%= opt.placeholder %>"
+                  <%= curLabel === opt.label ? 'selected' : '' %>><%= opt.label %></option>
+              <% }); %>
+              <option value="__custom" <%= isCustom ? 'selected' : '' %>>Custom...</option>
+            </select>
+            <input type="text" name="meta_<%= i %>_label" class="meta-label-custom"
+              value="<%= curLabel %>" placeholder="Type your label..."
+              style="<%= isCustom ? 'display:block;margin-top:0.5rem;' : 'display:none;margin-top:0.5rem;' %>">
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>Value</label>
-            <input type="text" name="meta_<%= i %>_value"
-              value="<%= member['meta_' + i + '_value'] || '' %>" placeholder="e.g. Phoenix, AZ">
+            <input type="text" name="meta_<%= i %>_value" id="meta_v_<%= i %>"
+              value="<%= curValue %>" placeholder="">
           </div>
         </div>
         <% } %>
@@ -290,6 +321,59 @@
     document.getElementById('memberForm').addEventListener('submit', function() {
       document.getElementById('storyTextarea').value = quillValue(storyQuill);
       document.getElementById('story2Textarea').value = quillValue(story2Quill);
+      // Sync any predefined-select labels into the hidden label inputs
+      document.querySelectorAll('.meta-label-select').forEach(function(sel) {
+        if (sel.value && sel.value !== '__custom') {
+          const i = sel.dataset.idx;
+          document.querySelector('[name="meta_' + i + '_label"]').value = sel.value;
+        }
+      });
+    });
+
+    // Quick Facts: label select handler
+    const META_PLACEHOLDERS = {
+      'Full Name':     'e.g. Ronald Charles Ragno',
+      'Born':          'e.g. 1951, Smithfield, RI',
+      'Nickname':      'e.g. Papa Roni',
+      'Birthday':      'e.g. March 7, 1951',
+      'Hometown':      'e.g. Phoenix, AZ',
+      'Town Born':     'e.g. Providence, RI',
+      'Occupation':    'e.g. Retired Firefighter',
+      'Maiden Name':   'e.g. Smith',
+      'Favorite Color':'e.g. Navy Blue',
+      'Favorite Food': "e.g. Grandma's Lasagna",
+      'Hobbies':       'e.g. Fishing, Baseball',
+      'Fun Fact':      'e.g. Coached Little League for 12 years',
+      'Years Known':   'e.g. Since 1985',
+    };
+
+    function handleMetaLabel(sel) {
+      const i = sel.dataset.idx;
+      const labelInput = document.querySelector('[name="meta_' + i + '_label"]');
+      const valueInput = document.getElementById('meta_v_' + i);
+      if (sel.value === '__custom') {
+        labelInput.style.display = 'block';
+        labelInput.value = '';
+        labelInput.focus();
+        valueInput.placeholder = 'e.g. anything you like';
+      } else if (!sel.value) {
+        labelInput.style.display = 'none';
+        labelInput.value = '';
+        valueInput.placeholder = '';
+      } else {
+        labelInput.style.display = 'none';
+        labelInput.value = sel.value;
+        valueInput.placeholder = META_PLACEHOLDERS[sel.value] || '';
+      }
+    }
+
+    // Initialize value placeholders for pre-selected labels on page load
+    document.querySelectorAll('.meta-label-select').forEach(function(sel) {
+      const i = sel.dataset.idx;
+      const valueInput = document.getElementById('meta_v_' + i);
+      if (sel.value && sel.value !== '__custom' && META_PLACEHOLDERS[sel.value]) {
+        valueInput.placeholder = META_PLACEHOLDERS[sel.value];
+      }
     });
 
     // ── Profile photo ───────────────────────────────────────────────────────────

@@ -55,7 +55,9 @@ async function requireAccountSession(req, res, next) {
  */
 function sanitizeBookHtml(dirty) {
   if (!dirty) return '';
-  return sanitizeHtml(dirty, {
+  // Strip any literal &lt;p&gt;&lt;/p&gt; artifacts left over from old escaped rendering
+  const cleaned = dirty.replace(/&lt;p&gt;&lt;\/p&gt;/gi, '').replace(/&lt;p&gt;|&lt;\/p&gt;/gi, '').trim();
+  return sanitizeHtml(cleaned, {
     allowedTags: ['p', 'br', 'strong', 'em', 'u', 's', 'blockquote', 'ol', 'ul', 'li', 'h2', 'h3'],
     allowedAttributes: {},
   });
