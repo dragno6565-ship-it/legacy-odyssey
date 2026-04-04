@@ -241,6 +241,22 @@
               </div>
             </div>
 
+            <!-- Reset App Password -->
+            <div class="detail-card">
+              <h3>&#128272; Reset App Password</h3>
+              <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">
+                Change the password this customer uses to log into the mobile app.
+              </p>
+              <form action="/admin/families/<%= family.id %>/reset-password" method="POST"
+                    onsubmit="return confirm('Reset the app login password for <%= family.email %>?');">
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>New Password</label>
+                  <input type="text" name="new_password" placeholder="Min. 6 characters" autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-sm">Reset Password</button>
+              </form>
+            </div>
+
             <!-- Send Welcome Email -->
             <div class="detail-card">
               <h3>&#9993; Send Welcome Email</h3>

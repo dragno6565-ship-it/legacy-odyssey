@@ -311,6 +311,40 @@ router.post('/families/:id/send-welcome', requireAdmin, async (req, res, next) =
   }
 });
 
+// Reset app login password
+router.post('/families/:id/reset-password', requireAdmin, async (req, res, next) => {
+  try {
+    const family = await familyService.findById(req.params.id);
+    if (!family) return res.status(404).send('Family not found');
+
+    const { new_password } = req.body;
+    if (!new_password || new_password.length < 6) {
+      return res.redirect(`/admin/families/${family.id}?error=Password+must+be+at+least+6+characters`);
+    }
+
+    // Look up the Supabase auth user by email
+    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const authUser = authUsers?.users?.find(u => u.email === family.email);
+
+    if (!authUser) {
+      return res.redirect(`/admin/families/${family.id}?error=No+auth+user+found+for+this+email`);
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+      password: new_password,
+    });
+
+    if (error) {
+      console.error('Password reset error:', error);
+      return res.redirect(`/admin/families/${family.id}?error=Failed+to+reset+password:+${encodeURIComponent(error.message)}`);
+    }
+
+    res.redirect(`/admin/families/${family.id}?success=Password+reset+successfully`);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Toggle active status
 router.get('/families/:id/toggle-active', requireAdmin, async (req, res, next) => {
   try {
