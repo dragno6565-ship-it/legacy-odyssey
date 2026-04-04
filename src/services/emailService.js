@@ -11,6 +11,29 @@ function getResend() {
 
 const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssey.com>';
 
+// Words that appear as first word of a family/display name but aren't a real first name
+const NON_NAME_WORDS = new Set(['the', 'your', 'our', 'my', 'a', 'an', 'apple', 'google', 'sample', 'demo', 'test', 'family', 'review']);
+
+/**
+ * Safely extract a first name from a display name or email.
+ * Handles family names like "The Smith Family" → falls back to email prefix.
+ */
+function getFirstName(displayName, email) {
+  if (displayName && displayName.trim()) {
+    const parts = displayName.trim().split(/\s+/);
+    const first = parts[0];
+    if (first && !NON_NAME_WORDS.has(first.toLowerCase())) {
+      return first;
+    }
+  }
+  // Fall back to email prefix, capitalized
+  if (email) {
+    const prefix = email.split('@')[0].replace(/[^a-zA-Z]/g, '');
+    if (prefix) return prefix.charAt(0).toUpperCase() + prefix.slice(1).toLowerCase();
+  }
+  return 'there';
+}
+
 /**
  * Send welcome email to a new customer with their login credentials,
  * book URL, and APK download link.
@@ -28,6 +51,7 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
 
   const html = buildWelcomeHtml({
     displayName,
+    email: to,
     tempPassword,
     bookPassword,
     bookUrl,
@@ -40,7 +64,7 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
   const { data, error } = await client.emails.send({
     from: FROM_ADDRESS,
     to: [to],
-    subject: `Welcome to Legacy Odyssey, ${displayName.split(' ')[0]}!`,
+    subject: `Welcome to Legacy Odyssey, ${getFirstName(displayName, to)}!`,
     html,
   });
 
@@ -57,8 +81,8 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
  * Build the welcome email HTML.
  * Inline styles for maximum email client compatibility.
  */
-function buildWelcomeHtml({ displayName, tempPassword, bookPassword, bookUrl, subdomain, customDomain, apkUrl, expoGoUrl }) {
-  const firstName = displayName.split(' ')[0];
+function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, bookUrl, subdomain, customDomain, apkUrl, expoGoUrl }) {
+  const firstName = getFirstName(displayName, email);
   const websiteDisplay = customDomain ? `www.${customDomain}` : `legacyodyssey.com/book/${subdomain}`;
   const hasDomain = !!customDomain;
 
@@ -352,7 +376,7 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
  * Send Day 1 nudge: "Upload your first photo"
  */
 async function sendDay1Email({ to, displayName }) {
-  const firstName = displayName?.split(' ')[0] || 'there';
+  const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
     subject: `${firstName}, your book is waiting for its first photo`,
@@ -368,7 +392,7 @@ async function sendDay1Email({ to, displayName }) {
  * Send Day 3 nudge: "Your book is waiting"
  */
 async function sendDay3Email({ to, displayName }) {
-  const firstName = displayName?.split(' ')[0] || 'there';
+  const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
     subject: `Your family's story is waiting to be told`,
@@ -384,7 +408,7 @@ async function sendDay3Email({ to, displayName }) {
  * Send Day 7 nudge: "Share your book"
  */
 async function sendDay7Email({ to, displayName }) {
-  const firstName = displayName?.split(' ')[0] || 'there';
+  const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
     subject: `Share your book with the people who matter`,
@@ -400,7 +424,7 @@ async function sendDay7Email({ to, displayName }) {
  * Send Day 13 nudge: "Trial ending soon"
  */
 async function sendTrialEndingEmail({ to, displayName }) {
-  const firstName = displayName?.split(' ')[0] || 'there';
+  const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
     subject: `${firstName}, your free trial ends tomorrow`,
@@ -416,7 +440,7 @@ async function sendTrialEndingEmail({ to, displayName }) {
  * Send gift purchase confirmation email to the buyer.
  */
 async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl }) {
-  const firstName = buyerName?.split(' ')[0] || 'there';
+  const firstName = getFirstName(buyerName, to);
   return sendOnboardingEmail({
     to,
     subject: 'Your Legacy Odyssey gift is ready!',
