@@ -38,6 +38,7 @@ router.get('/sitemap.xml', async (req, res) => {
     { loc: `https://${appDomain}/`, priority: '1.0', changefreq: 'weekly' },
     { loc: `https://${appDomain}/terms`, priority: '0.3', changefreq: 'monthly' },
     { loc: `https://${appDomain}/privacy`, priority: '0.3', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/what-to-write-in-baby-book`, priority: '0.7', changefreq: 'monthly' },
   ];
 
   if (families) {
@@ -72,6 +73,11 @@ router.get('/terms', (req, res) => {
 // GET /privacy — Privacy Policy
 router.get('/privacy', (req, res) => {
   res.render('marketing/privacy');
+});
+
+// GET /blog/what-to-write-in-baby-book
+router.get('/blog/what-to-write-in-baby-book', (req, res) => {
+  res.render('marketing/blog-what-to-write-in-baby-book');
 });
 
 // POST /verify-password
