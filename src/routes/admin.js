@@ -315,7 +315,7 @@ router.post('/families/:id/send-welcome', requireAdmin, async (req, res, next) =
   }
 });
 
-// Reset app login password
+// Reset app + account login password
 router.post('/families/:id/reset-password', requireAdmin, async (req, res, next) => {
   try {
     const family = await familyService.findById(req.params.id);
@@ -326,15 +326,12 @@ router.post('/families/:id/reset-password', requireAdmin, async (req, res, next)
       return res.redirect(`/admin/families/${family.id}?error=Password+must+be+at+least+6+characters`);
     }
 
-    // Look up the Supabase auth user by email
-    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const authUser = authUsers?.users?.find(u => u.email === family.email);
-
-    if (!authUser) {
-      return res.redirect(`/admin/families/${family.id}?error=No+auth+user+found+for+this+email`);
+    if (!family.auth_user_id) {
+      return res.redirect(`/admin/families/${family.id}?error=No+auth+user+linked+to+this+family`);
     }
 
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+    // Update directly by auth_user_id — works for both mobile app and web account login
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(family.auth_user_id, {
       password: new_password,
     });
 
@@ -343,7 +340,7 @@ router.post('/families/:id/reset-password', requireAdmin, async (req, res, next)
       return res.redirect(`/admin/families/${family.id}?error=Failed+to+reset+password:+${encodeURIComponent(error.message)}`);
     }
 
-    res.redirect(`/admin/families/${family.id}?success=Password+reset+successfully`);
+    res.redirect(`/admin/families/${family.id}?success=Password+reset+successfully+%E2%80%94+works+for+app+and+account+login`);
   } catch (err) {
     next(err);
   }

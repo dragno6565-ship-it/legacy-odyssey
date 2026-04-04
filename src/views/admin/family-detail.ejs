@@ -251,14 +251,14 @@
               </div>
             </div>
 
-            <!-- Reset App Password -->
+            <!-- Reset Password -->
             <div class="detail-card">
-              <h3>&#128272; Reset App Password</h3>
+              <h3>&#128272; Reset Password</h3>
               <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">
-                Change the password this customer uses to log into the mobile app.
+                Resets the password for both the <strong>mobile app</strong> and the <strong>account area</strong> (legacyodyssey.com/account). Both use the same login credentials.
               </p>
               <form action="/admin/families/<%= family.id %>/reset-password" method="POST"
-                    onsubmit="return confirm('Reset the app login password for <%= family.email %>?');">
+                    onsubmit="return confirm('Reset the password for <%= family.email %>? This affects both app and account login.');">
                 <div class="form-group" style="margin-bottom: 10px;">
                   <label>New Password</label>
                   <input type="text" name="new_password" placeholder="Min. 6 characters" autocomplete="off">

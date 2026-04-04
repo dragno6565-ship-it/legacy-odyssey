@@ -482,6 +482,70 @@ async function sendGiftNotificationEmail({ to, buyerName, message, redeemUrl }) 
   });
 }
 
+/**
+ * Send a branded password reset email.
+ */
+async function sendPasswordResetEmail({ to, resetUrl }) {
+  const client = getResend();
+  if (!client) {
+    console.warn('Resend not configured — skipping password reset email');
+    return null;
+  }
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr><td style="background:#1a1a2e;padding:24px;text-align:center;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:#c8a96e;letter-spacing:2px;">LEGACY ODYSSEY</span>
+        </td></tr>
+        <tr><td style="padding:36px 32px;">
+          <h1 style="font-family:Georgia,serif;font-size:22px;color:#1a1a2e;margin:0 0 16px;">Reset your password</h1>
+          <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 8px;">
+            We received a request to reset the password for your Legacy Odyssey account.
+          </p>
+          <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 28px;">
+            Click the button below to choose a new password. This link expires in 1 hour.
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding-bottom:28px;">
+            <a href="${resetUrl}" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;">Reset Password</a>
+          </td></tr></table>
+          <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:0;">
+            If you didn't request this, you can safely ignore this email — your password won't change.
+          </p>
+          <p style="font-size:12px;line-height:1.6;color:#b0b0b0;margin:16px 0 0;word-break:break-all;">
+            Or copy this link: <a href="${resetUrl}" style="color:#c8a96e;">${resetUrl}</a>
+          </p>
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your family's story, beautifully told</p>
+          <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const { data, error } = await client.emails.send({
+    from: FROM_ADDRESS,
+    to: [to],
+    subject: 'Reset your Legacy Odyssey password',
+    html,
+  });
+
+  if (error) {
+    console.error('Failed to send password reset email:', error);
+    throw error;
+  }
+
+  console.log(`Password reset email sent to ${to} (id: ${data.id})`);
+  return data;
+}
+
 module.exports = {
   sendWelcomeEmail,
   sendOnboardingEmail,
@@ -491,4 +555,5 @@ module.exports = {
   sendTrialEndingEmail,
   sendGiftPurchaseEmail,
   sendGiftNotificationEmail,
+  sendPasswordResetEmail,
 };

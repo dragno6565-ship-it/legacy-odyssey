@@ -104,6 +104,96 @@ router.get('/logout', (req, res) => {
   res.redirect('/account');
 });
 
+// ─── Forgot / Reset password ──────────────────────────────────────────────────
+
+router.get('/forgot-password', (req, res) => {
+  res.render('marketing/account-forgot-password', { sent: false, error: null });
+});
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.render('marketing/account-forgot-password', { sent: false, error: 'Please enter your email address.' });
+  }
+  try {
+    // Generate a branded recovery link via admin API
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: email.trim().toLowerCase(),
+      options: {
+        redirectTo: `https://${APP_DOMAIN()}/account/reset-password`,
+      },
+    });
+
+    if (!linkError && linkData?.properties?.action_link) {
+      const emailService = require('../services/emailService');
+      await emailService.sendPasswordResetEmail({
+        to: email.trim().toLowerCase(),
+        resetUrl: linkData.properties.action_link,
+      });
+    }
+  } catch (err) {
+    console.error('Forgot password error:', err.message);
+  }
+  // Always show success — prevents email enumeration
+  res.render('marketing/account-forgot-password', { sent: true, error: null });
+});
+
+router.get('/reset-password', (req, res) => {
+  const { token_hash } = req.query;
+  res.render('marketing/account-reset-password', {
+    token_hash: token_hash || '',
+    error: null,
+    success: false,
+  });
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { token_hash, new_password, confirm_password } = req.body;
+
+  const renderError = (error) => res.render('marketing/account-reset-password', {
+    token_hash: token_hash || '',
+    error,
+    success: false,
+  });
+
+  if (!token_hash) return renderError('Invalid reset link. Please request a new one.');
+  if (!new_password || new_password.length < 6) return renderError('Password must be at least 6 characters.');
+  if (new_password !== confirm_password) return renderError('Passwords do not match.');
+
+  try {
+    // Create a temporary Supabase client to avoid polluting the shared anon client's session
+    const { createClient } = require('@supabase/supabase-js');
+    const tempClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      auth: { persistSession: false },
+    });
+
+    const { data, error: verifyError } = await tempClient.auth.verifyOtp({
+      token_hash,
+      type: 'recovery',
+    });
+
+    if (verifyError || !data?.user) {
+      console.error('verifyOtp error:', verifyError?.message);
+      return renderError('This reset link has expired or already been used. Please request a new one.');
+    }
+
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
+      password: new_password,
+    });
+
+    if (updateError) {
+      console.error('Password update error:', updateError.message);
+      return renderError('Failed to update password. Please try again.');
+    }
+
+    res.render('marketing/account-reset-password', { token_hash: '', error: null, success: true });
+  } catch (err) {
+    console.error('Reset password error:', err.message);
+    return renderError('Something went wrong. Please try again.');
+  }
+});
+
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 router.get('/dashboard', async (req, res) => {
