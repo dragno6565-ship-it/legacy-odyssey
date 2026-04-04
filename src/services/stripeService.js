@@ -209,7 +209,7 @@ async function createFounderCheckoutSession({ email, subdomain, domain, successU
   return session;
 }
 
-async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientEmail, message, successUrl, cancelUrl }) {
+async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName, recipientEmail, message, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const session = await stripe.checkout.sessions.create({
@@ -222,6 +222,7 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientEmail
     metadata: {
       type: 'gift',
       buyer_name: buyerName || '',
+      recipient_name: recipientName || '',
       recipient_email: recipientEmail || '',
       gift_message: message || '',
     },

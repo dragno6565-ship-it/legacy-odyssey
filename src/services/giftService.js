@@ -25,7 +25,7 @@ function generateGiftCode() {
 /**
  * Create a gift code record after successful Stripe payment.
  */
-async function createGiftCode({ buyerEmail, buyerName, recipientEmail, recipientMessage, stripeSessionId }) {
+async function createGiftCode({ buyerEmail, buyerName, recipientName, recipientEmail, recipientMessage, stripeSessionId }) {
   const code = generateGiftCode();
   const expiresAt = new Date();
   expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year to redeem
@@ -36,6 +36,7 @@ async function createGiftCode({ buyerEmail, buyerName, recipientEmail, recipient
       code,
       buyer_email: buyerEmail,
       buyer_name: buyerName || null,
+      recipient_name: recipientName || null,
       recipient_email: recipientEmail || null,
       recipient_message: recipientMessage || null,
       stripe_session_id: stripeSessionId,
@@ -92,6 +93,7 @@ async function redeemGiftCode({ code, email, domain }) {
     authUserId: authData.user.id,
     subdomain,
     displayName: subdomain ? `The ${subdomain} Family` : 'My Family',
+    customerName: gift.recipient_name || null,
   });
 
   // 5. Create Stripe customer and subscription with trial

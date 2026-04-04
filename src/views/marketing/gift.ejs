@@ -206,6 +206,11 @@
         </div>
 
         <div>
+          <label for="recipientName">Recipient's Name <span style="color: var(--rose);">*</span></label>
+          <input type="text" id="recipientName" name="recipientName" required placeholder="e.g. Emma Cherry">
+        </div>
+
+        <div>
           <label for="recipientEmail">Recipient Email</label>
           <input type="email" id="recipientEmail" name="recipientEmail" placeholder="Optional — we'll email them the gift code">
         </div>
@@ -262,6 +267,7 @@
           body: JSON.stringify({
             buyerEmail: document.getElementById('buyerEmail').value,
             buyerName: document.getElementById('buyerName').value,
+            recipientName: document.getElementById('recipientName').value,
             recipientEmail: document.getElementById('recipientEmail').value,
             giftMessage: document.getElementById('giftMessage').value,
           }),

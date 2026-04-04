@@ -33,6 +33,7 @@ router.post('/stripe/webhook', async (req, res) => {
           const gift = await giftService.createGiftCode({
             buyerEmail: session.customer_email || session.customer_details?.email,
             buyerName: session.metadata.buyer_name,
+            recipientName: session.metadata.recipient_name || null,
             recipientEmail: session.metadata.recipient_email,
             recipientMessage: session.metadata.gift_message,
             stripeSessionId: session.id,

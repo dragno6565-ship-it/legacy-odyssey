@@ -40,17 +40,21 @@ router.post('/create-checkout', async (req, res, next) => {
 // POST /api/stripe/create-gift-checkout
 router.post('/create-gift-checkout', async (req, res, next) => {
   try {
-    const { buyerEmail, buyerName, recipientEmail, message } = req.body;
+    const { buyerEmail, buyerName, recipientName, recipientEmail, message, giftMessage } = req.body;
     if (!buyerEmail) {
       return res.status(400).json({ error: 'buyerEmail is required' });
+    }
+    if (!recipientName) {
+      return res.status(400).json({ error: 'recipientName is required' });
     }
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
     const session = await stripeService.createGiftCheckoutSession({
       buyerEmail,
       buyerName,
+      recipientName,
       recipientEmail,
-      message,
+      message: message || giftMessage,
       successUrl: `https://${appDomain}/gift/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}/gift`,
     });
