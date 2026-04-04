@@ -368,5 +368,14 @@
     </div>
 
   </div>
+
+  <script>
+    pintrk('track', 'signup');
+    pintrk('track', 'checkout', {
+      value: <%= plan === 'annual' ? 49.99 : 4.99 %>,
+      order_quantity: 1,
+      currency: 'USD'
+    });
+  </script>
 </body>
 </html>

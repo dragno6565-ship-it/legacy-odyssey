@@ -530,6 +530,7 @@
         });
         if (res.ok) {
           success.style.display = 'block';
+          pintrk('track', 'lead');
           form.reset();
         } else {
           error.style.display = 'block';
