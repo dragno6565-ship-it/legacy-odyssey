@@ -62,6 +62,14 @@
     .member-item .member-card { flex: 1; margin: 0; }
     .sortable-ghost { opacity: 0.4; }
     .reorder-hint { font-size: 0.78rem; color: #b0a090; text-align: center; margin-top: 0.35rem; }
+    #reorder-toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(8px);
+      background: #2e7d32; color: #fff; padding: 0.6rem 1.25rem;
+      border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+      opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none; z-index: 999; white-space: nowrap;
+    }
+    #reorder-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .btn-add-member {
       display: flex; align-items: center; gap: 0.5rem;
@@ -171,8 +179,20 @@
 
   </div>
 
+  <div id="reorder-toast">&#10003; Order saved</div>
+
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <script>
+    let toastTimer;
+    function showToast(ok) {
+      const t = document.getElementById('reorder-toast');
+      t.textContent = ok ? '✓ Order saved' : '⚠ Could not save order';
+      t.style.background = ok ? '#2e7d32' : '#c0392b';
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
     Sortable.create(document.getElementById('memberList'), {
       animation: 150,
       handle: '.drag-handle',
@@ -183,7 +203,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ order })
-        });
+        }).then(r => showToast(r.ok)).catch(() => showToast(false));
       }
     });
   </script>
