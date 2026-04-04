@@ -26,41 +26,58 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
           <!-- Body -->
           <tr>
             <td style="padding:40px 40px 32px;">
+
               <p style="margin:0 0 24px;font-size:26px;color:#1E1812;line-height:1.3;">You're on the list.</p>
+
               <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                Thank you for your interest in Legacy Odyssey. You're one of the first people to sign up — which means you'll be among the first to get access, and you'll lock in our founder pricing of <strong>$39/year</strong> when you join.
-              </p>
-              <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                While you wait, you can see exactly what you'll get by walking through our live demos:
+                Thank you for signing up for Legacy Odyssey. As a founding member, you'll lock in our founder rate — <strong>$29/year for your family's site and first domain</strong> — for as long as you keep your subscription. That's less than $2.50/month, locked in forever.
               </p>
 
-              <!-- Demo links -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+              <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
+                The standard price when we open publicly is $49.99/year. Your founder rate never changes as long as you stay subscribed.
+              </p>
+
+              <!-- Pricing box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5EDD8;border:1px solid #D4B483;border-radius:6px;margin:0 0 24px;">
                 <tr>
-                  <td style="padding:0 0 12px;">
-                    <a href="https://your-childs-name.com" style="display:block;background:#F8F2E6;border:1px solid #D4B483;border-radius:6px;padding:16px 20px;text-decoration:none;color:#1E1812;">
-                      <span style="font-size:14px;color:#B8935A;display:block;margin-bottom:4px;">BABY BOOK DEMO</span>
-                      <span style="font-size:16px;font-weight:bold;">your-childs-name.com</span>
-                      <span style="font-size:13px;color:#4A3F32;display:block;margin-top:2px;">Password: legacy</span>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <a href="https://your-family-photo-album.legacyodyssey.com" style="display:block;background:#F8F2E6;border:1px solid #D4B483;border-radius:6px;padding:16px 20px;text-decoration:none;color:#1E1812;">
-                      <span style="font-size:14px;color:#B8935A;display:block;margin-bottom:4px;">FAMILY ALBUM DEMO</span>
-                      <span style="font-size:16px;font-weight:bold;">your-family-photo-album.legacyodyssey.com</span>
-                      <span style="font-size:13px;color:#4A3F32;display:block;margin-top:2px;">Password: family</span>
-                    </a>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 12px;font-size:15px;color:#1E1812;font-weight:bold;">Your founder pricing:</p>
+                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;$29/year &mdash; your family's site + first .com domain</p>
+                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Locked in for life as long as you stay subscribed</p>
+                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Additional domains available at $12.99/year each</p>
+                    <p style="margin:0;font-size:13px;color:#9C8B78;margin-top:10px;">Standard price after launch: $49.99/year</p>
                   </td>
                 </tr>
               </table>
 
               <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                Every Legacy Odyssey family gets their own private .com — nine chapters of memories, unlimited photos, and a <strong>Time Vault</strong> where you can write letters sealed until your child's 18th birthday.
+                While you wait, take a look at the live demos to see exactly what you'll get:
               </p>
+
+              <!-- Demo links -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                <tr>
+                  <td style="padding:0 0 10px;">
+                    <a href="https://your-childs-name.com" style="display:block;background:#F8F2E6;border:1px solid #D4B483;border-radius:6px;padding:14px 18px;text-decoration:none;color:#1E1812;">
+                      <span style="font-size:12px;color:#B8935A;display:block;margin-bottom:3px;letter-spacing:0.08em;">BABY BOOK DEMO</span>
+                      <span style="font-size:15px;font-weight:bold;">your-childs-name.com</span>
+                      <span style="font-size:12px;color:#6B5B45;display:block;margin-top:2px;">Password: legacy</span>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <a href="https://your-family-photo-album.legacyodyssey.com" style="display:block;background:#F8F2E6;border:1px solid #D4B483;border-radius:6px;padding:14px 18px;text-decoration:none;color:#1E1812;">
+                      <span style="font-size:12px;color:#B8935A;display:block;margin-bottom:3px;letter-spacing:0.08em;">FAMILY ALBUM DEMO</span>
+                      <span style="font-size:15px;font-weight:bold;">your-family-photo-album.legacyodyssey.com</span>
+                      <span style="font-size:12px;color:#6B5B45;display:block;margin-top:2px;">Password: family</span>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
               <p style="margin:0 0 32px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                We'll be in touch soon.
+                Every Legacy Odyssey family gets their own private .com &mdash; nine chapters of memories, unlimited photos, and a <strong>Time Vault</strong> where you write letters sealed until your child's 18th birthday.
               </p>
 
               <!-- CTA -->
@@ -68,11 +85,12 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
                 <tr>
                   <td align="center">
                     <a href="https://legacyodyssey.com" style="display:inline-block;background:#B8935A;color:#1E1812;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:16px;font-weight:bold;">
-                      Learn More &rarr;
+                      See Legacy Odyssey &rarr;
                     </a>
                   </td>
                 </tr>
               </table>
+
             </td>
           </tr>
 
