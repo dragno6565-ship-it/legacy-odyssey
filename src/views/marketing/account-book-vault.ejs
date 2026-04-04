@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Vault – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"], select, textarea {
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #e0d5c4;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      color: #2c2416;
+      background: #fff;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.7; }
+
+    /* Vault banner */
+    .vault-banner {
+      background: linear-gradient(135deg, #2c2416 0%, #1a1510 100%);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .vault-lock { font-size: 2rem; flex-shrink: 0; }
+    .vault-banner-text h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: #c8a96e; margin-bottom: 0.25rem; }
+    .vault-banner-text p { font-size: 0.82rem; color: #8a7e6b; line-height: 1.5; }
+
+    /* Photo upload */
+    .photo-zone { border: 2px dashed #e0d5c4; border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
+    .photo-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-zone.has-photo { border-style: solid; border-color: #c8a96e; padding: 0; overflow: hidden; }
+    .photo-zone img { width: 100%; max-height: 200px; object-fit: cover; display: block; border-radius: 8px; }
+    .photo-zone-label { font-size: 0.85rem; color: #8a7e6b; margin-top: 0.4rem; }
+    .photo-zone-label strong { color: #c8a96e; }
+    .photo-remove { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; justify-content: center; }
+    .photo-zone.has-photo .photo-remove { display: flex; }
+    .photo-uploading { font-size: 0.82rem; color: #c8a96e; margin-top: 0.4rem; display: none; }
+
+    /* Submit button */
+    .btn-seal { background: #2c2416; color: #c8a96e; border: none; border-radius: 8px; padding: 0.85rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-seal:hover { background: #1a1510; }
+
+    /* Sealed items list */
+    .sealed-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #f0ebe3;
+    }
+    .sealed-item:last-child { border-bottom: none; }
+    .sealed-photo { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #f0ebe3; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .sealed-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .sealed-info { flex: 1; }
+    .sealed-type { font-size: 0.7rem; font-weight: 600; color: #c8a96e; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+    .sealed-title { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: #2c2416; margin-bottom: 0.15rem; }
+    .sealed-by { font-size: 0.78rem; color: #8a7e6b; }
+    .sealed-date { font-size: 0.75rem; color: #b8a898; margin-top: 0.1rem; }
+    .sealed-delete { flex-shrink: 0; }
+    .btn-delete-item { background: none; border: none; color: #c8a898; font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0.5rem; border-radius: 4px; }
+    .btn-delete-item:hover { color: #c0392b; background: #fdf2f2; }
+    .empty-vault { text-align: center; padding: 2rem; color: #8a7e6b; font-size: 0.9rem; }
+
+    .back-link { display: inline-block; margin-top: 0.5rem; color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .back-link:hover { color: #2c2416; }
+
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      The Vault
+    </div>
+
+    <div class="vault-banner">
+      <div class="vault-lock">🔒</div>
+      <div class="vault-banner-text">
+        <h2>The Legacy Vault</h2>
+        <p>Sealed items are hidden from viewers until your child's 18th birthday. Add letters, memories, and messages they'll read when they're older.</p>
+      </div>
+    </div>
+
+    <% if (success) { %><div class="flash flash-success">✓ Item sealed successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <!-- Add new item -->
+    <div class="card">
+      <h2>🔒 Seal a New Item</h2>
+      <form method="POST" action="/account/book/vault" id="vaultForm">
+        <input type="hidden" name="photo_path" id="photoPath" value="">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Item Type</label>
+            <select name="item_type">
+              <option value="letter">Letter</option>
+              <option value="memory">Memory</option>
+              <option value="advice">Advice</option>
+              <option value="photo">Photo</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Sealed By</label>
+            <input type="text" name="sealed_by" placeholder="e.g. Mom, Dad, Grandma Rose">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" name="title" placeholder="e.g. A Letter for When You Graduate" required>
+        </div>
+        <div class="form-group">
+          <label>Message / Body</label>
+          <textarea name="body" placeholder="Write your message here. This will be sealed until their 18th birthday…" style="min-height:160px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Photo (optional)</label>
+          <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
+            <img src="" alt="" id="photoPreview" style="display:none;">
+            <button type="button" class="photo-remove" onclick="removePhoto(event)">✕</button>
+            <div style="font-size:1.5rem;margin-bottom:0.4rem;">📷</div>
+            <div class="photo-zone-label"><strong>Click to upload</strong> a photo to seal with this item</div>
+          </div>
+          <div class="photo-uploading" id="photoUploading">Uploading…</div>
+          <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="uploadVaultPhoto(this)">
+        </div>
+        <button type="submit" class="btn-seal">🔒 Seal This Item</button>
+      </form>
+    </div>
+
+    <!-- Existing sealed items -->
+    <div class="card">
+      <h2>Sealed Items (<%= items ? items.length : 0 %>)</h2>
+      <% if (!items || items.length === 0) { %>
+        <div class="empty-vault">Nothing sealed yet. Add your first item above.</div>
+      <% } else { %>
+        <% items.forEach(function(item) { %>
+        <div class="sealed-item">
+          <div class="sealed-photo">
+            <% if (item.photoUrl) { %>
+              <img src="<%= item.photoUrl %>" alt="">
+            <% } else { %>
+              <%= item.item_type === 'letter' ? '✉️' : item.item_type === 'photo' ? '📷' : item.item_type === 'advice' ? '💡' : '🔒' %>
+            <% } %>
+          </div>
+          <div class="sealed-info">
+            <div class="sealed-type"><%= item.item_type || 'item' %></div>
+            <div class="sealed-title"><%= item.title %></div>
+            <% if (item.sealed_by) { %><div class="sealed-by">From <%= item.sealed_by %></div><% } %>
+            <div class="sealed-date">Sealed <%= new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></div>
+          </div>
+          <div class="sealed-delete">
+            <form method="POST" action="/account/book/vault/<%= item.id %>/delete" style="display:inline;"
+              onsubmit="return confirm('Remove this sealed item permanently?')">
+              <button type="submit" class="btn-delete-item">✕ Remove</button>
+            </form>
+          </div>
+        </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <a href="/account/book" class="back-link">← Back to My Book</a>
+
+  </div>
+
+  <script>
+    async function uploadVaultPhoto(input) {
+      if (!input.files || !input.files[0]) return;
+      const uploadingEl = document.getElementById('photoUploading');
+      uploadingEl.style.display = 'block';
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', 'vault');
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById('photoPath').value = data.path;
+        const preview = document.getElementById('photoPreview');
+        preview.src = data.url;
+        preview.style.display = 'block';
+        const zone = document.getElementById('photoZone');
+        zone.classList.add('has-photo');
+        zone.querySelector('div[style*="font-size:1.5rem"]').style.display = 'none';
+        zone.querySelector('.photo-zone-label').style.display = 'none';
+      } catch (e) {
+        alert('Upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    function removePhoto(e) {
+      e.stopPropagation();
+      document.getElementById('photoPath').value = '';
+      document.getElementById('photoPreview').style.display = 'none';
+      const zone = document.getElementById('photoZone');
+      zone.classList.remove('has-photo');
+    }
+  </script>
+</body>
+</html>

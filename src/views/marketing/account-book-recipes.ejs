@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Recipes – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.3rem; }
+    input[type="text"] { padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; width: 100%; transition: border-color 0.2s; }
+    input[type="text"]:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; width: 100%; min-height: 90px; resize: vertical; transition: border-color 0.2s; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+
+    /* Recipe card */
+    .recipe-item { background: #fff; border-radius: 12px; border: 1px solid #f0ebe3; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 0.75rem; }
+    .recipe-item.sortable-ghost { opacity: 0.4; }
+    .recipe-item.sortable-chosen { box-shadow: 0 4px 20px rgba(200,169,110,0.2); }
+    .recipe-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1.25rem; background: #faf7f2; border-bottom: 1px solid #f0ebe3; cursor: pointer; }
+    .drag-handle { cursor: grab; color: #c8a96e; font-size: 1.1rem; flex-shrink: 0; }
+    .drag-handle:active { cursor: grabbing; }
+    .recipe-title-preview { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; flex: 1; }
+    .recipe-toggle { font-size: 0.9rem; color: #c8a96e; transition: transform 0.2s; }
+    .recipe-toggle.open { transform: rotate(180deg); }
+    .recipe-delete { background: none; border: none; color: #c8a898; font-size: 1.1rem; cursor: pointer; padding: 0.1rem 0.3rem; }
+    .recipe-delete:hover { color: #c0392b; }
+    .recipe-body-wrap { padding: 1.25rem; display: none; }
+    .recipe-body-wrap.open { display: block; }
+    .field-group { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.85rem; }
+    .field-group:last-child { margin-bottom: 0; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem; }
+
+    /* Photo compact */
+    .recipe-photo-row { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.85rem; }
+    .photo-zone-sm { border: 2px dashed #e0d5c4; border-radius: 8px; width: 100px; height: 100px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; transition: border-color 0.2s; }
+    .photo-zone-sm:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-zone-sm.has-photo { border-style: solid; border-color: #c8a96e; }
+    .photo-zone-sm img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-zone-sm .hint { font-size: 0.7rem; color: #8a7e6b; text-align: center; }
+    .photo-zone-sm .hint strong { color: #c8a96e; }
+    .photo-remove-sm { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.65rem; cursor: pointer; display: none; align-items: center; justify-content: center; }
+    .photo-zone-sm.has-photo .photo-remove-sm { display: flex; }
+    .uploading-sm { font-size: 0.72rem; color: #c8a96e; display: none; text-align: center; }
+
+    /* Ingredients */
+    .ingredients-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .ingredient-row { display: flex; gap: 0.4rem; align-items: center; }
+    .ingredient-row input { flex: 1; padding: 0.5rem 0.7rem; font-size: 0.9rem; }
+    .ing-delete { background: none; border: none; color: #c8a898; font-size: 1rem; cursor: pointer; padding: 0.15rem 0.35rem; }
+    .ing-delete:hover { color: #c0392b; }
+    .btn-add-ing { background: none; border: 1px solid #c8a96e; border-radius: 6px; color: #c8a96e; font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0.75rem; cursor: pointer; }
+    .btn-add-ing:hover { background: #fdf9f3; }
+
+    .btn-add { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #fff; border: 2px dashed #c8a96e; border-radius: 10px; color: #c8a96e; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; justify-content: center; transition: background 0.2s; margin-top: 0.5rem; }
+    .btn-add:hover { background: #fdf9f3; }
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+    .empty-state { text-align: center; padding: 2.5rem; background: #fff; border-radius: 12px; border: 1px dashed #e0d5c4; color: #8a7e6b; font-size: 0.9rem; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Family Recipes
+    </div>
+    <h1>Family Recipes</h1>
+    <p class="section-desc">Recipes and food memories passed down through generations. Click a recipe to expand and edit.</p>
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/recipes" id="theForm">
+      <input type="hidden" name="recipes_json" id="recipesJson">
+      <div id="recipesList">
+        <% if (!recipes || recipes.length === 0) { %>
+          <div class="empty-state" id="emptyState">No recipes yet — click "Add Recipe" to get started.</div>
+        <% } %>
+        <% (recipes || []).forEach(function(r, i) {
+          const ings = Array.isArray(r.ingredients) ? r.ingredients : [];
+        %>
+        <div class="recipe-item">
+          <div class="recipe-header" onclick="toggleRecipe(this)">
+            <span class="drag-handle" onclick="event.stopPropagation()">⠿</span>
+            <span class="recipe-title-preview"><%= r.title || ('Recipe ' + (i+1)) %></span>
+            <span class="recipe-toggle">▾</span>
+            <button type="button" class="recipe-delete" onclick="deleteRecipe(event,this)">✕</button>
+          </div>
+          <div class="recipe-body-wrap">
+            <div class="form-row">
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Origin Label</label>
+                <input type="text" class="r-origin" value="<%= r.origin_label || '' %>" placeholder="e.g. Grandma's Recipe">
+              </div>
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Title</label>
+                <input type="text" class="r-title" value="<%= r.title || '' %>" placeholder="e.g. Grandma's Apple Pie"
+                  oninput="this.closest('.recipe-item').querySelector('.recipe-title-preview').textContent = this.value || 'New Recipe'">
+              </div>
+            </div>
+            <div class="recipe-photo-row">
+              <div>
+                <div class="photo-zone-sm <%= r.photoUrl ? 'has-photo' : '' %>" onclick="triggerPhotoUpload(this)">
+                  <% if (r.photoUrl) { %>
+                    <img src="<%= r.photoUrl %>" alt="">
+                  <% } else { %>
+                    <img src="" alt="" style="display:none;">
+                    <div style="font-size:1.3rem;">📷</div>
+                    <div class="hint"><strong>Photo</strong></div>
+                  <% } %>
+                  <input type="hidden" class="photo-path" value="<%= r.photo_path || '' %>">
+                  <button type="button" class="photo-remove-sm" onclick="removeCardPhoto(event,this)">✕</button>
+                </div>
+                <div class="uploading-sm">Uploading…</div>
+                <input type="file" accept="image/*" style="display:none" onchange="uploadCardPhoto(this)">
+              </div>
+              <div class="field-group" style="flex:1;margin-bottom:0;">
+                <label>Description</label>
+                <textarea class="r-desc" style="min-height:100px;" placeholder="The story behind this recipe, where it came from, what it means…"><%= r.description || '' %></textarea>
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Key Ingredients</label>
+              <div class="ingredients-list">
+                <% ings.forEach(function(ing) { %>
+                <div class="ingredient-row">
+                  <input type="text" class="ing-input" value="<%= ing %>" placeholder="e.g. 2 cups flour">
+                  <button type="button" class="ing-delete" onclick="this.closest('.ingredient-row').remove()">✕</button>
+                </div>
+                <% }); %>
+              </div>
+              <button type="button" class="btn-add-ing" onclick="addIngredient(this)">+ Add Ingredient</button>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+      <button type="button" class="btn-add" onclick="addRecipe()">+ Add Recipe</button>
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book" class="btn-back">← Back to My Book</a>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script>
+    Sortable.create(document.getElementById('recipesList'), {
+      handle: '.drag-handle', animation: 150,
+      ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+    });
+
+    function toggleRecipe(header) {
+      const body = header.nextElementSibling;
+      const toggle = header.querySelector('.recipe-toggle');
+      body.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    function addRecipe() {
+      const empty = document.getElementById('emptyState');
+      if (empty) empty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'recipe-item';
+      div.innerHTML = `
+        <div class="recipe-header" onclick="toggleRecipe(this)">
+          <span class="drag-handle" onclick="event.stopPropagation()">⠿</span>
+          <span class="recipe-title-preview">New Recipe</span>
+          <span class="recipe-toggle open">▾</span>
+          <button type="button" class="recipe-delete" onclick="deleteRecipe(event,this)">✕</button>
+        </div>
+        <div class="recipe-body-wrap open">
+          <div class="form-row">
+            <div class="field-group" style="margin-bottom:0;">
+              <label>Origin Label</label>
+              <input type="text" class="r-origin" placeholder="e.g. Grandma's Recipe">
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label>Title</label>
+              <input type="text" class="r-title" placeholder="e.g. Grandma's Apple Pie"
+                oninput="this.closest('.recipe-item').querySelector('.recipe-title-preview').textContent = this.value || 'New Recipe'">
+            </div>
+          </div>
+          <div class="recipe-photo-row">
+            <div>
+              <div class="photo-zone-sm" onclick="triggerPhotoUpload(this)">
+                <img src="" alt="" style="display:none;">
+                <div style="font-size:1.3rem;">📷</div>
+                <div class="hint"><strong>Photo</strong></div>
+                <input type="hidden" class="photo-path" value="">
+                <button type="button" class="photo-remove-sm" onclick="removeCardPhoto(event,this)">✕</button>
+              </div>
+              <div class="uploading-sm">Uploading…</div>
+              <input type="file" accept="image/*" style="display:none" onchange="uploadCardPhoto(this)">
+            </div>
+            <div class="field-group" style="flex:1;margin-bottom:0;">
+              <label>Description</label>
+              <textarea class="r-desc" style="min-height:100px;" placeholder="The story behind this recipe…"></textarea>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Key Ingredients</label>
+            <div class="ingredients-list"></div>
+            <button type="button" class="btn-add-ing" onclick="addIngredient(this)">+ Add Ingredient</button>
+          </div>
+        </div>`;
+      document.getElementById('recipesList').appendChild(div);
+    }
+
+    function deleteRecipe(e, btn) {
+      e.stopPropagation();
+      btn.closest('.recipe-item').remove();
+      const empty = document.getElementById('emptyState');
+      if (empty && !document.querySelectorAll('.recipe-item').length) empty.style.display = 'block';
+    }
+
+    function addIngredient(btn) {
+      const list = btn.previousElementSibling;
+      const row = document.createElement('div');
+      row.className = 'ingredient-row';
+      row.innerHTML = `<input type="text" class="ing-input" placeholder="e.g. 2 cups flour">
+        <button type="button" class="ing-delete" onclick="this.closest('.ingredient-row').remove()">✕</button>`;
+      list.appendChild(row);
+      row.querySelector('input').focus();
+    }
+
+    function triggerPhotoUpload(zone) { zone.parentElement.querySelector('input[type="file"]').click(); }
+
+    async function uploadCardPhoto(input) {
+      if (!input.files || !input.files[0]) return;
+      const wrap = input.closest('.recipe-photo-row > div');
+      const zone = wrap.querySelector('.photo-zone-sm');
+      const uploadingEl = wrap.querySelector('.uploading-sm');
+      uploadingEl.style.display = 'block';
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', 'recipes');
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        zone.querySelector('.photo-path').value = data.path;
+        const img = zone.querySelector('img'); img.src = data.url; img.style.display = 'block';
+        zone.classList.add('has-photo');
+        zone.querySelector('div[style*="font-size:1.3rem"]')?.style.setProperty('display','none');
+        zone.querySelector('.hint')?.style.setProperty('display','none');
+      } catch (e) { alert('Upload failed. Please try again.'); }
+      finally { uploadingEl.style.display = 'none'; input.value = ''; }
+    }
+
+    function removeCardPhoto(e, btn) {
+      e.stopPropagation();
+      const zone = btn.closest('.photo-zone-sm');
+      zone.querySelector('.photo-path').value = '';
+      const img = zone.querySelector('img'); img.src = ''; img.style.display = 'none';
+      zone.classList.remove('has-photo');
+    }
+
+    document.getElementById('theForm').addEventListener('submit', function() {
+      const recipes = [];
+      document.querySelectorAll('.recipe-item').forEach(el => {
+        const ings = Array.from(el.querySelectorAll('.ing-input'))
+          .map(i => i.value.trim()).filter(Boolean);
+        recipes.push({
+          origin_label: el.querySelector('.r-origin').value.trim() || null,
+          title: el.querySelector('.r-title').value.trim(),
+          description: el.querySelector('.r-desc').value.trim() || null,
+          photo_path: el.querySelector('.photo-path').value || null,
+          ingredients: ings,
+        });
+      });
+      document.getElementById('recipesJson').value = JSON.stringify(recipes);
+    });
+  </script>
+</body>
+</html>

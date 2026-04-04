@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letters – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.3rem; }
+    input[type="text"] { padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; width: 100%; transition: border-color 0.2s; }
+    input[type="text"]:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; width: 100%; resize: vertical; transition: border-color 0.2s; line-height: 1.7; }
+    textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+
+    /* Letter card */
+    .letter-item {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #f0ebe3;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .letter-item.sortable-ghost { opacity: 0.4; }
+    .letter-item.sortable-chosen { box-shadow: 0 4px 20px rgba(200,169,110,0.2); }
+    .letter-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.9rem 1.25rem;
+      background: #faf7f2;
+      border-bottom: 1px solid #f0ebe3;
+      cursor: pointer;
+    }
+    .drag-handle { cursor: grab; color: #c8a96e; font-size: 1.1rem; flex-shrink: 0; }
+    .drag-handle:active { cursor: grabbing; }
+    .letter-from-preview { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; flex: 1; color: #2c2416; }
+    .letter-occasion-preview { font-size: 0.8rem; color: #8a7e6b; flex: 1; }
+    .letter-toggle { font-size: 0.9rem; color: #c8a96e; transition: transform 0.2s; }
+    .letter-toggle.open { transform: rotate(180deg); }
+    .letter-delete { background: none; border: none; color: #c8a898; font-size: 1.1rem; cursor: pointer; padding: 0.1rem 0.3rem; }
+    .letter-delete:hover { color: #c0392b; }
+    .letter-body-wrap { padding: 1.25rem; display: none; }
+    .letter-body-wrap.open { display: block; }
+    .field-group { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.85rem; }
+    .field-group:last-child { margin-bottom: 0; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem; }
+
+    .btn-add { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #fff; border: 2px dashed #c8a96e; border-radius: 10px; color: #c8a96e; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; justify-content: center; transition: background 0.2s; margin-top: 0.5rem; }
+    .btn-add:hover { background: #fdf9f3; }
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+    .empty-state { text-align: center; padding: 2.5rem; background: #fff; border-radius: 12px; border: 1px dashed #e0d5c4; color: #8a7e6b; font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .tip { font-size: 0.8rem; color: #b8a898; margin-bottom: 0.35rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Letters
+    </div>
+    <h1>Letters</h1>
+    <p class="section-desc">Letters written to your child from family members. Click a letter to expand and edit. Drag to reorder.</p>
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/letters" id="theForm">
+      <input type="hidden" name="letters_json" id="lettersJson">
+      <div id="lettersList">
+        <% if (!letters || letters.length === 0) { %>
+          <div class="empty-state" id="emptyState">No letters yet — click "Add Letter" to get started.</div>
+        <% } %>
+        <% (letters || []).forEach(function(l, i) { %>
+        <div class="letter-item">
+          <div class="letter-header" onclick="toggleLetter(this)">
+            <span class="drag-handle" onclick="event.stopPropagation()">⠿</span>
+            <span class="letter-from-preview"><%= l.from_label || 'Letter ' + (i+1) %></span>
+            <span class="letter-occasion-preview"><%= l.occasion || '' %></span>
+            <span class="letter-toggle">▾</span>
+            <button type="button" class="letter-delete" onclick="deleteLetter(event,this)">✕</button>
+          </div>
+          <div class="letter-body-wrap">
+            <div class="form-row">
+              <div class="field-group" style="margin-bottom:0;">
+                <label>From</label>
+                <input type="text" class="l-from" value="<%= l.from_label || '' %>" placeholder="e.g. From Mom"
+                  oninput="this.closest('.letter-item').querySelector('.letter-from-preview').textContent = this.value || 'New Letter'">
+              </div>
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Occasion</label>
+                <input type="text" class="l-occasion" value="<%= l.occasion || '' %>" placeholder="e.g. Written on Your Birth Day"
+                  oninput="this.closest('.letter-item').querySelector('.letter-occasion-preview').textContent = this.value">
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Salutation</label>
+              <input type="text" class="l-salutation" value="<%= l.salutation || '' %>" placeholder="e.g. My darling,">
+            </div>
+            <div class="field-group">
+              <div class="tip">Tip: line breaks are preserved — press Enter for new paragraphs.</div>
+              <label>Letter Body</label>
+              <textarea class="l-body" style="min-height:180px;" placeholder="Dear little one, From the moment I first saw you…"><%= l.body || '' %></textarea>
+            </div>
+            <div class="field-group">
+              <label>Signature</label>
+              <textarea class="l-signature" style="min-height:60px;" placeholder="e.g. All my love,&#10;Mom"><%= l.signature || '' %></textarea>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+      <button type="button" class="btn-add" onclick="addLetter()">+ Add Letter</button>
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book" class="btn-back">← Back to My Book</a>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script>
+    Sortable.create(document.getElementById('lettersList'), {
+      handle: '.drag-handle', animation: 150,
+      ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+    });
+
+    function toggleLetter(header) {
+      const body = header.nextElementSibling;
+      const toggle = header.querySelector('.letter-toggle');
+      body.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    function addLetter() {
+      const empty = document.getElementById('emptyState');
+      if (empty) empty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'letter-item';
+      div.innerHTML = `
+        <div class="letter-header" onclick="toggleLetter(this)">
+          <span class="drag-handle" onclick="event.stopPropagation()">⠿</span>
+          <span class="letter-from-preview">New Letter</span>
+          <span class="letter-occasion-preview"></span>
+          <span class="letter-toggle open">▾</span>
+          <button type="button" class="letter-delete" onclick="deleteLetter(event,this)">✕</button>
+        </div>
+        <div class="letter-body-wrap open">
+          <div class="form-row">
+            <div class="field-group" style="margin-bottom:0;">
+              <label>From</label>
+              <input type="text" class="l-from" placeholder="e.g. From Mom"
+                oninput="this.closest('.letter-item').querySelector('.letter-from-preview').textContent = this.value || 'New Letter'">
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label>Occasion</label>
+              <input type="text" class="l-occasion" placeholder="e.g. Written on Your Birth Day"
+                oninput="this.closest('.letter-item').querySelector('.letter-occasion-preview').textContent = this.value">
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Salutation</label>
+            <input type="text" class="l-salutation" placeholder="e.g. My darling,">
+          </div>
+          <div class="field-group">
+            <div class="tip">Tip: line breaks are preserved — press Enter for new paragraphs.</div>
+            <label>Letter Body</label>
+            <textarea class="l-body" style="min-height:180px;" placeholder="Dear little one, From the moment I first saw you…"></textarea>
+          </div>
+          <div class="field-group">
+            <label>Signature</label>
+            <textarea class="l-signature" style="min-height:60px;" placeholder="e.g. All my love,&#10;Mom"></textarea>
+          </div>
+        </div>`;
+      document.getElementById('lettersList').appendChild(div);
+    }
+
+    function deleteLetter(e, btn) {
+      e.stopPropagation();
+      btn.closest('.letter-item').remove();
+      const empty = document.getElementById('emptyState');
+      if (empty && !document.querySelectorAll('.letter-item').length) empty.style.display = 'block';
+    }
+
+    document.getElementById('theForm').addEventListener('submit', function() {
+      const letters = [];
+      document.querySelectorAll('.letter-item').forEach(el => {
+        letters.push({
+          from_label: el.querySelector('.l-from').value.trim() || null,
+          occasion: el.querySelector('.l-occasion').value.trim() || null,
+          salutation: el.querySelector('.l-salutation').value.trim() || null,
+          body: el.querySelector('.l-body').value.trim() || null,
+          signature: el.querySelector('.l-signature').value.trim() || null,
+        });
+      });
+      document.getElementById('lettersJson').value = JSON.stringify(letters);
+    });
+  </script>
+</body>
+</html>

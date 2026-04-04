@@ -432,6 +432,159 @@ router.post('/book/family/:key', requireAccountSession, async (req, res, next) =
   }
 });
 
+// ─── Celebrations ────────────────────────────────────────────────────────────
+
+router.get('/book/celebrations', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { data: cards } = await supabaseAdmin
+      .from('celebrations').select('*').eq('book_id', book.id).order('sort_order');
+    const cardsWithUrls = (cards || []).map(c => ({
+      ...c, photoUrl: c.photo_path ? getPublicUrl(c.photo_path) : null,
+    }));
+    res.render('marketing/account-book-celebrations', {
+      family: req.family, book: book || {}, cards: cardsWithUrls,
+      success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/celebrations', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    let cards = [];
+    try { cards = JSON.parse(req.body.cards_json || '[]'); } catch (e) {}
+    const cleaned = cards.map(c => ({
+      eyebrow: c.eyebrow || null,
+      title: c.title || null,
+      body: c.body || null,
+      photo_path: c.photo_path || null,
+    }));
+    await bookService.updateSectionCards('celebrations', book.id, cleaned);
+    res.redirect('/account/book/celebrations?success=1');
+  } catch (err) {
+    console.error('Celebrations save error:', err.message);
+    res.redirect('/account/book/celebrations?error=1');
+  }
+});
+
+// ─── Letters ──────────────────────────────────────────────────────────────────
+
+router.get('/book/letters', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { data: letters } = await supabaseAdmin
+      .from('letters').select('*').eq('book_id', book.id).order('sort_order');
+    res.render('marketing/account-book-letters', {
+      family: req.family, book: book || {}, letters: letters || [],
+      success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/letters', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    let letters = [];
+    try { letters = JSON.parse(req.body.letters_json || '[]'); } catch (e) {}
+    const cleaned = letters.map(l => ({
+      from_label: l.from_label || null,
+      occasion: l.occasion || null,
+      salutation: l.salutation || null,
+      body: l.body || null,
+      signature: l.signature || null,
+    }));
+    await bookService.updateSectionCards('letters', book.id, cleaned);
+    res.redirect('/account/book/letters?success=1');
+  } catch (err) {
+    console.error('Letters save error:', err.message);
+    res.redirect('/account/book/letters?error=1');
+  }
+});
+
+// ─── Family Recipes ───────────────────────────────────────────────────────────
+
+router.get('/book/recipes', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { data: recipes } = await supabaseAdmin
+      .from('recipes').select('*').eq('book_id', book.id).order('sort_order');
+    const recipesWithUrls = (recipes || []).map(r => ({
+      ...r, photoUrl: r.photo_path ? getPublicUrl(r.photo_path) : null,
+    }));
+    res.render('marketing/account-book-recipes', {
+      family: req.family, book: book || {}, recipes: recipesWithUrls,
+      success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/recipes', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    let recipes = [];
+    try { recipes = JSON.parse(req.body.recipes_json || '[]'); } catch (e) {}
+    const cleaned = recipes.map(r => ({
+      origin_label: r.origin_label || null,
+      title: r.title || null,
+      description: r.description || null,
+      photo_path: r.photo_path || null,
+      ingredients: Array.isArray(r.ingredients) ? r.ingredients.filter(i => i && i.trim()) : [],
+    }));
+    await bookService.updateSectionCards('recipes', book.id, cleaned);
+    res.redirect('/account/book/recipes?success=1');
+  } catch (err) {
+    console.error('Recipes save error:', err.message);
+    res.redirect('/account/book/recipes?error=1');
+  }
+});
+
+// ─── The Vault ────────────────────────────────────────────────────────────────
+
+router.get('/book/vault', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { data: items } = await supabaseAdmin
+      .from('vault_items').select('*').eq('book_id', book.id).order('created_at');
+    const itemsWithUrls = (items || []).map(v => ({
+      ...v, photoUrl: v.photo_path ? getPublicUrl(v.photo_path) : null,
+    }));
+    res.render('marketing/account-book-vault', {
+      family: req.family, book: book || {}, items: itemsWithUrls,
+      success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/vault', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { item_type, title, body, sealed_by, photo_path } = req.body;
+    if (!title || !title.trim()) return res.redirect('/account/book/vault?error=1');
+    await supabaseAdmin.from('vault_items').insert({
+      book_id: book.id,
+      item_type: item_type || 'letter',
+      title: title.trim(),
+      body: body || null,
+      sealed_by: sealed_by || null,
+      photo_path: photo_path || null,
+    });
+    res.redirect('/account/book/vault?success=1');
+  } catch (err) {
+    console.error('Vault save error:', err.message);
+    res.redirect('/account/book/vault?error=1');
+  }
+});
+
+router.post('/book/vault/:id/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    await supabaseAdmin.from('vault_items')
+      .delete().eq('id', req.params.id).eq('book_id', book.id);
+    res.redirect('/account/book/vault');
+  } catch (err) { next(err); }
+});
+
 // ─── Your Firsts ──────────────────────────────────────────────────────────────
 
 router.get('/book/firsts', requireAccountSession, async (req, res, next) => {
