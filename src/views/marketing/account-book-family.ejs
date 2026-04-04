@@ -51,6 +51,16 @@
     }
     .btn-delete-member:hover { color: #c0392b; background: #fdf2f2; }
 
+    .drag-handle {
+      color: #c8c0b0; font-size: 1.1rem; cursor: grab; padding: 0 0.4rem;
+      flex-shrink: 0; user-select: none; display: flex; align-items: center;
+    }
+    .drag-handle:active { cursor: grabbing; }
+    .member-item { display: flex; align-items: center; gap: 0.5rem; }
+    .member-item .member-card { flex: 1; margin: 0; }
+    .sortable-ghost { opacity: 0.4; }
+    .reorder-hint { font-size: 0.78rem; color: #b0a090; text-align: center; margin-top: 0.35rem; }
+
     .btn-add-member {
       display: flex; align-items: center; gap: 0.5rem;
       padding: 0.85rem 1.25rem;
@@ -95,35 +105,39 @@
       const customMembers = (members || []).filter(m => !defaultKeySet.has(m.member_key));
     %>
 
-    <div class="member-list">
+    <div class="member-list" id="memberList">
       <% defaultKeys.forEach(function(def) {
         const m = memberMap[def.key] || {};
         const hasContent = (m.story && m.story.trim()) || (m.photo_path && m.photo_path.trim());
         const displayName = (m.name && m.name !== def.label && !m.name.includes("'s Name")) ? m.name : null;
       %>
-      <a href="/account/book/family/<%= def.key %>" class="member-card">
-        <div class="member-photo">
-          <% if (m.photoUrl) { %>
-            <img src="<%= m.photoUrl %>" alt="<%= def.label %>">
-          <% } else { %>
-            <%= m.emoji || def.emoji %>
-          <% } %>
-        </div>
-        <div class="member-info">
-          <div class="member-name"><%= displayName || def.label %></div>
-          <div class="member-relation"><%= m.relation || def.label %></div>
-        </div>
-        <div class="member-dot <%= hasContent ? 'dot-filled' : 'dot-empty' %>"></div>
-        <span class="member-arrow">&#8250;</span>
-      </a>
+      <div class="member-item" data-key="<%= def.key %>">
+        <span class="drag-handle" title="Drag to reorder">&#8942;</span>
+        <a href="/account/book/family/<%= def.key %>" class="member-card">
+          <div class="member-photo">
+            <% if (m.photoUrl) { %>
+              <img src="<%= m.photoUrl %>" alt="<%= def.label %>">
+            <% } else { %>
+              <%= m.emoji || def.emoji %>
+            <% } %>
+          </div>
+          <div class="member-info">
+            <div class="member-name"><%= displayName || def.label %></div>
+            <div class="member-relation"><%= m.relation || def.label %></div>
+          </div>
+          <div class="member-dot <%= hasContent ? 'dot-filled' : 'dot-empty' %>"></div>
+          <span class="member-arrow">&#8250;</span>
+        </a>
+      </div>
       <% }); %>
 
       <% customMembers.forEach(function(m) {
         const hasContent = (m.story && m.story.trim()) || (m.photo_path && m.photo_path.trim());
         const displayName = m.name || m.member_key;
       %>
-      <div style="display:flex;align-items:center;gap:0.5rem;">
-        <a href="/account/book/family/<%= m.member_key %>" class="member-card" style="flex:1;margin:0;">
+      <div class="member-item" data-key="<%= m.member_key %>">
+        <span class="drag-handle" title="Drag to reorder">&#8942;</span>
+        <a href="/account/book/family/<%= m.member_key %>" class="member-card">
           <div class="member-photo">
             <% if (m.photoUrl) { %>
               <img src="<%= m.photoUrl %>" alt="<%= displayName %>">
@@ -145,6 +159,7 @@
       </div>
       <% }); %>
     </div>
+    <p class="reorder-hint">&#8645; Drag to reorder</p>
 
     <form method="POST" action="/account/book/family/add-new">
       <button type="submit" class="btn-add-member">+ Add Family Member</button>
@@ -153,5 +168,22 @@
     <a href="/account/book" class="back-link">&#8592; Back to My Book</a>
 
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script>
+    Sortable.create(document.getElementById('memberList'), {
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'sortable-ghost',
+      onEnd: function() {
+        const order = [...document.querySelectorAll('.member-item')].map(el => el.dataset.key);
+        fetch('/account/book/family/reorder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order })
+        });
+      }
+    });
+  </script>
 </body>
 </html>

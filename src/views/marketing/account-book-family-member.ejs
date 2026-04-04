@@ -153,26 +153,39 @@
               <label>Relation / Role</label>
               <input type="text" name="relation" value="<%= member.relation || '' %>" placeholder="e.g. Mother">
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label>Emoji</label>
-              <input type="text" name="emoji" value="<%= member.emoji || '' %>" placeholder="e.g. 👩" style="max-width:100px;">
-            </div>
           </div>
         </div>
       </div>
 
       <!-- Meta / Fun Facts -->
       <div class="card">
-        <h2>Quick Facts <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional — e.g. Hometown, Birthday)</span></h2>
+        <h2>Quick Facts <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional)</span></h2>
+        <datalist id="meta-label-suggestions">
+          <option value="Hometown">
+          <option value="Birthday">
+          <option value="Nickname">
+          <option value="Occupation">
+          <option value="Favorite Color">
+          <option value="Favorite Food">
+          <option value="Hobbies">
+          <option value="Fun Fact">
+          <option value="Years Known">
+          <option value="Lives In">
+          <option value="Born In">
+          <option value="Relationship">
+          <option value="Alma Mater">
+        </datalist>
         <% for (let i = 1; i <= 4; i++) { %>
         <div class="meta-pair">
           <div class="form-group" style="margin-bottom:0;">
-            <label>Label <%= i %></label>
-            <input type="text" name="meta_<%= i %>_label" value="<%= member['meta_' + i + '_label'] || '' %>" placeholder="e.g. Hometown">
+            <label>Label</label>
+            <input type="text" name="meta_<%= i %>_label" list="meta-label-suggestions"
+              value="<%= member['meta_' + i + '_label'] || '' %>" placeholder="e.g. Hometown">
           </div>
           <div class="form-group" style="margin-bottom:0;">
-            <label>Value <%= i %></label>
-            <input type="text" name="meta_<%= i %>_value" value="<%= member['meta_' + i + '_value'] || '' %>" placeholder="e.g. Phoenix, AZ">
+            <label>Value</label>
+            <input type="text" name="meta_<%= i %>_value"
+              value="<%= member['meta_' + i + '_value'] || '' %>" placeholder="e.g. Phoenix, AZ">
           </div>
         </div>
         <% } %>
@@ -183,8 +196,8 @@
         <h2>Their Story</h2>
         <div class="form-group">
           <label>Story</label>
-          <div id="storyEditor"><%= member.story || '' %></div>
-          <textarea name="story" id="storyTextarea" style="display:none;"><%= member.story || '' %></textarea>
+          <div id="storyEditor"><%- member.story || '' %></div>
+          <textarea name="story" id="storyTextarea" style="display:none;"><%- member.story || '' %></textarea>
         </div>
       </div>
 
@@ -206,8 +219,8 @@
         <h2>More to Their Story <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional second section)</span></h2>
         <div class="form-group">
           <label>Continued Story</label>
-          <div id="story2Editor"><%= member.story2 || '' %></div>
-          <textarea name="story2" id="story2Textarea" style="display:none;"><%= member.story2 || '' %></textarea>
+          <div id="story2Editor"><%- member.story2 || '' %></div>
+          <textarea name="story2" id="story2Textarea" style="display:none;"><%- member.story2 || '' %></textarea>
         </div>
       </div>
 
@@ -269,9 +282,14 @@
       placeholder: "Continue their story here…",
     });
 
+    function quillValue(quill) {
+      const html = quill.getSemanticHTML();
+      return (html === '<p></p>' || html === '<p><br></p>' || html.trim() === '') ? '' : html;
+    }
+
     document.getElementById('memberForm').addEventListener('submit', function() {
-      document.getElementById('storyTextarea').value = storyQuill.getSemanticHTML();
-      document.getElementById('story2Textarea').value = story2Quill.getSemanticHTML();
+      document.getElementById('storyTextarea').value = quillValue(storyQuill);
+      document.getElementById('story2Textarea').value = quillValue(story2Quill);
     });
 
     // ── Profile photo ───────────────────────────────────────────────────────────

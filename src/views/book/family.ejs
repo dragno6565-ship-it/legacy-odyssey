@@ -12,7 +12,7 @@
   <%
     const members = familyMembers || [];
     const parents = members.filter(fm => fm.member_key === 'mom' || fm.member_key === 'dad');
-    const grandparents = members.filter(fm => fm.member_key !== 'mom' && fm.member_key !== 'dad');
+    const rest = members.filter(fm => fm.member_key !== 'mom' && fm.member_key !== 'dad');
   %>
 
   <% if (parents.length) { %>
@@ -37,10 +37,9 @@
     </div>
   <% } %>
 
-  <% if (grandparents.length) { %>
-    <div class="family-section-title">&#10022; Grandparents</div>
+  <% if (rest.length) { %>
     <div class="family-cards">
-      <% grandparents.forEach(fm => { %>
+      <% rest.forEach(fm => { %>
         <div class="family-card" onclick="openFamilyDetail('<%= fm.member_key %>')">
           <% if (fm.photo_path) { %>
             <div class="family-photo">
@@ -63,7 +62,6 @@
 <!-- Family Member Detail Panel -->
 <div id="family-detail">
   <div class="fdetail-hero">
-    <div id="fdetail-img-wrap"></div>
     <div class="fdetail-hero-overlay"></div>
     <button class="fdetail-back" onclick="closeFamilyDetail()">&#8592; Back to Family</button>
     <div class="fdetail-hero-text">
@@ -73,6 +71,7 @@
   </div>
   <div class="fdetail-body">
     <div class="fdetail-meta" id="fdetail-meta"></div>
+    <div class="fdetail-portrait-wrap" id="fdetail-portrait-wrap"></div>
     <div class="fdetail-story-label">&#10022; Their Story</div>
     <div class="fdetail-story" id="fdetail-story"></div>
     <div class="fdetail-quote" id="fdetail-quote"></div>

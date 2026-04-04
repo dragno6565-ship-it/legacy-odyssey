@@ -1134,33 +1134,15 @@ body {
 
 .fdetail-hero {
   position: relative;
-  height: 420px;
+  height: 200px;
   background: var(--ink);
   overflow: hidden;
-}
-
-.fdetail-hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  opacity: 0.55;
-}
-
-.fdetail-hero-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8rem;
-  opacity: 0.25;
 }
 
 .fdetail-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, var(--ink) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(30,24,18,0.7) 0%, rgba(30,24,18,0.95) 100%);
 }
 
 .fdetail-hero-text {
@@ -1219,6 +1201,21 @@ body {
   border-bottom: 1px solid rgba(184,147,90,0.2);
   margin-bottom: 2rem;
   flex-wrap: wrap;
+}
+
+.fdetail-portrait-wrap {
+  text-align: center;
+  margin: 0 auto 2.5rem;
+}
+
+.fdetail-portrait-wrap img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 50%;
+  border: 3px solid rgba(184,147,90,0.4);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
 
 .fdetail-meta-label {
@@ -1524,7 +1521,7 @@ body {
   .family-intro { padding: 2rem 2rem 1rem; }
   .vault-page { padding: 2rem; }
 
-  .fdetail-hero { height: 320px; }
+  .fdetail-hero { height: 160px; }
   .fdetail-hero-text { left: 1.5rem; bottom: 1.5rem; }
   .fdetail-body { padding: 2rem; }
   .fdetail-photos { grid-template-columns: repeat(2, 1fr); }

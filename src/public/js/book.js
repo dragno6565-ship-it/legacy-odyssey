@@ -94,12 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const m = familyMembers[memberId];
     if (!m) return;
 
-    // Hero image or emoji
-    const imgWrap = document.getElementById('fdetail-img-wrap');
+    // Portrait photo (shown below meta, above story)
+    const portraitWrap = document.getElementById('fdetail-portrait-wrap');
     if (m.photo) {
-      imgWrap.innerHTML = '<img src="' + m.photo + '" alt="' + (m.name || '') + '">';
+      portraitWrap.innerHTML = '<img src="' + m.photo + '" alt="' + (m.name || '') + '">';
+      portraitWrap.style.display = '';
     } else {
-      imgWrap.innerHTML = '<div class="fdetail-hero-placeholder">' + (m.emoji || '\uD83D\uDC64') + '</div>';
+      portraitWrap.innerHTML = '';
+      portraitWrap.style.display = 'none';
     }
 
     document.getElementById('fdetail-relation').textContent = '\u2726 ' + m.relation;

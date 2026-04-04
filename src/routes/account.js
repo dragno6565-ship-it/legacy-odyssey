@@ -410,10 +410,35 @@ router.get('/book/family/:key', requireAccountSession, async (req, res, next) =>
 router.post('/book/family/add-new', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
+    // Find max sort_order so new member goes to bottom
+    const { data: existing } = await supabaseAdmin
+      .from('family_members').select('sort_order').eq('book_id', book.id)
+      .order('sort_order', { ascending: false }).limit(1);
+    const maxOrder = (existing && existing.length > 0 && existing[0].sort_order != null)
+      ? existing[0].sort_order : 10;
     const newKey = `custom-${Date.now()}`;
-    await bookService.upsertFamilyMember(book.id, newKey, { name: 'New Member', relation: 'Family Member', emoji: '👤' });
+    await bookService.upsertFamilyMember(book.id, newKey, {
+      name: 'New Member', relation: 'Family Member', emoji: '👤',
+      sort_order: maxOrder + 1,
+    });
     res.redirect(`/account/book/family/${newKey}`);
   } catch (err) { next(err); }
+});
+
+router.post('/book/family/reorder', requireAccountSession, async (req, res) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const order = req.body.order;
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'Invalid order' });
+    for (let i = 0; i < order.length; i++) {
+      await supabaseAdmin.from('family_members')
+        .upsert({ book_id: book.id, member_key: order[i], sort_order: i },
+                 { onConflict: 'book_id,member_key' });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save order' });
+  }
 });
 
 router.post('/book/family/:key/delete', requireAccountSession, async (req, res, next) => {
