@@ -432,13 +432,23 @@ router.post('/book/family/reorder', requireAccountSession, async (req, res) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     const order = req.body.order;
     if (!Array.isArray(order)) return res.status(400).json({ error: 'Invalid order' });
-    for (let i = 0; i < order.length; i++) {
-      await supabaseAdmin.from('family_members')
-        .upsert({ book_id: book.id, member_key: order[i], sort_order: i },
-                 { onConflict: 'book_id,member_key' });
+    // UPDATE (not upsert) — only touches rows that already exist.
+    // Upsert would fail silently for default members with no DB record
+    // because name/relation are NOT NULL with no default.
+    const updates = order.map((memberKey, i) =>
+      supabaseAdmin.from('family_members')
+        .update({ sort_order: i })
+        .eq('book_id', book.id)
+        .eq('member_key', memberKey)
+    );
+    const results = await Promise.all(updates);
+    const failed = results.filter(r => r.error);
+    if (failed.length) {
+      console.error('Reorder partial failure:', failed.map(r => r.error.message));
     }
     res.json({ ok: true });
   } catch (err) {
+    console.error('Reorder error:', err.message);
     res.status(500).json({ error: 'Failed to save order' });
   }
 });
