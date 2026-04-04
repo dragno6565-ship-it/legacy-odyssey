@@ -70,6 +70,7 @@ async function createCheckoutSession({ email, subdomain, domain, period, success
 
 async function handleCheckoutComplete(session) {
   const email = session.customer_email || session.customer_details?.email;
+  const customerName = session.customer_details?.name || null;
   const subdomain = session.metadata?.subdomain;
   const domain = session.metadata?.domain || null;
   const period = session.metadata?.period || 'monthly';
@@ -93,6 +94,7 @@ async function handleCheckoutComplete(session) {
     subdomain,
     displayName: `The ${subdomain} Family`,
     stripeCustomerId,
+    customerName,
   });
 
   // Update with subscription ID and plan details

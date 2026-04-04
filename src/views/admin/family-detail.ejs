@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= family.display_name || 'Customer' %> — Admin — Legacy Odyssey</title>
+  <title><%= family.customer_name || family.display_name || 'Customer' %> — Admin — Legacy Odyssey</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/admin.css">
 </head>
@@ -32,7 +32,10 @@
     <main class="admin-main">
       <div class="page-header">
         <p style="margin-bottom: 8px;"><a href="/admin">&larr; Back to Dashboard</a></p>
-        <h1><%= family.display_name || 'Customer Detail' %></h1>
+        <h1><%= family.customer_name || family.display_name || 'Customer Detail' %></h1>
+        <% if (family.customer_name && family.display_name) { %>
+          <p style="color: var(--ink-light); font-size: 0.9rem; margin: 0 0 4px;">Site: <%= family.display_name %></p>
+        <% } %>
         <p>
           <% if (!family.is_active) { %>
             <span class="badge badge-inactive">Inactive</span>
@@ -60,18 +63,25 @@
               <h3>Account Information</h3>
               <div class="form-row">
                 <div class="form-group">
-                  <label>Display Name</label>
-                  <input type="text" name="display_name" value="<%= family.display_name || '' %>" placeholder="Family name">
+                  <label>Customer Name</label>
+                  <input type="text" name="customer_name" value="<%= family.customer_name || '' %>" placeholder="e.g. Dan Ragno">
+                  <div class="help-text">Real purchaser's name — used for admin lookup and support</div>
                 </div>
                 <div class="form-group">
                   <label>Email</label>
                   <input type="email" name="email" value="<%= family.email || '' %>">
                 </div>
               </div>
-              <div class="form-group">
-                <label>Book Password</label>
-                <input type="text" name="book_password" value="<%= family.book_password || '' %>">
-                <div class="help-text">Password visitors need to view the public book</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Site / Family Name</label>
+                  <input type="text" name="display_name" value="<%= family.display_name || '' %>" placeholder="Family name">
+                </div>
+                <div class="form-group">
+                  <label>Book Password</label>
+                  <input type="text" name="book_password" value="<%= family.book_password || '' %>">
+                  <div class="help-text">Password visitors need to view the public book</div>
+                </div>
               </div>
             </div>
 

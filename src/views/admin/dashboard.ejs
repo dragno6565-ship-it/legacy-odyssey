@@ -78,10 +78,12 @@
           </thead>
           <tbody>
             <% families.forEach(function(fam) { %>
-              <tr data-search="<%= (fam.display_name || '').toLowerCase() %> <%= (fam.childName || '').toLowerCase() %> <%= (fam.email || '').toLowerCase() %> <%= (fam.subdomain || '').toLowerCase() %> <%= (fam.custom_domain || '').toLowerCase() %> <%= (fam.subscription_status || '').toLowerCase() %>">
+              <tr data-search="<%= (fam.customer_name || '').toLowerCase() %> <%= (fam.display_name || '').toLowerCase() %> <%= (fam.childName || '').toLowerCase() %> <%= (fam.email || '').toLowerCase() %> <%= (fam.subdomain || '').toLowerCase() %> <%= (fam.custom_domain || '').toLowerCase() %> <%= (fam.subscription_status || '').toLowerCase() %>">
                 <td class="cell-name">
-                  <%= fam.display_name || 'Unnamed' %>
-                  <% if (fam.childName) { %>
+                  <%= fam.customer_name || fam.display_name || 'Unnamed' %>
+                  <% if (fam.customer_name && fam.display_name) { %>
+                    <small><%= fam.display_name %></small>
+                  <% } else if (fam.childName) { %>
                     <small><%= fam.childName %></small>
                   <% } %>
                 </td>

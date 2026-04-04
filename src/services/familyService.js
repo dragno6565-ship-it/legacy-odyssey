@@ -59,7 +59,7 @@ async function findByStripeCustomerId(stripeCustomerId) {
   return data;
 }
 
-async function create({ email, authUserId, subdomain, displayName, stripeCustomerId }) {
+async function create({ email, authUserId, subdomain, displayName, stripeCustomerId, customerName }) {
   const { data, error } = await supabaseAdmin
     .from('families')
     .insert({
@@ -70,6 +70,7 @@ async function create({ email, authUserId, subdomain, displayName, stripeCustome
       stripe_customer_id: stripeCustomerId,
       book_password: 'legacy', // default
       subscription_status: 'trialing',
+      ...(customerName ? { customer_name: customerName } : {}),
     })
     .select()
     .single();

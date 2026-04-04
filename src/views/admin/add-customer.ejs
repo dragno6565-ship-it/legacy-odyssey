@@ -52,12 +52,20 @@
               <h3>Customer Information</h3>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="display_name">Customer Name</label>
-                  <input type="text" id="display_name" name="display_name" placeholder="e.g. Lindsey Cherry" value="<%= formData.display_name || '' %>" required>
+                  <label for="customer_name">Customer Name <span style="color:var(--gold);">*</span></label>
+                  <input type="text" id="customer_name" name="customer_name" placeholder="e.g. Dan Ragno" value="<%= formData.customer_name || '' %>" required>
+                  <div class="help-text">The real person's name — used in admin search and communication</div>
                 </div>
                 <div class="form-group">
                   <label for="email">Email Address</label>
                   <input type="email" id="email" name="email" placeholder="e.g. lindsey@example.com" value="<%= formData.email || '' %>" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="display_name">Site / Family Name</label>
+                  <input type="text" id="display_name" name="display_name" placeholder="e.g. The Cherry Family" value="<%= formData.display_name || '' %>" required>
+                  <div class="help-text">Shown on the book website (can be a baby's name, family name, etc.)</div>
                 </div>
               </div>
               <div class="form-row">

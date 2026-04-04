@@ -113,6 +113,7 @@ router.post('/families/:id', requireAdmin, async (req, res, next) => {
     if (!family) return res.status(404).send('Family not found');
 
     const allowedFields = [
+      'customer_name',
       'display_name',
       'email',
       'book_password',
@@ -165,6 +166,7 @@ router.get('/customers/new', requireAdmin, (req, res) => {
 // Add Customer (POST)
 router.post('/customers/new', requireAdmin, async (req, res, next) => {
   const {
+    customer_name,
     display_name,
     email,
     temp_password,
@@ -236,6 +238,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
       .insert({
         email: email.trim().toLowerCase(),
         auth_user_id: authUserId,
+        customer_name: customer_name ? customer_name.trim() : null,
         display_name: display_name.trim(),
         subdomain: subdomain.trim().toLowerCase(),
         custom_domain: custom_domain ? custom_domain.trim().toLowerCase() : null,
@@ -264,6 +267,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
     res.render('admin/customer-created', {
       admin: req.admin,
       customer: {
+        customer_name: customer_name ? customer_name.trim() : null,
         display_name: display_name.trim(),
         email: email.trim().toLowerCase(),
         temp_password,
