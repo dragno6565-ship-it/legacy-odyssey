@@ -407,6 +407,25 @@ router.get('/book/family/:key', requireAccountSession, async (req, res, next) =>
   } catch (err) { next(err); }
 });
 
+router.post('/book/family/add-new', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const newKey = `custom-${Date.now()}`;
+    await bookService.upsertFamilyMember(book.id, newKey, { name: 'New Member', relation: 'Family Member', emoji: '👤' });
+    res.redirect(`/account/book/family/${newKey}`);
+  } catch (err) { next(err); }
+});
+
+router.post('/book/family/:key/delete', requireAccountSession, async (req, res, next) => {
+  const DEFAULT_KEYS = ['mom', 'dad', 'grandma-maternal', 'grandpa-maternal', 'grandma-paternal', 'grandpa-paternal'];
+  if (DEFAULT_KEYS.includes(req.params.key)) return res.redirect('/account/book/family');
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    await supabaseAdmin.from('family_members').delete().eq('book_id', book.id).eq('member_key', req.params.key);
+    res.redirect('/account/book/family');
+  } catch (err) { next(err); }
+});
+
 router.post('/book/family/:key', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);

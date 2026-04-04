@@ -152,6 +152,19 @@ body {
 
 .sidebar-footer span { color: var(--gold); opacity: 0.6; }
 
+.sidebar-footer a.sidebar-edit-link {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--gold, #c8a96e);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.sidebar-footer a.sidebar-edit-link:hover {
+  opacity: 1;
+}
+
 /* ===================== MAIN CONTENT ===================== */
 #main-content {
   margin-left: var(--nav-width);

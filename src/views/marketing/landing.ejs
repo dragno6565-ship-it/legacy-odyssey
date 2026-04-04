@@ -59,7 +59,7 @@
       cursor: pointer; white-space: nowrap; transition: background 0.2s;
     }
     .waitlist-form button:hover { background: #D4B483; }
-    .waitlist-note { font-size: 0.8rem; color: rgba(248, 242, 230, 0.88); margin: 0.5rem 0 0; }
+    .waitlist-note { font-size: 0.8rem; color: #1E1812; margin: 0.5rem 0 0; }
     .waitlist-success { color: #B8935A; font-size: 0.95rem; margin-top: 0.75rem; font-weight: 500; }
     @media (max-width: 480px) { .waitlist-form { flex-direction: column; } }
     .founder-cta { margin: 1.5rem 0 0.75rem; }
@@ -71,7 +71,7 @@
     }
     .founder-cta .btn-founder:hover { background: #D4B483; }
     .founder-spots {
-      font-size: 0.82rem; color: rgba(248, 242, 230, 0.88);
+      font-size: 0.82rem; color: #4A3F32;
       margin: 0.5rem 0 0;
     }
     .founder-spots .spots-count { color: #B8935A; font-weight: 700; }
@@ -376,13 +376,13 @@
           FOR FOUNDERS ONLY
         </div>
         <div class="pricing-name">Legacy Odyssey <span style="color:#B8935A;">Founder</span></div>
-        <div class="pricing-price">
+        <div class="pricing-price" style="flex-wrap:wrap;gap:0.5rem;">
           <span class="pricing-amount">$29</span>
           <span class="pricing-period">/ year</span>
+          <span style="font-size:0.75rem;color:#8C6A35;font-style:italic;align-self:flex-end;padding-bottom:6px;">(normally $49.99/yr)</span>
         </div>
-        <p style="font-size:0.88rem;color:#B8935A;margin:-2px 0 6px;font-weight:700;letter-spacing:0.04em;">forever</p>
-        <p style="font-size:0.82rem;color:#B8935A;margin:0 0 4px;font-weight:600;">Locked in for life &mdash; never increases</p>
-        <p style="font-size:0.78rem;color:rgba(248,242,230,0.75);margin:0 0 16px;">(Normally $49.99/yr &mdash; Founders only rate)</p>
+        <p style="font-size:0.88rem;color:#B8935A;margin:-2px 0 6px;font-weight:700;letter-spacing:0.06em;text-align:center;">FOREVER</p>
+        <p style="font-size:0.82rem;color:#B8935A;margin:0 0 16px;font-weight:600;">Locked in for life &mdash; never increases</p>
         <p class="pricing-desc">Everything included. Same features, permanently lower price.</p>
         <ul class="pricing-features">
           <li>Your own custom .com domain</li>
@@ -400,7 +400,7 @@
         <button class="btn-primary" id="founderCheckoutBtn" style="width:100%;">
           Claim Founder Spot &rarr;
         </button>
-        <p style="font-size:0.78rem;color:rgba(248,242,230,0.80);margin:10px 0 0;text-align:center;" id="founderCardSpots">
+        <p style="font-size:0.78rem;color:#4A3F32;margin:10px 0 0;text-align:center;" id="founderCardSpots">
           <span id="founderCardSpotsText">Loading spots...</span>
         </p>
       </div>

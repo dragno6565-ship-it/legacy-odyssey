@@ -44,6 +44,24 @@
     .dot-empty { background: #e0d5c4; }
     .member-arrow { color: #c8a96e; font-size: 1rem; flex-shrink: 0; }
 
+    .btn-delete-member {
+      background: none; border: none; color: #c8a898; font-size: 1.1rem;
+      cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; flex-shrink: 0;
+      line-height: 1;
+    }
+    .btn-delete-member:hover { color: #c0392b; background: #fdf2f2; }
+
+    .btn-add-member {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 1.25rem;
+      background: #fff; border: 2px dashed #c8a96e;
+      border-radius: 12px; color: #c8a96e;
+      font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; width: 100%; justify-content: center;
+      transition: background 0.2s; margin-top: 0.5rem; text-decoration: none;
+    }
+    .btn-add-member:hover { background: #fdf9f3; }
+
     .back-link { display: inline-block; margin-top: 1.5rem; color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
     .back-link:hover { color: #2c2416; }
   </style>
@@ -60,7 +78,7 @@
     <h1>Our Family</h1>
     <p class="section-desc">Click a family member to add their photo, story, and details.</p>
 
-    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (success) { %><div class="flash flash-success">&#10003; Saved successfully.</div><% } %>
 
     <%
       const memberMap = {};
@@ -73,6 +91,8 @@
         { key: 'grandma-paternal', label: "Grandma (Paternal)", emoji: '👵' },
         { key: 'grandpa-paternal', label: "Grandpa (Paternal)", emoji: '👴' },
       ];
+      const defaultKeySet = new Set(defaultKeys.map(d => d.key));
+      const customMembers = (members || []).filter(m => !defaultKeySet.has(m.member_key));
     %>
 
     <div class="member-list">
@@ -94,12 +114,43 @@
           <div class="member-relation"><%= m.relation || def.label %></div>
         </div>
         <div class="member-dot <%= hasContent ? 'dot-filled' : 'dot-empty' %>"></div>
-        <span class="member-arrow">›</span>
+        <span class="member-arrow">&#8250;</span>
       </a>
+      <% }); %>
+
+      <% customMembers.forEach(function(m) {
+        const hasContent = (m.story && m.story.trim()) || (m.photo_path && m.photo_path.trim());
+        const displayName = m.name || m.member_key;
+      %>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <a href="/account/book/family/<%= m.member_key %>" class="member-card" style="flex:1;margin:0;">
+          <div class="member-photo">
+            <% if (m.photoUrl) { %>
+              <img src="<%= m.photoUrl %>" alt="<%= displayName %>">
+            <% } else { %>
+              <%= m.emoji || '👤' %>
+            <% } %>
+          </div>
+          <div class="member-info">
+            <div class="member-name"><%= displayName %></div>
+            <div class="member-relation"><%= m.relation || 'Family Member' %></div>
+          </div>
+          <div class="member-dot <%= hasContent ? 'dot-filled' : 'dot-empty' %>"></div>
+          <span class="member-arrow">&#8250;</span>
+        </a>
+        <form method="POST" action="/account/book/family/<%= m.member_key %>/delete" style="flex-shrink:0;"
+          onsubmit="return confirm('Remove <%= displayName %> from your family list?')">
+          <button type="submit" class="btn-delete-member" title="Remove">&#10005;</button>
+        </form>
+      </div>
       <% }); %>
     </div>
 
-    <a href="/account/book" class="back-link">← Back to My Book</a>
+    <form method="POST" action="/account/book/family/add-new">
+      <button type="submit" class="btn-add-member">+ Add Family Member</button>
+    </form>
+
+    <a href="/account/book" class="back-link">&#8592; Back to My Book</a>
 
   </div>
 </body>
