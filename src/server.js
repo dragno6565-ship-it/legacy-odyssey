@@ -107,13 +107,23 @@ Sentry.setupExpressErrorHandler(app);
 // Error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Legacy Odyssey server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
   // Start onboarding email scheduler
   const { startOnboardingScheduler } = require('./jobs/onboardingEmails');
   startOnboardingScheduler();
+});
+
+// Silently drop malformed HTTP requests (bots, scanners, incomplete connections).
+// Without this, Node's HTTP parser throws "Parse Error" which Sentry captures as unhandled.
+server.on('clientError', (err, socket) => {
+  if (socket.writable) {
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+  } else {
+    socket.destroy();
+  }
 });
 
 module.exports = app;
