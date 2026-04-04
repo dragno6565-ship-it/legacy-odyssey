@@ -38,6 +38,7 @@ router.get('/sitemap.xml', async (req, res) => {
     { loc: `https://${appDomain}/`, priority: '1.0', changefreq: 'weekly' },
     { loc: `https://${appDomain}/terms`, priority: '0.3', changefreq: 'monthly' },
     { loc: `https://${appDomain}/privacy`, priority: '0.3', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog`, priority: '0.6', changefreq: 'weekly' },
     { loc: `https://${appDomain}/blog/what-to-write-in-baby-book`, priority: '0.7', changefreq: 'monthly' },
   ];
 
@@ -73,6 +74,23 @@ router.get('/terms', (req, res) => {
 // GET /privacy — Privacy Policy
 router.get('/privacy', (req, res) => {
   res.render('marketing/privacy');
+});
+
+// Blog posts registry — add new posts here
+const BLOG_POSTS = [
+  {
+    title: 'What to Write in Your Baby\'s First Year Book (A Complete Guide for New Parents)',
+    excerpt: 'Don\'t know where to start? Here\'s everything worth writing down in your baby\'s first year — from the birth story to milestone moments to letters they\'ll read one day.',
+    url: '/blog/what-to-write-in-baby-book',
+    category: 'Baby Book Guides',
+    date: 'April 3, 2026',
+    readTime: '10 min read',
+  },
+];
+
+// GET /blog — Blog index
+router.get('/blog', (req, res) => {
+  res.render('marketing/blog-index', { posts: BLOG_POSTS });
 });
 
 // GET /blog/what-to-write-in-baby-book
