@@ -97,7 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Portrait photo (shown below meta, above story)
     const portraitWrap = document.getElementById('fdetail-portrait-wrap');
     if (m.photo) {
-      portraitWrap.innerHTML = '<img src="' + m.photo + '" alt="' + (m.name || '') + '">';
+      const escapedSrc = m.photo.replace(/"/g, '&quot;');
+      const escapedAlt = (m.name || '').replace(/"/g, '&quot;');
+      portraitWrap.innerHTML = '<img src="' + escapedSrc + '" alt="' + escapedAlt + '" onclick="openLightbox(\'' + escapedSrc + '\',\'' + escapedAlt + '\')" title="Click to expand">';
       portraitWrap.style.display = '';
     } else {
       portraitWrap.innerHTML = '';
@@ -168,6 +170,32 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('family-detail').classList.remove('open');
     document.body.style.overflow = '';
   };
+
+  // ===== PHOTO LIGHTBOX =====
+  window.openLightbox = function(src, alt) {
+    const lb = document.getElementById('photo-lightbox');
+    const img = document.getElementById('lightbox-img');
+    img.src = src;
+    img.alt = alt || '';
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeLightbox = function() {
+    document.getElementById('photo-lightbox').classList.remove('open');
+    // restore scroll only if family detail is also closed
+    if (!document.getElementById('family-detail').classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
+  };
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (document.getElementById('photo-lightbox').classList.contains('open')) {
+        closeLightbox();
+      }
+    }
+  });
 
   // ===== VAULT COUNTDOWN =====
   // `window.birthDate` is injected by the server in book.ejs
