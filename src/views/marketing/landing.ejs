@@ -62,6 +62,27 @@
     .waitlist-note { font-size: 0.8rem; color: rgba(248, 242, 230, 0.5); margin: 0.5rem 0 0; }
     .waitlist-success { color: #B8935A; font-size: 0.95rem; margin-top: 0.75rem; font-weight: 500; }
     @media (max-width: 480px) { .waitlist-form { flex-direction: column; } }
+    .founder-cta { margin: 1.5rem 0 0.75rem; }
+    .founder-cta .btn-founder {
+      display: inline-block; padding: 1rem 2rem;
+      background: #B8935A; color: #1E1812;
+      border: none; border-radius: 6px; font-weight: 700; font-size: 1rem;
+      cursor: pointer; text-decoration: none; transition: background 0.2s;
+    }
+    .founder-cta .btn-founder:hover { background: #D4B483; }
+    .founder-spots {
+      font-size: 0.82rem; color: rgba(248, 242, 230, 0.6);
+      margin: 0.5rem 0 0;
+    }
+    .founder-spots .spots-count { color: #B8935A; font-weight: 700; }
+    .founder-spots-bar {
+      width: 200px; height: 4px; background: rgba(255,255,255,0.15);
+      border-radius: 2px; margin: 0.4rem 0 0;
+    }
+    .founder-spots-bar-fill {
+      height: 100%; background: #B8935A; border-radius: 2px;
+      transition: width 0.5s ease;
+    }
   </style>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
@@ -160,6 +181,19 @@
         <p class="waitlist-success" id="waitlistSuccess" style="display:none;">
           &#10003; You're on the list! We'll be in touch soon.
         </p>
+      </div>
+
+      <!-- Founder CTA -->
+      <div class="founder-cta" id="founderCta">
+        <a href="#pricing" class="btn-founder" id="founderBtn">
+          Claim Your Founder Spot — $29/year &rarr;
+        </a>
+        <p class="founder-spots" id="founderSpots">
+          <span class="spots-count" id="spotsRemaining">...</span> of 100 founder spots remaining
+        </p>
+        <div class="founder-spots-bar">
+          <div class="founder-spots-bar-fill" id="spotsBarFill" style="width:100%"></div>
+        </div>
       </div>
 
       <div class="hero-actions">
@@ -618,6 +652,33 @@
         alert('Something went wrong. Please try again.');
       }
     });
+  </script>
+  <script>
+    // Founder spot counter
+    (async function() {
+      try {
+        const res = await fetch('/api/stripe/founder-spots');
+        const data = await res.json();
+        const remaining = data.remaining;
+        const pct = (remaining / data.total) * 100;
+
+        document.getElementById('spotsRemaining').textContent = remaining;
+        document.getElementById('spotsBarFill').style.width = pct + '%';
+
+        if (data.soldOut) {
+          const btn = document.getElementById('founderBtn');
+          btn.textContent = 'Founder Spots Sold Out — Join Waitlist';
+          btn.href = '#waitlist';
+          btn.style.background = '#6b5b45';
+        } else {
+          document.getElementById('founderBtn').href = '#pricing';
+        }
+      } catch (e) {
+        // Silently hide the counter if it fails
+        const spots = document.getElementById('founderSpots');
+        if (spots) spots.style.display = 'none';
+      }
+    })();
   </script>
 
 </body>

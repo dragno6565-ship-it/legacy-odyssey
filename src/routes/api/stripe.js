@@ -85,6 +85,53 @@ router.post('/redeem-gift', async (req, res, next) => {
   }
 });
 
+// GET /api/stripe/founder-spots — Returns remaining founder spots for the landing page counter
+router.get('/founder-spots', async (req, res, next) => {
+  try {
+    const { getFounderCount, FOUNDER_LIMIT } = require('../../services/stripeService');
+    const count = await getFounderCount();
+    res.json({
+      claimed: count,
+      total: FOUNDER_LIMIT,
+      remaining: Math.max(0, FOUNDER_LIMIT - count),
+      soldOut: count >= FOUNDER_LIMIT,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/stripe/create-founder-checkout
+router.post('/create-founder-checkout', async (req, res, next) => {
+  try {
+    const { email, domain, subdomain: legacySubdomain } = req.body;
+
+    const subdomain = domain
+      ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
+      : legacySubdomain;
+
+    if (!email || (!domain && !subdomain)) {
+      return res.status(400).json({ error: 'email and domain (or subdomain) are required' });
+    }
+
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    const session = await stripeService.createFounderCheckoutSession({
+      email,
+      subdomain,
+      domain: domain || null,
+      successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `https://${appDomain}`,
+    });
+
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (err) {
+    if (err.code === 'FOUNDER_SOLD_OUT') {
+      return res.status(410).json({ error: 'Founder spots are sold out', soldOut: true });
+    }
+    next(err);
+  }
+});
+
 // POST /api/stripe/create-additional-site-checkout — Purchase another site
 router.post('/create-additional-site-checkout', requireAuth, async (req, res, next) => {
   try {

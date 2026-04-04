@@ -14,10 +14,13 @@ const PRICES = {
   subscription: {
     monthly: process.env.STRIPE_PRICE_MONTHLY,
     annual: process.env.STRIPE_PRICE_ANNUAL,
+    founder: process.env.STRIPE_PRICE_FOUNDER,
   },
   setupFee: process.env.STRIPE_PRICE_SETUP,
   additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
 };
+
+const FOUNDER_LIMIT = 100;
 
 /**
  * Resolve the Stripe subscription price ID for a billing period.
@@ -93,10 +96,12 @@ async function handleCheckoutComplete(session) {
   });
 
   // Update with subscription ID and plan details
+  const plan = session.metadata?.plan || null;
   await familyService.update(family.id, {
     stripe_subscription_id: stripeSubscriptionId,
     subscription_status: 'active',
     billing_period: period,
+    ...(plan ? { plan } : {}),
   });
 
   // Create book with default content
@@ -157,6 +162,51 @@ async function createPortalSession(stripeCustomerId, returnUrl) {
   return session;
 }
 
+/**
+ * Count how many founder subscriptions have been created.
+ */
+async function getFounderCount() {
+  if (!stripe) return 0;
+  const subs = await stripe.subscriptions.list({
+    price: PRICES.subscription.founder,
+    limit: 100,
+    status: 'all',
+  });
+  // Only count active/trialing — not canceled ones
+  return subs.data.filter(s => ['active', 'trialing', 'past_due'].includes(s.status)).length;
+}
+
+/**
+ * Create a Stripe Checkout session for the founder annual plan ($29/yr).
+ * Enforces the 100-spot limit before creating.
+ */
+async function createFounderCheckoutSession({ email, subdomain, domain, successUrl, cancelUrl }) {
+  if (!stripe) throw new Error('Stripe not configured');
+  if (!PRICES.subscription.founder) throw new Error('STRIPE_PRICE_FOUNDER not configured');
+
+  const count = await getFounderCount();
+  if (count >= FOUNDER_LIMIT) {
+    const err = new Error('Founder spots are sold out');
+    err.code = 'FOUNDER_SOLD_OUT';
+    throw err;
+  }
+
+  const metadata = { subdomain, period: 'founder', plan: 'founder' };
+  if (domain) metadata.domain = domain;
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    payment_method_types: ['card'],
+    customer_email: email,
+    line_items: [{ price: PRICES.subscription.founder, quantity: 1 }],
+    metadata,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  });
+
+  return session;
+}
+
 async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientEmail, message, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
@@ -211,7 +261,10 @@ async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subd
 
 module.exports = {
   PRICES,
+  FOUNDER_LIMIT,
   createCheckoutSession,
+  createFounderCheckoutSession,
+  getFounderCount,
   createGiftCheckoutSession,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,
