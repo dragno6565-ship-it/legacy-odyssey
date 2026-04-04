@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birth Story – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Quill rich text editor -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.25rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"] { padding: 0.7rem 0.9rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; transition: border-color 0.2s; width: 100%; }
+    input[type="text"]:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+
+    /* Quill editor styling */
+    .ql-container.ql-snow { border: 1.5px solid #e0d5c4; border-top: none; border-radius: 0 0 8px 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; min-height: 160px; }
+    .ql-toolbar.ql-snow { border: 1.5px solid #e0d5c4; border-radius: 8px 8px 0 0; background: #faf7f2; }
+    .ql-editor { min-height: 160px; color: #2c2416; line-height: 1.7; }
+    .ql-editor.ql-blank::before { color: #b8a898; font-style: normal; }
+
+    /* Photo upload */
+    .photo-row { display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: start; }
+    .photo-zone {
+      border: 2px dashed #e0d5c4; border-radius: 10px;
+      width: 140px; height: 140px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      overflow: hidden; position: relative; flex-shrink: 0;
+    }
+    .photo-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-zone.has-photo { border-style: solid; border-color: #c8a96e; }
+    .photo-zone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-zone-hint { font-size: 0.75rem; color: #8a7e6b; text-align: center; padding: 0 0.5rem; margin-top: 0.3rem; }
+    .photo-zone-hint strong { color: #c8a96e; }
+    .photo-remove {
+      position: absolute; top: 0.3rem; right: 0.3rem;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 22px; height: 22px;
+      font-size: 0.75rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .photo-zone.has-photo .photo-remove { display: flex; }
+    .photo-uploading { font-size: 0.8rem; color: #c8a96e; margin-top: 0.4rem; display: none; }
+    .photo-field-label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+    .photo-side { display: flex; flex-direction: column; }
+
+    /* Flash */
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+
+    /* Birth stats (read-only display) */
+    .stats-bar { display: flex; flex-wrap: wrap; gap: 0.75rem; background: #faf7f2; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; }
+    .stat { font-size: 0.82rem; color: #8a7e6b; }
+    .stat strong { color: #2c2416; display: block; font-size: 0.95rem; }
+    .stats-edit-note { font-size: 0.78rem; color: #b8a898; margin-top: 0.5rem; }
+    .stats-edit-note a { color: #c8a96e; text-decoration: none; }
+
+    /* Save bar */
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+
+    @media (max-width: 480px) {
+      .photo-row { grid-template-columns: 1fr; }
+      .photo-zone { width: 100%; height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Birth Story
+    </div>
+
+    <h1>Birth Story</h1>
+    <p class="section-desc">Mom's and Dad's perspectives from the day your child arrived. Each gets their own narrative and photo.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/birth-story" id="birthStoryForm">
+
+      <!-- Birth stats (read-only, edit in Child Info) -->
+      <% if (book.birth_date || book.birth_weight_lbs) { %>
+      <div class="card">
+        <h2>Birth Statistics</h2>
+        <div class="stats-bar">
+          <% if (book.birth_date) { %>
+            <div class="stat"><span>Date</span><strong><%= new Date(book.birth_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) %></strong></div>
+          <% } %>
+          <% if (book.birth_time) { %>
+            <div class="stat"><span>Time</span><strong><%= book.birth_time %></strong></div>
+          <% } %>
+          <% if (book.birth_weight_lbs) { %>
+            <div class="stat"><span>Weight</span><strong><%= book.birth_weight_lbs %> lbs <%= book.birth_weight_oz || 0 %> oz</strong></div>
+          <% } %>
+          <% if (book.birth_length_inches) { %>
+            <div class="stat"><span>Length</span><strong><%= book.birth_length_inches %> inches</strong></div>
+          <% } %>
+        </div>
+        <p class="stats-edit-note">Edit birth date, weight, and location in <a href="/account/book/child-info">Child Info</a>.</p>
+      </div>
+      <% } %>
+
+      <!-- First held by -->
+      <div class="card">
+        <h2>First Moments</h2>
+        <div class="form-group">
+          <label>First Held By</label>
+          <input type="text" name="first_held_by" value="<%= birthStory.first_held_by || '' %>" placeholder="e.g. Mom / Dad">
+        </div>
+      </div>
+
+      <!-- Mom's perspective -->
+      <div class="card">
+        <h2>From Mom's Point of View</h2>
+        <div class="photo-row">
+          <div>
+            <div class="photo-field-label">Mom's Photo</div>
+            <input type="hidden" name="mom_photo_1" id="momPhotoPath" value="<%= birthStory.mom_photo_1 || '' %>">
+            <div class="photo-zone <%= momPhotoUrl ? 'has-photo' : '' %>" id="momPhotoZone" onclick="document.getElementById('momFileInput').click()">
+              <% if (momPhotoUrl) { %>
+                <img src="<%= momPhotoUrl %>" alt="Mom's photo" id="momPreview">
+              <% } else { %>
+                <img src="" alt="" id="momPreview" style="display:none;">
+                <div style="font-size:1.5rem;">📷</div>
+                <div class="photo-zone-hint"><strong>Upload</strong></div>
+              <% } %>
+              <button type="button" class="photo-remove" onclick="removePhoto(event,'momPhotoPath','momPhotoZone','momPreview')">✕</button>
+            </div>
+            <div class="photo-uploading" id="momUploading">Uploading…</div>
+            <input type="file" id="momFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','momPhotoPath','momPhotoZone','momPreview','momUploading')">
+          </div>
+          <div class="photo-side">
+            <div class="form-group" style="margin-bottom:0;flex:1;">
+              <label>Mom's Narrative</label>
+              <div id="momEditor" style="margin-top:0.25rem;"><%= birthStory.mom_narrative || '' %></div>
+              <textarea name="mom_narrative" id="momNarrative" style="display:none;"><%= birthStory.mom_narrative || '' %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dad's perspective -->
+      <div class="card">
+        <h2>From Dad's Point of View</h2>
+        <div class="photo-row">
+          <div>
+            <div class="photo-field-label">Dad's Photo</div>
+            <input type="hidden" name="dad_photo_1" id="dadPhotoPath" value="<%= birthStory.dad_photo_1 || '' %>">
+            <div class="photo-zone <%= dadPhotoUrl ? 'has-photo' : '' %>" id="dadPhotoZone" onclick="document.getElementById('dadFileInput').click()">
+              <% if (dadPhotoUrl) { %>
+                <img src="<%= dadPhotoUrl %>" alt="Dad's photo" id="dadPreview">
+              <% } else { %>
+                <img src="" alt="" id="dadPreview" style="display:none;">
+                <div style="font-size:1.5rem;">📷</div>
+                <div class="photo-zone-hint"><strong>Upload</strong></div>
+              <% } %>
+              <button type="button" class="photo-remove" onclick="removePhoto(event,'dadPhotoPath','dadPhotoZone','dadPreview')">✕</button>
+            </div>
+            <div class="photo-uploading" id="dadUploading">Uploading…</div>
+            <input type="file" id="dadFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','dadPhotoPath','dadPhotoZone','dadPreview','dadUploading')">
+          </div>
+          <div class="photo-side">
+            <div class="form-group" style="margin-bottom:0;flex:1;">
+              <label>Dad's Narrative</label>
+              <div id="dadEditor" style="margin-top:0.25rem;"><%= birthStory.dad_narrative || '' %></div>
+              <textarea name="dad_narrative" id="dadNarrative" style="display:none;"><%= birthStory.dad_narrative || '' %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
+        <a href="/account/book" class="btn-back">← Back to My Book</a>
+      </div>
+
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+  <script>
+    // ── Quill editors ──────────────────────────────────────────────────────────
+    const toolbarOptions = [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['blockquote'],
+      ['clean'],
+    ];
+
+    const momQuill = new Quill('#momEditor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions },
+      placeholder: "Write about the moment from Mom's point of view…",
+    });
+
+    const dadQuill = new Quill('#dadEditor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions },
+      placeholder: "Write about the moment from Dad's point of view…",
+    });
+
+    // Before submitting, copy Quill HTML into hidden textareas
+    document.getElementById('birthStoryForm').addEventListener('submit', function() {
+      document.getElementById('momNarrative').value = momQuill.getSemanticHTML();
+      document.getElementById('dadNarrative').value = dadQuill.getSemanticHTML();
+    });
+
+    // ── Photo upload ───────────────────────────────────────────────────────────
+    async function uploadPhoto(input, section, pathInputId, zoneId, previewId, uploadingId) {
+      if (!input.files || !input.files[0]) return;
+      const uploadingEl = document.getElementById(uploadingId);
+      uploadingEl.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', section);
+
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+
+        document.getElementById(pathInputId).value = data.path;
+
+        const preview = document.getElementById(previewId);
+        preview.src = data.url;
+        preview.style.display = 'block';
+
+        const zone = document.getElementById(zoneId);
+        zone.classList.add('has-photo');
+        const hint = zone.querySelector('.photo-zone-hint');
+        if (hint) hint.style.display = 'none';
+        const icon = zone.querySelector('div[style*="font-size:1.5rem"]');
+        if (icon) icon.style.display = 'none';
+      } catch (err) {
+        alert('Upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    function removePhoto(e, pathInputId, zoneId, previewId) {
+      e.stopPropagation();
+      document.getElementById(pathInputId).value = '';
+      document.getElementById(previewId).style.display = 'none';
+      document.getElementById(zoneId).classList.remove('has-photo');
+    }
+  </script>
+</body>
+</html>

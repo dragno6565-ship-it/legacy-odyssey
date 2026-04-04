@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Book – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 4rem; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .subtitle { color: #8a7e6b; font-size: 0.95rem; margin-bottom: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .section-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 1.5rem 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: box-shadow 0.2s, transform 0.15s;
+      border: 1px solid #f0ebe3;
+      position: relative;
+    }
+    .section-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .section-card .emoji { font-size: 1.75rem; line-height: 1; }
+    .section-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: #2c2416; }
+    .section-card p { font-size: 0.82rem; color: #8a7e6b; line-height: 1.5; }
+    .dot {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #c8a96e;
+    }
+    .dot.empty { background: #e0d5c4; }
+    .legend { display: flex; gap: 1.25rem; font-size: 0.8rem; color: #8a7e6b; margin-bottom: 1.5rem; align-items: center; }
+    .legend span { display: flex; align-items: center; gap: 0.35rem; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">← Account</a> &nbsp;/&nbsp; My Book
+    </div>
+
+    <h1>My Book</h1>
+    <p class="subtitle">
+      <%= book ? (book.child_first_name || 'Your child') + '\'s story — click any section to edit' : 'Click any section to start editing' %>
+    </p>
+
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#c8a96e;"></span> Has content</span>
+      <span><span class="legend-dot" style="background:#e0d5c4;"></span> Empty — ready to fill</span>
+    </div>
+
+    <div class="grid">
+
+      <a href="/account/book/child-info" class="section-card">
+        <div class="dot <%= (book && book.child_first_name) ? '' : 'empty' %>"></div>
+        <div class="emoji">👶</div>
+        <h3>Child Info</h3>
+        <p>Name, birthday, birth details, and hero photo</p>
+      </a>
+
+      <a href="/account/book/birth-story" class="section-card">
+        <div class="dot <%= visibleSections.birth ? '' : 'empty' %>"></div>
+        <div class="emoji">🌟</div>
+        <h3>Birth Story</h3>
+        <p>Mom's and Dad's perspectives from the big day</p>
+      </a>
+
+      <a href="/account/book/before-arrived" class="section-card">
+        <div class="dot <%= visibleSections.before ? '' : 'empty' %>"></div>
+        <div class="emoji">🤰</div>
+        <h3>Before You Arrived</h3>
+        <p>Pregnancy memories and the anticipation of arrival</p>
+      </a>
+
+      <a href="/account/book/coming-home" class="section-card">
+        <div class="dot <%= visibleSections.home ? '' : 'empty' %>"></div>
+        <div class="emoji">🏠</div>
+        <h3>Coming Home</h3>
+        <p>The journey home and your first days together</p>
+      </a>
+
+      <a href="/account/book/months" class="section-card">
+        <div class="dot <%= visibleSections.months ? '' : 'empty' %>"></div>
+        <div class="emoji">📅</div>
+        <h3>Month by Month</h3>
+        <p>Monthly milestones, notes, and photos from 1 to 12</p>
+      </a>
+
+      <a href="/account/book/family" class="section-card">
+        <div class="dot <%= visibleSections.family ? '' : 'empty' %>"></div>
+        <div class="emoji">❤️</div>
+        <h3>Our Family</h3>
+        <p>Family members, their roles, and their stories</p>
+      </a>
+
+      <a href="/account/book/firsts" class="section-card">
+        <div class="dot <%= visibleSections.firsts ? '' : 'empty' %>"></div>
+        <div class="emoji">⭐</div>
+        <h3>Your Firsts</h3>
+        <p>First smile, first word, first steps, and more</p>
+      </a>
+
+      <a href="/account/book/celebrations" class="section-card">
+        <div class="dot <%= visibleSections.holidays ? '' : 'empty' %>"></div>
+        <div class="emoji">🎉</div>
+        <h3>Celebrations</h3>
+        <p>Birthdays, holidays, and special occasions</p>
+      </a>
+
+      <a href="/account/book/letters" class="section-card">
+        <div class="dot <%= visibleSections.letters ? '' : 'empty' %>"></div>
+        <div class="emoji">✉️</div>
+        <h3>Letters</h3>
+        <p>Letters written to your little one over time</p>
+      </a>
+
+      <a href="/account/book/recipes" class="section-card">
+        <div class="dot <%= visibleSections.recipes ? '' : 'empty' %>"></div>
+        <div class="emoji">🍽️</div>
+        <h3>Family Recipes</h3>
+        <p>Recipes and food memories passed down through generations</p>
+      </a>
+
+      <a href="/account/book/vault" class="section-card">
+        <div class="dot <%= visibleSections.vault ? '' : 'empty' %>"></div>
+        <div class="emoji">🔒</div>
+        <h3>The Vault</h3>
+        <p>Letters sealed and hidden until your child is ready</p>
+      </a>
+
+    </div>
+  </div>
+</body>
+</html>

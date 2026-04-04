@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Child Info – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"], input[type="date"], input[type="time"], input[type="number"], textarea {
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #e0d5c4;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      color: #2c2416;
+      background: #fff;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { resize: vertical; min-height: 90px; }
+
+    /* Photo upload */
+    .photo-zone {
+      border: 2px dashed #e0d5c4;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .photo-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-zone.has-photo { border-style: solid; border-color: #c8a96e; padding: 0; overflow: hidden; }
+    .photo-zone img { width: 100%; max-height: 260px; object-fit: cover; display: block; border-radius: 8px; }
+    .photo-zone-label { font-size: 0.88rem; color: #8a7e6b; margin-top: 0.5rem; }
+    .photo-zone-label strong { color: #c8a96e; }
+    .photo-remove {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 28px; height: 28px;
+      font-size: 0.9rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .photo-zone.has-photo .photo-remove { display: flex; }
+    .photo-uploading { font-size: 0.82rem; color: #c8a96e; margin-top: 0.5rem; display: none; }
+
+    /* Flash messages */
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+
+    /* Save bar */
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+
+    @media (max-width: 520px) {
+      .form-row, .form-row.three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Child Info
+    </div>
+
+    <h1>Child Info</h1>
+    <p class="section-desc">Your child's name, birthday, birth details, and the hero photo shown at the top of the book.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/child-info" id="childInfoForm">
+
+      <!-- Name -->
+      <div class="card">
+        <h2>Name</h2>
+        <div class="form-row three">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="child_first_name" value="<%= book.child_first_name || '' %>" placeholder="e.g. Eowyn">
+          </div>
+          <div class="form-group">
+            <label>Middle Name</label>
+            <input type="text" name="child_middle_name" value="<%= book.child_middle_name || '' %>" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="child_last_name" value="<%= book.child_last_name || '' %>" placeholder="e.g. Ragno">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Meaning of Their Name</label>
+          <textarea name="name_meaning" placeholder="Why did you choose this name? What does it mean?"><%= book.name_meaning || '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Birth Details -->
+      <div class="card">
+        <h2>Birth Details</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Birthday</label>
+            <input type="date" name="birth_date" value="<%= book.birth_date ? book.birth_date.toString().substring(0,10) : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Time of Birth</label>
+            <input type="time" name="birth_time" value="<%= book.birth_time || '' %>">
+          </div>
+        </div>
+        <div class="form-row three">
+          <div class="form-group">
+            <label>Weight (lbs)</label>
+            <input type="number" name="birth_weight_lbs" value="<%= book.birth_weight_lbs || '' %>" placeholder="e.g. 7" min="0" max="20">
+          </div>
+          <div class="form-group">
+            <label>Weight (oz)</label>
+            <input type="number" name="birth_weight_oz" value="<%= book.birth_weight_oz || '' %>" placeholder="e.g. 9" min="0" max="15">
+          </div>
+          <div class="form-group">
+            <label>Length (inches)</label>
+            <input type="number" name="birth_length_inches" value="<%= book.birth_length_inches || '' %>" placeholder="e.g. 20" min="0" max="30">
+          </div>
+        </div>
+        <div class="form-row three">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" name="birth_city" value="<%= book.birth_city || '' %>" placeholder="e.g. Phoenix">
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" name="birth_state" value="<%= book.birth_state || '' %>" placeholder="e.g. AZ">
+          </div>
+          <div class="form-group">
+            <label>Hospital</label>
+            <input type="text" name="birth_hospital" value="<%= book.birth_hospital || '' %>" placeholder="e.g. St. Luke's">
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Photo -->
+      <div class="card">
+        <h2>Hero Photo</h2>
+        <p style="font-size:0.85rem;color:#8a7e6b;margin-bottom:1rem;">The large photo shown at the very top of your book — the first thing visitors see.</p>
+        <input type="hidden" name="hero_image_path" id="heroImagePath" value="<%= book.hero_image_path || '' %>">
+        <div class="photo-zone <%= heroUrl ? 'has-photo' : '' %>" id="heroPhotoZone" onclick="document.getElementById('heroFileInput').click()">
+          <% if (heroUrl) { %>
+            <img src="<%= heroUrl %>" alt="Hero photo" id="heroPreview">
+            <button type="button" class="photo-remove" onclick="removeHeroPhoto(event)">✕</button>
+          <% } else { %>
+            <img src="" alt="" id="heroPreview" style="display:none;">
+            <button type="button" class="photo-remove" onclick="removeHeroPhoto(event)">✕</button>
+            <div style="font-size:2rem;margin-bottom:0.5rem;">📷</div>
+            <div class="photo-zone-label"><strong>Click to upload</strong> your hero photo<br>JPG or PNG, up to 10MB</div>
+          <% } %>
+        </div>
+        <div class="photo-uploading" id="heroUploading">Uploading photo…</div>
+        <input type="file" id="heroFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this, 'hero', 'heroImagePath', 'heroPhotoZone', 'heroPreview', 'heroUploading')">
+      </div>
+
+      <!-- Parent Quote -->
+      <div class="card">
+        <h2>Parent Quote</h2>
+        <p style="font-size:0.85rem;color:#8a7e6b;margin-bottom:1rem;">A short quote shown on the welcome page of your book.</p>
+        <div class="form-group">
+          <label>Quote</label>
+          <textarea name="parent_quote" placeholder="From the moment we first saw your face…"><%= book.parent_quote || '' %></textarea>
+        </div>
+        <div class="form-group">
+          <label>Attribution</label>
+          <input type="text" name="parent_quote_attribution" value="<%= book.parent_quote_attribution || '' %>" placeholder="e.g. Mom &amp; Dad">
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book" class="btn-back">← Back to My Book</a>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    async function uploadPhoto(input, section, pathInputId, zoneId, previewId, uploadingId) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const zone = document.getElementById(zoneId);
+      const uploadingEl = document.getElementById(uploadingId);
+
+      uploadingEl.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('section', section);
+
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+
+        document.getElementById(pathInputId).value = data.path;
+
+        const preview = document.getElementById(previewId);
+        preview.src = data.url;
+        preview.style.display = 'block';
+        zone.classList.add('has-photo');
+
+        // Hide placeholder text if present
+        const placeholder = zone.querySelector('.photo-zone-label');
+        if (placeholder) placeholder.style.display = 'none';
+        const icon = zone.querySelector('div[style*="font-size:2rem"]');
+        if (icon) icon.style.display = 'none';
+      } catch (err) {
+        alert('Photo upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    function removeHeroPhoto(e) {
+      e.stopPropagation();
+      document.getElementById('heroImagePath').value = '';
+      document.getElementById('heroPreview').style.display = 'none';
+      document.getElementById('heroPhotoZone').classList.remove('has-photo');
+    }
+  </script>
+</body>
+</html>
