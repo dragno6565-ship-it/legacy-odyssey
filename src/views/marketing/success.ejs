@@ -370,9 +370,12 @@
   </div>
 
   <script>
+    const purchaseEventId = '<%= purchaseEventId %>';
+    fbq('track', 'Purchase', { value: <%= planValue %>, currency: 'USD' }, { eventID: purchaseEventId });
+    fbq('track', 'StartTrial', {}, { eventID: 'trial_' + purchaseEventId });
     pintrk('track', 'signup');
     pintrk('track', 'checkout', {
-      value: <%= plan === 'annual' ? 49.99 : 4.99 %>,
+      value: <%= planValue %>,
       order_quantity: 1,
       currency: 'USD'
     });

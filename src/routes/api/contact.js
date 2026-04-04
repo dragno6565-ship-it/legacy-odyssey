@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
+const { sendCapiEvent } = require('../../utils/metaCapi');
 
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -54,6 +55,20 @@ router.post('/', contactLimiter, async (req, res) => {
     }
 
     console.log(`Contact form: ${topic} from ${email} (${data.id})`);
+
+    sendCapiEvent({
+      eventName: 'Lead',
+      eventId: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      userData: {
+        email,
+        firstName: name?.split(' ')[0],
+        lastName: name?.split(' ').slice(1).join(' '),
+      },
+      eventSourceUrl: 'https://legacyodyssey.com',
+      clientIpAddress: req.ip || req.headers['x-forwarded-for'],
+      clientUserAgent: req.headers['user-agent'],
+    });
+
     res.json({ success: true });
   } catch (err) {
     console.error('Contact form error:', err.message);

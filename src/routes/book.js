@@ -139,6 +139,7 @@ router.get('/stripe/success', async (req, res) => {
   const { stripe } = require('../config/stripe');
   const familyService = require('../services/familyService');
   const stripeService = require('../services/stripeService');
+  const { sendCapiEvent } = require('../utils/metaCapi');
   const sessionId = req.query.session_id;
   if (!sessionId || !stripe) {
     return res.redirect('/');
@@ -165,6 +166,34 @@ router.get('/stripe/success', async (req, res) => {
       family = await familyService.findByStripeCustomerId(session.customer);
     }
 
+    const planValue = plan === 'annual' ? 49.99 : 4.99;
+    const purchaseEventId = `purchase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const customerName = session.customer_details?.name || '';
+
+    sendCapiEvent({
+      eventName: 'Purchase',
+      eventId: purchaseEventId,
+      userData: {
+        email,
+        firstName: customerName.split(' ')[0],
+        lastName: customerName.split(' ').slice(1).join(' '),
+      },
+      customData: { value: planValue, currency: 'USD', orderId: sessionId },
+      eventSourceUrl: 'https://legacyodyssey.com/success',
+      clientIpAddress: req.ip || req.headers['x-forwarded-for'],
+      clientUserAgent: req.headers['user-agent'],
+    });
+
+    sendCapiEvent({
+      eventName: 'StartTrial',
+      eventId: `trial_${purchaseEventId}`,
+      userData: { email },
+      customData: { value: planValue, currency: 'USD' },
+      eventSourceUrl: 'https://legacyodyssey.com/success',
+      clientIpAddress: req.ip || req.headers['x-forwarded-for'],
+      clientUserAgent: req.headers['user-agent'],
+    });
+
     if (family) {
       // Webhook already processed — show success page (no temp password available)
       return res.render('marketing/success', {
@@ -172,8 +201,10 @@ router.get('/stripe/success', async (req, res) => {
         domain,
         appDomain,
         plan,
+        planValue,
         email,
         tempPassword: null,
+        purchaseEventId,
       });
     }
 
@@ -184,8 +215,10 @@ router.get('/stripe/success', async (req, res) => {
       domain: result.domain || null,
       appDomain,
       plan,
+      planValue,
       email,
       tempPassword: result.tempPassword,
+      purchaseEventId,
     });
   } catch (err) {
     console.error('Stripe success handler error:', err);

@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { supabaseAdmin } = require('../../config/supabase');
+const { sendCapiEvent } = require('../../utils/metaCapi');
 
 const router = Router();
 
@@ -23,6 +24,15 @@ router.post('/', async (req, res) => {
       }
       throw error;
     }
+
+    sendCapiEvent({
+      eventName: 'Lead',
+      eventId: `waitlist_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      userData: { email: email.trim().toLowerCase() },
+      eventSourceUrl: 'https://legacyodyssey.com',
+      clientIpAddress: req.ip || req.headers['x-forwarded-for'],
+      clientUserAgent: req.headers['user-agent'],
+    });
 
     res.json({ success: true, message: "You're on the list!" });
   } catch (err) {
