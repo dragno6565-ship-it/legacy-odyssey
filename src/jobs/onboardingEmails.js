@@ -25,7 +25,7 @@ async function runOnboardingEmails() {
     // Get all active/trialing families
     const { data: families, error } = await supabaseAdmin
       .from('families')
-      .select('id, email, display_name, created_at, onboarding_emails_sent')
+      .select('id, email, display_name, subdomain, custom_domain, created_at, onboarding_emails_sent')
       .in('subscription_status', ['active', 'trialing'])
       .eq('is_active', true);
 
@@ -51,7 +51,12 @@ async function runOnboardingEmails() {
       for (const { day, key, send } of EMAIL_SCHEDULE) {
         if (ageInDays >= day && !alreadySent[key]) {
           try {
-            await send({ to: family.email, displayName: family.display_name });
+            await send({
+              to: family.email,
+              displayName: family.display_name,
+              subdomain: family.subdomain,
+              customDomain: family.custom_domain,
+            });
 
             // Mark this email as sent
             const updated = { ...alreadySent, [key]: new Date().toISOString() };

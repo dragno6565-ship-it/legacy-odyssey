@@ -384,7 +384,7 @@ async function sendDay1Email({ to, displayName }) {
     heading: `Hey ${firstName}, ready to get started?`,
     body: `Your Legacy Odyssey book is set up and ready to go! The best way to start is by uploading your first photo. Open the app, tap any section, and add a photo that means something to your family. It only takes a minute, and it'll make your book feel like home.`,
     ctaText: 'Open the App',
-    ctaUrl: 'https://legacyodyssey.com',
+    ctaUrl: 'https://legacyodyssey.com/account',
   });
 }
 
@@ -400,23 +400,33 @@ async function sendDay3Email({ to, displayName }) {
     heading: `${firstName}, there's so much to capture`,
     body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you preserve the moments that matter most. Pick one and start filling it in today.`,
     ctaText: 'Add a Memory',
-    ctaUrl: 'https://legacyodyssey.com',
+    ctaUrl: 'https://legacyodyssey.com/account',
   });
 }
 
 /**
  * Send Day 7 nudge: "Share your book"
  */
-async function sendDay7Email({ to, displayName }) {
+async function sendDay7Email({ to, displayName, subdomain, customDomain }) {
   const firstName = getFirstName(displayName, to);
+  const bookUrl = customDomain
+    ? `https://www.${customDomain}`
+    : subdomain
+      ? `https://${subdomain}.legacyodyssey.com`
+      : 'https://legacyodyssey.com/account';
+  const bookDisplay = customDomain
+    ? `www.${customDomain}`
+    : subdomain
+      ? `${subdomain}.legacyodyssey.com`
+      : 'your book';
   return sendOnboardingEmail({
     to,
     subject: `Share your book with the people who matter`,
     preheader: 'Your family and friends would love to see your book.',
     heading: `${firstName}, your book is ready to share`,
-    body: `Your Legacy Odyssey book is looking great! Now's the perfect time to share it with grandparents, aunts, uncles, and friends. Just send them your book's website link and password. They'll be able to see everything you've added from any device.`,
+    body: `Your Legacy Odyssey book is looking great! Now's the perfect time to share it with grandparents, aunts, uncles, and friends. Send them <strong>${bookDisplay}</strong> along with your book password and they'll be able to see everything you've added from any device.`,
     ctaText: 'View Your Book',
-    ctaUrl: 'https://legacyodyssey.com',
+    ctaUrl: bookUrl,
   });
 }
 
@@ -432,7 +442,7 @@ async function sendTrialEndingEmail({ to, displayName }) {
     heading: `Your trial ends tomorrow`,
     body: `${firstName}, your Legacy Odyssey trial is ending soon. If you've been enjoying building your family's book, subscribe now to keep your memories safe and your website live. All your photos, stories, and milestones will be preserved exactly as you left them.`,
     ctaText: 'Subscribe Now',
-    ctaUrl: 'https://legacyodyssey.com',
+    ctaUrl: 'https://legacyodyssey.com/account',
   });
 }
 
