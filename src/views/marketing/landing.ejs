@@ -365,33 +365,24 @@
   <section class="pricing" id="pricing">
     <h2 class="section-title">Invest in Memories That Last</h2>
     <p class="section-subtitle">
-      Less than a cup of coffee a month. Choose monthly flexibility
-      or save with an annual plan.
+      Lock in founder pricing before spots are gone — or choose monthly flexibility.
     </p>
 
-    <!-- Billing toggle -->
-    <div class="billing-toggle">
-      <span class="toggle-label" id="monthlyLabel">Monthly</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="billingToggle">
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-label" id="annualLabel">Annual</span>
-      <span class="toggle-save">Save 17% + No Setup Fee!</span>
-    </div>
+    <div class="pricing-cards" style="display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:flex-start;">
 
-    <div class="pricing-cards single-plan">
-      <div class="pricing-card featured">
-        <div class="pricing-name">Legacy Odyssey</div>
-        <div class="pricing-price">
-          <span class="pricing-amount monthly-price">$4.99</span>
-          <span class="pricing-amount annual-price" style="display:none;">$4.17</span>
-          <span class="pricing-period monthly-period">/ month</span>
-          <span class="pricing-period annual-period" style="display:none;">/ month</span>
+      <!-- Founder Card -->
+      <div class="pricing-card featured" style="flex:1;min-width:280px;max-width:360px;position:relative;">
+        <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#B8935A;color:#1E1812;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;padding:4px 16px;border-radius:20px;white-space:nowrap;">
+          FOUNDER PRICING
         </div>
-        <p class="monthly-setup-note">+ $5.99 one-time setup fee</p>
-        <p class="annual-note annual-savings" style="display:none;">Billed at $49.99/year &mdash; <span class="no-setup-badge">NO SETUP FEE</span></p>
-        <p class="pricing-desc">Everything you need to preserve your family's story.</p>
+        <div class="pricing-name">Legacy Odyssey <span style="color:#B8935A;">Founder</span></div>
+        <div class="pricing-price">
+          <span class="pricing-amount">$29</span>
+          <span class="pricing-period">/ year</span>
+        </div>
+        <p style="font-size:0.82rem;color:#B8935A;margin:0 0 4px;font-weight:600;">Locked in for life &mdash; never increases</p>
+        <p style="font-size:0.78rem;color:rgba(248,242,230,0.45);margin:0 0 16px;">Standard price after launch: $49.99/yr</p>
+        <p class="pricing-desc">Everything included. Same features, permanently lower price.</p>
         <ul class="pricing-features">
           <li>Your own custom .com domain</li>
           <li>Beautiful baby book or family album</li>
@@ -405,15 +396,89 @@
           <li>SSL security &amp; hosting included</li>
           <li>Mobile app (iOS &amp; Android)</li>
         </ul>
-        <a href="#" class="btn-primary" data-plan="legacy-odyssey">Get Started &rarr;</a>
+        <button class="btn-primary" id="founderCheckoutBtn" style="width:100%;">
+          Claim Founder Spot &rarr;
+        </button>
+        <p style="font-size:0.78rem;color:rgba(248,242,230,0.45);margin:10px 0 0;text-align:center;" id="founderCardSpots">
+          <span id="founderCardSpotsText">Loading spots...</span>
+        </p>
       </div>
+
+      <!-- Standard Card -->
+      <div class="pricing-card" style="flex:1;min-width:280px;max-width:360px;">
+        <div class="pricing-name">Legacy Odyssey</div>
+
+        <!-- Billing toggle inside card -->
+        <div class="billing-toggle" style="margin:0.5rem 0 1rem;">
+          <span class="toggle-label active" id="monthlyLabel">Monthly</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="billingToggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label" id="annualLabel">Annual</span>
+          <span class="toggle-save" style="display:block;margin:0.25rem 0 0;">Save 17% + No Setup Fee!</span>
+        </div>
+
+        <div class="pricing-price">
+          <span class="pricing-amount monthly-price">$4.99</span>
+          <span class="pricing-amount annual-price" style="display:none;">$4.17</span>
+          <span class="pricing-period monthly-period">/ month</span>
+          <span class="pricing-period annual-period" style="display:none;">/ month</span>
+        </div>
+        <p class="monthly-setup-note">+ $5.99 one-time setup fee</p>
+        <p class="annual-note annual-savings" style="display:none;">Billed at $49.99/year &mdash; <span class="no-setup-badge">NO SETUP FEE</span></p>
+        <p class="pricing-desc">Full flexibility. Cancel anytime.</p>
+        <ul class="pricing-features">
+          <li>Your own custom .com domain</li>
+          <li>Beautiful baby book or family album</li>
+          <li>Unlimited photos</li>
+          <li>Milestone &amp; growth tracking</li>
+          <li>Family member profiles</li>
+          <li>Letters &amp; messages</li>
+          <li>Time Vault &mdash; sealed messages for future birthdays</li>
+          <li>Family recipe collection</li>
+          <li>Password-protected website</li>
+          <li>SSL security &amp; hosting included</li>
+          <li>Mobile app (iOS &amp; Android)</li>
+        </ul>
+        <a href="#" class="btn-secondary" data-plan="legacy-odyssey" style="display:block;text-align:center;padding:0.85rem;">Get Started &rarr;</a>
+      </div>
+
     </div>
+
     <div class="pricing-addons">
       <p class="pricing-addon">Need additional sites? Additional domains are <strong>$12.99/yr</strong> each.</p>
       <p class="pricing-addon" style="margin-top:1rem;"><a href="/gift" class="btn-secondary" style="display:inline-block;padding:12px 28px;">Give as a Gift &rarr;</a></p>
     </div>
     <p class="pricing-note">Cancel your subscription anytime. A one-time setup fee of $5.99 applies to monthly plans. Domain name purchases are non-refundable &mdash; please double-check spelling before confirming.</p>
   </section>
+
+  <!-- Founder Checkout Modal -->
+  <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:460px;width:90%;position:relative;">
+      <button onclick="document.getElementById('founderModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#B8935A;font-size:1.4rem;cursor:pointer;">&times;</button>
+      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.25rem;font-size:1.4rem;">Claim Your Founder Spot</h3>
+      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;">$29/year, locked in for life</p>
+      <div id="founderModalSoldOut" style="display:none;color:#c0392b;font-size:0.95rem;margin-bottom:1rem;padding:12px;background:rgba(192,57,43,0.1);border-radius:6px;">
+        All 100 founder spots have been claimed. Join the waitlist above.
+      </div>
+      <div id="founderModalForm">
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">YOUR EMAIL</label>
+          <input type="email" id="founderEmail" placeholder="you@example.com" style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">YOUR CUSTOM DOMAIN (optional)</label>
+          <input type="text" id="founderDomain" placeholder="e.g. thesmithfamily.com" style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;">
+          <p style="font-size:0.75rem;color:rgba(248,242,230,0.4);margin:0.4rem 0 0;">Leave blank to choose later. You can always add it after signup.</p>
+        </div>
+        <button id="founderSubmitBtn" style="width:100%;padding:1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">
+          Continue to Payment &rarr;
+        </button>
+        <p id="founderModalError" style="display:none;color:#c0392b;font-size:0.85rem;margin:0.75rem 0 0;text-align:center;"></p>
+      </div>
+    </div>
+  </div>
 
   <!-- ====== TESTIMONIALS ====== -->
   <section class="testimonials" id="testimonials">
@@ -654,30 +719,99 @@
     });
   </script>
   <script>
-    // Founder spot counter
+    // Founder spot counter + modal wiring
     (async function() {
+      let founderSoldOut = false;
       try {
         const res = await fetch('/api/stripe/founder-spots');
         const data = await res.json();
         const remaining = data.remaining;
         const pct = (remaining / data.total) * 100;
+        founderSoldOut = data.soldOut;
 
+        // Hero counter
         document.getElementById('spotsRemaining').textContent = remaining;
         document.getElementById('spotsBarFill').style.width = pct + '%';
 
+        // Card counter
+        const cardText = document.getElementById('founderCardSpotsText');
         if (data.soldOut) {
-          const btn = document.getElementById('founderBtn');
-          btn.textContent = 'Founder Spots Sold Out — Join Waitlist';
-          btn.href = '#waitlist';
-          btn.style.background = '#6b5b45';
+          if (cardText) cardText.textContent = 'All founder spots claimed';
+          const btn = document.getElementById('founderCheckoutBtn');
+          if (btn) { btn.textContent = 'Sold Out'; btn.disabled = true; btn.style.opacity = '0.5'; }
+          // Hero button
+          const heroBtn = document.getElementById('founderBtn');
+          if (heroBtn) { heroBtn.textContent = 'Founder Spots Sold Out — Join Waitlist'; heroBtn.href = '#waitlist'; heroBtn.style.background = '#6b5b45'; }
         } else {
-          document.getElementById('founderBtn').href = '#pricing';
+          if (cardText) cardText.textContent = remaining + ' of 100 founder spots remaining';
+          const heroBtn = document.getElementById('founderBtn');
+          if (heroBtn) heroBtn.href = '#pricing';
         }
       } catch (e) {
-        // Silently hide the counter if it fails
         const spots = document.getElementById('founderSpots');
         if (spots) spots.style.display = 'none';
+        const cardText = document.getElementById('founderCardSpotsText');
+        if (cardText) cardText.style.display = 'none';
       }
+
+      // Open modal on founder card button click
+      document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
+        if (founderSoldOut) return;
+        document.getElementById('founderModal').style.display = 'flex';
+        // Pre-fill email from waitlist form if already entered
+        const waitlistEmail = document.getElementById('waitlistEmail')?.value;
+        if (waitlistEmail) document.getElementById('founderEmail').value = waitlistEmail;
+      });
+
+      // Founder checkout submit
+      document.getElementById('founderSubmitBtn')?.addEventListener('click', async function() {
+        const email = document.getElementById('founderEmail').value.trim();
+        const domain = document.getElementById('founderDomain').value.trim();
+        const btn = document.getElementById('founderSubmitBtn');
+        const errEl = document.getElementById('founderModalError');
+        errEl.style.display = 'none';
+
+        if (!email || !email.includes('@')) {
+          errEl.textContent = 'Please enter a valid email address.';
+          errEl.style.display = 'block';
+          return;
+        }
+
+        btn.textContent = 'Redirecting to payment...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/api/stripe/create-founder-checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, domain: domain || undefined }),
+          });
+          const data = await res.json();
+
+          if (data.soldOut) {
+            document.getElementById('founderModalSoldOut').style.display = 'block';
+            document.getElementById('founderModalForm').style.display = 'none';
+            return;
+          }
+          if (data.url) {
+            if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: 29, currency: 'USD' });
+            if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: 29, currency: 'USD' });
+            window.location.href = data.url;
+          } else {
+            throw new Error(data.error || 'Something went wrong');
+          }
+        } catch (err) {
+          errEl.textContent = err.message || 'Something went wrong. Please try again.';
+          errEl.style.display = 'block';
+          btn.textContent = 'Continue to Payment →';
+          btn.disabled = false;
+        }
+      });
+
+      // Close modal on backdrop click
+      document.getElementById('founderModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+      });
     })();
   </script>
 
