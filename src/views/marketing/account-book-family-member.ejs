@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= member.name || 'Family Member' %> – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"], textarea {
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #e0d5c4;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      color: #2c2416;
+      background: #fff;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input[type="text"]:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+    /* Quill */
+    .ql-container.ql-snow { border: 1.5px solid #e0d5c4; border-top: none; border-radius: 0 0 8px 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; min-height: 140px; }
+    .ql-toolbar.ql-snow { border: 1.5px solid #e0d5c4; border-radius: 8px 8px 0 0; background: #faf7f2; }
+    .ql-editor { min-height: 140px; color: #2c2416; line-height: 1.7; }
+    .ql-editor.ql-blank::before { color: #b8a898; font-style: normal; }
+
+    /* Profile photo */
+    .profile-row { display: flex; gap: 1.25rem; align-items: flex-start; margin-bottom: 1.25rem; }
+    .profile-photo-zone {
+      border: 2px dashed #e0d5c4; border-radius: 50%;
+      width: 100px; height: 100px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; overflow: hidden; position: relative;
+      transition: border-color 0.2s;
+    }
+    .profile-photo-zone:hover { border-color: #c8a96e; }
+    .profile-photo-zone.has-photo { border-style: solid; border-color: #c8a96e; }
+    .profile-photo-zone img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-photo-zone .emoji-placeholder { font-size: 2.2rem; }
+    .profile-photo-hint { font-size: 0.75rem; color: #8a7e6b; margin-top: 0.4rem; text-align: center; width: 100px; flex-shrink: 0; }
+    .profile-photo-hint strong { color: #c8a96e; }
+    .profile-remove {
+      position: absolute; top: 3px; right: 3px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 22px; height: 22px;
+      font-size: 0.7rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .profile-photo-zone.has-photo .profile-remove { display: flex; }
+    .profile-uploading { font-size: 0.78rem; color: #c8a96e; display: none; text-align: center; width: 100px; }
+    .profile-side { flex: 1; display: flex; flex-direction: column; gap: 0.85rem; }
+
+    /* Album photos */
+    .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    .album-item { display: flex; flex-direction: column; gap: 0.4rem; }
+    .album-zone {
+      border: 2px dashed #e0d5c4; border-radius: 8px;
+      aspect-ratio: 1; overflow: hidden; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: border-color 0.2s; background: #faf7f2;
+    }
+    .album-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .album-zone.has-photo { border-style: solid; border-color: #c8a96e; }
+    .album-zone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .album-zone .alb-icon { font-size: 1.3rem; color: #c8a96e; opacity: 0.5; }
+    .album-remove {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 20px; height: 20px;
+      font-size: 0.65rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .album-zone.has-photo .album-remove { display: flex; }
+    .album-uploading { font-size: 0.72rem; color: #c8a96e; display: none; }
+
+    /* Meta pairs */
+    .meta-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .meta-pair:last-child { margin-bottom: 0; }
+
+    /* Save bar */
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+
+    @media (max-width: 520px) { .form-row, .form-row.three { grid-template-columns: 1fr; } .album-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      <a href="/account/book/family">Our Family</a> &nbsp;/&nbsp;
+      <%= member.name || member.member_key %>
+    </div>
+
+    <h1><%= member.name || 'Family Member' %></h1>
+    <p class="section-desc">Add their photo, story, and details for the book.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/family/<%= member.member_key %>" id="memberForm">
+
+      <!-- Profile -->
+      <div class="card">
+        <h2>Profile</h2>
+        <div class="profile-row">
+          <div>
+            <input type="hidden" name="photo_path" id="photoPath" value="<%= member.photo_path || '' %>">
+            <div class="profile-photo-zone <%= photoUrl ? 'has-photo' : '' %>" id="photoZone" onclick="document.getElementById('photoFileInput').click()">
+              <% if (photoUrl) { %>
+                <img src="<%= photoUrl %>" alt="" id="photoPreview">
+              <% } else { %>
+                <img src="" alt="" id="photoPreview" style="display:none;">
+                <span class="emoji-placeholder"><%= member.emoji || '👤' %></span>
+              <% } %>
+              <button type="button" class="profile-remove" onclick="removeProfilePhoto(event)">✕</button>
+            </div>
+            <div class="profile-uploading" id="photoUploading">Uploading…</div>
+            <div class="profile-photo-hint"><strong>Click</strong> to upload</div>
+            <input type="file" id="photoFileInput" accept="image/*" style="display:none"
+              onchange="uploadPhoto(this,'family','photoPath','photoZone','photoPreview','photoUploading')">
+          </div>
+          <div class="profile-side">
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Name</label>
+              <input type="text" name="name" value="<%= member.name || '' %>" placeholder="e.g. Sarah">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Relation / Role</label>
+              <input type="text" name="relation" value="<%= member.relation || '' %>" placeholder="e.g. Mother">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Emoji</label>
+              <input type="text" name="emoji" value="<%= member.emoji || '' %>" placeholder="e.g. 👩" style="max-width:100px;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta / Fun Facts -->
+      <div class="card">
+        <h2>Quick Facts <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional — e.g. Hometown, Birthday)</span></h2>
+        <% for (let i = 1; i <= 4; i++) { %>
+        <div class="meta-pair">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Label <%= i %></label>
+            <input type="text" name="meta_<%= i %>_label" value="<%= member['meta_' + i + '_label'] || '' %>" placeholder="e.g. Hometown">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Value <%= i %></label>
+            <input type="text" name="meta_<%= i %>_value" value="<%= member['meta_' + i + '_value'] || '' %>" placeholder="e.g. Phoenix, AZ">
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Their Story -->
+      <div class="card">
+        <h2>Their Story</h2>
+        <div class="form-group">
+          <label>Story</label>
+          <div id="storyEditor"><%= member.story || '' %></div>
+          <textarea name="story" id="storyTextarea" style="display:none;"><%= member.story || '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <div class="card">
+        <h2>Quote <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional)</span></h2>
+        <div class="form-group">
+          <label>Quote Text</label>
+          <textarea name="quote_text" placeholder="A meaningful quote from or about them…"><%= member.quote_text || '' %></textarea>
+        </div>
+        <div class="form-group">
+          <label>Attribution</label>
+          <input type="text" name="quote_cite" value="<%= member.quote_cite || '' %>" placeholder="e.g. — Grandma Rose">
+        </div>
+      </div>
+
+      <!-- Second Story -->
+      <div class="card">
+        <h2>More to Their Story <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(optional second section)</span></h2>
+        <div class="form-group">
+          <label>Continued Story</label>
+          <div id="story2Editor"><%= member.story2 || '' %></div>
+          <textarea name="story2" id="story2Textarea" style="display:none;"><%= member.story2 || '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Album Photos -->
+      <div class="card">
+        <h2>Album Photos <span style="font-size:0.78rem;font-weight:400;color:#8a7e6b;">(up to 3)</span></h2>
+        <div class="album-grid">
+          <% [
+            { n: 1, url: album1Url, path: 'album_1_path', caption: 'album_1_caption', uploadId: 'alb1Upload', zoneId: 'alb1Zone', prevId: 'alb1Prev' },
+            { n: 2, url: album2Url, path: 'album_2_path', caption: 'album_2_caption', uploadId: 'alb2Upload', zoneId: 'alb2Zone', prevId: 'alb2Prev' },
+            { n: 3, url: album3Url, path: 'album_3_path', caption: 'album_3_caption', uploadId: 'alb3Upload', zoneId: 'alb3Zone', prevId: 'alb3Prev' },
+          ].forEach(function(alb) { %>
+          <div class="album-item">
+            <input type="hidden" name="<%= alb.path %>" id="<%= alb.path %>" value="<%= member[alb.path] || '' %>">
+            <div class="album-zone <%= alb.url ? 'has-photo' : '' %>" id="<%= alb.zoneId %>" onclick="document.getElementById('<%= alb.uploadId %>').click()">
+              <% if (alb.url) { %>
+                <img src="<%= alb.url %>" alt="" id="<%= alb.prevId %>">
+              <% } else { %>
+                <img src="" alt="" id="<%= alb.prevId %>" style="display:none;">
+                <span class="alb-icon">📷</span>
+              <% } %>
+              <button type="button" class="album-remove" onclick="removeAlbumPhoto(event,'<%= alb.path %>','<%= alb.zoneId %>','<%= alb.prevId %>')">✕</button>
+            </div>
+            <div class="album-uploading" id="<%= alb.uploadId %>Uploading"></div>
+            <input type="file" id="<%= alb.uploadId %>" accept="image/*" style="display:none"
+              onchange="uploadAlbumPhoto(this,'<%= alb.path %>','<%= alb.zoneId %>','<%= alb.prevId %>','<%= alb.uploadId %>Uploading')">
+            <input type="text" name="<%= alb.caption %>" value="<%= member[alb.caption] || '' %>" placeholder="Caption (optional)" style="font-size:0.8rem;padding:0.4rem 0.6rem;">
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book/family" class="btn-back">← Back to Family</a>
+      </div>
+
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+  <script>
+    const toolbarOptions = [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['blockquote'],
+      ['clean'],
+    ];
+
+    const storyQuill = new Quill('#storyEditor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions },
+      placeholder: "Write about their life, their personality, what makes them special…",
+    });
+
+    const story2Quill = new Quill('#story2Editor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions },
+      placeholder: "Continue their story here…",
+    });
+
+    document.getElementById('memberForm').addEventListener('submit', function() {
+      document.getElementById('storyTextarea').value = storyQuill.getSemanticHTML();
+      document.getElementById('story2Textarea').value = story2Quill.getSemanticHTML();
+    });
+
+    // ── Profile photo ───────────────────────────────────────────────────────────
+    async function uploadPhoto(input, section, pathInputId, zoneId, previewId, uploadingId) {
+      if (!input.files || !input.files[0]) return;
+      const uploadingEl = document.getElementById(uploadingId);
+      uploadingEl.style.display = 'block';
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', section);
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById(pathInputId).value = data.path;
+        const preview = document.getElementById(previewId);
+        preview.src = data.url;
+        preview.style.display = 'block';
+        const zone = document.getElementById(zoneId);
+        zone.classList.add('has-photo');
+        const emoji = zone.querySelector('.emoji-placeholder');
+        if (emoji) emoji.style.display = 'none';
+      } catch (e) {
+        alert('Upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    function removeProfilePhoto(e) {
+      e.stopPropagation();
+      document.getElementById('photoPath').value = '';
+      document.getElementById('photoPreview').style.display = 'none';
+      document.getElementById('photoZone').classList.remove('has-photo');
+    }
+
+    // ── Album photos ────────────────────────────────────────────────────────────
+    async function uploadAlbumPhoto(input, pathId, zoneId, prevId, uploadingId) {
+      if (!input.files || !input.files[0]) return;
+      const uploadingEl = document.getElementById(uploadingId);
+      uploadingEl.style.display = 'block';
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', 'family-album');
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById(pathId).value = data.path;
+        const preview = document.getElementById(prevId);
+        preview.src = data.url;
+        preview.style.display = 'block';
+        const zone = document.getElementById(zoneId);
+        zone.classList.add('has-photo');
+        const icon = zone.querySelector('.alb-icon');
+        if (icon) icon.style.display = 'none';
+      } catch (e) {
+        alert('Upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    function removeAlbumPhoto(e, pathId, zoneId, prevId) {
+      e.stopPropagation();
+      document.getElementById(pathId).value = '';
+      document.getElementById(prevId).style.display = 'none';
+      document.getElementById(zoneId).classList.remove('has-photo');
+    }
+  </script>
+</body>
+</html>

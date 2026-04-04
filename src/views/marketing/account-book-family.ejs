@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Family – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 4rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+
+    .member-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .member-card {
+      display: flex; align-items: center; gap: 1rem;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #f0ebe3;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 1rem 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .member-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-1px); }
+    .member-photo {
+      width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+      flex-shrink: 0; background: #f0ebe3;
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    }
+    .member-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .member-info { flex: 1; }
+    .member-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; color: #2c2416; }
+    .member-relation { font-size: 0.82rem; color: #8a7e6b; margin-top: 0.1rem; }
+    .member-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-filled { background: #c8a96e; }
+    .dot-empty { background: #e0d5c4; }
+    .member-arrow { color: #c8a96e; font-size: 1rem; flex-shrink: 0; }
+
+    .back-link { display: inline-block; margin-top: 1.5rem; color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .back-link:hover { color: #2c2416; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Our Family
+    </div>
+
+    <h1>Our Family</h1>
+    <p class="section-desc">Click a family member to add their photo, story, and details.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+
+    <%
+      const memberMap = {};
+      (members || []).forEach(m => { memberMap[m.member_key] = m; });
+      const defaultKeys = [
+        { key: 'mom',              label: "Mom",               emoji: '👩' },
+        { key: 'dad',              label: "Dad",               emoji: '👨' },
+        { key: 'grandma-maternal', label: "Grandma (Maternal)", emoji: '👵' },
+        { key: 'grandpa-maternal', label: "Grandpa (Maternal)", emoji: '👴' },
+        { key: 'grandma-paternal', label: "Grandma (Paternal)", emoji: '👵' },
+        { key: 'grandpa-paternal', label: "Grandpa (Paternal)", emoji: '👴' },
+      ];
+    %>
+
+    <div class="member-list">
+      <% defaultKeys.forEach(function(def) {
+        const m = memberMap[def.key] || {};
+        const hasContent = (m.story && m.story.trim()) || (m.photo_path && m.photo_path.trim());
+        const displayName = (m.name && m.name !== def.label && !m.name.includes("'s Name")) ? m.name : null;
+      %>
+      <a href="/account/book/family/<%= def.key %>" class="member-card">
+        <div class="member-photo">
+          <% if (m.photoUrl) { %>
+            <img src="<%= m.photoUrl %>" alt="<%= def.label %>">
+          <% } else { %>
+            <%= m.emoji || def.emoji %>
+          <% } %>
+        </div>
+        <div class="member-info">
+          <div class="member-name"><%= displayName || def.label %></div>
+          <div class="member-relation"><%= m.relation || def.label %></div>
+        </div>
+        <div class="member-dot <%= hasContent ? 'dot-filled' : 'dot-empty' %>"></div>
+        <span class="member-arrow">›</span>
+      </a>
+      <% }); %>
+    </div>
+
+    <a href="/account/book" class="back-link">← Back to My Book</a>
+
+  </div>
+</body>
+</html>

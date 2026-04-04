@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Home – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.3rem; }
+    input[type="text"] { padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; width: 100%; transition: border-color 0.2s; }
+    input[type="text"]:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #fff; width: 100%; min-height: 90px; resize: vertical; transition: border-color 0.2s; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+
+    /* Card item */
+    .card-item {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #f0ebe3;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+    .card-item.sortable-ghost { opacity: 0.4; }
+    .card-item.sortable-chosen { box-shadow: 0 4px 20px rgba(200,169,110,0.25); }
+    .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .drag-handle { cursor: grab; color: #c8a96e; font-size: 1.1rem; line-height: 1; padding: 0.2rem; flex-shrink: 0; }
+    .drag-handle:active { cursor: grabbing; }
+    .card-num { font-size: 0.75rem; font-weight: 600; color: #b8a898; text-transform: uppercase; letter-spacing: 0.05em; flex: 1; }
+    .card-delete { background: none; border: none; color: #c8a898; font-size: 1.1rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; }
+    .card-delete:hover { color: #c0392b; background: #fdf2f2; }
+    .card-row { display: grid; grid-template-columns: 110px 1fr; gap: 0.85rem; }
+    .card-fields { display: flex; flex-direction: column; gap: 0.75rem; }
+    .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
+
+    /* Photo zone compact */
+    .photo-zone-sm {
+      border: 2px dashed #e0d5c4; border-radius: 8px;
+      width: 110px; height: 110px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; transition: border-color 0.2s; overflow: hidden; position: relative; flex-shrink: 0;
+    }
+    .photo-zone-sm:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-zone-sm.has-photo { border-style: solid; border-color: #c8a96e; }
+    .photo-zone-sm img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-zone-sm .hint { font-size: 0.7rem; color: #8a7e6b; text-align: center; padding: 0 0.3rem; margin-top: 0.2rem; }
+    .photo-zone-sm .hint strong { color: #c8a96e; }
+    .photo-remove-sm {
+      position: absolute; top: 0.25rem; right: 0.25rem;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 20px; height: 20px;
+      font-size: 0.65rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .photo-zone-sm.has-photo .photo-remove-sm { display: flex; }
+    .uploading-sm { font-size: 0.75rem; color: #c8a96e; margin-top: 0.25rem; display: none; text-align: center; }
+
+    /* Add card */
+    .btn-add { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #fff; border: 2px dashed #c8a96e; border-radius: 10px; color: #c8a96e; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; justify-content: center; transition: background 0.2s; margin-top: 0.5rem; }
+    .btn-add:hover { background: #fdf9f3; }
+
+    /* Save bar */
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+    .empty-state { text-align: center; padding: 2.5rem; background: #fff; border-radius: 12px; border: 1px dashed #e0d5c4; color: #8a7e6b; font-size: 0.9rem; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Coming Home
+    </div>
+
+    <h1>Coming Home</h1>
+    <p class="section-desc">The ride home, the first night, meeting the family, and the early days together. Drag cards to reorder.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/coming-home" id="theForm">
+      <input type="hidden" name="cards_json" id="cardsJson">
+
+      <div id="cardsList">
+        <% if (!cards || cards.length === 0) { %>
+          <div class="empty-state" id="emptyState">No cards yet — click "Add Card" to get started.</div>
+        <% } %>
+        <% (cards || []).forEach(function(card, i) { %>
+        <div class="card-item" data-id="<%= i %>">
+          <div class="card-header">
+            <span class="drag-handle">⠿</span>
+            <span class="card-num">Card <%= i + 1 %></span>
+            <button type="button" class="card-delete" onclick="deleteCard(this)" title="Remove card">✕</button>
+          </div>
+          <div class="card-row">
+            <div>
+              <div class="photo-zone-sm <%= card.photoUrl ? 'has-photo' : '' %>" onclick="triggerPhotoUpload(this)">
+                <% if (card.photoUrl) { %>
+                  <img src="<%= card.photoUrl %>" alt="">
+                <% } else { %>
+                  <img src="" alt="" style="display:none;">
+                  <div style="font-size:1.3rem;">📷</div>
+                  <div class="hint"><strong>Upload</strong></div>
+                <% } %>
+                <input type="hidden" class="photo-path" value="<%= card.photo_path || '' %>">
+                <button type="button" class="photo-remove-sm" onclick="removeCardPhoto(event,this)">✕</button>
+              </div>
+              <div class="uploading-sm">Uploading…</div>
+              <input type="file" accept="image/*" style="display:none" onchange="uploadCardPhoto(this)">
+            </div>
+            <div class="card-fields">
+              <div class="field-group">
+                <label>Title</label>
+                <input type="text" class="card-title" value="<%= card.title || '' %>" placeholder="e.g. THE NURSERY">
+              </div>
+              <div class="field-group">
+                <label>Subtitle</label>
+                <input type="text" class="card-subtitle" value="<%= card.subtitle || '' %>" placeholder="e.g. Preparing Your Room">
+              </div>
+              <div class="field-group">
+                <label>Story / Body</label>
+                <textarea class="card-body" placeholder="Write the story for this card…"><%= card.body || '' %></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+
+      <button type="button" class="btn-add" onclick="addCard()">+ Add Card</button>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book" class="btn-back">← Back to My Book</a>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script>
+    // ── Sortable ────────────────────────────────────────────────────────────────
+    const sortable = Sortable.create(document.getElementById('cardsList'), {
+      handle: '.drag-handle',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+    });
+
+    // ── Renumber card headings after any change ─────────────────────────────────
+    function renumber() {
+      document.querySelectorAll('.card-item .card-num').forEach((el, i) => {
+        el.textContent = 'Card ' + (i + 1);
+      });
+      const empty = document.getElementById('emptyState');
+      if (empty) empty.style.display = document.querySelectorAll('.card-item').length ? 'none' : 'block';
+    }
+
+    // ── Add card ────────────────────────────────────────────────────────────────
+    function addCard() {
+      const empty = document.getElementById('emptyState');
+      if (empty) empty.style.display = 'none';
+
+      const div = document.createElement('div');
+      div.className = 'card-item';
+      div.innerHTML = `
+        <div class="card-header">
+          <span class="drag-handle">⠿</span>
+          <span class="card-num">Card</span>
+          <button type="button" class="card-delete" onclick="deleteCard(this)" title="Remove card">✕</button>
+        </div>
+        <div class="card-row">
+          <div>
+            <div class="photo-zone-sm" onclick="triggerPhotoUpload(this)">
+              <img src="" alt="" style="display:none;">
+              <div style="font-size:1.3rem;">📷</div>
+              <div class="hint"><strong>Upload</strong></div>
+              <input type="hidden" class="photo-path" value="">
+              <button type="button" class="photo-remove-sm" onclick="removeCardPhoto(event,this)">✕</button>
+            </div>
+            <div class="uploading-sm">Uploading…</div>
+            <input type="file" accept="image/*" style="display:none" onchange="uploadCardPhoto(this)">
+          </div>
+          <div class="card-fields">
+            <div class="field-group">
+              <label>Title</label>
+              <input type="text" class="card-title" placeholder="e.g. THE NURSERY">
+            </div>
+            <div class="field-group">
+              <label>Subtitle</label>
+              <input type="text" class="card-subtitle" placeholder="e.g. Preparing Your Room">
+            </div>
+            <div class="field-group">
+              <label>Story / Body</label>
+              <textarea class="card-body" placeholder="Write the story for this card…"></textarea>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById('cardsList').appendChild(div);
+      renumber();
+    }
+
+    // ── Delete card ─────────────────────────────────────────────────────────────
+    function deleteCard(btn) {
+      btn.closest('.card-item').remove();
+      renumber();
+    }
+
+    // ── Photo upload ────────────────────────────────────────────────────────────
+    function triggerPhotoUpload(zone) {
+      zone.parentElement.querySelector('input[type="file"]').click();
+    }
+
+    async function uploadCardPhoto(input) {
+      if (!input.files || !input.files[0]) return;
+      const cardRow = input.closest('.card-item').querySelector('.card-row > div');
+      const zone = cardRow.querySelector('.photo-zone-sm');
+      const uploadingEl = cardRow.querySelector('.uploading-sm');
+      uploadingEl.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', 'coming-home');
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+
+        zone.querySelector('.photo-path').value = data.path;
+        const img = zone.querySelector('img');
+        img.src = data.url;
+        img.style.display = 'block';
+        zone.classList.add('has-photo');
+        const icon = zone.querySelector('div[style*="font-size:1.3rem"]');
+        if (icon) icon.style.display = 'none';
+        const hint = zone.querySelector('.hint');
+        if (hint) hint.style.display = 'none';
+      } catch (e) {
+        alert('Upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+
+    function removeCardPhoto(e, btn) {
+      e.stopPropagation();
+      const zone = btn.closest('.photo-zone-sm');
+      zone.querySelector('.photo-path').value = '';
+      const img = zone.querySelector('img');
+      img.src = '';
+      img.style.display = 'none';
+      zone.classList.remove('has-photo');
+      const icon = zone.querySelector('div[style*="font-size:1.3rem"]');
+      if (icon) icon.style.display = 'block';
+      const hint = zone.querySelector('.hint');
+      if (hint) hint.style.display = 'block';
+    }
+
+    // ── Serialize on submit ──────────────────────────────────────────────────────
+    document.getElementById('theForm').addEventListener('submit', function() {
+      const cards = [];
+      document.querySelectorAll('.card-item').forEach(el => {
+        cards.push({
+          title: el.querySelector('.card-title').value.trim(),
+          subtitle: el.querySelector('.card-subtitle').value.trim() || null,
+          body: el.querySelector('.card-body').value.trim() || null,
+          photo_path: el.querySelector('.photo-path').value || null,
+        });
+      });
+      document.getElementById('cardsJson').value = JSON.stringify(cards);
+    });
+
+    renumber();
+  </script>
+</body>
+</html>

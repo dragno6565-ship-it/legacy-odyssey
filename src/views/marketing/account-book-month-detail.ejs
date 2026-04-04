@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Month <%= month.month_number %> – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"], textarea {
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #e0d5c4;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      color: #2c2416;
+      background: #fff;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input[type="text"]:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+    /* Photo */
+    .photo-zone {
+      border: 2px dashed #e0d5c4; border-radius: 10px;
+      padding: 1.5rem; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative;
+    }
+    .photo-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-zone.has-photo { border-style: solid; border-color: #c8a96e; padding: 0; overflow: hidden; }
+    .photo-zone img { width: 100%; max-height: 280px; object-fit: cover; display: block; border-radius: 8px; }
+    .photo-zone-label { font-size: 0.88rem; color: #8a7e6b; margin-top: 0.5rem; }
+    .photo-zone-label strong { color: #c8a96e; }
+    .photo-remove {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 28px; height: 28px;
+      font-size: 0.9rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .photo-zone.has-photo .photo-remove { display: flex; }
+    .photo-uploading { font-size: 0.82rem; color: #c8a96e; margin-top: 0.5rem; display: none; }
+
+    /* Nav between months */
+    .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .month-nav a { color: #c8a96e; text-decoration: none; font-size: 0.88rem; font-weight: 600; }
+    .month-nav a:hover { text-decoration: underline; }
+    .month-nav span { font-size: 0.88rem; color: #8a7e6b; }
+
+    /* Save bar */
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+
+    @media (max-width: 520px) { .form-row, .form-row.three { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      <a href="/account/book/months">Month by Month</a> &nbsp;/&nbsp;
+      Month <%= month.month_number %>
+    </div>
+
+    <h1>Month <%= month.month_number %></h1>
+    <p class="section-desc">Edit the photo, stats, and story for this month.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <div class="month-nav">
+      <% if (month.month_number > 1) { %>
+        <a href="/account/book/months/<%= month.month_number - 1 %>">← Month <%= month.month_number - 1 %></a>
+      <% } else { %><span></span><% } %>
+      <span>Month <%= month.month_number %> of 12</span>
+      <% if (month.month_number < 12) { %>
+        <a href="/account/book/months/<%= month.month_number + 1 %>">Month <%= month.month_number + 1 %> →</a>
+      <% } else { %><span></span><% } %>
+    </div>
+
+    <form method="POST" action="/account/book/months/<%= month.month_number %>" id="monthForm">
+
+      <div class="card">
+        <h2>Label &amp; Highlight</h2>
+        <div class="form-group">
+          <label>Label</label>
+          <input type="text" name="label" value="<%= month.label || '' %>" placeholder="e.g. One Month Old">
+        </div>
+        <div class="form-group">
+          <label>Highlight</label>
+          <input type="text" name="highlight" value="<%= month.highlight || '' %>" placeholder="e.g. First real smile">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Stats</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Weight</label>
+            <input type="text" name="weight" value="<%= month.weight || '' %>" placeholder="e.g. 9 lbs 2 oz">
+          </div>
+          <div class="form-group">
+            <label>Length</label>
+            <input type="text" name="length" value="<%= month.length || '' %>" placeholder="e.g. 21 in">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Photo</h2>
+        <input type="hidden" name="photo_path" id="photoPath" value="<%= month.photo_path || '' %>">
+        <div class="photo-zone <%= photoUrl ? 'has-photo' : '' %>" id="photoZone" onclick="document.getElementById('photoFileInput').click()">
+          <% if (photoUrl) { %>
+            <img src="<%= photoUrl %>" alt="Month photo" id="photoPreview">
+            <button type="button" class="photo-remove" onclick="removePhoto(event)">✕</button>
+          <% } else { %>
+            <img src="" alt="" id="photoPreview" style="display:none;">
+            <button type="button" class="photo-remove" onclick="removePhoto(event)">✕</button>
+            <div style="font-size:2rem;margin-bottom:0.5rem;">📷</div>
+            <div class="photo-zone-label"><strong>Click to upload</strong> a photo for this month</div>
+          <% } %>
+        </div>
+        <div class="photo-uploading" id="photoUploading">Uploading…</div>
+        <input type="file" id="photoFileInput" accept="image/*" style="display:none"
+          onchange="uploadPhoto(this,'months','photoPath','photoZone','photoPreview','photoUploading')">
+      </div>
+
+      <div class="card">
+        <h2>Notes</h2>
+        <div class="form-group">
+          <label>Story / Notes</label>
+          <textarea name="note" placeholder="What happened this month? What made you smile?"><%= month.note || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book/months" class="btn-back">← All Months</a>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    async function uploadPhoto(input, section, pathInputId, zoneId, previewId, uploadingId) {
+      if (!input.files || !input.files[0]) return;
+      const uploadingEl = document.getElementById(uploadingId);
+      uploadingEl.style.display = 'block';
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      formData.append('section', section);
+      try {
+        const res = await fetch('/account/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById(pathInputId).value = data.path;
+        const preview = document.getElementById(previewId);
+        preview.src = data.url;
+        preview.style.display = 'block';
+        const zone = document.getElementById(zoneId);
+        zone.classList.add('has-photo');
+        const placeholder = zone.querySelector('.photo-zone-label');
+        if (placeholder) placeholder.style.display = 'none';
+        const icon = zone.querySelector('div[style*="font-size:2rem"]');
+        if (icon) icon.style.display = 'none';
+      } catch (e) {
+        alert('Upload failed. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        input.value = '';
+      }
+    }
+    function removePhoto(e) {
+      e.stopPropagation();
+      document.getElementById('photoPath').value = '';
+      document.getElementById('photoPreview').style.display = 'none';
+      document.getElementById('photoZone').classList.remove('has-photo');
+    }
+  </script>
+</body>
+</html>
