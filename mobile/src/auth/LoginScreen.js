@@ -9,7 +9,6 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-  Linking,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useAuth } from './AuthContext';
@@ -132,12 +131,12 @@ export default function LoginScreen({ navigation }) {
         {/* Sign Up Link */}
         <TouchableOpacity
           style={styles.linkContainer}
-          onPress={() => Linking.openURL('https://legacyodyssey.com/#pricing')}
+          onPress={() => navigation.navigate('Signup')}
           disabled={loading}
         >
           <Text style={styles.linkText}>
             Don't have an account?{' '}
-            <Text style={styles.linkBold}>Get Started at LegacyOdyssey.com</Text>
+            <Text style={styles.linkBold}>Create Account</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>
