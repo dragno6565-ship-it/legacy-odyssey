@@ -66,6 +66,11 @@ ${urls.map(u => `  <url>
 </urlset>`);
 });
 
+// GET /signup — Free account signup page
+router.get('/signup', (req, res) => {
+  res.render('marketing/signup');
+});
+
 // GET /terms — Terms of Service
 router.get('/terms', (req, res) => {
   res.render('marketing/terms');

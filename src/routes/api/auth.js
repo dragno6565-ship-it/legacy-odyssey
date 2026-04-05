@@ -4,6 +4,16 @@ const familyService = require('../../services/familyService');
 
 const router = Router();
 
+// GET /api/auth/check-subdomain?s=xxx — Check if a subdomain is available
+router.get('/check-subdomain', async (req, res) => {
+  const subdomain = (req.query.s || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (!subdomain || subdomain.length < 3) {
+    return res.json({ available: false, subdomain });
+  }
+  const existing = await familyService.findBySubdomain(subdomain);
+  res.json({ available: !existing, subdomain });
+});
+
 // POST /api/auth/signup
 router.post('/signup', async (req, res, next) => {
   try {

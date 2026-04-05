@@ -50,6 +50,17 @@ async function findAllByAuthUserId(authUserId) {
   return data || [];
 }
 
+async function findByEmail(email) {
+  const { data } = await supabaseAdmin
+    .from('families')
+    .select('*')
+    .eq('email', email)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .single();
+  return data;
+}
+
 async function findByStripeCustomerId(stripeCustomerId) {
   const { data } = await supabaseAdmin
     .from('families')
@@ -117,6 +128,7 @@ async function updateSubscriptionStatus(stripeCustomerId, status) {
 module.exports = {
   findByCustomDomain,
   findBySubdomain,
+  findByEmail,
   findById,
   findByAuthUserId,
   findAllByAuthUserId,

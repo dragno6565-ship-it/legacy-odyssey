@@ -77,8 +77,42 @@ async function handleCheckoutComplete(session) {
   const stripeCustomerId = session.customer;
   const stripeSubscriptionId = session.subscription;
 
-  // Create auth user in Supabase
   const { supabaseAdmin } = require('../config/supabase');
+
+  // Check if a free account already exists for this email — if so, upgrade it
+  const existingFamily = await familyService.findByEmail(email);
+  if (existingFamily && existingFamily.plan !== 'paid') {
+    await familyService.update(existingFamily.id, {
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: stripeSubscriptionId,
+      subscription_status: 'active',
+      billing_period: period,
+      plan: 'paid',
+      ...(customerName ? { customer_name: customerName } : {}),
+    });
+
+    // If a custom domain was selected, kick off domain purchase
+    if (domain) {
+      try {
+        const domainService = require('./domainService');
+        const order = await domainService.createDomainOrder({
+          familyId: existingFamily.id,
+          domain,
+          stripeSessionId: session.id,
+          price: null,
+        });
+        domainService.purchaseAndSetupDomain(order.id).catch((err) => {
+          console.error(`Background domain setup failed for ${domain}:`, err.message);
+        });
+      } catch (err) {
+        console.error(`Failed to create domain order for ${domain}:`, err.message);
+      }
+    }
+
+    return { family: existingFamily, tempPassword: null, domain };
+  }
+
+  // No existing free account — create a brand new one
   const tempPassword = require('crypto').randomBytes(16).toString('hex');
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email,
