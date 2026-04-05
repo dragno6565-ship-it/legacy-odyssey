@@ -184,15 +184,6 @@ router.get('/stripe/success', async (req, res) => {
       clientUserAgent: req.headers['user-agent'],
     });
 
-    sendCapiEvent({
-      eventName: 'StartTrial',
-      eventId: `trial_${purchaseEventId}`,
-      userData: { email },
-      customData: { value: planValue, currency: 'USD' },
-      eventSourceUrl: 'https://legacyodyssey.com/success',
-      clientIpAddress: req.ip || req.headers['x-forwarded-for'],
-      clientUserAgent: req.headers['user-agent'],
-    });
 
     if (family) {
       // Webhook already processed — show success page (no temp password available)
@@ -301,9 +292,11 @@ router.get('/', resolveFamily, (req, res, next) => {
   try {
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
+    const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
 
     res.render('layouts/book', {
       family: req.family,
+      isFree,
       ...data,
       imageUrl: getPublicUrl,
     });
@@ -318,9 +311,11 @@ router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, n
     if (!req.family) return res.status(404).render('book/not-found');
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
+    const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
 
     res.render('layouts/book', {
       family: req.family,
+      isFree,
       ...data,
       imageUrl: getPublicUrl,
     });

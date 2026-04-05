@@ -59,7 +59,7 @@ async function findByStripeCustomerId(stripeCustomerId) {
   return data;
 }
 
-async function create({ email, authUserId, subdomain, displayName, stripeCustomerId, customerName }) {
+async function create({ email, authUserId, subdomain, displayName, stripeCustomerId, customerName, plan }) {
   const { data, error } = await supabaseAdmin
     .from('families')
     .insert({
@@ -69,7 +69,8 @@ async function create({ email, authUserId, subdomain, displayName, stripeCustome
       display_name: displayName,
       stripe_customer_id: stripeCustomerId,
       book_password: 'legacy', // default
-      subscription_status: 'trialing',
+      subscription_status: plan === 'paid' ? 'active' : 'trialing',
+      plan: plan || 'free',
       ...(customerName ? { customer_name: customerName } : {}),
     })
     .select()
@@ -99,9 +100,13 @@ async function listAll() {
 }
 
 async function updateSubscriptionStatus(stripeCustomerId, status) {
+  const plan = status === 'active' ? 'paid' : (status === 'canceled' ? 'free' : undefined);
   const { data, error } = await supabaseAdmin
     .from('families')
-    .update({ subscription_status: status })
+    .update({
+      subscription_status: status,
+      ...(plan ? { plan } : {}),
+    })
     .eq('stripe_customer_id', stripeCustomerId)
     .select()
     .single();

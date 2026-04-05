@@ -58,51 +58,180 @@
     src="https://ct.pinterest.com/v3/?event=init&tid=2613467907928&noscript=1" />
   </noscript>
   <!-- end Pinterest Tag -->
+
+  <% if (isFree) { %>
+  <style>
+    .free-ad-banner { margin: 2rem auto; max-width: 728px; text-align: center; }
+    .free-upgrade-banner {
+      background: linear-gradient(135deg, #1a1510 0%, #2c2416 100%);
+      color: #faf7f2;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      margin: 3rem 0;
+      border-top: 1px solid #c8a96e;
+    }
+    .free-upgrade-banner h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      color: #c8a96e;
+      margin: 0 0 0.5rem;
+    }
+    .free-upgrade-banner p {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.9rem;
+      color: #d4bb8a;
+      margin: 0 0 1.25rem;
+      opacity: 0.85;
+    }
+    .free-upgrade-banner a {
+      display: inline-block;
+      background: #c8a96e;
+      color: #1a1510;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.75rem 2rem;
+      text-decoration: none;
+      border-radius: 2px;
+    }
+    .free-locked-section {
+      background: #f0e8dc;
+      border: 1px dashed #c8a96e;
+      border-radius: 4px;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 2rem 0;
+    }
+    .free-locked-section .lock-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .free-locked-section h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      color: #2c2416;
+      margin: 0 0 0.5rem;
+    }
+    .free-locked-section p {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.85rem;
+      color: #8a7e6b;
+      margin: 0 0 1.25rem;
+    }
+    .free-locked-section a {
+      display: inline-block;
+      background: #c8a96e;
+      color: #1a1510;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.6rem 1.5rem;
+      text-decoration: none;
+      border-radius: 2px;
+    }
+    .powered-by-footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.75rem;
+      color: #8a7e6b;
+      border-top: 1px solid #e0d5c4;
+      margin-top: 2rem;
+    }
+    .powered-by-footer a { color: #c8a96e; text-decoration: none; }
+  </style>
+  <% } %>
 </head>
 <body>
   <div id="app">
     <!-- Sidebar -->
-    <%- include('../book/sidebar', { book, family, visibleSections }) %>
+    <%- include('../book/sidebar', { book, family, visibleSections, isFree }) %>
 
     <!-- Main Content -->
     <div id="main-content">
       <%- include('../book/welcome', { book, imageUrl }) %>
+
+      <% if (isFree) { %>
+      <!-- AdSense Banner Ad (free tier) -->
+      <div class="free-ad-banner">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1341319558382851"
+             data-ad-slot="auto"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+      <% } %>
+
       <% if (visibleSections.before) { %>
         <%- include('../book/before', { beforeCards, checklist, imageUrl }) %>
       <% } %>
       <% if (visibleSections.birth) { %>
         <%- include('../book/birth', { book, birthStory, imageUrl }) %>
       <% } %>
-      <% if (visibleSections.home) { %>
-        <%- include('../book/home', { comingHomeCards, imageUrl }) %>
+
+      <% if (isFree) { %>
+        <!-- Locked sections for free tier -->
+        <div id="section-home" class="book-section free-locked-section">
+          <div class="lock-icon">🏠</div>
+          <h4>Coming Home</h4>
+          <p>Upgrade to unlock Coming Home, Month by Month, Our Family, Firsts, Celebrations, Letters, Recipes &amp; The Vault.</p>
+          <a href="https://legacyodyssey.com/#pricing" target="_blank">Upgrade to Full Access →</a>
+        </div>
+      <% } else { %>
+        <% if (visibleSections.home) { %>
+          <%- include('../book/home', { comingHomeCards, imageUrl }) %>
+        <% } %>
+        <% if (visibleSections.months) { %>
+          <%- include('../book/months', { months, imageUrl }) %>
+        <% } %>
+        <% if (visibleSections.family) { %>
+          <%- include('../book/family', { familyMembers, imageUrl }) %>
+        <% } %>
+        <% if (visibleSections.firsts) { %>
+          <%- include('../book/firsts', { firsts }) %>
+        <% } %>
+        <% if (visibleSections.holidays) { %>
+          <%- include('../book/holidays', { celebrations, imageUrl }) %>
+        <% } %>
+        <% if (visibleSections.letters) { %>
+          <%- include('../book/letters', { book, letters }) %>
+        <% } %>
+        <% if (visibleSections.recipes) { %>
+          <%- include('../book/recipes', { recipes, imageUrl }) %>
+        <% } %>
+        <% if (visibleSections.vault) { %>
+          <%- include('../book/vault', { book, vaultItems }) %>
+        <% } %>
       <% } %>
-      <% if (visibleSections.months) { %>
-        <%- include('../book/months', { months, imageUrl }) %>
+
+      <% if (isFree) { %>
+      <!-- Upgrade CTA Banner -->
+      <div class="free-upgrade-banner">
+        <h3>Your Story Deserves More</h3>
+        <p>Unlock all sections, add unlimited photos, and get your own custom domain.</p>
+        <a href="https://legacyodyssey.com/#pricing" target="_blank">Upgrade — Starting at $4.99/mo</a>
+      </div>
+      <!-- Second AdSense Ad -->
+      <div class="free-ad-banner">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1341319558382851"
+             data-ad-slot="auto"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
       <% } %>
-      <% if (visibleSections.family) { %>
-        <%- include('../book/family', { familyMembers, imageUrl }) %>
-      <% } %>
-      <% if (visibleSections.firsts) { %>
-        <%- include('../book/firsts', { firsts }) %>
-      <% } %>
-      <% if (visibleSections.holidays) { %>
-        <%- include('../book/holidays', { celebrations, imageUrl }) %>
-      <% } %>
-      <% if (visibleSections.letters) { %>
-        <%- include('../book/letters', { book, letters }) %>
-      <% } %>
-      <% if (visibleSections.recipes) { %>
-        <%- include('../book/recipes', { recipes, imageUrl }) %>
-      <% } %>
-      <% if (visibleSections.vault) { %>
-        <%- include('../book/vault', { book, vaultItems }) %>
-      <% } %>
+
     </div>
   </div>
 
   <!-- Inject data for client-side JS (modals, etc.) -->
   <script>
-    <% if (visibleSections.months) { %>
+    <% if (!isFree && visibleSections.months) { %>
     const months = <%- JSON.stringify((months || []).map(m => ({
       num: m.month_number,
       label: m.label,
@@ -116,7 +245,7 @@
     const months = [];
     <% } %>
 
-    <% if (visibleSections.family) { %>
+    <% if (!isFree && visibleSections.family) { %>
     const familyMembers = <%- JSON.stringify(
       Object.fromEntries((familyMembers || []).map(fm => [fm.member_key, {
         name: fm.name,
@@ -153,6 +282,14 @@
     <button class="book-lightbox-close" onclick="closeLightbox()">&times;</button>
     <img id="lightboxImg" src="" alt="Full size image">
   </div>
+
+  <% if (isFree) { %>
+  <!-- Powered by Legacy Odyssey footer -->
+  <div class="powered-by-footer">
+    This free baby book is powered by <a href="https://legacyodyssey.com" target="_blank">Legacy Odyssey</a> —
+    <a href="https://legacyodyssey.com/#pricing" target="_blank">Upgrade for full access</a>
+  </div>
+  <% } %>
 
   <script src="/js/book.js"></script>
 </body>

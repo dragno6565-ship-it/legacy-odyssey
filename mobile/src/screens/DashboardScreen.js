@@ -8,11 +8,15 @@ import {
   RefreshControl,
   ActivityIndicator,
   Modal,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+
+const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'manageSections', 'settings']);
 
 const SECTIONS = [
   { key: 'childInfo', title: 'Welcome / Child Info', icon: '\u{1F476}', screen: 'ChildInfo' },
@@ -38,6 +42,10 @@ export default function DashboardScreen({ navigation }) {
   const [error, setError] = useState('');
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [switching, setSwitching] = useState(false);
+
+  // Determine if current active family is on free plan
+  const activeFamily = families.find(f => f.id === activeFamilyId);
+  const isFree = activeFamily ? (activeFamily.plan !== 'paid' && activeFamily.subscription_status !== 'active') : false;
 
   async function fetchBook() {
     try {
@@ -88,6 +96,20 @@ export default function DashboardScreen({ navigation }) {
     }
   }
 
+  function showUpgradePrompt(sectionTitle) {
+    Alert.alert(
+      '✨ Upgrade to Unlock',
+      `${sectionTitle} is available on the paid plan.\n\nUpgrade starting at $4.99/month to unlock all sections, add unlimited photos, and get your own custom domain.`,
+      [
+        { text: 'Not Now', style: 'cancel' },
+        {
+          text: 'Upgrade Now',
+          onPress: () => Linking.openURL('https://legacyodyssey.com/#pricing'),
+        },
+      ]
+    );
+  }
+
   function getChildName() {
     if (!book) return '';
     const child = book.child || book.childInfo || {};
@@ -104,15 +126,24 @@ export default function DashboardScreen({ navigation }) {
   }
 
   function renderSectionCard({ item }) {
+    const isLocked = isFree && !FREE_SECTIONS.has(item.key);
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, isLocked && styles.cardLocked]}
         activeOpacity={0.7}
-        onPress={() => navigation.navigate(item.screen, { book })}
+        onPress={() => {
+          if (isLocked) {
+            showUpgradePrompt(item.title);
+          } else {
+            navigation.navigate(item.screen, { book });
+          }
+        }}
       >
-        <Text style={styles.cardIcon}>{item.icon}</Text>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.cardAction}>Edit</Text>
+        <Text style={styles.cardIcon}>{isLocked ? '🔒' : item.icon}</Text>
+        <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{item.title}</Text>
+        <Text style={[styles.cardAction, isLocked && styles.cardActionLocked]}>
+          {isLocked ? 'Upgrade' : 'Edit'}
+        </Text>
       </TouchableOpacity>
     );
   }
@@ -154,6 +185,15 @@ export default function DashboardScreen({ navigation }) {
         </View>
         {domain ? (
           <Text style={styles.headerDomain}>{domain}</Text>
+        ) : null}
+        {isFree ? (
+          <TouchableOpacity
+            style={styles.upgradeBar}
+            onPress={() => Linking.openURL('https://legacyodyssey.com/#pricing')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.upgradeBarText}>✨ Free Plan — Tap to upgrade for full access</Text>
+          </TouchableOpacity>
         ) : null}
       </View>
 
@@ -308,6 +348,21 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     opacity: 0.7,
   },
+  upgradeBar: {
+    marginTop: spacing.md,
+    backgroundColor: 'rgba(200, 169, 110, 0.15)',
+    borderColor: colors.gold,
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+  },
+  upgradeBarText: {
+    color: colors.gold,
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.semibold,
+  },
   switchButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -360,6 +415,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...shadows.card,
   },
+  cardLocked: {
+    backgroundColor: '#f5f0e8',
+    opacity: 0.75,
+  },
   cardIcon: {
     fontSize: 36,
     marginBottom: spacing.sm,
@@ -372,10 +431,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
+  cardTitleLocked: {
+    color: colors.textSecondary,
+  },
   cardAction: {
     fontSize: typography.sizes.xs,
     color: colors.gold,
     fontWeight: typography.weights.medium,
+  },
+  cardActionLocked: {
+    color: '#b08e4a',
   },
 
   // Modal styles

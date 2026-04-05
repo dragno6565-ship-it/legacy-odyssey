@@ -87,7 +87,7 @@ async function handleCheckoutComplete(session) {
   });
   if (authError) throw authError;
 
-  // Create family
+  // Create family as paid (Stripe checkout = paid plan)
   const family = await familyService.create({
     email,
     authUserId: authData.user.id,
@@ -95,15 +95,15 @@ async function handleCheckoutComplete(session) {
     displayName: `The ${subdomain} Family`,
     stripeCustomerId,
     customerName,
+    plan: 'paid',
   });
 
-  // Update with subscription ID and plan details
-  const plan = session.metadata?.plan || null;
+  // Update with subscription ID
   await familyService.update(family.id, {
     stripe_subscription_id: stripeSubscriptionId,
     subscription_status: 'active',
     billing_period: period,
-    ...(plan ? { plan } : {}),
+    plan: 'paid',
   });
 
   // Create book with default content
