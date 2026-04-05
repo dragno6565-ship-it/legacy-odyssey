@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
@@ -119,6 +120,10 @@ function RootNavigator() {
 }
 
 export default function App() {
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  }, []);
+
   return (
     <AuthProvider>
       <NavigationContainer
