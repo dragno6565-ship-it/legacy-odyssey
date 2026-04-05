@@ -17,7 +17,9 @@ import { useAuth } from '../auth/AuthContext';
 const APP_VERSION = '1.0.0';
 
 export default function SettingsScreen({ navigation }) {
-  const { logout } = useAuth();
+  const { logout, families, activeFamilyId } = useAuth();
+  const activeFamily = families?.find(f => f.id === activeFamilyId) || families?.[0];
+  const isFree = activeFamily ? (activeFamily.plan !== 'paid' && activeFamily.subscription_status !== 'active') : true;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -79,21 +81,14 @@ export default function SettingsScreen({ navigation }) {
       const res = await post('/api/stripe/portal', {
         return_url: 'https://legacyodyssey.com',
       });
-      if (!res.data.isPortal) {
-        Alert.alert(
-          'Free Trial',
-          'You\'re currently on a free trial. To subscribe and manage your plan, visit legacyodyssey.com.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Subscribe', onPress: () => Linking.openURL(res.data.url) },
-          ]
-        );
-      } else {
-        await Linking.openURL(res.data.url);
-      }
+      await Linking.openURL(res.data.url);
     } catch (err) {
       Alert.alert('Error', 'Could not open subscription management. Please try again.');
     }
+  }
+
+  function handleUpgrade() {
+    Linking.openURL('https://legacyodyssey.com/#pricing');
   }
 
   function handleDeleteAccount() {
@@ -207,20 +202,39 @@ export default function SettingsScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Subscription */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Subscription & Billing</Text>
-        <Text style={styles.sectionDescription}>
-          View your plan, update billing details, or cancel your subscription.
-        </Text>
-        <TouchableOpacity
-          style={styles.outlineButton}
-          onPress={handleManageSubscription}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.outlineButtonText}>Manage Subscription</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Plan / Subscription */}
+      {isFree ? (
+        <View style={styles.upgradeSection}>
+          <View style={styles.upgradeBadge}>
+            <Text style={styles.upgradeBadgeText}>FREE PLAN</Text>
+          </View>
+          <Text style={styles.upgradeTitle}>Unlock Your Full Story</Text>
+          <Text style={styles.upgradeDescription}>
+            Upgrade to access Coming Home, Month by Month, Our Family, Firsts, Celebrations, Letters, Recipes, and The Vault.
+          </Text>
+          <TouchableOpacity
+            style={styles.goldButton}
+            onPress={handleUpgrade}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.goldButtonText}>Upgrade — From $4.99/mo</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Subscription & Billing</Text>
+          <Text style={styles.sectionDescription}>
+            View your plan, update billing details, or cancel your subscription.
+          </Text>
+          <TouchableOpacity
+            style={styles.outlineButton}
+            onPress={handleManageSubscription}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.outlineButtonText}>Manage Subscription</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Logout */}
       <View style={styles.section}>
@@ -376,6 +390,43 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.semibold,
+  },
+  upgradeSection: {
+    backgroundColor: colors.dark,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    alignItems: 'center',
+    ...shadows.card,
+  },
+  upgradeBadge: {
+    backgroundColor: colors.gold,
+    borderRadius: borderRadius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    marginBottom: spacing.sm,
+  },
+  upgradeBadgeText: {
+    color: colors.dark,
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.bold,
+    letterSpacing: 1,
+  },
+  upgradeTitle: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.semibold,
+    color: colors.gold,
+    marginBottom: spacing.xs,
+    textAlign: 'center',
+  },
+  upgradeDescription: {
+    fontSize: typography.sizes.sm,
+    color: colors.goldLight,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+    lineHeight: 20,
+    opacity: 0.85,
   },
   infoSection: {
     alignItems: 'center',
