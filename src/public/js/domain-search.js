@@ -208,6 +208,7 @@
 
   document.querySelectorAll('.pricing-card a').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
+      if (btn.dataset.free) return; // Free tier — let the link behave normally
       e.preventDefault();
 
       // Determine plan from card
