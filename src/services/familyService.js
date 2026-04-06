@@ -111,13 +111,21 @@ async function listAll() {
 }
 
 async function updateSubscriptionStatus(stripeCustomerId, status) {
-  const plan = status === 'active' ? 'paid' : (status === 'canceled' ? 'free' : undefined);
+  const now = new Date();
+  const updates = { subscription_status: status };
+
+  if (status === 'active') {
+    updates.plan = 'paid';
+  } else if (status === 'canceled') {
+    updates.plan = 'free';
+    updates.cancelled_at = now.toISOString();
+    // Retain all data and photos for 1 year from cancellation date
+    updates.data_retain_until = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  }
+
   const { data, error } = await supabaseAdmin
     .from('families')
-    .update({
-      subscription_status: status,
-      ...(plan ? { plan } : {}),
-    })
+    .update(updates)
     .eq('stripe_customer_id', stripeCustomerId)
     .select()
     .single();

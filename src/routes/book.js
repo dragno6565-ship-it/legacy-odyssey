@@ -295,6 +295,12 @@ router.get('/', resolveFamily, (req, res, next) => {
   next();
 }, requireBookPassword, async (req, res, next) => {
   try {
+    // Suspended accounts: show reinstate page instead of book
+    if (req.family.subscription_status === 'canceled') {
+      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+      return res.render('book/suspended', { family: req.family, appDomain });
+    }
+
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
@@ -314,6 +320,13 @@ router.get('/', resolveFamily, (req, res, next) => {
 router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, next) => {
   try {
     if (!req.family) return res.status(404).render('book/not-found');
+
+    // Suspended accounts: show reinstate page instead of book
+    if (req.family.subscription_status === 'canceled') {
+      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+      return res.render('book/suspended', { family: req.family, appDomain });
+    }
+
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';

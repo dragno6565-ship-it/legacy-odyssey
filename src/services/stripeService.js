@@ -79,15 +79,18 @@ async function handleCheckoutComplete(session) {
 
   const { supabaseAdmin } = require('../config/supabase');
 
-  // Check if a free account already exists for this email — if so, upgrade it
+  // Check if an existing account (free or cancelled) exists for this email — upgrade or reinstate it
   const existingFamily = await familyService.findByEmail(email);
-  if (existingFamily && existingFamily.plan !== 'paid') {
+  if (existingFamily && (existingFamily.plan !== 'paid' || existingFamily.subscription_status === 'canceled')) {
     await familyService.update(existingFamily.id, {
       stripe_customer_id: stripeCustomerId,
       stripe_subscription_id: stripeSubscriptionId,
       subscription_status: 'active',
       billing_period: period,
       plan: 'paid',
+      // Clear cancellation fields on reinstatement
+      cancelled_at: null,
+      data_retain_until: null,
       ...(customerName ? { customer_name: customerName } : {}),
     });
 

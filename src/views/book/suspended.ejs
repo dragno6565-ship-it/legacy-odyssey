@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Suspended — Legacy Odyssey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: #1a1510;
+      color: #f5f0eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #c8a96e;
+      margin-bottom: 3rem;
+    }
+
+    .icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(200, 169, 110, 0.12);
+      border: 1px solid rgba(200, 169, 110, 0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      font-size: 1.75rem;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: #f5f0eb;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #a09080;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    .data-notice {
+      background: rgba(200, 169, 110, 0.08);
+      border: 1px solid rgba(200, 169, 110, 0.2);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+
+    .data-notice p {
+      font-size: 0.9rem;
+      color: #c4b49a;
+      line-height: 1.6;
+    }
+
+    .data-notice .label {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #c8a96e;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .retain-date {
+      color: #c8a96e;
+      font-weight: 500;
+    }
+
+    .btn-reinstate {
+      display: inline-block;
+      background: #c8a96e;
+      color: #1a1510;
+      text-decoration: none;
+      font-family: 'Jost', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.06em;
+      padding: 0.9rem 2.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+      margin-bottom: 1.25rem;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn-reinstate:hover {
+      background: #d4bb8a;
+    }
+
+    .btn-contact {
+      display: block;
+      color: #7a6a56;
+      font-size: 0.85rem;
+      text-decoration: none;
+      margin-top: 0.75rem;
+    }
+
+    .btn-contact:hover {
+      color: #a09080;
+    }
+
+    .domain-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      color: #7a6a56;
+      font-family: monospace;
+      margin-bottom: 2.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="logo">Legacy Odyssey</div>
+
+    <div class="icon">🔒</div>
+
+    <h1>This account has been suspended</h1>
+
+    <% if (family.custom_domain) { %>
+      <div class="domain-badge">www.<%= family.custom_domain %></div>
+    <% } else { %>
+      <div class="domain-badge"><%= family.subdomain %>.<%= appDomain %></div>
+    <% } %>
+
+    <p class="subtitle">
+      The subscription for this Legacy Odyssey book has been cancelled.<br>
+      All memories, photos, and content are safely preserved.
+    </p>
+
+    <%
+      let retainDate = null;
+      if (family.data_retain_until) {
+        retainDate = new Date(family.data_retain_until).toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+      }
+    %>
+
+    <div class="data-notice">
+      <div class="label">Your data is safe</div>
+      <p>
+        All of your book content and photos are being held securely.
+        <% if (retainDate) { %>
+          Your memories will be preserved until <span class="retain-date"><%= retainDate %></span>.
+          Reinstate your account before that date to restore full access — nothing will be lost.
+        <% } else { %>
+          Reinstate your account at any time to restore full access — nothing will be lost.
+        <% } %>
+      </p>
+    </div>
+
+    <a href="https://<%= appDomain %>/#pricing" class="btn-reinstate">
+      Reinstate My Account
+    </a>
+
+    <a href="mailto:hello@<%= appDomain %>" class="btn-contact">
+      Questions? Contact us
+    </a>
+
+  </div>
+</body>
+</html>
