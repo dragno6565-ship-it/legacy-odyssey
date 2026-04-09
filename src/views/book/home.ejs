@@ -10,7 +10,7 @@
         <div class="before-card">
           <div class="before-card-photo">
             <% if (card.photo_path) { %>
-              <img src="<%= imageUrl(card.photo_path) %>" alt="<%= card.title %>" loading="lazy">
+              <img src="<%= imageUrl(card.photo_path) %>" alt="<%= card.title %>" loading="lazy" style="<%= photoPos(card.photo_path) %>">
             <% } %>
             <% if (card.subtitle) { %>
               <span class="photo-label"><%= card.subtitle %></span>

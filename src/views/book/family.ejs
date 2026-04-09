@@ -22,7 +22,7 @@
         <div class="family-card" onclick="openFamilyDetail('<%= fm.member_key %>')">
           <% if (fm.photo_path) { %>
             <div class="family-photo">
-              <img src="<%= imageUrl(fm.photo_path) %>" alt="<%= fm.name %>" loading="lazy">
+              <img src="<%= imageUrl(fm.photo_path) %>" alt="<%= fm.name %>" loading="lazy" style="<%= photoPos(fm.photo_path) %>">
             </div>
           <% } else { %>
             <div class="family-photo placeholder"><%= fm.emoji || '&#128100;' %></div>
@@ -43,7 +43,7 @@
         <div class="family-card" onclick="openFamilyDetail('<%= fm.member_key %>')">
           <% if (fm.photo_path) { %>
             <div class="family-photo">
-              <img src="<%= imageUrl(fm.photo_path) %>" alt="<%= fm.name %>" loading="lazy">
+              <img src="<%= imageUrl(fm.photo_path) %>" alt="<%= fm.name %>" loading="lazy" style="<%= photoPos(fm.photo_path) %>">
             </div>
           <% } else { %>
             <div class="family-photo placeholder"><%= fm.emoji || '&#128100;' %></div>

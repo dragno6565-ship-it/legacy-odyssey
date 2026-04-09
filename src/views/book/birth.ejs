@@ -33,7 +33,7 @@
       <p class="perspective-text"><%- ((birthStory && birthStory.mom_narrative) || '').replace(/\n/g, '<br>') %></p>
       <% if (birthStory && birthStory.mom_photo_1) { %>
         <div class="perspective-photo">
-          <img src="<%= imageUrl(birthStory.mom_photo_1) %>" alt="Mom's birth photo" loading="lazy">
+          <img src="<%= imageUrl(birthStory.mom_photo_1) %>" alt="Mom's birth photo" loading="lazy" style="<%= photoPos(birthStory.mom_photo_1) %>">
         </div>
       <% } %>
     </div>
@@ -43,7 +43,7 @@
       <p class="perspective-text"><%- ((birthStory && birthStory.dad_narrative) || '').replace(/\n/g, '<br>') %></p>
       <% if (birthStory && birthStory.dad_photo_1) { %>
         <div class="perspective-photo">
-          <img src="<%= imageUrl(birthStory.dad_photo_1) %>" alt="Dad's birth photo" loading="lazy">
+          <img src="<%= imageUrl(birthStory.dad_photo_1) %>" alt="Dad's birth photo" loading="lazy" style="<%= photoPos(birthStory.dad_photo_1) %>">
         </div>
       <% } %>
     </div>

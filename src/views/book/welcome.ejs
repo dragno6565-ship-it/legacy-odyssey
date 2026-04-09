@@ -2,7 +2,7 @@
   <div class="welcome-hero">
     <div class="welcome-photo-half">
       <% if (book.hero_image_path) { %>
-        <img src="<%= imageUrl(book.hero_image_path) %>" alt="<%= book.child_first_name %>" loading="lazy">
+        <img src="<%= imageUrl(book.hero_image_path) %>" alt="<%= book.child_first_name %>" loading="lazy" style="<%= photoPos(book.hero_image_path) %>">
       <% } %>
       <div class="welcome-photo-overlay"></div>
     </div>

@@ -9,7 +9,7 @@
       <div class="holiday-card<%= i % 2 === 1 ? ' reverse' : '' %>">
         <div class="holiday-photo">
           <% if (c.photo_path) { %>
-            <img src="<%= imageUrl(c.photo_path) %>" alt="<%= c.title %>" loading="lazy">
+            <img src="<%= imageUrl(c.photo_path) %>" alt="<%= c.title %>" loading="lazy" style="<%= photoPos(c.photo_path) %>">
           <% } %>
         </div>
         <div class="holiday-body">

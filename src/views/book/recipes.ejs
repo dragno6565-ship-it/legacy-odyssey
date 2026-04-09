@@ -12,7 +12,7 @@
       <div class="recipe-card">
         <div class="recipe-photo">
           <% if (r.photo_path) { %>
-            <img src="<%= imageUrl(r.photo_path) %>" alt="<%= r.title %>" loading="lazy">
+            <img src="<%= imageUrl(r.photo_path) %>" alt="<%= r.title %>" loading="lazy" style="<%= photoPos(r.photo_path) %>">
           <% } %>
         </div>
         <div class="recipe-body">

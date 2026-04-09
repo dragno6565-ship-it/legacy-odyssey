@@ -150,7 +150,7 @@
 
     <!-- Main Content -->
     <div id="main-content">
-      <%- include('../book/welcome', { book, imageUrl }) %>
+      <%- include('../book/welcome', { book, imageUrl, photoPos }) %>
 
       <% if (isFree) { %>
       <!-- AdSense Banner Ad (free tier) -->
@@ -166,10 +166,10 @@
       <% } %>
 
       <% if (visibleSections.before) { %>
-        <%- include('../book/before', { beforeCards, checklist, imageUrl }) %>
+        <%- include('../book/before', { beforeCards, checklist, imageUrl, photoPos }) %>
       <% } %>
       <% if (visibleSections.birth) { %>
-        <%- include('../book/birth', { book, birthStory, imageUrl }) %>
+        <%- include('../book/birth', { book, birthStory, imageUrl, photoPos }) %>
       <% } %>
 
       <% if (isFree) { %>
@@ -182,25 +182,25 @@
         </div>
       <% } else { %>
         <% if (visibleSections.home) { %>
-          <%- include('../book/home', { comingHomeCards, imageUrl }) %>
+          <%- include('../book/home', { comingHomeCards, imageUrl, photoPos }) %>
         <% } %>
         <% if (visibleSections.months) { %>
           <%- include('../book/months', { months, imageUrl }) %>
         <% } %>
         <% if (visibleSections.family) { %>
-          <%- include('../book/family', { familyMembers, imageUrl }) %>
+          <%- include('../book/family', { familyMembers, imageUrl, photoPos }) %>
         <% } %>
         <% if (visibleSections.firsts) { %>
           <%- include('../book/firsts', { firsts }) %>
         <% } %>
         <% if (visibleSections.holidays) { %>
-          <%- include('../book/holidays', { celebrations, imageUrl }) %>
+          <%- include('../book/holidays', { celebrations, imageUrl, photoPos }) %>
         <% } %>
         <% if (visibleSections.letters) { %>
           <%- include('../book/letters', { book, letters }) %>
         <% } %>
         <% if (visibleSections.recipes) { %>
-          <%- include('../book/recipes', { recipes, imageUrl }) %>
+          <%- include('../book/recipes', { recipes, imageUrl, photoPos }) %>
         <% } %>
         <% if (visibleSections.vault) { %>
           <%- include('../book/vault', { book, vaultItems }) %>
@@ -239,6 +239,7 @@
       weight: m.weight,
       length: m.length,
       photo: m.photo_path ? imageUrl(m.photo_path) : null,
+      pos: m.photo_path ? photoPos(m.photo_path) : '',
       note: m.note
     }))) %>;
     <% } else { %>

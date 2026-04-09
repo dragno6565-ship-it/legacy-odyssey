@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { BASE_URL } from '../api/client';
+import PhotoEditor from './PhotoEditor';
 
 /**
  * Extract the Supabase Storage path from a full public URL.
@@ -19,7 +20,6 @@ import client, { BASE_URL } from '../api/client';
  */
 function extractStoragePath(photoUrl) {
   if (!photoUrl) return null;
-  // If it's already a storage path (not a URL), return as-is
   if (!photoUrl.startsWith('http')) return photoUrl;
   const marker = '/photos/';
   const idx = photoUrl.indexOf(marker);
@@ -29,25 +29,25 @@ function extractStoragePath(photoUrl) {
 
 export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
   const [uploading, setUploading] = useState(false);
+  const [editorVisible, setEditorVisible] = useState(false);
+  // Current focal point for the displayed photo (percentages 0-100)
+  const [focalPoint, setFocalPoint] = useState({ x: 50, y: 50 });
+
+  // Load saved focal point when the photo URL changes
+  useEffect(() => {
+    setFocalPoint({ x: 50, y: 50 });
+  }, [currentPhoto]);
 
   function getPhotoUri(path) {
     if (!path) return null;
-    // If already a full URL, return as-is
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return path;
-    }
-    // Otherwise, construct URL from base
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
     return `${BASE_URL}/${path.replace(/^\//, '')}`;
   }
 
   async function pickImage() {
-    // Request permission
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert(
-        'Permission Required',
-        'Please grant photo library access to choose photos.'
-      );
+      Alert.alert('Permission Required', 'Please grant photo library access to choose photos.');
       return;
     }
 
@@ -65,10 +65,7 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
   async function takePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert(
-        'Permission Required',
-        'Please grant camera access to take photos.'
-      );
+      Alert.alert('Permission Required', 'Please grant camera access to take photos.');
       return;
     }
 
@@ -91,25 +88,61 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-      formData.append('file', {
-        uri,
-        name: filename,
-        type,
-      });
+      formData.append('file', { uri, name: filename, type });
 
       const res = await client.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      // Prefer the full public URL (from Supabase Storage) over the raw storage path
       const photoUrl = res.data.url || res.data.path || res.data.storagePath;
       if (photoUrl) {
         onPhotoSelected(photoUrl);
+        setFocalPoint({ x: 50, y: 50 });
       }
     } catch (err) {
       Alert.alert('Upload Failed', err.message || 'Could not upload photo.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  /**
+   * Called when user saves from PhotoEditor.
+   * If they rotated the photo, we re-upload the rotated file.
+   * Then we save the focal point via the API.
+   */
+  async function handleEditorSave({ uri, rotated, x, y }) {
+    setEditorVisible(false);
+    setUploading(true);
+    try {
+      let finalPhotoUrl = currentPhoto;
+
+      // If rotated, re-upload the rotated image
+      if (rotated) {
+        const filename = uri.split('/').pop() || 'photo.jpg';
+        const formData = new FormData();
+        formData.append('file', { uri, name: filename, type: 'image/jpeg' });
+
+        const res = await client.post('/api/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        finalPhotoUrl = res.data.url || res.data.path || res.data.storagePath || currentPhoto;
+
+        // Notify parent of the new URL
+        if (finalPhotoUrl !== currentPhoto) {
+          onPhotoSelected(finalPhotoUrl);
+        }
+      }
+
+      // Save focal point
+      const storagePath = extractStoragePath(finalPhotoUrl);
+      if (storagePath) {
+        await client.put('/api/books/mine/photo-position', { storagePath, x, y });
+      }
+
+      setFocalPoint({ x, y });
+    } catch (err) {
+      Alert.alert('Save Failed', err.message || 'Could not save photo adjustments.');
     } finally {
       setUploading(false);
     }
@@ -134,11 +167,9 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
         try {
           await client.delete(`/api/photos/${encodeURIComponent(storagePath)}`);
         } catch (err) {
-          // If server delete fails, still clear locally (photo might not be in storage)
           console.warn('Photo storage delete error:', err.message);
         }
       }
-      // Clear the photo in parent state
       onPhotoSelected(null);
     } catch (err) {
       Alert.alert('Error', 'Could not remove photo.');
@@ -154,6 +185,10 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
     ];
 
     if (currentPhoto) {
+      options.push({
+        text: 'Adjust Photo (Rotate / Reposition)',
+        onPress: () => setEditorVisible(true),
+      });
       options.push({
         text: 'Remove Photo',
         style: 'destructive',
@@ -171,7 +206,14 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
   return (
     <View style={styles.container}>
       {photoUri ? (
-        <Image source={{ uri: photoUri }} style={styles.preview} />
+        <View style={styles.previewWrap}>
+          <Image
+            source={{ uri: photoUri }}
+            style={styles.preview}
+            contentFit="cover"
+            contentPosition={{ left: `${focalPoint.x}%`, top: `${focalPoint.y}%` }}
+          />
+        </View>
       ) : (
         <View style={styles.placeholder}>
           <Text style={styles.placeholderIcon}>{'\u{1F4F7}'}</Text>
@@ -196,6 +238,14 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
           </Text>
         )}
       </TouchableOpacity>
+
+      <PhotoEditor
+        visible={editorVisible}
+        photoUri={photoUri}
+        initialPos={focalPoint}
+        onSave={handleEditorSave}
+        onCancel={() => setEditorVisible(false)}
+      />
     </View>
   );
 }
@@ -204,13 +254,16 @@ const styles = StyleSheet.create({
   container: {
     marginTop: spacing.sm,
   },
-  preview: {
+  previewWrap: {
     width: '100%',
     height: 200,
     borderRadius: borderRadius.md,
-    backgroundColor: colors.card,
+    overflow: 'hidden',
     marginBottom: spacing.sm,
-    resizeMode: 'cover',
+  },
+  preview: {
+    width: '100%',
+    height: '100%',
   },
   placeholder: {
     width: '100%',

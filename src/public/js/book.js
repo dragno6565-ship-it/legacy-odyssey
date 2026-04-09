@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'month-card';
         card.innerHTML = `
           <div class="month-photo">
-            <img src="${m.photo || ''}" alt="Month ${m.num}" loading="lazy">
+            <img src="${m.photo || ''}" alt="Month ${m.num}" loading="lazy"${m.pos ? ` style="${m.pos}"` : ''}>
             <div class="month-number-badge">${m.num}</div>
           </div>
           <div class="month-card-body">
@@ -62,8 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== MONTH DETAIL MODAL =====
   window.openModal = function(m) {
-    document.getElementById('modalPhoto').src = m.photo || '';
-    document.getElementById('modalPhoto').alt = m.label;
+    const modalPhoto = document.getElementById('modalPhoto');
+    modalPhoto.src = m.photo || '';
+    modalPhoto.alt = m.label;
+    modalPhoto.style.objectPosition = m.pos ? m.pos.replace('object-position: ', '') : '';
     document.getElementById('modalEyebrow').textContent = '\u2726 Month ' + m.num;
     document.getElementById('modalTitle').textContent = m.label;
     document.getElementById('modalStats').innerHTML = `

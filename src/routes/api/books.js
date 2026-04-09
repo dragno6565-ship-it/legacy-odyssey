@@ -381,6 +381,37 @@ router.post('/mine/vault', async (req, res, next) => {
   }
 });
 
+// PUT /api/books/mine/photo-position — Save focal point for a photo
+router.put('/mine/photo-position', async (req, res, next) => {
+  try {
+    const { storagePath, x, y } = req.body;
+    if (!storagePath || x === undefined || y === undefined) {
+      return res.status(400).json({ error: 'storagePath, x, and y are required' });
+    }
+    // Clamp to 0-100
+    const cx = Math.max(0, Math.min(100, Number(x)));
+    const cy = Math.max(0, Math.min(100, Number(y)));
+
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'No book found' });
+
+    const { supabaseAdmin } = require('../../config/supabase');
+    // Use JSONB merge: update only this key in photo_positions
+    const current = book.photo_positions || {};
+    current[storagePath] = { x: cx, y: cy };
+
+    const { error } = await supabaseAdmin
+      .from('books')
+      .update({ photo_positions: current })
+      .eq('id', book.id);
+
+    if (error) throw error;
+    res.json({ success: true, storagePath, x: cx, y: cy });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Settings (book password, etc.)
 router.put('/mine/settings', async (req, res, next) => {
   try {

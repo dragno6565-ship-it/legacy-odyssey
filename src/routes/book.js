@@ -5,6 +5,26 @@ const { requireBookPassword, hashPassword } = require('../middleware/requireBook
 const bookService = require('../services/bookService');
 const { getPublicUrl } = require('../utils/imageUrl');
 
+/**
+ * Build a photoPos(path) helper for EJS templates.
+ * Returns "object-position: X% Y%" inline style string, or "" if no focal point saved.
+ */
+function makePhotoPos(photoPositions) {
+  const positions = photoPositions || {};
+  return function photoPos(photoPath) {
+    if (!photoPath) return '';
+    let storagePath = photoPath;
+    if (photoPath.startsWith('http')) {
+      const marker = '/photos/';
+      const idx = photoPath.indexOf(marker);
+      storagePath = idx !== -1 ? photoPath.substring(idx + marker.length) : photoPath;
+    }
+    const pos = positions[storagePath];
+    if (!pos) return '';
+    return `object-position: ${pos.x}% ${pos.y}%`;
+  };
+}
+
 const router = Router();
 
 // Serve static demo sites for specific domains and subdomains
@@ -310,6 +330,7 @@ router.get('/', resolveFamily, (req, res, next) => {
       isFree,
       ...data,
       imageUrl: getPublicUrl,
+      photoPos: makePhotoPos(data.book && data.book.photo_positions),
     });
   } catch (err) {
     next(err);
@@ -336,6 +357,7 @@ router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, n
       isFree,
       ...data,
       imageUrl: getPublicUrl,
+      photoPos: makePhotoPos(data.book && data.book.photo_positions),
     });
   } catch (err) {
     next(err);

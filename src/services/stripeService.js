@@ -61,6 +61,7 @@ async function createCheckoutSession({ email, subdomain, domain, period, success
     customer_email: email,
     line_items,
     metadata,
+    allow_promotion_codes: true,
     success_url: successUrl,
     cancel_url: cancelUrl,
   });
@@ -239,6 +240,7 @@ async function createFounderCheckoutSession({ email, subdomain, domain, successU
     customer_email: email,
     line_items: [{ price: PRICES.subscription.founder, quantity: 1 }],
     metadata,
+    allow_promotion_codes: true,
     success_url: successUrl,
     cancel_url: cancelUrl,
   });
