@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { useSavedToast } from '../components/SavedToast';
 
 const DEFAULT_CELEBRATIONS = [
   { photo_path: '', eyebrow: '', title: '', body: '' },
@@ -24,6 +24,7 @@ const DEFAULT_CELEBRATIONS = [
 
 export default function CelebrationsScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -65,9 +66,8 @@ export default function CelebrationsScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine/celebrations', { items: celebrations });
-      Alert.alert('Saved', 'Celebrations updated.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Celebrations updated.');
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save.');
     } finally {
@@ -158,6 +158,7 @@ export default function CelebrationsScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

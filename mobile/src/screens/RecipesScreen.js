@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { useSavedToast } from '../components/SavedToast';
 
 const DEFAULT_RECIPES = Array.from({ length: 4 }, () => ({
   photo_path: '',
@@ -26,6 +26,7 @@ const DEFAULT_RECIPES = Array.from({ length: 4 }, () => ({
 
 export default function RecipesScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -104,9 +105,8 @@ export default function RecipesScreen({ navigation }) {
         ingredients: r.ingredients.filter((ing) => ing.trim()),
       }));
       await put('/api/books/mine/recipes', { items: cleaned });
-      Alert.alert('Saved', 'Recipes updated.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Recipes updated.');
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save.');
     } finally {
@@ -219,6 +219,7 @@ export default function RecipesScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

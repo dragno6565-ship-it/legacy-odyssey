@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -15,9 +14,11 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { useSavedToast } from '../components/SavedToast';
 
 export default function FamilyMemberScreen({ route, navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const { memberKey } = route.params;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -125,9 +126,8 @@ export default function FamilyMemberScreen({ route, navigation }) {
         album_3_path: albumPhotos[2].path,
         album_3_caption: albumPhotos[2].caption.trim(),
       });
-      Alert.alert('Saved', 'Family member updated.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Family member updated.');
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save.');
     } finally {
@@ -242,6 +242,7 @@ export default function FamilyMemberScreen({ route, navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

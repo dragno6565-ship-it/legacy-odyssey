@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -15,9 +14,11 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { useSavedToast } from '../components/SavedToast';
 
 export default function MonthDetailScreen({ route, navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const { monthNum, monthLabel } = route.params;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,9 +63,8 @@ export default function MonthDetailScreen({ route, navigation }) {
         note: note.trim(),
         photo_path: photoPath,
       });
-      Alert.alert('Saved', `Month ${monthLabel} updated successfully.`, [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast(`Month ${monthLabel} updated successfully.`);
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save. Please try again.');
     } finally {
@@ -166,6 +166,7 @@ export default function MonthDetailScreen({ route, navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

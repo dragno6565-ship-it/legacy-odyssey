@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -15,9 +14,11 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { useSavedToast } from '../components/SavedToast';
 
 export default function BirthStoryScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -66,9 +67,8 @@ export default function BirthStoryScreen({ navigation }) {
         dad_photo_1: dadPhoto1,
         dad_photo_2: dadPhoto2,
       });
-      Alert.alert('Saved', 'Birth story updated.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Birth story updated.');
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save.');
     } finally {
@@ -163,6 +163,7 @@ export default function BirthStoryScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

@@ -7,13 +7,13 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
+import { useSavedToast } from '../components/SavedToast';
 
 const DEFAULT_LETTERS = [
   { from_label: '', salutation: '', body: '', signature: '' },
@@ -23,6 +23,7 @@ const DEFAULT_LETTERS = [
 
 export default function LettersScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -66,9 +67,8 @@ export default function LettersScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine/letters', { items: letters });
-      Alert.alert('Saved', 'Letters updated successfully.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Letters updated successfully.');
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save. Please try again.');
     } finally {
@@ -165,6 +165,7 @@ export default function LettersScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

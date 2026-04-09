@@ -7,13 +7,13 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
+import { useSavedToast } from '../components/SavedToast';
 
 const DEFAULT_FIRSTS = Array.from({ length: 9 }, () => ({
   emoji: '',
@@ -24,6 +24,7 @@ const DEFAULT_FIRSTS = Array.from({ length: 9 }, () => ({
 
 export default function FirstsScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -65,9 +66,8 @@ export default function FirstsScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine/firsts', { items: firsts });
-      Alert.alert('Saved', 'Firsts updated.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showToast('Firsts updated.');
+      setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
       setError(err.message || 'Failed to save.');
     } finally {
@@ -165,6 +165,7 @@ export default function FirstsScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      {ToastComponent}
     </KeyboardAvoidingView>
   );
 }

@@ -13,6 +13,7 @@ import {
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, put, del, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { useSavedToast } from '../components/SavedToast';
 
 const APP_VERSION = '1.0.0';
 
@@ -25,6 +26,7 @@ export default function SettingsScreen({ navigation }) {
   const [error, setError] = useState('');
   const [bookPassword, setBookPassword] = useState('');
   const [bookSlug, setBookSlug] = useState('');
+  const { showToast, ToastComponent } = useSavedToast();
 
   useEffect(() => {
     async function fetchSettings() {
@@ -47,7 +49,7 @@ export default function SettingsScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine', { password: bookPassword.trim() });
-      Alert.alert('Saved', 'Book password updated.');
+      showToast('Book password updated.');
     } catch (err) {
       setError(err.message || 'Failed to save password.');
     } finally {
@@ -275,6 +277,7 @@ export default function SettingsScreen({ navigation }) {
         <Text style={styles.infoText}>Legacy Odyssey Mobile</Text>
         <Text style={styles.infoText}>Version {APP_VERSION}</Text>
       </View>
+      {ToastComponent}
     </ScrollView>
   );
 }
