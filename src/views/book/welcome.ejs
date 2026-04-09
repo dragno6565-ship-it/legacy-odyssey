@@ -9,7 +9,7 @@
     <div class="welcome-text-half">
       <div class="welcome-eyebrow">&#10022; Welcome to the Book of</div>
       <h1 class="welcome-name"><em><%= book.child_first_name %></em><% if (book.child_middle_name) { %> <em><%= book.child_middle_name %></em><% } %><br><%= book.child_last_name %></h1>
-      <p class="welcome-meaning">"A name chosen with love, meaning, and intention"</p>
+      <p class="welcome-meaning">"<%= book.name_quote || 'A name chosen with love, meaning, and intention' %>"</p>
       <div class="welcome-divider"></div>
       <div class="vital-stats">
         <div class="stat-item">
@@ -38,8 +38,8 @@
         </div>
       </div>
       <blockquote class="welcome-quote">
-        "From the moment we first saw your face, our world was never the same. This is your story &mdash; every moment, every milestone, every memory &mdash; written just for you."
-        <cite>&mdash; Mom &amp; Dad</cite>
+        "<%= book.parent_quote || 'From the moment we first saw your face, our world was never the same. This is your story \u2014 every moment, every milestone, every memory \u2014 written just for you.' %>"
+        <cite>&mdash; <%= book.parent_quote_attribution || 'Mom & Dad' %></cite>
       </blockquote>
     </div>
   </div>

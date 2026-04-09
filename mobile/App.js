@@ -1,12 +1,28 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { ActivityIndicator, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { colors, typography } from './src/theme';
+
+/** Eye icon button shown in the header of every editing screen */
+function PreviewButton() {
+  const navigation = useNavigation();
+  return (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('Preview')}
+      style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Text style={{ color: colors.gold, fontSize: 13, fontWeight: '600', letterSpacing: 0.3 }}>
+        👁 Preview
+      </Text>
+    </TouchableOpacity>
+  );
+}
 
 // Auth screens
 import LoginScreen from './src/auth/LoginScreen';
@@ -51,6 +67,7 @@ const defaultScreenOptions = {
   contentStyle: {
     backgroundColor: colors.background,
   },
+  headerRight: () => <PreviewButton />,
 };
 
 function AuthNavigator() {
@@ -101,7 +118,7 @@ function AppNavigator() {
       <AppStack.Screen name="NewWebsite" component={NewWebsiteScreen} options={{ title: 'New Website' }} />
       <AppStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
       <AppStack.Screen name="Help" component={HelpScreen} options={{ title: 'Help & Support' }} />
-      <AppStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Book Preview' }} />
+      <AppStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Book Preview', headerRight: null }} />
       <AppStack.Screen name="AdditionalDomain" component={AdditionalDomainScreen} options={{ title: 'Add Another Book' }} />
     </AppStack.Navigator>
   );

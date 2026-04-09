@@ -16,6 +16,36 @@ import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { useSavedToast } from '../components/SavedToast';
 
+// ── Time helpers ────────────────────────────────────────────────────────────
+function parseTime(timeStr) {
+  if (!timeStr) return { hour: '', minute: '', ampm: 'AM' };
+  // "3:42 PM" or "03:42 PM"
+  const match12 = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (match12) {
+    return {
+      hour: String(parseInt(match12[1])),
+      minute: match12[2],
+      ampm: match12[3].toUpperCase(),
+    };
+  }
+  // "14:30" 24-hour legacy format
+  const match24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+  if (match24) {
+    let h = parseInt(match24[1]);
+    const m = match24[2];
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return { hour: String(h), minute: m, ampm };
+  }
+  return { hour: '', minute: '', ampm: 'AM' };
+}
+
+function formatTime(hour, minute, ampm) {
+  if (!hour) return '';
+  const m = (minute || '00').padStart(2, '0');
+  return `${hour}:${m} ${ampm}`;
+}
+
 export default function ChildInfoScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
@@ -23,12 +53,14 @@ export default function ChildInfoScreen({ navigation }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // Form fields
+  // Child info fields
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthDate, setBirthDate] = useState('');
-  const [birthTime, setBirthTime] = useState('');
+  const [birthHour, setBirthHour] = useState('');
+  const [birthMinute, setBirthMinute] = useState('');
+  const [birthAmpm, setBirthAmpm] = useState('AM');
   const [weightLbs, setWeightLbs] = useState('');
   const [weightOz, setWeightOz] = useState('');
   const [lengthInches, setLengthInches] = useState('');
@@ -37,6 +69,11 @@ export default function ChildInfoScreen({ navigation }) {
   const [hospital, setHospital] = useState('');
   const [nameMeaning, setNameMeaning] = useState('');
   const [heroImage, setHeroImage] = useState('');
+
+  // Welcome page customization
+  const [nameQuote, setNameQuote] = useState('');
+  const [parentQuote, setParentQuote] = useState('');
+  const [parentQuoteAttribution, setParentQuoteAttribution] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -48,7 +85,12 @@ export default function ChildInfoScreen({ navigation }) {
         setMiddleName(child.middle_name || child.middleName || '');
         setLastName(child.last_name || child.lastName || '');
         setBirthDate(child.birth_date || child.birthDate || '');
-        setBirthTime(child.birth_time || child.birthTime || '');
+
+        const parsed = parseTime(child.birth_time || child.birthTime || '');
+        setBirthHour(parsed.hour);
+        setBirthMinute(parsed.minute);
+        setBirthAmpm(parsed.ampm);
+
         setWeightLbs(String(child.weight_lbs || child.weightLbs || ''));
         setWeightOz(String(child.weight_oz || child.weightOz || ''));
         setLengthInches(String(child.length_inches || child.lengthInches || ''));
@@ -57,6 +99,11 @@ export default function ChildInfoScreen({ navigation }) {
         setHospital(child.hospital || '');
         setNameMeaning(child.name_meaning || child.nameMeaning || '');
         setHeroImage(book.hero_image_path || '');
+
+        // Welcome page fields (top-level book fields, not child sub-object)
+        setNameQuote(book.name_quote || '');
+        setParentQuote(book.parent_quote || '');
+        setParentQuoteAttribution(book.parent_quote_attribution || '');
       } catch (err) {
         setError(err.message || 'Failed to load child info.');
       } finally {
@@ -70,14 +117,18 @@ export default function ChildInfoScreen({ navigation }) {
     setSaving(true);
     setError('');
     try {
+      const birthTime = formatTime(birthHour, birthMinute, birthAmpm);
       await put('/api/books/mine', {
         hero_image_path: heroImage || null,
+        name_quote: nameQuote.trim() || null,
+        parent_quote: parentQuote.trim() || null,
+        parent_quote_attribution: parentQuoteAttribution.trim() || null,
         child: {
           first_name: firstName.trim(),
           middle_name: middleName.trim(),
           last_name: lastName.trim(),
           birth_date: birthDate.trim(),
-          birth_time: birthTime.trim(),
+          birth_time: birthTime,
           weight_lbs: weightLbs ? Number(weightLbs) : null,
           weight_oz: weightOz ? Number(weightOz) : null,
           length_inches: lengthInches ? Number(lengthInches) : null,
@@ -133,6 +184,7 @@ export default function ChildInfoScreen({ navigation }) {
           </View>
         ) : null}
 
+        {/* ── Name ── */}
         <View style={styles.row}>
           <View style={styles.thirdField}>
             <Text style={styles.label}>First Name</Text>
@@ -166,6 +218,7 @@ export default function ChildInfoScreen({ navigation }) {
           </View>
         </View>
 
+        {/* ── Birth Date ── */}
         <Text style={styles.label}>Birth Date</Text>
         <View style={styles.row}>
           <View style={styles.thirdField}>
@@ -218,15 +271,60 @@ export default function ChildInfoScreen({ navigation }) {
           </View>
         </View>
 
+        {/* ── Birth Time (12-hour) ── */}
         <Text style={styles.label}>Birth Time</Text>
-        <TextInput
-          style={styles.input}
-          value={birthTime}
-          onChangeText={setBirthTime}
-          placeholder="3:42 PM"
-          placeholderTextColor={colors.placeholder}
-        />
+        <View style={styles.timeRow}>
+          <View style={styles.timeHourWrap}>
+            <Text style={styles.helperText}>Hour</Text>
+            <TextInput
+              style={styles.input}
+              value={birthHour}
+              onChangeText={(val) => {
+                const n = val.replace(/[^0-9]/g, '');
+                if (n === '' || (parseInt(n) >= 1 && parseInt(n) <= 12)) setBirthHour(n);
+              }}
+              placeholder="3"
+              placeholderTextColor={colors.placeholder}
+              keyboardType="numeric"
+              maxLength={2}
+            />
+          </View>
+          <Text style={styles.timeColon}>:</Text>
+          <View style={styles.timeMinuteWrap}>
+            <Text style={styles.helperText}>Minute</Text>
+            <TextInput
+              style={styles.input}
+              value={birthMinute}
+              onChangeText={(val) => {
+                const n = val.replace(/[^0-9]/g, '').slice(0, 2);
+                setBirthMinute(n);
+              }}
+              placeholder="42"
+              placeholderTextColor={colors.placeholder}
+              keyboardType="numeric"
+              maxLength={2}
+            />
+          </View>
+          <View style={styles.ampmWrap}>
+            <Text style={styles.helperText}>AM/PM</Text>
+            <View style={styles.ampmToggle}>
+              <TouchableOpacity
+                style={[styles.ampmBtn, birthAmpm === 'AM' && styles.ampmBtnActive]}
+                onPress={() => setBirthAmpm('AM')}
+              >
+                <Text style={[styles.ampmBtnText, birthAmpm === 'AM' && styles.ampmBtnTextActive]}>AM</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.ampmBtn, birthAmpm === 'PM' && styles.ampmBtnActive]}
+                onPress={() => setBirthAmpm('PM')}
+              >
+                <Text style={[styles.ampmBtnText, birthAmpm === 'PM' && styles.ampmBtnTextActive]}>PM</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
+        {/* ── Stats ── */}
         <View style={styles.row}>
           <View style={styles.thirdField}>
             <Text style={styles.label}>Weight (lbs)</Text>
@@ -307,6 +405,49 @@ export default function ChildInfoScreen({ navigation }) {
           textAlignVertical="top"
         />
 
+        {/* ── Welcome Page Customization ── */}
+        <View style={styles.sectionDivider} />
+        <Text style={styles.sectionTitle}>Welcome Page</Text>
+        <Text style={styles.sectionSubtitle}>
+          Customize the text that appears on your book's cover page
+        </Text>
+
+        <Text style={styles.label}>Name Subtitle</Text>
+        <Text style={styles.helperText}>
+          Shown under your child's name. Leave blank for the default.
+        </Text>
+        <TextInput
+          style={styles.input}
+          value={nameQuote}
+          onChangeText={setNameQuote}
+          placeholder="A name chosen with love, meaning, and intention"
+          placeholderTextColor={colors.placeholder}
+        />
+
+        <Text style={styles.label}>Family Message</Text>
+        <Text style={styles.helperText}>
+          The quote shown at the bottom of the welcome page.
+        </Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          value={parentQuote}
+          onChangeText={setParentQuote}
+          placeholder="From the moment we first saw your face, our world was never the same..."
+          placeholderTextColor={colors.placeholder}
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+        />
+
+        <Text style={styles.label}>Message By</Text>
+        <TextInput
+          style={styles.input}
+          value={parentQuoteAttribution}
+          onChangeText={setParentQuoteAttribution}
+          placeholder="Mom & Dad"
+          placeholderTextColor={colors.placeholder}
+        />
+
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
           onPress={handleSave}
@@ -345,7 +486,18 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.xl,
     fontWeight: typography.weights.bold,
     color: colors.textPrimary,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xs,
+  },
+  sectionSubtitle: {
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.md,
+    lineHeight: 18,
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: spacing.xl,
   },
   errorContainer: {
     backgroundColor: colors.errorLight,
@@ -392,6 +544,54 @@ const styles = StyleSheet.create({
   },
   thirdField: {
     flex: 1,
+  },
+  // ── Time picker ──
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing.xs,
+  },
+  timeHourWrap: {
+    width: 64,
+  },
+  timeColon: {
+    fontSize: 24,
+    color: colors.textPrimary,
+    fontWeight: typography.weights.bold,
+    paddingBottom: spacing.md,
+    paddingHorizontal: 2,
+  },
+  timeMinuteWrap: {
+    width: 64,
+  },
+  ampmWrap: {
+    flex: 1,
+  },
+  ampmToggle: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    height: 46,
+  },
+  ampmBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+  },
+  ampmBtnActive: {
+    backgroundColor: colors.gold,
+  },
+  ampmBtnText: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.medium,
+    color: colors.textSecondary,
+  },
+  ampmBtnTextActive: {
+    color: colors.white,
+    fontWeight: typography.weights.semibold,
   },
   saveButton: {
     backgroundColor: colors.gold,
