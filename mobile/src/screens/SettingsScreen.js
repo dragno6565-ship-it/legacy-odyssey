@@ -233,6 +233,14 @@ export default function SettingsScreen({ navigation }) {
           >
             <Text style={styles.outlineButtonText}>Manage Subscription</Text>
           </TouchableOpacity>
+          <View style={{ height: spacing.sm }} />
+          <TouchableOpacity
+            style={styles.goldButton}
+            onPress={() => navigation.navigate('AdditionalDomain')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.goldButtonText}>Add Another Book & Domain</Text>
+          </TouchableOpacity>
         </View>
       )}
 

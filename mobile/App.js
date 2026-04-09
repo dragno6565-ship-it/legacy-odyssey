@@ -33,6 +33,7 @@ import NewWebsiteScreen from './src/screens/NewWebsiteScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import HelpScreen from './src/screens/HelpScreen';
 import PreviewScreen from './src/screens/PreviewScreen';
+import AdditionalDomainScreen from './src/screens/AdditionalDomainScreen';
 
 const AuthStack = createNativeStackNavigator();
 const AppStack = createNativeStackNavigator();
@@ -101,6 +102,7 @@ function AppNavigator() {
       <AppStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
       <AppStack.Screen name="Help" component={HelpScreen} options={{ title: 'Help & Support' }} />
       <AppStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Book Preview' }} />
+      <AppStack.Screen name="AdditionalDomain" component={AdditionalDomainScreen} options={{ title: 'Add Another Book' }} />
     </AppStack.Navigator>
   );
 }
