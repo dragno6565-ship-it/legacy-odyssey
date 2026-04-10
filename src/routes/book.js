@@ -27,6 +27,14 @@ function makePhotoPos(photoPositions) {
 
 const router = Router();
 
+// Domains that show the book as a demo (password bypassed, CTA shown)
+const DEMO_BOOK_DOMAINS = ['your-childs-name.com', 'your-family-photo-album.com'];
+
+function isDemoBookDomain(hostname) {
+  const bare = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
+  return DEMO_BOOK_DOMAINS.includes(bare.toLowerCase());
+}
+
 // Serve static demo sites for specific domains and subdomains
 const DEMO_SITES = {
   'your-family-photo-album.com': 'family-album-demo.html',
@@ -328,6 +336,7 @@ router.get('/', resolveFamily, (req, res, next) => {
     res.render('layouts/book', {
       family: req.family,
       isFree,
+      isDemoDomain: isDemoBookDomain(req.hostname),
       ...data,
       imageUrl: getPublicUrl,
       photoPos: makePhotoPos(data.book && data.book.photo_positions),
@@ -355,6 +364,7 @@ router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, n
     res.render('layouts/book', {
       family: req.family,
       isFree,
+      isDemoDomain: isDemoBookDomain(req.hostname),
       ...data,
       imageUrl: getPublicUrl,
       photoPos: makePhotoPos(data.book && data.book.photo_positions),

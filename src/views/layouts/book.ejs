@@ -59,6 +59,60 @@
   </noscript>
   <!-- end Pinterest Tag -->
 
+  <% if (isDemoDomain) { %>
+  <style>
+    .demo-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      background: #1a1510; border-bottom: 2px solid #c8a96e;
+      height: 44px; display: flex; align-items: center; justify-content: center;
+      font-family: 'Jost', sans-serif; font-size: 0.85rem; color: #d4bb8a;
+      padding: 0 3rem; gap: 0.75rem; text-align: center;
+    }
+    .demo-banner strong { color: #faf7f2; }
+    .demo-banner a.demo-cta {
+      background: #c8a96e; color: #1a1510; font-weight: 700;
+      padding: 0.25rem 0.9rem; border-radius: 2px; text-decoration: none;
+      font-size: 0.8rem; letter-spacing: 0.05em; white-space: nowrap;
+    }
+    .demo-banner a.demo-cta:hover { background: #d4bb8a; }
+    .demo-banner-close {
+      position: absolute; right: 1rem; background: none; border: none;
+      color: #8a7e6b; font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0;
+    }
+    .demo-banner-close:hover { color: #faf7f2; }
+    body.demo-bar-visible #sidebar { top: 44px; height: calc(100vh - 44px); }
+    body.demo-bar-visible #main-content { padding-top: 44px; }
+    body.demo-bar-visible .mobile-header { top: 44px; }
+    @media (max-width: 768px) {
+      body.demo-bar-visible #main-content { padding-top: calc(56px + 44px); }
+      .demo-banner { font-size: 0.75rem; }
+    }
+    .demo-end-cta {
+      background: linear-gradient(135deg, #1a1510 0%, #2c2416 100%);
+      border-top: 2px solid #c8a96e; padding: 4rem 2rem; text-align: center;
+    }
+    .demo-end-cta h3 {
+      font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-style: italic;
+      color: #c8a96e; margin: 0 0 0.75rem;
+    }
+    .demo-end-cta p {
+      font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #d4bb8a;
+      margin: 0 0 1.75rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6;
+    }
+    .demo-end-cta a {
+      display: inline-block; background: #c8a96e; color: #1a1510;
+      font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; padding: 0.85rem 2.5rem;
+      text-decoration: none; border-radius: 2px; margin: 0.4rem;
+    }
+    .demo-end-cta a:hover { background: #d4bb8a; }
+    .demo-end-cta a.secondary {
+      background: transparent; color: #c8a96e; border: 1px solid #c8a96e;
+    }
+    .demo-end-cta a.secondary:hover { background: rgba(200,169,110,0.1); }
+  </style>
+  <% } %>
+
   <% if (isFree) { %>
   <style>
     .free-ad-banner { margin: 2rem auto; max-width: 728px; text-align: center; }
@@ -143,10 +197,20 @@
   </style>
   <% } %>
 </head>
-<body>
+<body class="<%= isDemoDomain ? 'demo-bar-visible' : '' %>">
+
+  <% if (isDemoDomain) { %>
+  <div class="demo-banner" id="demoBanner">
+    <strong>This is a demo book.</strong>
+    <span>Preserve your own family's story — get your own custom domain.</span>
+    <a href="https://www.legacyodyssey.com" target="_blank" class="demo-cta">Create Your Own →</a>
+    <button class="demo-banner-close" onclick="document.getElementById('demoBanner').style.display='none';document.body.classList.remove('demo-bar-visible');" aria-label="Dismiss">&times;</button>
+  </div>
+  <% } %>
+
   <div id="app">
     <!-- Sidebar -->
-    <%- include('../book/sidebar', { book, family, visibleSections, isFree }) %>
+    <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain }) %>
 
     <!-- Main Content -->
     <div id="main-content">
@@ -194,7 +258,7 @@
           <%- include('../book/firsts', { firsts }) %>
         <% } %>
         <% if (visibleSections.holidays) { %>
-          <%- include('../book/holidays', { celebrations, imageUrl, photoPos }) %>
+          <%- include('../book/holidays', { celebrations, celebrationsByYear, imageUrl, photoPos }) %>
         <% } %>
         <% if (visibleSections.letters) { %>
           <%- include('../book/letters', { book, letters }) %>
@@ -205,6 +269,16 @@
         <% if (visibleSections.vault) { %>
           <%- include('../book/vault', { book, vaultItems }) %>
         <% } %>
+      <% } %>
+
+      <% if (isDemoDomain) { %>
+      <!-- Demo End-of-Book CTA -->
+      <div class="demo-end-cta">
+        <h3>Ready to Create Your Own?</h3>
+        <p>Every family deserves a beautiful book like this one — with their own custom domain, their own photos, and their own story.</p>
+        <a href="https://www.legacyodyssey.com" target="_blank">Get Started at Legacy Odyssey</a>
+        <a href="https://www.legacyodyssey.com/#pricing" target="_blank" class="secondary">See Pricing</a>
+      </div>
       <% } %>
 
       <% if (isFree) { %>

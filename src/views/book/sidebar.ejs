@@ -122,7 +122,12 @@
     <% } %>
   </div>
   <div class="sidebar-footer">
-    <% if (isFree) { %>
+    <% if (isDemoDomain) { %>
+    <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;">You're viewing a demo.<br>Create your own family book.</p>
+    <a href="https://www.legacyodyssey.com" target="_blank" class="sidebar-edit-link" style="background:#c8a96e;color:#1a1510;padding:0.4rem 0.75rem;border-radius:2px;font-weight:600;text-align:center;display:block;">
+      Get Your Own Book &rarr;
+    </a>
+    <% } else if (isFree) { %>
     <p style="color:#c8a96e;font-weight:600;">Free Plan</p>
     <a href="https://legacyodyssey.com/#pricing" target="_blank" class="sidebar-edit-link" style="background:#c8a96e;color:#1a1510;padding:0.4rem 0.75rem;border-radius:2px;font-weight:600;">
       Upgrade &rarr;
