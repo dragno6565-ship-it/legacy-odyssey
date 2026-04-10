@@ -125,6 +125,21 @@ async function getFullBook(familyId) {
     familyMembers: familyMembers || [],
     firsts: firsts || [],
     celebrations: celebrations || [],
+    celebrationsByYear: (() => {
+      const all = celebrations || [];
+      const years = book.celebration_years || ['Your First Year'];
+      // Build ordered list from book.celebration_years, then append any orphan years
+      const grouped = years.map((label) => ({
+        label,
+        items: all.filter((c) => (c.year_label || 'Your First Year') === label),
+      }));
+      const seen = new Set(years);
+      for (const c of all) {
+        const y = c.year_label || 'Your First Year';
+        if (!seen.has(y)) { seen.add(y); grouped.push({ label: y, items: all.filter((x) => (x.year_label || 'Your First Year') === y) }); }
+      }
+      return grouped;
+    })(),
     letters: letters || [],
     recipes: recipes || [],
     vaultItems: vaultItems || [],

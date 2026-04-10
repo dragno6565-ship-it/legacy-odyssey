@@ -901,6 +901,16 @@ body {
 }
 
 /* --- HOLIDAYS PAGE --- */
+.celebrations-year-heading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.6rem;
+  font-style: italic;
+  color: #c8a96e;
+  text-align: center;
+  margin: 2.5rem 0 0.5rem;
+  letter-spacing: 0.05em;
+}
+
 .holidays-list {
   padding: 3rem 4rem;
   display: flex;

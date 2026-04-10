@@ -26,6 +26,13 @@ function requireBookPassword(req, res, next) {
     return next();
   }
 
+  // Demo sites — always allow access regardless of password
+  const DEMO_DOMAINS = ['your-childs-name.com', 'your-family-photo-album.com'];
+  const bareHost = host.startsWith('www.') ? host.slice(4) : host;
+  if (DEMO_DOMAINS.includes(bareHost)) {
+    return next();
+  }
+
   // Check for valid mobile app preview token in query string
   // (allows authenticated app users to bypass the password page)
   if (req.query.app_token) {
