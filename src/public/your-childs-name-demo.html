@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Child's Name — A Legacy Odyssey Baby Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #faf7f2;
+  --ivory: #fffdf8;
+  --gold: #c8a96e;
+  --gold-light: #d4bb8a;
+  --gold-dark: #b08e4a;
+  --ink: #1a1510;
+  --ink-mid: #2c2416;
+  --ink-light: #8a7e6b;
+  --card: #f0e8dc;
+  --border: #e0d5c4;
+  --nav-width: 240px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* ── DEMO BANNER ── */
+#demo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: #1a1510;
+  color: #d4bb8a;
+  text-align: center;
+  padding: 0.55rem 1rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border-bottom: 2px solid #c8a96e;
+  height: 44px;
+}
+#demo-banner a.demo-banner-cta {
+  background: #c8a96e;
+  color: #1a1510;
+  text-decoration: none;
+  padding: 0.3rem 0.85rem;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+#demo-banner a.demo-banner-cta:hover { background: #d4bb8a; }
+
+/* ── APP LAYOUT ── */
+#app {
+  display: flex;
+  height: 100vh;
+  padding-top: 44px;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--nav-width);
+  min-width: var(--nav-width);
+  background: var(--ink);
+  color: var(--cream);
+  height: calc(100vh - 44px);
+  overflow-y: auto;
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 44px;
+}
+.sidebar-header {
+  padding: 0 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(200,169,110,0.2);
+  margin-bottom: 0.75rem;
+}
+.sidebar-logo {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--gold-light);
+  margin-bottom: 0.5rem;
+}
+.sidebar-child-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  color: var(--cream);
+  font-weight: 600;
+}
+.sidebar-tagline {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  margin-top: 0.2rem;
+}
+.nav-section-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-light);
+  padding: 0.85rem 1.25rem 0.3rem;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1.25rem;
+  color: rgba(250,247,242,0.75);
+  text-decoration: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover {
+  background: rgba(200,169,110,0.1);
+  color: var(--gold-light);
+}
+.nav-item.active {
+  background: rgba(200,169,110,0.15);
+  color: var(--gold);
+  border-left-color: var(--gold);
+}
+.nav-icon { font-size: 1rem; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1.25rem 1.25rem 0.5rem;
+  border-top: 1px solid rgba(200,169,110,0.15);
+  text-align: center;
+}
+
+/* ── HAMBURGER ── */
+#hamburger {
+  display: none;
+  position: fixed;
+  top: calc(44px + 0.5rem);
+  left: 1rem;
+  z-index: 1001;
+  background: var(--ink);
+  border: none;
+  color: var(--gold);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+#navOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+#navOverlay.show { display: block; }
+
+/* ── MAIN CONTENT ── */
+#main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 3rem 3.5rem 5rem;
+  max-width: 860px;
+}
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ── TYPOGRAPHY ── */
+.eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.section-title {
+  font-size: 2.5rem;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 1.75rem;
+}
+.section-divider {
+  width: 50px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 0 2rem;
+}
+.body-text {
+  font-size: 1rem;
+  color: var(--ink-mid);
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
+}
+.page-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  text-align: center;
+}
+.page-footer a { color: var(--gold); text-decoration: none; }
+
+/* ── BIRTH STATS ── */
+.birth-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.birth-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+}
+.birth-stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold-dark);
+  display: block;
+}
+.birth-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  margin-top: 0.2rem;
+}
+
+/* ── MILESTONE GRID ── */
+.milestone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.milestone-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.milestone-emoji { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.milestone-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+}
+.milestone-date {
+  font-size: 0.75rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+}
+.milestone-note { font-size: 0.88rem; color: var(--ink-light); }
+
+/* ── MONTH GRID ── */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.month-card {
+  background: var(--ivory);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem;
+}
+.month-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+.month-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.month-text { font-size: 0.85rem; color: var(--ink-light); line-height: 1.6; }
+
+/* ── LETTER BLOCK ── */
+.letter-block {
+  background: var(--ivory);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  line-height: 1.85;
+  color: var(--ink-mid);
+}
+.letter-block .letter-greeting {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+.letter-block .letter-sign {
+  margin-top: 1.5rem;
+  font-style: italic;
+  color: var(--ink-light);
+}
+
+/* ── CTA SECTION ── */
+.demo-end-cta {
+  margin: 3rem 0 0;
+  padding: 2.5rem;
+  background: var(--ink);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--cream);
+}
+.demo-end-cta h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--gold-light);
+  margin-bottom: 0.5rem;
+}
+.demo-end-cta p {
+  font-size: 0.95rem;
+  color: rgba(250,247,242,0.7);
+  margin-bottom: 1.5rem;
+}
+.demo-end-cta .cta-buttons { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.demo-end-cta a {
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s;
+}
+.demo-end-cta a:hover { opacity: 0.85; }
+.cta-primary { background: var(--gold); color: var(--ink); }
+.cta-secondary { background: transparent; color: var(--gold-light); border: 1.5px solid var(--gold); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    top: 44px;
+    left: -260px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    height: calc(100vh - 44px);
+  }
+  #sidebar.open { left: 0; }
+  #hamburger { display: flex; }
+  #main-content { padding: 4rem 1.5rem 3rem; }
+  .birth-stats { grid-template-columns: repeat(2, 1fr); }
+  #demo-banner span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- DEMO BANNER -->
+<div id="demo-banner">
+  <span>&#10022; This is a demo — create your baby's book at Legacy Odyssey</span>
+  <a href="https://www.legacyodyssey.com" target="_blank" class="demo-banner-cta">Get Your Own Book &rarr;</a>
+</div>
+
+<div id="app">
+  <!-- Hamburger -->
+  <button id="hamburger">&#9776;</button>
+  <div id="navOverlay"></div>
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">&#10022; Legacy Odyssey</div>
+      <div class="sidebar-child-name">Your Child's Name</div>
+      <div class="sidebar-tagline">Born &middot; [Date] &middot; [City]</div>
+    </div>
+
+    <div style="padding: 0 0;">
+      <div class="nav-section-label">The Book</div>
+      <a class="nav-item active" data-page="page-welcome"><span class="nav-icon">&#127775;</span> Welcome</a>
+      <a class="nav-item" data-page="page-before"><span class="nav-icon">&#129328;</span> Before You Arrived</a>
+      <a class="nav-item" data-page="page-birth"><span class="nav-icon">&#127800;</span> Birth Story</a>
+      <a class="nav-item" data-page="page-home"><span class="nav-icon">&#127968;</span> Coming Home</a>
+      <a class="nav-item" data-page="page-months"><span class="nav-icon">&#128197;</span> Month by Month</a>
+      <div class="nav-section-label">Family &amp; Memories</div>
+      <a class="nav-item" data-page="page-firsts"><span class="nav-icon">&#11088;</span> Your Firsts</a>
+      <a class="nav-item" data-page="page-letters"><span class="nav-icon">&#128140;</span> Letters To You</a>
+      <a class="nav-item" data-page="page-recipes"><span class="nav-icon">&#127858;</span> Family Recipes</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;margin-bottom:0.6rem;">You're viewing a demo.<br>Create your own baby book.</p>
+      <a href="https://www.legacyodyssey.com" target="_blank" style="display:block;background:#c8a96e;color:#1a1510;text-decoration:none;padding:0.5rem 0.75rem;border-radius:3px;font-weight:700;font-size:0.82rem;text-align:center;letter-spacing:0.04em;">Get Your Own Book &rarr;</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+
+    <!-- ============ WELCOME ============ -->
+    <div id="page-welcome" class="page-section active">
+      <p class="eyebrow">&#10022; A Legacy Odyssey Baby Book &#10022;</p>
+      <h1 class="section-title">Welcome to<br>Your Child's Story</h1>
+      <p class="section-subtitle">A book made with love, meant to last forever</p>
+      <div class="section-divider"></div>
+      <p class="body-text">This is a demo of what your baby's Legacy Odyssey book could look like. Every family gets their own custom domain — like <strong>yourbabysname.com</strong> — where you can share your child's story with family and friends.</p>
+      <p class="body-text">From the first flutter of a heartbeat to the first wobbly steps, every moment deserves to be remembered. Legacy Odyssey is the digital baby book that lives at its own real website — a place grandparents can visit, cousins can bookmark, and your child can read someday.</p>
+      <p class="body-text">Browse the sections on the left to see what your book could look like. Then head over to <a href="https://www.legacyodyssey.com" target="_blank" style="color:var(--gold);">legacyodyssey.com</a> to start yours.</p>
+      <div class="demo-end-cta">
+        <h3>Ready to Start?</h3>
+        <p>Your baby deserves a book. Get your own domain — like <em>yourbabysname.com</em> — and start filling in your story today.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Get Started at Legacy Odyssey &rarr;</a>
+          <a href="https://www.legacyodyssey.com/#pricing" target="_blank" class="cta-secondary">See Pricing</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ BEFORE YOU ARRIVED ============ -->
+    <div id="page-before" class="page-section">
+      <p class="eyebrow">Chapter One</p>
+      <h1 class="section-title">Before You Arrived</h1>
+      <p class="section-subtitle">The days we waited, hoped, and dreamed of you</p>
+      <div class="section-divider"></div>
+      <p class="body-text">We found out we were expecting you on a quiet Tuesday morning. The word "pregnant" on that little stick changed everything — the way we looked at the future, the way we looked at each other, the way we looked at the world.</p>
+      <p class="body-text">We had been hoping for you for a while. And when you finally arrived — even before you were born — we understood what people meant when they said having a child changes you. It does. You already had.</p>
+      <p class="body-text">We spent those nine months imagining what you'd look like. Whether you'd have your father's laugh or your mother's eyes. Whether you'd be quiet or loud, bold or gentle. We didn't know yet. But we already loved who you were going to be.</p>
+      <div class="demo-end-cta">
+        <h3>Write Your Own Story</h3>
+        <p>Your "Before You Arrived" chapter is waiting to be filled in. Start your Legacy Odyssey book today.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Create Your Baby's Book &rarr;</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ BIRTH STORY ============ -->
+    <div id="page-birth" class="page-section">
+      <p class="eyebrow">Chapter Two</p>
+      <h1 class="section-title">Birth Story</h1>
+      <p class="section-subtitle">The day everything changed</p>
+      <div class="section-divider"></div>
+      <div class="birth-stats">
+        <div class="birth-stat">
+          <span class="birth-stat-value">7 lbs 4 oz</span>
+          <div class="birth-stat-label">Weight</div>
+        </div>
+        <div class="birth-stat">
+          <span class="birth-stat-value">20.5"</span>
+          <div class="birth-stat-label">Length</div>
+        </div>
+        <div class="birth-stat">
+          <span class="birth-stat-value">3:47 AM</span>
+          <div class="birth-stat-label">Born At</div>
+        </div>
+        <div class="birth-stat">
+          <span class="birth-stat-value">April 10</span>
+          <div class="birth-stat-label">Date</div>
+        </div>
+      </div>
+      <p class="body-text">It started in the middle of the night. Contractions — slow at first, then closer together. We drove to the hospital under a sky that was just beginning to lighten at the edges. The world felt very still and very large.</p>
+      <p class="body-text">Fourteen hours later, you were here. The moment they placed you in our arms, something in us shifted permanently. You were so small and so impossibly real. You smelled like something brand new. You were the most beautiful thing we had ever seen.</p>
+      <p class="body-text">We didn't sleep that night. We just held you, watching you breathe, counting your fingers, memorizing your face. We had waited so long for you. And there you were.</p>
+      <div class="demo-end-cta">
+        <h3>Preserve Your Birth Story</h3>
+        <p>The details fade faster than you think. Write it down now — for your child to read someday.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Start Your Baby's Book &rarr;</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ COMING HOME ============ -->
+    <div id="page-home" class="page-section">
+      <p class="eyebrow">Chapter Three</p>
+      <h1 class="section-title">Coming Home</h1>
+      <p class="section-subtitle">The first day everything was different</p>
+      <div class="section-divider"></div>
+      <p class="body-text">We buckled you into the car seat for the first time and realized no one had prepared us for this exact moment — the weight of you, the smallness of you, how serious it suddenly felt to drive 25 miles per hour down a road we'd driven a thousand times.</p>
+      <p class="body-text">We had decorated your room weeks before. The crib was assembled, the blankets were folded, the nightlight was plugged in. But nothing about the room matched the reality of finally carrying you through the front door.</p>
+      <p class="body-text">The dog sniffed you cautiously. The cat kept its distance. Grandma cried. We took a hundred photos and none of them captured it. This is our best attempt to write down what that day felt like — because you deserve to know.</p>
+      <div class="demo-end-cta">
+        <h3>Capture Every Coming Home</h3>
+        <p>Start your Legacy Odyssey book and preserve the moments that matter most.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Create Your Baby's Book &rarr;</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ MONTH BY MONTH ============ -->
+    <div id="page-months" class="page-section">
+      <p class="eyebrow">The First Year</p>
+      <h1 class="section-title">Month by Month</h1>
+      <p class="section-subtitle">Twelve months. A lifetime of change.</p>
+      <div class="section-divider"></div>
+      <div class="month-grid">
+        <div class="month-card">
+          <div class="month-label">Month 1</div>
+          <div class="month-title">Tiny and New</div>
+          <p class="month-text">You slept most of the time. We memorized your face. The nights were long and beautiful in their own exhausting way.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 2</div>
+          <div class="month-title">Your First Smile</div>
+          <p class="month-text">Real smiles this month — not the sleeping kind. The whole world stopped the first time you smiled at us on purpose.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 3</div>
+          <div class="month-title">Finding Your Voice</div>
+          <p class="month-text">Coos and gurgles that made us laugh every time. You were starting to figure out you could communicate.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 4</div>
+          <div class="month-title">Rolling Over</div>
+          <p class="month-text">You rolled from your back to your tummy and looked up at us like you'd just invented something.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 5</div>
+          <div class="month-title">Grabbing Everything</div>
+          <p class="month-text">No item within reach was safe. Your grip was surprisingly strong and your aim was surprisingly good.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 6</div>
+          <div class="month-title">Halfway There</div>
+          <p class="month-text">Six months old. We couldn't believe how much you had changed and how fast it had happened.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 7</div>
+          <div class="month-title">First Foods</div>
+          <p class="month-text">Sweet potato — everywhere. On you, on us, on the dog. You weren't sure about it. We were delighted.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 8</div>
+          <div class="month-title">Crawling!</div>
+          <p class="month-text">You finally figured out crawling and immediately headed for everything you weren't supposed to touch.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 9</div>
+          <div class="month-title">Pulling Up</div>
+          <p class="month-text">You grabbed the coffee table and hauled yourself upright. You looked so proud. We felt a little terrified.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 10</div>
+          <div class="month-title">Waving Goodbye</div>
+          <p class="month-text">You learned to wave and deployed it constantly. Every person, every dog, every car driving past.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 11</div>
+          <div class="month-title">First Words</div>
+          <p class="month-text">"Dada." Clear as a bell. We argued about whether it counted. It counted.</p>
+        </div>
+        <div class="month-card">
+          <div class="month-label">Month 12</div>
+          <div class="month-title">One Year Old</div>
+          <p class="month-text">A whole year. You smashed your birthday cake with both hands and we cried happy tears through the whole thing.</p>
+        </div>
+      </div>
+      <div class="demo-end-cta">
+        <h3>Document Every Month</h3>
+        <p>The details of each month fade faster than you think. Legacy Odyssey keeps them safe forever.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Get Started &rarr;</a>
+          <a href="https://www.legacyodyssey.com/#pricing" target="_blank" class="cta-secondary">See Pricing</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ YOUR FIRSTS ============ -->
+    <div id="page-firsts" class="page-section">
+      <p class="eyebrow">Milestones</p>
+      <h1 class="section-title">Your Firsts</h1>
+      <p class="section-subtitle">Every beginning, recorded forever</p>
+      <div class="section-divider"></div>
+      <div class="milestone-grid">
+        <div class="milestone-card">
+          <div class="milestone-emoji">&#128516;</div>
+          <div class="milestone-title">First Smile</div>
+          <div class="milestone-date">6 weeks old</div>
+          <p class="milestone-note">A real one — not gas. We're certain of it. It happened while Dad was making a ridiculous face.</p>
+        </div>
+        <div class="milestone-card">
+          <div class="milestone-emoji">&#128488;</div>
+          <div class="milestone-title">First Laugh</div>
+          <div class="milestone-date">3 months</div>
+          <p class="milestone-note">The dog sneezed and you thought it was the funniest thing that had ever happened.</p>
+        </div>
+        <div class="milestone-card">
+          <div class="milestone-emoji">&#128175;</div>
+          <div class="milestone-title">First Word</div>
+          <div class="milestone-date">11 months</div>
+          <p class="milestone-note">"Dada" — said very clearly while looking directly at Mom. We're choosing to count it anyway.</p>
+        </div>
+        <div class="milestone-card">
+          <div class="milestone-emoji">&#128694;</div>
+          <div class="milestone-title">First Steps</div>
+          <div class="milestone-date">13 months</div>
+          <p class="milestone-note">Three wobbly steps from the couch to the coffee table. You sat down hard and clapped for yourself.</p>
+        </div>
+        <div class="milestone-card">
+          <div class="milestone-emoji">&#127858;</div>
+          <div class="milestone-title">First Solid Food</div>
+          <div class="milestone-date">6 months</div>
+          <p class="milestone-note">Sweet potato purée. Your face said "what is happening" but you opened your mouth for more.</p>
+        </div>
+        <div class="milestone-card">
+          <div class="milestone-emoji">&#128756;</div>
+          <div class="milestone-title">First Haircut</div>
+          <div class="milestone-date">14 months</div>
+          <p class="milestone-note">You sat very still and looked very serious, like you understood the gravity of the moment.</p>
+        </div>
+      </div>
+      <div class="demo-end-cta">
+        <h3>Record Every First</h3>
+        <p>Your child's firsts happen once. Legacy Odyssey helps you capture them before they slip away.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Create Your Baby's Book &rarr;</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ LETTERS ============ -->
+    <div id="page-letters" class="page-section">
+      <p class="eyebrow">From the Heart</p>
+      <h1 class="section-title">Letters To You</h1>
+      <p class="section-subtitle">Words written now, meant to be read later</p>
+      <div class="section-divider"></div>
+      <div class="letter-block">
+        <p class="letter-greeting">Dear Little One,</p>
+        <p>You are asleep right now, making small snuffling sounds and taking up most of our bed, and I am sitting here trying to write down what it feels like to be your parent at this exact moment.</p>
+        <p style="margin-top:1rem;">You are seven months old. You have four teeth. You love the dog, sweet potato, and bath time. You dislike being put down, loud noises, and the moment we stop bouncing you even slightly. You are the most specific, complicated, wonderful small person we have ever encountered.</p>
+        <p style="margin-top:1rem;">I want you to know this: we were not prepared for you. Not really. We thought we were. We had the crib assembled and the books read. But nothing prepares you for the actual weight of a child in your arms, the actual sound of their laugh, the actual way the world rearranges itself around this new gravity.</p>
+        <p style="margin-top:1rem;">You rearranged us. We are grateful every single day.</p>
+        <p class="letter-sign">With all the love in the world,<br>Mom &amp; Dad</p>
+      </div>
+      <div class="demo-end-cta">
+        <h3>Write Letters They'll Keep Forever</h3>
+        <p>Letters to your child live in their Legacy Odyssey book — waiting for the right moment to be read.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Start Writing &rarr;</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+    <!-- ============ RECIPES ============ -->
+    <div id="page-recipes" class="page-section">
+      <p class="eyebrow">Family Traditions</p>
+      <h1 class="section-title">Family Recipes</h1>
+      <p class="section-subtitle">The tastes that mean home</p>
+      <div class="section-divider"></div>
+      <div style="background:var(--ivory);border:1px solid var(--border);border-radius:8px;padding:2rem;margin-bottom:1.5rem;">
+        <h3 style="font-size:1.4rem;color:var(--ink);margin-bottom:0.25rem;">Grandma's Banana Bread</h3>
+        <p style="font-size:0.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;">From: Grandma Ruth &bull; The recipe that started it all</p>
+        <p class="body-text" style="margin-bottom:1rem;">This recipe has been in the family for three generations. Grandma Ruth made it every Sunday, and the smell of it baking means something to every person who grew up in that house. We want you to know how to make it.</p>
+        <p style="font-size:0.9rem;color:var(--ink-mid);"><strong>Ingredients:</strong> 3 ripe bananas, 1/3 cup melted butter, 3/4 cup sugar, 1 egg (beaten), 1 tsp vanilla, 1 tsp baking soda, pinch of salt, 1.5 cups flour.</p>
+        <p style="font-size:0.9rem;color:var(--ink-mid);margin-top:0.75rem;"><strong>Method:</strong> Mash bananas with butter. Mix in sugar, egg, and vanilla. Stir in baking soda and salt. Fold in flour. Pour into greased loaf pan. Bake at 350°F for 55-65 minutes. Let cool before slicing (if you can wait).</p>
+      </div>
+      <div class="demo-end-cta">
+        <h3>Save the Recipes That Matter</h3>
+        <p>Family recipes are a kind of inheritance. Keep them in your Legacy Odyssey book so they're never lost.</p>
+        <div class="cta-buttons">
+          <a href="https://www.legacyodyssey.com" target="_blank" class="cta-primary">Create Your Baby's Book &rarr;</a>
+          <a href="https://www.legacyodyssey.com/#pricing" target="_blank" class="cta-secondary">See Pricing</a>
+        </div>
+      </div>
+      <div class="page-footer">Crafted with love by <a href="https://www.legacyodyssey.com" target="_blank">Legacy Odyssey</a></div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<script>
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var active = document.querySelector('.nav-item[data-page="'+id+'"]');
+  if (active) active.classList.add('active');
+  document.getElementById('main-content').scrollTop = 0;
+  closeMobileNav();
+}
+document.querySelectorAll('.nav-item').forEach(function(n){
+  n.addEventListener('click', function(){ showPage(this.getAttribute('data-page')); });
+});
+
+// ── MOBILE NAV ──
+var hamburger = document.getElementById('hamburger');
+var sidebar = document.getElementById('sidebar');
+var navOverlay = document.getElementById('navOverlay');
+hamburger.addEventListener('click', function(){
+  sidebar.classList.toggle('open');
+  navOverlay.classList.toggle('show');
+});
+navOverlay.addEventListener('click', closeMobileNav);
+function closeMobileNav(){
+  sidebar.classList.remove('open');
+  navOverlay.classList.remove('show');
+}
+</script>
+</body>
+</html>

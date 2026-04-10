@@ -42,6 +42,42 @@ h1, h2, h3, h4, h5 {
   line-height: 1.3;
 }
 
+/* ── DEMO BANNER ── */
+#demo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: #1a1510;
+  color: #d4bb8a;
+  text-align: center;
+  padding: 0.55rem 1rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border-bottom: 2px solid #c8a96e;
+  height: 44px;
+}
+#demo-banner a.demo-banner-cta {
+  background: #c8a96e;
+  color: #1a1510;
+  text-decoration: none;
+  padding: 0.3rem 0.85rem;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+#demo-banner a.demo-banner-cta:hover { background: #d4bb8a; }
+
 /* ── PASSWORD SCREEN ── */
 #password-screen {
   position: fixed;
@@ -131,6 +167,7 @@ h1, h2, h3, h4, h5 {
 #app {
   display: none;
   height: 100vh;
+  padding-top: 44px;
 }
 #app.visible {
   display: flex;
@@ -142,7 +179,7 @@ h1, h2, h3, h4, h5 {
   min-width: var(--nav-width);
   background: var(--ink);
   color: var(--cream);
-  height: 100vh;
+  height: calc(100vh - 44px);
   overflow-y: auto;
   padding: 2rem 0;
   display: flex;
@@ -208,7 +245,7 @@ h1, h2, h3, h4, h5 {
 #hamburger {
   display: none;
   position: fixed;
-  top: 1rem;
+  top: calc(44px + 0.5rem);
   left: 1rem;
   z-index: 1001;
   background: var(--ink);
@@ -826,6 +863,12 @@ h1, h2, h3, h4, h5 {
   </div>
 </div>
 
+<!-- DEMO BANNER -->
+<div id="demo-banner">
+  <span>&#10022; This is a demo — create your own family album at Legacy Odyssey</span>
+  <a href="https://www.legacyodyssey.com" target="_blank" class="demo-banner-cta">Get Your Own Book &rarr;</a>
+</div>
+
 <!-- APP -->
 <div id="app">
   <!-- Hamburger -->
@@ -857,7 +900,8 @@ h1, h2, h3, h4, h5 {
     <a class="nav-item" data-page="page-vault">&#128274; Time Capsule</a>
 
     <div class="sidebar-footer">
-      Crafted with love by Legacy Odyssey<br><a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a>
+      <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;margin-bottom:0.6rem;">You're viewing a demo.<br>Create your own family book.</p>
+      <a href="https://www.legacyodyssey.com" target="_blank" style="display:block;background:#c8a96e;color:#1a1510;text-decoration:none;padding:0.5rem 0.75rem;border-radius:3px;font-weight:700;font-size:0.82rem;text-align:center;letter-spacing:0.04em;">Get Your Own Book &rarr;</a>
     </div>
   </nav>
 
@@ -1338,6 +1382,8 @@ function checkPassword() {
   document.getElementById('app').classList.add('visible');
   startCountdown();
 }
+// Auto-skip password screen for demo
+checkPassword();
 
 // ── NAVIGATION ──
 function showPage(id) {

@@ -39,6 +39,8 @@ function isDemoBookDomain(hostname) {
 const DEMO_SITES = {
   'your-family-photo-album.com': 'family-album-demo.html',
   'your-family-photo-album': 'family-album-demo.html', // subdomain match
+  'your-childs-name.com': 'your-childs-name-demo.html',
+  'your-childs-name': 'your-childs-name-demo.html', // subdomain match
 };
 
 router.use((req, res, next) => {
