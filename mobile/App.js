@@ -41,6 +41,7 @@ import FamilyScreen from './src/screens/FamilyScreen';
 import FamilyMemberScreen from './src/screens/FamilyMemberScreen';
 import FirstsScreen from './src/screens/FirstsScreen';
 import CelebrationsScreen from './src/screens/CelebrationsScreen';
+import CelebrationYearScreen from './src/screens/CelebrationYearScreen';
 import LettersScreen from './src/screens/LettersScreen';
 import RecipesScreen from './src/screens/RecipesScreen';
 import VaultScreen from './src/screens/VaultScreen';
@@ -111,6 +112,7 @@ function AppNavigator() {
       />
       <AppStack.Screen name="YourFirsts" component={FirstsScreen} options={{ title: 'Your Firsts' }} />
       <AppStack.Screen name="Celebrations" component={CelebrationsScreen} options={{ title: 'Celebrations' }} />
+      <AppStack.Screen name="CelebrationYear" component={CelebrationYearScreen} options={{ title: 'Celebrations' }} />
       <AppStack.Screen name="Letters" component={LettersScreen} options={{ title: 'Letters to You' }} />
       <AppStack.Screen name="FamilyRecipes" component={RecipesScreen} options={{ title: 'Family Recipes' }} />
       <AppStack.Screen name="TheVault" component={VaultScreen} options={{ title: 'The Vault' }} />

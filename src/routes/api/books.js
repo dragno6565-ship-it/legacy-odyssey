@@ -326,10 +326,9 @@ router.put('/mine/family/:key', async (req, res, next) => {
   }
 });
 
-// Generic section endpoints (firsts, celebrations, letters, recipes)
+// Generic section endpoints (firsts, letters, recipes)
 const sectionTables = {
   firsts: 'firsts',
-  celebrations: 'celebrations',
   letters: 'letters',
   recipes: 'recipes',
 };
@@ -356,6 +355,79 @@ for (const [route, table] of Object.entries(sectionTables)) {
     }
   });
 }
+
+// Celebrations — year-scoped endpoints
+router.get('/mine/celebration-years', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    res.json(book.celebration_years || ['Your First Year']);
+  } catch (err) { next(err); }
+});
+
+router.post('/mine/celebration-years', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const years = book.celebration_years || ['Your First Year'];
+    const { label } = req.body;
+    if (!label || years.includes(label)) return res.status(400).json({ error: 'Invalid or duplicate label' });
+    const updated = [...years, label];
+    await bookService.updateBook(book.id, { celebration_years: updated });
+    res.json(updated);
+  } catch (err) { next(err); }
+});
+
+router.delete('/mine/celebration-years', async (req, res, next) => {
+  try {
+    const { label } = req.body;
+    if (!label || label === 'Your First Year') return res.status(400).json({ error: 'Cannot delete first year' });
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { supabaseAdmin } = require('../../config/supabase');
+    const years = (book.celebration_years || ['Your First Year']).filter((y) => y !== label);
+    await supabaseAdmin.from('celebrations').delete().eq('book_id', book.id).eq('year_label', label);
+    await bookService.updateBook(book.id, { celebration_years: years });
+    res.json(years);
+  } catch (err) { next(err); }
+});
+
+router.get('/mine/celebrations', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { supabaseAdmin } = require('../../config/supabase');
+    const yearLabel = req.query.year_label || 'Your First Year';
+    const { data } = await supabaseAdmin
+      .from('celebrations')
+      .select('*')
+      .eq('book_id', book.id)
+      .eq('year_label', yearLabel)
+      .order('sort_order');
+    res.json(data || []);
+  } catch (err) { next(err); }
+});
+
+router.put('/mine/celebrations', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { supabaseAdmin } = require('../../config/supabase');
+    const yearLabel = req.body.year_label || 'Your First Year';
+    const items = req.body.items || [];
+    await supabaseAdmin.from('celebrations').delete().eq('book_id', book.id).eq('year_label', yearLabel);
+    const meaningful = items.filter((c) => c.title || c.body || c.photo_path || c.eyebrow);
+    if (meaningful.length > 0) {
+      const rows = meaningful.map((c, i) => ({
+        book_id: book.id,
+        year_label: yearLabel,
+        sort_order: i,
+        photo_path: c.photo_path || null,
+        eyebrow: c.eyebrow || null,
+        title: c.title || '(untitled)',
+        body: c.body || null,
+      }));
+      const { error } = await supabaseAdmin.from('celebrations').insert(rows);
+      if (error) throw error;
+    }
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
 
 // Vault items
 router.get('/mine/vault', async (req, res, next) => {

@@ -1,78 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
+  Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
-import { useHeaderHeight } from '@react-navigation/elements';
-import { get, put } from '../api/client';
-import PhotoPicker from '../components/PhotoPicker';
-import { useSavedToast } from '../components/SavedToast';
-
-const DEFAULT_CELEBRATIONS = [
-  { photo_path: '', eyebrow: '', title: '', body: '' },
-  { photo_path: '', eyebrow: '', title: '', body: '' },
-  { photo_path: '', eyebrow: '', title: '', body: '' },
-];
+import { get, post, del } from '../api/client';
 
 export default function CelebrationsScreen({ navigation }) {
-  const headerHeight = useHeaderHeight();
-  const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [celebrations, setCelebrations] = useState(DEFAULT_CELEBRATIONS);
+  const [years, setYears] = useState(['Your First Year']);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await get('/api/books/mine/celebrations');
-        const fetched = Array.isArray(res.data) ? res.data : [];
-        const merged = [0, 1, 2].map((i) => ({
-          photo_path: fetched[i]?.photo_path || '',
-          eyebrow: fetched[i]?.eyebrow || '',
-          title: fetched[i]?.title || '',
-          body: fetched[i]?.body || '',
-        }));
-        setCelebrations(merged);
-      } catch (err) {
-        if (err.status !== 404) {
-          setError(err.message || 'Failed to load celebrations.');
-        }
-      } finally {
-        setLoading(false);
-      }
+  const fetchYears = useCallback(async () => {
+    try {
+      const res = await get('/api/books/mine/celebration-years');
+      setYears(Array.isArray(res.data) ? res.data : ['Your First Year']);
+    } catch {
+      setYears(['Your First Year']);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, []);
 
-  function updateCelebration(index, field, value) {
-    setCelebrations((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
+  useFocusEffect(fetchYears);
+
+  async function handleAddYear() {
+    const nextLabel = `Year ${years.length + 1}`;
+    try {
+      const res = await post('/api/books/mine/celebration-years', { label: nextLabel });
+      setYears(res.data);
+    } catch (err) {
+      Alert.alert('Error', err.message || 'Could not add year.');
+    }
   }
 
-  async function handleSave() {
-    setSaving(true);
-    setError('');
-    try {
-      await put('/api/books/mine/celebrations', { items: celebrations });
-      showToast('Celebrations updated.');
-      setTimeout(() => navigation.goBack(), 1800);
-    } catch (err) {
-      setError(err.message || 'Failed to save.');
-    } finally {
-      setSaving(false);
-    }
+  function handleDeleteYear(label) {
+    Alert.alert(
+      `Delete "${label}"?`,
+      'This will remove all celebrations in this year. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const res = await del('/api/books/mine/celebration-years', { data: { label } });
+              setYears(res.data);
+            } catch (err) {
+              Alert.alert('Error', err.message || 'Could not delete year.');
+            }
+          },
+        },
+      ]
+    );
   }
 
   if (loading) {
@@ -84,82 +70,39 @@ export default function CelebrationsScreen({ navigation }) {
   }
 
   return (
-    <KeyboardAvoidingView
+    <ScrollView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={headerHeight}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.pageTitle}>Celebrations</Text>
-        <Text style={styles.pageSubtitle}>Holidays and special occasions</Text>
+      <Text style={styles.pageTitle}>Celebrations</Text>
+      <Text style={styles.pageSubtitle}>Holidays and special occasions</Text>
 
-        {error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        ) : null}
-
-        {celebrations.map((c, index) => (
-          <View key={index} style={styles.card}>
-            <Text style={styles.cardNumber}>Celebration {index + 1}</Text>
-
-            <PhotoPicker
-              currentPhoto={c.photo_path}
-              onPhotoSelected={(path) => updateCelebration(index, 'photo_path', path)}
-            />
-
-            <Text style={styles.label}>Eyebrow / Label</Text>
-            <TextInput
-              style={styles.input}
-              value={c.eyebrow}
-              onChangeText={(val) => updateCelebration(index, 'eyebrow', val)}
-              placeholder="e.g., First Christmas"
-              placeholderTextColor={colors.placeholder}
-            />
-
-            <Text style={styles.label}>Title</Text>
-            <TextInput
-              style={styles.input}
-              value={c.title}
-              onChangeText={(val) => updateCelebration(index, 'title', val)}
-              placeholder="e.g., The Magic of the Morning"
-              placeholderTextColor={colors.placeholder}
-            />
-
-            <Text style={styles.label}>Body</Text>
-            <TextInput
-              style={[styles.input, styles.bodyInput]}
-              value={c.body}
-              onChangeText={(val) => updateCelebration(index, 'body', val)}
-              placeholder="Tell the story of this celebration..."
-              placeholderTextColor={colors.placeholder}
-              multiline
-              numberOfLines={5}
-              textAlignVertical="top"
-            />
-          </View>
-        ))}
-
+      {years.map((label) => (
         <TouchableOpacity
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-          onPress={handleSave}
-          disabled={saving}
-          activeOpacity={0.8}
+          key={label}
+          style={styles.yearRow}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('CelebrationYear', { yearLabel: label })}
+          onLongPress={label !== 'Your First Year' ? () => handleDeleteYear(label) : undefined}
         >
-          {saving ? (
-            <ActivityIndicator color={colors.white} />
-          ) : (
-            <Text style={styles.saveButtonText}>Save All</Text>
-          )}
+          <View style={styles.yearRowInner}>
+            <Text style={styles.yearIcon}>🎉</Text>
+            <View style={styles.yearTextWrap}>
+              <Text style={styles.yearLabel}>{label}</Text>
+              <Text style={styles.yearHint}>Holidays & special moments</Text>
+            </View>
+          </View>
+          <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
-      </ScrollView>
-      {ToastComponent}
-    </KeyboardAvoidingView>
+      ))}
+
+      <TouchableOpacity style={styles.addButton} activeOpacity={0.8} onPress={handleAddYear}>
+        <Text style={styles.addButtonText}>+ Add Year</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.hint}>Long-press any year (except the first) to delete it.</Text>
+    </ScrollView>
   );
 }
 
@@ -167,16 +110,63 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
   scrollContent: { padding: spacing.lg, paddingBottom: 150 },
-  pageTitle: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.xl, fontWeight: typography.weights.bold, color: colors.textPrimary },
-  pageSubtitle: { fontSize: typography.sizes.sm, color: colors.textSecondary, marginBottom: spacing.lg, fontStyle: 'italic' },
-  errorContainer: { backgroundColor: colors.errorLight, borderRadius: borderRadius.sm, padding: spacing.md, marginBottom: spacing.md },
-  errorText: { color: colors.error, fontSize: typography.sizes.sm, textAlign: 'center' },
-  card: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.lg, ...shadows.card },
-  cardNumber: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.gold, marginBottom: spacing.sm },
-  label: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginBottom: spacing.xs, marginTop: spacing.sm },
-  input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.md, fontSize: typography.sizes.md, color: colors.textPrimary },
-  bodyInput: { minHeight: 120, paddingTop: spacing.md },
-  saveButton: { backgroundColor: colors.gold, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md, minHeight: 50, ...shadows.button },
-  saveButtonDisabled: { opacity: 0.7 },
-  saveButtonText: { color: colors.white, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold },
+  pageTitle: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.textPrimary,
+  },
+  pageSubtitle: {
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
+    fontStyle: 'italic',
+  },
+  yearRow: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...shadows.card,
+  },
+  yearRowInner: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  yearIcon: { fontSize: 28, marginRight: spacing.md },
+  yearTextWrap: { flex: 1 },
+  yearLabel: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.semibold,
+    color: colors.textPrimary,
+  },
+  yearHint: {
+    fontSize: typography.sizes.xs,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  chevron: { fontSize: 24, color: colors.gold, marginLeft: spacing.sm },
+  addButton: {
+    borderWidth: 1.5,
+    borderColor: colors.gold,
+    borderRadius: borderRadius.md,
+    borderStyle: 'dashed',
+    padding: spacing.md,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  addButtonText: {
+    color: colors.gold,
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+  },
+  hint: {
+    fontSize: typography.sizes.xs,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    fontStyle: 'italic',
+  },
 });
