@@ -224,13 +224,6 @@ async function createFounderCheckoutSession({ email, subdomain, domain, successU
   if (!stripe) throw new Error('Stripe not configured');
   if (!PRICES.subscription.founder) throw new Error('STRIPE_PRICE_FOUNDER not configured');
 
-  const count = await getFounderCount();
-  if (count >= FOUNDER_LIMIT) {
-    const err = new Error('Founder spots are sold out');
-    err.code = 'FOUNDER_SOLD_OUT';
-    throw err;
-  }
-
   const metadata = { subdomain, period: 'founder', plan: 'founder' };
   if (domain) metadata.domain = domain;
 

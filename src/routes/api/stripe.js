@@ -129,9 +129,6 @@ router.post('/create-founder-checkout', async (req, res, next) => {
 
     res.json({ url: session.url, sessionId: session.id });
   } catch (err) {
-    if (err.code === 'FOUNDER_SOLD_OUT') {
-      return res.status(410).json({ error: 'Founder spots are sold out', soldOut: true });
-    }
     next(err);
   }
 });

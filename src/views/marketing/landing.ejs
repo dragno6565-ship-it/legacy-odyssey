@@ -898,11 +898,6 @@
             body: JSON.stringify({ email, domain: _founderSelectedDomain }),
           });
           const data = await res.json();
-          if (data.soldOut) {
-            document.getElementById('founderModalSoldOut').style.display = 'block';
-            document.getElementById('founderModalForm').style.display = 'none';
-            return;
-          }
           if (data.url) {
             if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: 29, currency: 'USD' });
             if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: 29, currency: 'USD' });
@@ -937,15 +932,7 @@
         document.getElementById('spotsBarFill').style.width = pct + '%';
 
         const cardText = document.getElementById('founderCardSpotsText');
-        if (data.soldOut) {
-          if (cardText) cardText.textContent = 'All founder spots claimed';
-          const btn = document.getElementById('founderCheckoutBtn');
-          if (btn) { btn.textContent = 'Sold Out'; btn.disabled = true; btn.style.opacity = '0.5'; }
-          const heroBtn = document.getElementById('founderBtn');
-          if (heroBtn) { heroBtn.textContent = 'Founder Spots Sold Out'; heroBtn.removeAttribute('onclick'); heroBtn.href = '#pricing'; heroBtn.style.background = '#6b5b45'; }
-        } else {
-          if (cardText) cardText.textContent = remaining + ' of 100 founder spots remaining';
-        }
+        if (cardText) cardText.textContent = remaining > 0 ? remaining + ' of 100 founder spots remaining' : 'Founder pricing still available';
       } catch (e) {
         const spots = document.getElementById('founderSpots');
         if (spots) spots.style.display = 'none';
