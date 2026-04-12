@@ -468,27 +468,55 @@
   </section>
 
   <!-- Founder Checkout Modal -->
-  <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:460px;width:90%;position:relative;">
+  <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;">
       <button onclick="document.getElementById('founderModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#B8935A;font-size:1.4rem;cursor:pointer;">&times;</button>
-      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.25rem;font-size:1.4rem;">Claim Your Founder Spot</h3>
-      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;">$29/year, locked in for life</p>
+      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.2rem;font-size:1.4rem;">Claim Your Founder Spot</h3>
+      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;">$29/year, locked in for life &mdash; all sections, your own .com</p>
+
       <div id="founderModalSoldOut" style="display:none;color:#c0392b;font-size:0.95rem;margin-bottom:1rem;padding:12px;background:rgba(192,57,43,0.1);border-radius:6px;">
-        All 100 founder spots have been claimed. Join the waitlist above.
+        All 100 founder spots have been claimed.
       </div>
+
       <div id="founderModalForm">
-        <div style="margin-bottom:1rem;">
-          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">YOUR EMAIL</label>
-          <input type="email" id="founderEmail" placeholder="you@example.com" style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;">
+        <!-- Step 1: Domain -->
+        <div id="founderStep1">
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.5rem;letter-spacing:0.05em;">STEP 1 — CHOOSE YOUR DOMAIN</label>
+          <p style="font-size:0.8rem;color:rgba(248,242,230,0.55);margin:0 0 0.75rem;">This is the .com address your family book will live at. It's permanent — check spelling carefully.</p>
+          <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+            <input type="text" id="founderDomainSearch" placeholder="smithfamily" autocomplete="off" spellcheck="false"
+              style="flex:1;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;">
+            <span style="display:flex;align-items:center;color:rgba(248,242,230,0.4);font-size:0.9rem;white-space:nowrap;">.com</span>
+            <button type="button" id="founderDomainSearchBtn" style="padding:0.8rem 1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;cursor:pointer;white-space:nowrap;">Check</button>
+          </div>
+          <div id="founderDomainResult" style="min-height:36px;font-size:0.88rem;margin-bottom:0.75rem;"></div>
+          <!-- Confirmed domain display -->
+          <div id="founderDomainConfirmed" style="display:none;background:#1a2e1a;border:1px solid #4a8a4a;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;display:none;">
+            <span style="color:#7cb87c;font-weight:700;">&#10003; </span>
+            <span id="founderDomainConfirmedName" style="color:#F8F2E6;font-weight:600;"></span>
+            <button type="button" id="founderDomainChangeBtn" style="margin-left:0.75rem;background:none;border:none;color:#B8935A;font-size:0.8rem;cursor:pointer;text-decoration:underline;">Change</button>
+          </div>
+          <button type="button" id="founderNextBtn" disabled style="width:100%;padding:0.9rem;background:#4a3f2f;color:#8a7a5a;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:not-allowed;transition:all 0.2s;">
+            Next: Enter Your Email &rarr;
+          </button>
         </div>
-        <div style="margin-bottom:1.5rem;">
-          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">YOUR CUSTOM DOMAIN (optional)</label>
-          <input type="text" id="founderDomain" placeholder="e.g. thesmithfamily.com" style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;">
-          <p style="font-size:0.75rem;color:rgba(248,242,230,0.4);margin:0.4rem 0 0;">Leave blank to choose later. You can always add it after signup.</p>
+
+        <!-- Step 2: Email + Pay -->
+        <div id="founderStep2" style="display:none;">
+          <button type="button" onclick="founderGoBack()" style="background:none;border:none;color:#B8935A;font-size:0.85rem;cursor:pointer;padding:0;margin-bottom:1rem;">&#8592; Back</button>
+          <div style="background:#2C2416;border:1px solid rgba(184,147,90,0.3);border-radius:6px;padding:0.75rem 1rem;margin-bottom:1.25rem;">
+            <span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Your domain: </span>
+            <span id="founderStep2Domain" style="color:#B8935A;font-weight:700;"></span>
+          </div>
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">STEP 2 — YOUR EMAIL</label>
+          <input type="email" id="founderEmail" placeholder="you@example.com"
+            style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;margin-bottom:1.25rem;">
+          <button id="founderSubmitBtn" style="width:100%;padding:1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">
+            Continue to Payment &rarr;
+          </button>
+          <p style="font-size:0.75rem;color:rgba(248,242,230,0.35);text-align:center;margin:0.75rem 0 0;">Domain names are non-refundable once registered.</p>
         </div>
-        <button id="founderSubmitBtn" style="width:100%;padding:1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">
-          Continue to Payment &rarr;
-        </button>
+
         <p id="founderModalError" style="display:none;color:#c0392b;font-size:0.85rem;margin:0.75rem 0 0;text-align:center;"></p>
       </div>
     </div>
@@ -733,76 +761,143 @@
     });
   </script>
   <script>
-    // Global function to open founder modal — called from all CTAs
+    // ===== FOUNDER MODAL — two-step: domain first, then email + pay =====
+    let _founderSelectedDomain = null;
+
     function openFounderModal() {
       if (window._founderSoldOut) return;
+      // Reset to step 1
+      _founderSelectedDomain = null;
+      document.getElementById('founderStep1').style.display = '';
+      document.getElementById('founderStep2').style.display = 'none';
+      document.getElementById('founderDomainSearch').value = '';
+      document.getElementById('founderDomainResult').innerHTML = '';
+      document.getElementById('founderDomainConfirmed').style.display = 'none';
+      document.getElementById('founderNextBtn').disabled = true;
+      document.getElementById('founderNextBtn').style.background = '#4a3f2f';
+      document.getElementById('founderNextBtn').style.color = '#8a7a5a';
+      document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
+      document.getElementById('founderModalError').style.display = 'none';
       document.getElementById('founderModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
     }
 
-    // Founder spot counter + modal wiring
-    (async function() {
-      let founderSoldOut = false;
-      try {
-        const res = await fetch('/api/stripe/founder-spots');
-        const data = await res.json();
-        const remaining = data.remaining;
-        const pct = (remaining / data.total) * 100;
-        founderSoldOut = data.soldOut;
-        window._founderSoldOut = data.soldOut;
+    function founderGoBack() {
+      document.getElementById('founderStep2').style.display = 'none';
+      document.getElementById('founderStep1').style.display = '';
+    }
 
-        // Hero counter
-        document.getElementById('spotsRemaining').textContent = remaining;
-        document.getElementById('spotsBarFill').style.width = pct + '%';
-
-        // Card counter
-        const cardText = document.getElementById('founderCardSpotsText');
-        if (data.soldOut) {
-          if (cardText) cardText.textContent = 'All founder spots claimed';
-          const btn = document.getElementById('founderCheckoutBtn');
-          if (btn) { btn.textContent = 'Sold Out'; btn.disabled = true; btn.style.opacity = '0.5'; }
-          const heroBtn = document.getElementById('founderBtn');
-          if (heroBtn) { heroBtn.textContent = 'Founder Spots Sold Out'; heroBtn.removeAttribute('onclick'); heroBtn.href = '#pricing'; heroBtn.style.background = '#6b5b45'; }
-        } else {
-          if (cardText) cardText.textContent = remaining + ' of 100 founder spots remaining';
-        }
-      } catch (e) {
-        const spots = document.getElementById('founderSpots');
-        if (spots) spots.style.display = 'none';
-        const cardText = document.getElementById('founderCardSpotsText');
-        if (cardText) cardText.style.display = 'none';
+    // Domain search inside modal
+    async function founderSearchDomain() {
+      const raw = document.getElementById('founderDomainSearch').value.trim().replace(/[^a-zA-Z0-9-]/g, '');
+      const resultEl = document.getElementById('founderDomainResult');
+      if (!raw || raw.length < 2) {
+        resultEl.innerHTML = '<span style="color:#c0392b;">Please enter at least 2 characters.</span>';
+        return;
       }
+      const domain = raw.toLowerCase() + '.com';
+      resultEl.innerHTML = '<span style="color:rgba(248,242,230,0.4);">Checking availability…</span>';
+      document.getElementById('founderDomainSearchBtn').disabled = true;
+      try {
+        const res = await fetch('/api/domains/search?name=' + encodeURIComponent(raw));
+        const data = await res.json();
+        const primary = (data.results || []).find(r => r.domain === domain);
+        if (primary && primary.available && primary.underBudget) {
+          resultEl.innerHTML = '<span style="color:#7cb87c;font-weight:600;">&#10003; ' + domain + ' is available!</span>';
+          founderConfirmDomain(domain);
+        } else if (primary) {
+          resultEl.innerHTML = '<span style="color:#c0392b;">&#10007; ' + domain + ' is taken.</span>' +
+            (data.alternatives && data.alternatives.length ? '<br><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Try one of these:</span>' : '');
+          if (data.alternatives && data.alternatives.length) {
+            data.alternatives.slice(0, 3).forEach(function(alt) {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.style = 'display:inline-block;margin:4px 4px 0 0;padding:4px 10px;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:4px;color:#B8935A;font-size:0.8rem;cursor:pointer;';
+              btn.textContent = alt.domain;
+              btn.onclick = function() {
+                document.getElementById('founderDomainSearch').value = alt.domain.replace('.com','');
+                founderConfirmDomain(alt.domain);
+                resultEl.innerHTML = '<span style="color:#7cb87c;font-weight:600;">&#10003; ' + alt.domain + ' is available!</span>';
+              };
+              resultEl.appendChild(btn);
+            });
+          }
+          _founderSelectedDomain = null;
+          document.getElementById('founderNextBtn').disabled = true;
+          document.getElementById('founderNextBtn').style.background = '#4a3f2f';
+          document.getElementById('founderNextBtn').style.color = '#8a7a5a';
+          document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
+          document.getElementById('founderDomainConfirmed').style.display = 'none';
+        } else {
+          resultEl.innerHTML = '<span style="color:#c0392b;">Could not check availability. Try again.</span>';
+        }
+      } catch(e) {
+        resultEl.innerHTML = '<span style="color:#c0392b;">Connection error. Please try again.</span>';
+      }
+      document.getElementById('founderDomainSearchBtn').disabled = false;
+    }
 
-      // Open modal on founder card button click
-      document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
-        if (founderSoldOut) return;
-        document.getElementById('founderModal').style.display = 'flex';
+    function founderConfirmDomain(domain) {
+      _founderSelectedDomain = domain;
+      document.getElementById('founderDomainConfirmedName').textContent = 'www.' + domain;
+      document.getElementById('founderDomainConfirmed').style.display = 'block';
+      const nextBtn = document.getElementById('founderNextBtn');
+      nextBtn.disabled = false;
+      nextBtn.style.background = '#B8935A';
+      nextBtn.style.color = '#1E1812';
+      nextBtn.style.cursor = 'pointer';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('founderDomainSearchBtn').addEventListener('click', founderSearchDomain);
+      document.getElementById('founderDomainSearch').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') founderSearchDomain();
       });
 
-      // Founder checkout submit
-      document.getElementById('founderSubmitBtn')?.addEventListener('click', async function() {
+      document.getElementById('founderDomainChangeBtn').addEventListener('click', function() {
+        _founderSelectedDomain = null;
+        document.getElementById('founderDomainConfirmed').style.display = 'none';
+        document.getElementById('founderDomainResult').innerHTML = '';
+        document.getElementById('founderDomainSearch').value = '';
+        document.getElementById('founderNextBtn').disabled = true;
+        document.getElementById('founderNextBtn').style.background = '#4a3f2f';
+        document.getElementById('founderNextBtn').style.color = '#8a7a5a';
+        document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
+        document.getElementById('founderDomainSearch').focus();
+      });
+
+      document.getElementById('founderNextBtn').addEventListener('click', function() {
+        if (!_founderSelectedDomain) return;
+        document.getElementById('founderStep2Domain').textContent = 'www.' + _founderSelectedDomain;
+        document.getElementById('founderStep1').style.display = 'none';
+        document.getElementById('founderStep2').style.display = '';
+        setTimeout(() => document.getElementById('founderEmail').focus(), 100);
+      });
+
+      document.getElementById('founderSubmitBtn').addEventListener('click', async function() {
         const email = document.getElementById('founderEmail').value.trim();
-        const domain = document.getElementById('founderDomain').value.trim();
-        const btn = document.getElementById('founderSubmitBtn');
         const errEl = document.getElementById('founderModalError');
         errEl.style.display = 'none';
-
         if (!email || !email.includes('@')) {
           errEl.textContent = 'Please enter a valid email address.';
           errEl.style.display = 'block';
           return;
         }
-
-        btn.textContent = 'Redirecting to payment...';
+        if (!_founderSelectedDomain) {
+          errEl.textContent = 'Please go back and select a domain first.';
+          errEl.style.display = 'block';
+          return;
+        }
+        const btn = document.getElementById('founderSubmitBtn');
+        btn.textContent = 'Redirecting to payment…';
         btn.disabled = true;
-
         try {
           const res = await fetch('/api/stripe/create-founder-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, domain: domain || undefined }),
+            body: JSON.stringify({ email, domain: _founderSelectedDomain }),
           });
           const data = await res.json();
-
           if (data.soldOut) {
             document.getElementById('founderModalSoldOut').style.display = 'block';
             document.getElementById('founderModalForm').style.display = 'none';
@@ -823,9 +918,43 @@
         }
       });
 
-      // Close modal on backdrop click
-      document.getElementById('founderModal')?.addEventListener('click', function(e) {
+      // Close on backdrop click
+      document.getElementById('founderModal').addEventListener('click', function(e) {
         if (e.target === this) this.style.display = 'none';
+      });
+    });
+
+    // Founder spot counter
+    (async function() {
+      try {
+        const res = await fetch('/api/stripe/founder-spots');
+        const data = await res.json();
+        const remaining = data.remaining;
+        const pct = (remaining / data.total) * 100;
+        window._founderSoldOut = data.soldOut;
+
+        document.getElementById('spotsRemaining').textContent = remaining;
+        document.getElementById('spotsBarFill').style.width = pct + '%';
+
+        const cardText = document.getElementById('founderCardSpotsText');
+        if (data.soldOut) {
+          if (cardText) cardText.textContent = 'All founder spots claimed';
+          const btn = document.getElementById('founderCheckoutBtn');
+          if (btn) { btn.textContent = 'Sold Out'; btn.disabled = true; btn.style.opacity = '0.5'; }
+          const heroBtn = document.getElementById('founderBtn');
+          if (heroBtn) { heroBtn.textContent = 'Founder Spots Sold Out'; heroBtn.removeAttribute('onclick'); heroBtn.href = '#pricing'; heroBtn.style.background = '#6b5b45'; }
+        } else {
+          if (cardText) cardText.textContent = remaining + ' of 100 founder spots remaining';
+        }
+      } catch (e) {
+        const spots = document.getElementById('founderSpots');
+        if (spots) spots.style.display = 'none';
+        const cardText = document.getElementById('founderCardSpotsText');
+        if (cardText) cardText.style.display = 'none';
+      }
+
+      document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
+        openFounderModal();
       });
     })();
   </script>
