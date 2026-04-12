@@ -114,8 +114,8 @@ router.post('/create-founder-checkout', async (req, res, next) => {
       ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
       : legacySubdomain;
 
-    if (!email || (!domain && !subdomain)) {
-      return res.status(400).json({ error: 'email and domain (or subdomain) are required' });
+    if (!email) {
+      return res.status(400).json({ error: 'email is required' });
     }
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';

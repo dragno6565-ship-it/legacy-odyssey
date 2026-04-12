@@ -62,6 +62,10 @@
     .waitlist-note { font-size: 0.8rem; color: #1E1812; margin: 0.5rem 0 0; }
     .waitlist-success { color: #B8935A; font-size: 0.95rem; margin-top: 0.75rem; font-weight: 500; }
     @media (max-width: 480px) { .waitlist-form { flex-direction: column; } }
+    /* On mobile, show fade-up elements immediately — IntersectionObserver is unreliable */
+    @media (max-width: 768px) {
+      .fade-up { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
     .founder-cta { margin: 1.5rem 0 0.75rem; }
     .founder-cta .btn-founder {
       display: inline-block; padding: 1rem 2rem;
@@ -151,7 +155,7 @@
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="#help">Help</a></li>
         <li><a href="/account">My Account</a></li>
-        <li><a href="#pricing" class="nav-cta">Get Started</a></li>
+        <li><a href="#pricing" class="nav-cta" onclick="openFounderModal(); return false;">Get Started</a></li>
       </ul>
       <button class="nav-hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -171,7 +175,7 @@
       </p>
 <!-- Founder CTA -->
       <div class="founder-cta" id="founderCta">
-        <a href="#pricing" class="btn-founder" id="founderBtn">
+        <a href="#pricing" class="btn-founder" id="founderBtn" onclick="openFounderModal(); return false;">
           Claim Your Founder Spot — $29/year &rarr;
         </a>
         <p class="founder-spots" id="founderSpots">
@@ -183,7 +187,7 @@
       </div>
 
       <div class="hero-actions">
-        <a href="#pricing" class="btn-primary">
+        <a href="#pricing" class="btn-primary" onclick="openFounderModal(); return false;">
           Start Your Family's Site &rarr;
         </a>
         <a href="#features" class="btn-secondary">
@@ -195,7 +199,7 @@
         <a href="https://www.your-childs-name.com" target="_blank" class="demo-link">Baby Book Demo &rarr;</a>
         <a href="https://www.your-family-photo-album.com" target="_blank" class="demo-link">Family Album Demo &rarr;</a>
       </div>
-      <p class="hero-note">Plans start at just $4.99/mo. Cancel anytime.</p>
+      <p class="hero-note">Founder pricing: $29/year — locked forever for the first 100 families.</p>
     </div>
   </section>
 
@@ -550,7 +554,7 @@
       now, before the moments and the name slip away.
     </p>
     <div class="hero-actions">
-      <a href="#pricing" class="btn-primary">
+      <a href="#pricing" class="btn-primary" onclick="openFounderModal(); return false;">
         Claim Your Domain &amp; Start Today &rarr;
       </a>
     </div>
@@ -729,6 +733,12 @@
     });
   </script>
   <script>
+    // Global function to open founder modal — called from all CTAs
+    function openFounderModal() {
+      if (window._founderSoldOut) return;
+      document.getElementById('founderModal').style.display = 'flex';
+    }
+
     // Founder spot counter + modal wiring
     (async function() {
       let founderSoldOut = false;
@@ -738,6 +748,7 @@
         const remaining = data.remaining;
         const pct = (remaining / data.total) * 100;
         founderSoldOut = data.soldOut;
+        window._founderSoldOut = data.soldOut;
 
         // Hero counter
         document.getElementById('spotsRemaining').textContent = remaining;
@@ -749,13 +760,10 @@
           if (cardText) cardText.textContent = 'All founder spots claimed';
           const btn = document.getElementById('founderCheckoutBtn');
           if (btn) { btn.textContent = 'Sold Out'; btn.disabled = true; btn.style.opacity = '0.5'; }
-          // Hero button
           const heroBtn = document.getElementById('founderBtn');
-          if (heroBtn) { heroBtn.textContent = 'Founder Spots Sold Out — Join Waitlist'; heroBtn.href = '#waitlist'; heroBtn.style.background = '#6b5b45'; }
+          if (heroBtn) { heroBtn.textContent = 'Founder Spots Sold Out'; heroBtn.removeAttribute('onclick'); heroBtn.href = '#pricing'; heroBtn.style.background = '#6b5b45'; }
         } else {
           if (cardText) cardText.textContent = remaining + ' of 100 founder spots remaining';
-          const heroBtn = document.getElementById('founderBtn');
-          if (heroBtn) heroBtn.href = '#pricing';
         }
       } catch (e) {
         const spots = document.getElementById('founderSpots');
@@ -768,9 +776,6 @@
       document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
         if (founderSoldOut) return;
         document.getElementById('founderModal').style.display = 'flex';
-        // Pre-fill email from waitlist form if already entered
-        const waitlistEmail = document.getElementById('waitlistEmail')?.value;
-        if (waitlistEmail) document.getElementById('founderEmail').value = waitlistEmail;
       });
 
       // Founder checkout submit
