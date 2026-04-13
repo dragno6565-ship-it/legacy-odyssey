@@ -66,27 +66,14 @@
     @media (max-width: 768px) {
       .fade-up { opacity: 1 !important; transform: none !important; transition: none !important; }
     }
-    .founder-cta { margin: 1.5rem 0 0.75rem; }
-    .founder-cta .btn-founder {
+    .intro-cta { margin: 1.5rem 0 0.75rem; }
+    .intro-cta .btn-intro {
       display: inline-block; padding: 1rem 2rem;
       background: #B8935A; color: #1E1812;
       border: none; border-radius: 6px; font-weight: 700; font-size: 1rem;
       cursor: pointer; text-decoration: none; transition: background 0.2s;
     }
-    .founder-cta .btn-founder:hover { background: #D4B483; }
-    .founder-spots {
-      font-size: 0.82rem; color: #4A3F32;
-      margin: 0.5rem 0 0;
-    }
-    .founder-spots .spots-count { color: #B8935A; font-weight: 700; }
-    .founder-spots-bar {
-      width: 200px; height: 4px; background: rgba(255,255,255,0.15);
-      border-radius: 2px; margin: 0.4rem 0 0;
-    }
-    .founder-spots-bar-fill {
-      height: 100%; background: #B8935A; border-radius: 2px;
-      transition: width 0.5s ease;
-    }
+    .intro-cta .btn-intro:hover { background: #D4B483; }
   </style>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
@@ -155,7 +142,7 @@
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="#help">Help</a></li>
         <li><a href="/account">My Account</a></li>
-        <li><a href="#pricing" class="nav-cta" onclick="openFounderModal(); return false;">Get Started</a></li>
+        <li><a href="#pricing" class="nav-cta" onclick="openFounderModal(); return false;">Get Started — $29/yr</a></li>
       </ul>
       <button class="nav-hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -173,17 +160,11 @@
         own exclusive .com domain. Capture milestones, photos, recipes,
         and heartfelt letters your family will treasure across generations.
       </p>
-<!-- Founder CTA -->
-      <div class="founder-cta" id="founderCta">
-        <a href="#pricing" class="btn-founder" id="founderBtn" onclick="openFounderModal(); return false;">
-          Claim Your Founder Spot — $29/year &rarr;
+<!-- Intro CTA -->
+      <div class="intro-cta" id="introCta">
+        <a href="#pricing" class="btn-intro" id="introBtn" onclick="openFounderModal(); return false;">
+          Start for $29 — Your First Year &rarr;
         </a>
-        <p class="founder-spots" id="founderSpots">
-          <span class="spots-count" id="spotsRemaining">...</span> of 100 founder spots remaining
-        </p>
-        <div class="founder-spots-bar">
-          <div class="founder-spots-bar-fill" id="spotsBarFill" style="width:100%"></div>
-        </div>
       </div>
 
       <div class="hero-actions">
@@ -199,7 +180,7 @@
         <a href="https://www.your-childs-name.com" target="_blank" class="demo-link">Baby Book Demo &rarr;</a>
         <a href="https://www.your-family-photo-album.com" target="_blank" class="demo-link">Family Album Demo &rarr;</a>
       </div>
-      <p class="hero-note">Founder pricing: $29/year — locked forever for the first 100 families.</p>
+      <p class="hero-note">Introductory offer: $29 your first year. Renews at $49.99/year. Cancel anytime.</p>
     </div>
   </section>
 
@@ -382,20 +363,18 @@
         <p style="font-size:0.75rem;color:#b0a090;text-align:center;margin:8px 0 0;">No credit card required.</p>
       </div>
 
-      <!-- Founder Card -->
+      <!-- Annual Intro Card -->
       <div class="pricing-card featured" style="flex:1;min-width:280px;max-width:360px;position:relative;">
         <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#B8935A;color:#1E1812;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;padding:4px 16px;border-radius:20px;white-space:nowrap;">
-          FOR FOUNDERS ONLY
+          INTRODUCTORY OFFER
         </div>
-        <div class="pricing-name">Legacy Odyssey <span style="color:#B8935A;">Founder</span></div>
+        <div class="pricing-name">Legacy Odyssey <span style="color:#B8935A;">Annual</span></div>
         <div class="pricing-price" style="flex-wrap:wrap;gap:0.5rem;">
           <span class="pricing-amount">$29</span>
-          <span class="pricing-period">/ year</span>
-          <span style="font-size:0.75rem;color:#8C6A35;font-style:italic;align-self:flex-end;padding-bottom:6px;">(normally $49.99/yr)</span>
+          <span class="pricing-period">/ first year</span>
         </div>
-        <p style="font-size:0.88rem;color:#B8935A;margin:-2px 0 6px;font-weight:700;letter-spacing:0.06em;text-align:center;">FOREVER</p>
-        <p style="font-size:0.82rem;color:#B8935A;margin:0 0 16px;font-weight:600;">Locked in for life &mdash; never increases</p>
-        <p class="pricing-desc">Everything included. Same features, permanently lower price.</p>
+        <p style="font-size:0.82rem;color:#B8935A;margin:0 0 4px;font-weight:600;">$49.99/year after that &mdash; cancel anytime</p>
+        <p class="pricing-desc">Everything included. No setup fee.</p>
         <ul class="pricing-features">
           <li>Your own custom .com domain</li>
           <li>Beautiful baby book or family album</li>
@@ -411,11 +390,8 @@
         </ul>
         <p style="font-size:0.8rem;color:#B8935A;text-align:center;margin:0 0 14px;font-weight:600;">+ Extra domains just $12.99/yr each</p>
         <button class="btn-primary" id="founderCheckoutBtn" style="width:100%;">
-          Claim Founder Spot &rarr;
+          Get Started &mdash; $29/year &rarr;
         </button>
-        <p style="font-size:0.78rem;color:#4A3F32;margin:10px 0 0;text-align:center;" id="founderCardSpots">
-          <span id="founderCardSpotsText">Loading spots...</span>
-        </p>
       </div>
 
       <!-- Standard Card -->
@@ -471,12 +447,8 @@
   <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
     <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;">
       <button onclick="document.getElementById('founderModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#B8935A;font-size:1.4rem;cursor:pointer;">&times;</button>
-      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.2rem;font-size:1.4rem;">Claim Your Founder Spot</h3>
-      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;">$29/year, locked in for life &mdash; all sections, your own .com</p>
-
-      <div id="founderModalSoldOut" style="display:none;color:#c0392b;font-size:0.95rem;margin-bottom:1rem;padding:12px;background:rgba(192,57,43,0.1);border-radius:6px;">
-        All 100 founder spots have been claimed.
-      </div>
+      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.2rem;font-size:1.4rem;">Start Your Family's Book</h3>
+      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;">$29 your first year &mdash; renews at $49.99/year. Cancel anytime.</p>
 
       <div id="founderModalForm">
         <!-- Step 1: Domain -->
@@ -583,7 +555,7 @@
     </p>
     <div class="hero-actions">
       <a href="#pricing" class="btn-primary" onclick="openFounderModal(); return false;">
-        Claim Your Domain &amp; Start Today &rarr;
+        Start for $29 &mdash; First Year &rarr;
       </a>
     </div>
   </section>
@@ -765,7 +737,6 @@
     let _founderSelectedDomain = null;
 
     function openFounderModal() {
-      if (window._founderSoldOut) return;
       // Reset to step 1
       _founderSelectedDomain = null;
       document.getElementById('founderStep1').style.display = '';
@@ -919,31 +890,9 @@
       });
     });
 
-    // Founder spot counter
-    (async function() {
-      try {
-        const res = await fetch('/api/stripe/founder-spots');
-        const data = await res.json();
-        const remaining = data.remaining;
-        const pct = (remaining / data.total) * 100;
-        window._founderSoldOut = data.soldOut;
-
-        document.getElementById('spotsRemaining').textContent = remaining;
-        document.getElementById('spotsBarFill').style.width = pct + '%';
-
-        const cardText = document.getElementById('founderCardSpotsText');
-        if (cardText) cardText.textContent = remaining > 0 ? remaining + ' of 100 founder spots remaining' : 'Founder pricing still available';
-      } catch (e) {
-        const spots = document.getElementById('founderSpots');
-        if (spots) spots.style.display = 'none';
-        const cardText = document.getElementById('founderCardSpotsText');
-        if (cardText) cardText.style.display = 'none';
-      }
-
-      document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
-        openFounderModal();
-      });
-    })();
+    document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
+      openFounderModal();
+    });
   </script>
 
 </body>

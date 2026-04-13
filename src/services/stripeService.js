@@ -224,7 +224,7 @@ async function createFounderCheckoutSession({ email, subdomain, domain, successU
   if (!stripe) throw new Error('Stripe not configured');
   if (!PRICES.subscription.founder) throw new Error('STRIPE_PRICE_FOUNDER not configured');
 
-  const metadata = { subdomain, period: 'founder', plan: 'founder' };
+  const metadata = { subdomain, period: 'annual', plan: 'annual_intro' };
   if (domain) metadata.domain = domain;
 
   const session = await stripe.checkout.sessions.create({

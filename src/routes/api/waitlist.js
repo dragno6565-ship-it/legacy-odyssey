@@ -30,22 +30,21 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
               <p style="margin:0 0 24px;font-size:26px;color:#1E1812;line-height:1.3;">You're on the list.</p>
 
               <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                Thank you for signing up for Legacy Odyssey. As a founding member, you'll lock in our founder rate — <strong>$29/year for your family's site and first domain</strong> — for as long as you keep your subscription. That's less than $2.50/month, locked in forever.
+                Thank you for signing up for Legacy Odyssey. You're eligible for our introductory rate — <strong>$29 for your first year</strong>. That's less than $2.50/month to preserve your family's memories on your own exclusive .com domain.
               </p>
 
               <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                The standard price when we open publicly is $49.99/year. Your founder rate never changes as long as you stay subscribed.
+                After your first year, the plan renews at $49.99/year. Cancel anytime.
               </p>
 
               <!-- Pricing box -->
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5EDD8;border:1px solid #D4B483;border-radius:6px;margin:0 0 24px;">
                 <tr>
                   <td style="padding:20px 24px;">
-                    <p style="margin:0 0 12px;font-size:15px;color:#1E1812;font-weight:bold;">Your founder pricing:</p>
-                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;$29/year &mdash; your family's site + first .com domain</p>
-                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Locked in for life as long as you stay subscribed</p>
+                    <p style="margin:0 0 12px;font-size:15px;color:#1E1812;font-weight:bold;">Introductory pricing:</p>
+                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;$29 first year &mdash; your family's site + first .com domain</p>
+                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Renews at $49.99/year &mdash; cancel anytime</p>
                     <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Additional domains available at $12.99/year each</p>
-                    <p style="margin:0;font-size:13px;color:#9C8B78;margin-top:10px;">Standard price after launch: $49.99/year</p>
                   </td>
                 </tr>
               </table>
