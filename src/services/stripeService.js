@@ -260,7 +260,18 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
     payment_method_types: ['card'],
     customer_email: buyerEmail,
     line_items: [
-      { price: PRICES.subscription.annual, quantity: 1 },
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `Legacy Odyssey — 1 Year Gift for ${recipientName || 'your recipient'}`,
+            description: 'One-year gift subscription. Recipient redeems a gift code to create their own account and choose their custom domain.',
+            images: ['https://legacyodyssey.com/images/og-image.png'],
+          },
+          unit_amount: 4999, // $49.99
+        },
+        quantity: 1,
+      },
     ],
     metadata: {
       type: 'gift',
