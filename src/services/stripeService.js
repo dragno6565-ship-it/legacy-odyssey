@@ -14,10 +14,12 @@ const PRICES = {
   subscription: {
     monthly: process.env.STRIPE_PRICE_MONTHLY,
     annual: process.env.STRIPE_PRICE_ANNUAL,
+    annualIntro: process.env.STRIPE_PRICE_ANNUAL_INTRO, // $49.99/yr with first-year coupon
     founder: process.env.STRIPE_PRICE_FOUNDER,
   },
   setupFee: process.env.STRIPE_PRICE_SETUP,
   additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
+  annualIntroCoupon: process.env.STRIPE_ANNUAL_INTRO_COUPON, // $20.99 off first invoice
 };
 
 const FOUNDER_LIMIT = 100;
@@ -222,22 +224,31 @@ async function getFounderCount() {
  */
 async function createFounderCheckoutSession({ email, subdomain, domain, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
-  if (!PRICES.subscription.founder) throw new Error('STRIPE_PRICE_FOUNDER not configured');
+
+  const priceId = PRICES.subscription.annualIntro || PRICES.subscription.founder;
+  if (!priceId) throw new Error('Annual intro price not configured');
 
   const metadata = { subdomain, period: 'annual', plan: 'annual_intro' };
   if (domain) metadata.domain = domain;
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionParams = {
     mode: 'subscription',
     payment_method_types: ['card'],
     customer_email: email,
-    line_items: [{ price: PRICES.subscription.founder, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     metadata,
-    allow_promotion_codes: true,
     success_url: successUrl,
     cancel_url: cancelUrl,
-  });
+  };
 
+  // Apply first-year intro coupon if configured ($20.99 off → $29 first year, $49.99 after)
+  if (PRICES.annualIntroCoupon) {
+    sessionParams.discounts = [{ coupon: PRICES.annualIntroCoupon }];
+  } else {
+    sessionParams.allow_promotion_codes = true;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
   return session;
 }
 
