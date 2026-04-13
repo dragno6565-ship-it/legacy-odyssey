@@ -432,7 +432,7 @@
           <li>Mobile app (iOS &amp; Android)</li>
         </ul>
         <p style="font-size:0.8rem;color:#B8935A;text-align:center;margin:0 0 14px;font-weight:600;">+ Extra domains just $12.99/yr each</p>
-        <a href="#" class="btn-secondary" data-plan="legacy-odyssey" style="display:block;text-align:center;padding:0.85rem;">Get Started &rarr;</a>
+        <button class="btn-secondary" onclick="openFounderModal('monthly')" style="display:block;width:100%;text-align:center;padding:0.85rem;cursor:pointer;">Get Started &rarr;</button>
       </div>
 
     </div>
@@ -447,8 +447,8 @@
   <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
     <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;">
       <button onclick="document.getElementById('founderModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#B8935A;font-size:1.4rem;cursor:pointer;">&times;</button>
-      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.2rem;font-size:1.4rem;">Start Your Family's Book</h3>
-      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;">$29 your first year &mdash; renews at $49.99/year. Cancel anytime.</p>
+      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.2rem;font-size:1.4rem;" id="founderModalTitle">Start Your Family's Book</h3>
+      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;" id="founderModalSubtitle">$29 your first year &mdash; renews at $49.99/year. Cancel anytime.</p>
 
       <div id="founderModalForm">
         <!-- Step 1: Domain -->
@@ -733,10 +733,12 @@
     });
   </script>
   <script>
-    // ===== FOUNDER MODAL — two-step: domain first, then email + pay =====
+    // ===== CHECKOUT MODAL — two-step: domain first, then email + pay =====
     let _founderSelectedDomain = null;
+    let _checkoutPlan = 'annual'; // 'annual' or 'monthly'
 
-    function openFounderModal() {
+    function openFounderModal(plan) {
+      _checkoutPlan = plan || 'annual';
       // Reset to step 1
       _founderSelectedDomain = null;
       document.getElementById('founderStep1').style.display = '';
@@ -749,6 +751,14 @@
       document.getElementById('founderNextBtn').style.color = '#8a7a5a';
       document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
       document.getElementById('founderModalError').style.display = 'none';
+      // Update title/subtitle for the selected plan
+      if (_checkoutPlan === 'monthly') {
+        document.getElementById('founderModalTitle').textContent = 'Start Your Family\'s Book';
+        document.getElementById('founderModalSubtitle').textContent = '$4.99/month + $5.99 one-time setup fee. Cancel anytime.';
+      } else {
+        document.getElementById('founderModalTitle').textContent = 'Start Your Family\'s Book';
+        document.getElementById('founderModalSubtitle').textContent = '$29 your first year — renews at $49.99/year. Cancel anytime.';
+      }
       document.getElementById('founderModal').style.display = 'flex';
       setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
     }
@@ -863,15 +873,25 @@
         btn.textContent = 'Redirecting to payment…';
         btn.disabled = true;
         try {
-          const res = await fetch('/api/stripe/create-founder-checkout', {
+          let endpoint, body, trackValue;
+          if (_checkoutPlan === 'monthly') {
+            endpoint = '/api/stripe/create-checkout';
+            body = { email, domain: _founderSelectedDomain, period: 'monthly' };
+            trackValue = 4.99;
+          } else {
+            endpoint = '/api/stripe/create-founder-checkout';
+            body = { email, domain: _founderSelectedDomain };
+            trackValue = 29;
+          }
+          const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, domain: _founderSelectedDomain }),
+            body: JSON.stringify(body),
           });
           const data = await res.json();
           if (data.url) {
-            if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: 29, currency: 'USD' });
-            if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: 29, currency: 'USD' });
+            if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: trackValue, currency: 'USD' });
+            if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: trackValue, currency: 'USD' });
             window.location.href = data.url;
           } else {
             throw new Error(data.error || 'Something went wrong');
