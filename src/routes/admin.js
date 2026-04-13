@@ -86,6 +86,27 @@ router.get('/', requireAdmin, async (req, res, next) => {
   }
 });
 
+// Gift Codes list
+router.get('/gifts', requireAdmin, async (req, res, next) => {
+  try {
+    const { data: gifts } = await supabaseAdmin
+      .from('gift_codes')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    const stats = {
+      total: (gifts || []).length,
+      purchased: (gifts || []).filter((g) => g.status === 'purchased').length,
+      redeemed: (gifts || []).filter((g) => g.status === 'redeemed').length,
+      expired: (gifts || []).filter((g) => g.status === 'expired').length,
+    };
+
+    res.render('admin/gifts', { gifts: gifts || [], stats, admin: req.admin });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Family detail (GET)
 router.get('/families/:id', requireAdmin, async (req, res, next) => {
   try {
@@ -94,9 +115,17 @@ router.get('/families/:id', requireAdmin, async (req, res, next) => {
 
     const bookData = await bookService.getFullBook(family.id);
 
+    // Check if this account was created via a gift redemption
+    const { data: giftCode } = await supabaseAdmin
+      .from('gift_codes')
+      .select('*')
+      .eq('family_id', family.id)
+      .maybeSingle();
+
     res.render('admin/family-detail', {
       family,
       bookData,
+      giftCode: giftCode || null,
       admin: req.admin,
       success: req.query.success || null,
       error: req.query.error || null,

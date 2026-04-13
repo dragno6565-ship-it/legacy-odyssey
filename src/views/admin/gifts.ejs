@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gift Codes — Admin — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    .code-badge {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #f5f0e8;
+      border: 1px solid #e0d5c4;
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: #2c2416;
+      letter-spacing: 0.05em;
+    }
+    .badge-purchased { background: #fff8e7; color: #b08e4a; border: 1px solid #e8d9b0; }
+    .badge-redeemed  { background: #e8f5e9; color: #2e7d32; border: 1px solid #b2dfdb; }
+    .badge-expired   { background: #fafafa; color: #9e9e9e; border: 1px solid #e0e0e0; }
+    .cell-message {
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--ink-light);
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <h2>&#10022; Legacy Odyssey</h2>
+        <span>Admin Portal</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/admin">
+          <span class="nav-icon">&#128202;</span> Dashboard
+        </a>
+        <a href="/admin/gifts" class="active">
+          <span class="nav-icon">&#127873;</span> Gift Codes
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-email"><%= admin.email %></div>
+        <form action="/admin/logout" method="POST" style="display:inline;">
+          <button type="submit" class="logout-btn">&#x2192; Sign Out</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="page-header">
+        <h1>Gift Codes</h1>
+        <p>All gift purchases — redeemed and pending</p>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Gifts</div>
+          <div class="kpi-value"><%= stats.total %></div>
+        </div>
+        <div class="kpi-card kpi-trialing">
+          <div class="kpi-label">Pending Redemption</div>
+          <div class="kpi-value"><%= stats.purchased %></div>
+        </div>
+        <div class="kpi-card kpi-active">
+          <div class="kpi-label">Redeemed</div>
+          <div class="kpi-value"><%= stats.redeemed %></div>
+        </div>
+        <div class="kpi-card kpi-canceled">
+          <div class="kpi-label">Expired</div>
+          <div class="kpi-value"><%= stats.expired %></div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search by code, buyer, or recipient..." oninput="filterTable()">
+      </div>
+
+      <!-- Gift Codes Table -->
+      <div class="table-container">
+        <% if (gifts.length === 0) { %>
+          <div style="text-align: center; padding: 60px; color: var(--ink-light);">
+            <p>No gift codes yet.</p>
+          </div>
+        <% } else { %>
+        <table class="data-table" id="giftsTable">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Status</th>
+              <th>Buyer</th>
+              <th>Recipient</th>
+              <th>Message</th>
+              <th>Purchased</th>
+              <th>Expires</th>
+              <th>Account</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% gifts.forEach(function(gift) { %>
+              <tr data-search="<%= (gift.code || '').toLowerCase() %> <%= (gift.buyer_email || '').toLowerCase() %> <%= (gift.buyer_name || '').toLowerCase() %> <%= (gift.recipient_name || '').toLowerCase() %> <%= (gift.recipient_email || '').toLowerCase() %>">
+                <td>
+                  <span class="code-badge"><%= gift.code %></span>
+                </td>
+                <td>
+                  <span class="badge badge-<%= gift.status %>"><%= gift.status %></span>
+                </td>
+                <td class="cell-name">
+                  <%= gift.buyer_name || '—' %>
+                  <% if (gift.buyer_email) { %>
+                    <small><%= gift.buyer_email %></small>
+                  <% } %>
+                </td>
+                <td class="cell-name">
+                  <%= gift.recipient_name || '—' %>
+                  <% if (gift.recipient_email) { %>
+                    <small><%= gift.recipient_email %></small>
+                  <% } %>
+                </td>
+                <td class="cell-message" title="<%= gift.recipient_message || '' %>">
+                  <%= gift.recipient_message || '—' %>
+                </td>
+                <td class="cell-date">
+                  <%= gift.created_at ? new Date(gift.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' %>
+                </td>
+                <td class="cell-date">
+                  <% const now = new Date(); const exp = gift.expires_at ? new Date(gift.expires_at) : null; %>
+                  <% if (exp && exp < now && gift.status !== 'redeemed') { %>
+                    <span style="color: var(--rose);"><%= exp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                  <% } else if (exp) { %>
+                    <%= exp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+                <td>
+                  <% if (gift.family_id) { %>
+                    <a href="/admin/families/<%= gift.family_id %>" class="btn btn-secondary btn-sm">View</a>
+                  <% } else { %>
+                    <span style="color: var(--ink-light); font-size: 0.8rem;">Not redeemed</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; background: #fdf8f0; border: 1px solid #e8d9b0; border-radius: 8px; font-size: 0.875rem; color: var(--ink-mid);">
+        <strong>If a customer contacts you about a lost gift code:</strong>
+        search by their email above, copy the code from the table, and send it to them manually.
+        The redemption link is <code style="font-size:0.8rem;">legacyodyssey.com/redeem?code=THEIR-CODE</code>.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function filterTable() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const rows = document.querySelectorAll('#giftsTable tbody tr');
+      rows.forEach(function(row) {
+        const text = row.getAttribute('data-search') || '';
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

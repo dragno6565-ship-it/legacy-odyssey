@@ -19,6 +19,9 @@
         <a href="/admin">
           <span class="nav-icon">&#128202;</span> Dashboard
         </a>
+        <a href="/admin/gifts">
+          <span class="nav-icon">&#127873;</span> Gift Codes
+        </a>
       </nav>
       <div class="sidebar-footer">
         <div class="admin-email"><%= admin.email %></div>
@@ -205,6 +208,44 @@
               </div>
             </div>
 
+            <!-- Gift Code (if account was created via gift redemption) -->
+            <% if (giftCode) { %>
+            <div class="detail-card">
+              <h3>&#127873; Gift Code</h3>
+              <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">
+                This account was created by redeeming a gift. If the customer contacts you about their code, copy it below.
+              </p>
+              <div class="form-group">
+                <label>Code</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="text" value="<%= giftCode.code %>" readonly
+                    style="font-family: 'Courier New', monospace; font-weight: 600; letter-spacing: 0.05em;">
+                  <button type="button" onclick="copyGiftCode('<%= giftCode.code %>')"
+                    class="btn btn-secondary btn-sm" style="white-space: nowrap;">Copy</button>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Purchased By</label>
+                  <input type="text" value="<%= [giftCode.buyer_name, giftCode.buyer_email].filter(Boolean).join(' — ') || '—' %>" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Redeemed</label>
+                  <input type="text" value="<%= giftCode.redeemed_at ? new Date(giftCode.redeemed_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—' %>" readonly>
+                </div>
+              </div>
+              <% if (giftCode.recipient_message) { %>
+              <div class="form-group">
+                <label>Gift Message</label>
+                <textarea readonly style="resize: none; background: #fdf8f0; font-style: italic; color: var(--ink-mid);"><%= giftCode.recipient_message %></textarea>
+              </div>
+              <% } %>
+              <div style="margin-top: 8px;">
+                <a href="/admin/gifts" class="btn btn-secondary btn-sm">&#8592; All Gift Codes</a>
+              </div>
+            </div>
+            <% } %>
+
             <!-- Book Progress -->
             <% if (bookData && bookData.visibleSections) { %>
             <div class="detail-card">
@@ -314,6 +355,12 @@
     </main>
   </div>
   <script>
+    function copyGiftCode(code) {
+      navigator.clipboard.writeText(code).then(function() {
+        alert('Gift code copied: ' + code);
+      });
+    }
+
     function sendWelcomeEmail() {
       const password = document.getElementById('welcomePassword').value;
       if (!password) {
