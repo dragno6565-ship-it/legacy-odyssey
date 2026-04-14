@@ -316,6 +316,12 @@ router.get('/redeem', (req, res) => {
   res.render('marketing/redeem', { code, error: null });
 });
 
+// GET /edit — Family Album web editor (client-side auth via JWT)
+router.get('/edit', (req, res) => {
+  const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+  res.render('family-album/editor', { appDomain });
+});
+
 // GET / — Main book route (or marketing landing page)
 router.get('/', resolveFamily, (req, res, next) => {
   // If no family found, show the marketing landing page
