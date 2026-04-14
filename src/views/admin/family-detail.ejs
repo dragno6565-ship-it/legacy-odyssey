@@ -93,6 +93,16 @@
               <h3>Website</h3>
               <div class="form-row">
                 <div class="form-group">
+                  <label>Product Type</label>
+                  <select name="book_type">
+                    <option value="baby_book" <%= (family.book_type || 'baby_book') === 'baby_book' ? 'selected' : '' %>>👶 Baby Book</option>
+                    <option value="family_album" <%= family.book_type === 'family_album' ? 'selected' : '' %>>📔 Family Album</option>
+                  </select>
+                  <div class="help-text">Determines which template is shown at their domain</div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
                   <label>Subdomain</label>
                   <input type="text" name="subdomain" value="<%= family.subdomain || '' %>" placeholder="e.g. smithfamily">
                   <% if (family.subdomain) { %>

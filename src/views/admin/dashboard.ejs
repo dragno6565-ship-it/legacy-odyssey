@@ -74,6 +74,7 @@
               <th>Customer</th>
               <th>Email</th>
               <th>Website</th>
+              <th>Type</th>
               <th>Status</th>
               <th>Signed Up</th>
               <th>Actions</th>
@@ -99,6 +100,11 @@
                   <% } else { %>
                     <span style="color: var(--ink-light);">No domain</span>
                   <% } %>
+                </td>
+                <td>
+                  <span style="font-size:0.78rem;color:var(--ink-light);">
+                    <%= fam.book_type === 'family_album' ? '📔 Album' : '👶 Baby Book' %>
+                  </span>
                 </td>
                 <td>
                   <% if (!fam.is_active) { %>

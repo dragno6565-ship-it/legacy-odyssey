@@ -331,6 +331,20 @@ router.get('/', resolveFamily, (req, res, next) => {
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
+    // Family Album
+    if (req.family.book_type === 'family_album') {
+      const bookRecord = await bookService.getFamilyAlbumBook(req.family.id);
+      const album = (bookRecord && bookRecord.family_album_data) || {};
+      return res.render('family-album/index', {
+        family: req.family,
+        book: bookRecord,
+        album,
+        isFree: req.family.plan !== 'paid' && req.family.subscription_status !== 'active',
+        isDemoDomain: isDemoBookDomain(req.hostname),
+      });
+    }
+
+    // Baby Book (default)
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
@@ -359,6 +373,20 @@ router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, n
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
+    // Family Album
+    if (req.family.book_type === 'family_album') {
+      const bookRecord = await bookService.getFamilyAlbumBook(req.family.id);
+      const album = (bookRecord && bookRecord.family_album_data) || {};
+      return res.render('family-album/index', {
+        family: req.family,
+        book: bookRecord,
+        album,
+        isFree: req.family.plan !== 'paid' && req.family.subscription_status !== 'active',
+        isDemoDomain: isDemoBookDomain(req.hostname),
+      });
+    }
+
+    // Baby Book (default)
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';

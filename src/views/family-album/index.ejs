@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= album.family_name || family.display_name %> — A Legacy Odyssey Family Album</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F8F2E6;
+  --ivory: #FFFCF5;
+  --gold: #B8935A;
+  --gold-light: #D4B483;
+  --gold-dark: #8C6A35;
+  --ink: #1E1812;
+  --ink-mid: #4A3F32;
+  --ink-light: #9C8B78;
+  --sage: #7A9E7E;
+  --rose: #C17F7F;
+  --blush: #EDD9D0;
+  --dusty-blue: #8BA7BC;
+  --nav-width: 240px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 16px;
+  overflow: hidden;
+  height: 100vh;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* ── DEMO BANNER ── */
+#demo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: #1a1510;
+  color: #d4bb8a;
+  text-align: center;
+  padding: 0.55rem 1rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border-bottom: 2px solid #c8a96e;
+  height: 44px;
+}
+#demo-banner a.demo-banner-cta {
+  background: #c8a96e;
+  color: #1a1510;
+  text-decoration: none;
+  padding: 0.3rem 0.85rem;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+#demo-banner a.demo-banner-cta:hover { background: #d4bb8a; }
+
+/* ── APP LAYOUT ── */
+#app {
+  height: 100vh;
+  display: flex;
+}
+#app.has-banner {
+  padding-top: 44px;
+  height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--nav-width);
+  min-width: var(--nav-width);
+  background: var(--ink);
+  color: var(--cream);
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+}
+#app.has-banner #sidebar {
+  height: calc(100vh - 44px);
+}
+.sidebar-header {
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(184,147,90,0.2);
+  margin-bottom: 1rem;
+}
+.sidebar-header h2 {
+  font-size: 1.25rem;
+  color: var(--gold);
+  margin-bottom: 0.15rem;
+}
+.sidebar-header p {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.nav-group-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-light);
+  padding: 1rem 1.25rem 0.4rem;
+}
+.nav-item {
+  display: block;
+  padding: 0.55rem 1.25rem;
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+.nav-item:hover {
+  background: rgba(184,147,90,0.1);
+  color: var(--gold-light);
+}
+.nav-item.active {
+  background: rgba(184,147,90,0.15);
+  color: var(--gold);
+  border-left-color: var(--gold);
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1.5rem 1.25rem 0;
+  border-top: 1px solid rgba(184,147,90,0.15);
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  text-align: center;
+  line-height: 1.5;
+}
+.sidebar-footer a { color: var(--gold-light); text-decoration: none; }
+
+/* ── HAMBURGER ── */
+#hamburger {
+  display: none;
+  position: fixed;
+  top: 0.75rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--ink);
+  border: none;
+  color: var(--gold);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+#app.has-banner #hamburger { top: calc(44px + 0.5rem); }
+#navOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+#navOverlay.show { display: block; }
+
+/* ── MAIN CONTENT ── */
+#main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 3rem 3.5rem 4rem;
+  max-width: 900px;
+}
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ── TYPOGRAPHY ── */
+.eyebrow {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+.chapter-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+.section-title {
+  font-size: 2.4rem;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+.section-divider {
+  width: 50px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 0 2rem;
+}
+.quote-block {
+  border-left: 3px solid var(--gold);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  background: var(--ivory);
+  border-radius: 0 8px 8px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+.quote-block .attribution {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-style: normal;
+  color: var(--ink-light);
+}
+.body-text {
+  font-size: 1rem;
+  color: var(--ink-mid);
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+}
+.subsection { margin-top: 2.5rem; }
+.subsection h3 {
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: flex;
+  gap: 2rem;
+  margin: 2.5rem 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(184,147,90,0.25);
+  border-bottom: 1px solid rgba(184,147,90,0.25);
+  flex-wrap: wrap;
+}
+.stat-item { text-align: center; flex: 1; min-width: 100px; }
+.stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  margin-bottom: 0.3rem;
+}
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ── CHECKLIST ── */
+.checklist {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  border: 1px solid rgba(184,147,90,0.15);
+}
+.checklist h4 { font-size: 1.1rem; margin-bottom: 1rem; color: var(--ink); }
+.checklist-item { padding: 0.4rem 0; color: var(--ink-mid); font-size: 0.95rem; }
+.checklist-item .check { color: var(--sage); margin-right: 0.5rem; font-weight: 600; }
+
+/* ── IMAGE PLACEHOLDER ── */
+.img-placeholder {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  margin: 1.5rem 0;
+}
+
+/* ── YEAR CARDS ── */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.year-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(184,147,90,0.12);
+}
+.year-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+  border-color: var(--gold-light);
+}
+.year-card .year-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.year-card .year-label { font-size: 0.95rem; font-weight: 500; color: var(--ink); margin-bottom: 0.3rem; }
+.year-card .year-highlight { font-size: 0.82rem; color: var(--ink-light); font-style: italic; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,24,18,0.6);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+  background: var(--cream);
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 2.5rem;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--ink); }
+.modal-content .year-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+.modal-content h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.modal-content .highlight { color: var(--ink-light); font-style: italic; margin-bottom: 1.25rem; font-size: 0.95rem; }
+.modal-content .note { color: var(--ink-mid); line-height: 1.8; }
+
+/* ── FAMILY MEMBER CARDS ── */
+.family-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.family-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(184,147,90,0.12);
+}
+.family-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+  border-color: var(--gold-light);
+}
+.family-card .member-emoji { font-size: 3rem; margin-bottom: 0.75rem; display: block; }
+.family-card .member-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.15rem;
+}
+.family-card .member-role { font-size: 0.82rem; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ── FAMILY DETAIL PANEL ── */
+#family-detail {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  width: 480px;
+  max-width: 100vw;
+  height: 100vh;
+  background: var(--cream);
+  z-index: 2000;
+  overflow-y: auto;
+  transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: -4px 0 24px rgba(30,24,18,0.15);
+  padding: 2.5rem;
+}
+#family-detail.open { right: 0; }
+#family-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,24,18,0.5);
+  z-index: 1999;
+  display: none;
+}
+#family-detail-overlay.show { display: block; }
+.detail-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+.detail-close:hover { color: var(--ink); }
+.detail-emoji { font-size: 4rem; margin-bottom: 1rem; }
+.detail-name { font-size: 1.8rem; margin-bottom: 0.15rem; }
+.detail-role { font-size: 0.82rem; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+.detail-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
+.meta-item { background: var(--ivory); border-radius: 8px; padding: 0.75rem 1rem; }
+.meta-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-light); margin-bottom: 0.15rem; }
+.meta-value { font-size: 0.9rem; color: var(--ink); }
+.detail-story { color: var(--ink-mid); line-height: 1.8; margin-bottom: 1.25rem; }
+.detail-quote {
+  border-left: 3px solid var(--gold);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  background: var(--ivory);
+  border-radius: 0 8px 8px 0;
+}
+
+/* ── ADVENTURE CARDS ── */
+.adventure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.adventure-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(184,147,90,0.12);
+}
+.adventure-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(30,24,18,0.1);
+  border-color: var(--gold-light);
+}
+.adventure-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.adventure-body { padding: 1.25rem; }
+.adventure-body h4 { font-size: 1.15rem; color: var(--ink); margin-bottom: 0.25rem; }
+.adventure-body .adv-dest { font-size: 0.82rem; color: var(--gold); margin-bottom: 0.15rem; }
+.adventure-body .adv-tagline { font-size: 0.88rem; color: var(--ink-light); font-style: italic; }
+
+/* ── LETTER SECTION ── */
+.letter-block {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin: 2rem 0;
+  border: 1px solid rgba(184,147,90,0.15);
+}
+.letter-heading { font-size: 1.1rem; color: var(--gold); margin-bottom: 1.25rem; letter-spacing: 0.04em; }
+.letter-body { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--ink-mid); line-height: 2; }
+.letter-body p { margin-bottom: 1rem; }
+
+/* ── RECIPE CARDS ── */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.recipe-card {
+  background: var(--ivory);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(184,147,90,0.12);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.recipe-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(30,24,18,0.1); }
+.recipe-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.4rem; }
+.recipe-card h4 { font-size: 1.2rem; color: var(--ink); margin-bottom: 0.75rem; }
+.recipe-note { font-size: 0.9rem; color: var(--ink-mid); font-style: italic; line-height: 1.7; margin-bottom: 1rem; }
+.recipe-ingredients { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.recipe-ingredients span {
+  background: var(--cream);
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: var(--ink-mid);
+}
+
+/* ── VAULT ── */
+.vault-container { text-align: center; padding: 3rem 0; }
+.vault-icon { font-size: 5rem; margin-bottom: 1.5rem; }
+.vault-box {
+  background: var(--ivory);
+  border: 2px solid var(--gold-light);
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
+.countdown-row { display: flex; justify-content: center; gap: 2.5rem; margin: 2rem 0; }
+.cd-unit { text-align: center; }
+.cd-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.cd-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-light); margin-top: 0.3rem; }
+.vault-sealed { font-size: 0.82rem; color: var(--ink-light); margin-top: 1rem; }
+
+/* ── FOOTER ── */
+.page-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(184,147,90,0.2);
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+}
+.page-footer a { color: var(--gold); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    left: -280px;
+    z-index: 1000;
+    width: 280px;
+    min-width: 280px;
+    transition: left 0.35s cubic-bezier(0.4,0,0.2,1);
+    height: 100vh;
+  }
+  #sidebar.open { left: 0; }
+  #hamburger { display: flex; }
+  #main-content { padding: 2rem 1.25rem 3rem; }
+  .section-title { font-size: 1.8rem; }
+  .stats-row { gap: 1rem; }
+  .year-grid, .family-grid, .adventure-grid, .recipe-grid { grid-template-columns: 1fr 1fr; }
+  .detail-meta { grid-template-columns: 1fr; }
+  #family-detail { width: 100vw; right: -100vw; }
+  .countdown-row { gap: 1.5rem; }
+  .cd-num { font-size: 2.2rem; }
+}
+@media (max-width: 480px) {
+  .year-grid, .family-grid, .adventure-grid, .recipe-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<%
+const familyName = album.family_name || family.display_name || 'Our Family';
+const established = album.established_year || '';
+const hometown = album.hometown || '';
+const welcomeQuote = album.welcome_quote || '';
+const welcomeTexts = album.welcome_texts || [];
+const stats = album.stats || [];
+const ourStory = album.our_story || {};
+const roots = album.roots || {};
+const home = album.home || {};
+const years = album.years || [];
+const familyMembers = album.family_members || [];
+const adventures = album.adventures || [];
+const traditions = album.traditions || {};
+const letters = album.letters || [];
+const recipes = album.recipes || [];
+const vault = album.vault || {};
+const vaultStartYear = vault.family_start_year || established || new Date().getFullYear();
+const vaultAnniversary = vault.anniversary_years || 25;
+const vaultUnlockYear = vault.unlock_year || (parseInt(vaultStartYear) + parseInt(vaultAnniversary));
+%>
+
+<% if (isDemoDomain) { %>
+<div id="demo-banner">
+  <span>&#10022; This is a demo — create your own family album at Legacy Odyssey</span>
+  <a href="https://www.legacyodyssey.com" target="_blank" class="demo-banner-cta">Get Your Own Album &rarr;</a>
+</div>
+<% } %>
+
+<div id="app" class="<%= isDemoDomain ? 'has-banner' : '' %>">
+
+  <!-- Hamburger -->
+  <button id="hamburger">&#9776;</button>
+  <div id="navOverlay"></div>
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <h2><%= familyName %></h2>
+      <p>Family Album</p>
+    </div>
+
+    <div class="nav-group-label">The Album</div>
+    <a class="nav-item active" data-page="page-welcome">&#127775; Welcome</a>
+    <a class="nav-item" data-page="page-our-story">&#128145; Our Story</a>
+    <a class="nav-item" data-page="page-roots">&#127758; Where We Come From</a>
+    <a class="nav-item" data-page="page-home">&#127969; Our Home</a>
+    <a class="nav-item" data-page="page-years">&#128197; Year by Year</a>
+
+    <div class="nav-group-label">Family &amp; Moments</div>
+    <a class="nav-item" data-page="page-family">&#128106; The Family</a>
+    <a class="nav-item" data-page="page-adventures">&#9992;&#65039; Adventures</a>
+    <a class="nav-item" data-page="page-traditions">&#127881; Traditions</a>
+    <a class="nav-item" data-page="page-letters">&#128140; Letters</a>
+    <a class="nav-item" data-page="page-recipes">&#127858; Family Recipes</a>
+
+    <div class="nav-group-label">The Vault</div>
+    <a class="nav-item" data-page="page-vault">&#128274; Time Capsule</a>
+
+    <div class="sidebar-footer">
+      <% if (isDemoDomain) { %>
+      <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;margin-bottom:0.6rem;">You're viewing a demo.<br>Create your own family album.</p>
+      <a href="https://www.legacyodyssey.com" target="_blank" style="display:block;background:#c8a96e;color:#1a1510;text-decoration:none;padding:0.5rem 0.75rem;border-radius:3px;font-weight:700;font-size:0.82rem;text-align:center;letter-spacing:0.04em;">Get Your Own Album &rarr;</a>
+      <% } else { %>
+      <p style="color:#9C8B78;font-size:0.7rem;line-height:1.5;">Crafted with love by<br><a href="https://legacyodyssey.com" target="_blank">Legacy Odyssey</a></p>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+
+    <!-- ============ WELCOME ============ -->
+    <div id="page-welcome" class="page-section active">
+      <p class="eyebrow">&#10022; <%= familyName %> &#10022;</p>
+      <h1 class="section-title"><%= familyName %></h1>
+      <% if (established || hometown) { %>
+      <p class="section-subtitle"><%= established ? 'Est. ' + established : '' %><%= established && hometown ? ' &middot; ' : '' %><%= hometown %></p>
+      <% } %>
+      <div class="section-divider"></div>
+
+      <% if (welcomeQuote) { %>
+      <div class="quote-block">
+        &ldquo;<%= welcomeQuote %>&rdquo;
+        <span class="attribution">&mdash; <%= album.welcome_quote_attribution || familyName %></span>
+      </div>
+      <% } %>
+
+      <% if (welcomeTexts.length > 0) { %>
+        <% welcomeTexts.forEach(function(t) { %><p class="body-text"><%= t %></p><% }); %>
+      <% } else { %>
+      <p class="body-text">This is the family album of <%= familyName %> — a living record of where we've been, who we are, and the moments we never want to forget.</p>
+      <% } %>
+
+      <% if (stats.length > 0) { %>
+      <div class="stats-row">
+        <% stats.forEach(function(s) { %>
+        <div class="stat-item">
+          <div class="stat-label"><%= s.label %></div>
+          <div class="stat-value"><%= s.value %></div>
+        </div>
+        <% }); %>
+      </div>
+      <% } else if (established) { %>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-label">Established</div>
+          <div class="stat-value"><%= established %></div>
+        </div>
+        <% if (hometown) { %>
+        <div class="stat-item">
+          <div class="stat-label">Home Base</div>
+          <div class="stat-value" style="font-size:1.1rem;"><%= hometown %></div>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ OUR STORY ============ -->
+    <div id="page-our-story" class="page-section">
+      <p class="chapter-label">Chapter One</p>
+      <h1 class="section-title">Our Story</h1>
+      <p class="section-subtitle">How this family came to be — and what it took to get here.</p>
+      <div class="section-divider"></div>
+
+      <div class="img-placeholder" style="background:var(--blush);">&#128145;</div>
+
+      <% if (ourStory.how_it_started) { %>
+      <div class="subsection">
+        <h3>How It Started</h3>
+        <% ourStory.how_it_started.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (ourStory.decision_to_build) { %>
+      <div class="subsection">
+        <h3>The Decision to Build a Family</h3>
+        <% ourStory.decision_to_build.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (ourStory.early_years) { %>
+      <div class="subsection">
+        <h3>The Early Years</h3>
+        <% ourStory.early_years.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (ourStory.checklist && ourStory.checklist.length > 0) { %>
+      <div class="checklist">
+        <h4><%= ourStory.checklist_title || 'How We Got Here' %></h4>
+        <% ourStory.checklist.forEach(function(item) { %>
+        <div class="checklist-item"><span class="check">&#10003;</span> <%= item %></div>
+        <% }); %>
+      </div>
+      <% } %>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ WHERE WE COME FROM ============ -->
+    <div id="page-roots" class="page-section">
+      <p class="chapter-label">Chapter Two</p>
+      <h1 class="section-title">Where We Come From</h1>
+      <p class="section-subtitle">The roots that run beneath everything this family is.</p>
+      <div class="section-divider"></div>
+
+      <% if (roots.intro) { %>
+        <% roots.intro.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      <% } %>
+
+      <div class="img-placeholder" style="background:var(--dusty-blue); opacity:0.6;">&#127758;</div>
+
+      <% if (roots.moms_side) { %>
+      <div class="subsection">
+        <h3><%= roots.moms_side_title || "Mom's Side of the Family" %></h3>
+        <% roots.moms_side.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (roots.dads_side) { %>
+      <div class="subsection">
+        <h3><%= roots.dads_side_title || "Dad's Side of the Family" %></h3>
+        <% roots.dads_side.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (roots.passing_down) { %>
+      <div class="subsection">
+        <h3>What We're Passing Down</h3>
+        <% roots.passing_down.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ OUR HOME ============ -->
+    <div id="page-home" class="page-section">
+      <p class="chapter-label">Chapter Three</p>
+      <h1 class="section-title">Our Home</h1>
+      <p class="section-subtitle">The place where everything happened.</p>
+      <div class="section-divider"></div>
+
+      <% if (home.intro) { %>
+        <% home.intro.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      <% } %>
+
+      <div class="img-placeholder" style="background:var(--sage); opacity:0.35;">&#127969;</div>
+
+      <% if (home.the_house) { %>
+      <div class="subsection">
+        <h3>The House</h3>
+        <% home.the_house.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (home.neighborhood) { %>
+      <div class="subsection">
+        <h3>The Neighborhood</h3>
+        <% home.neighborhood.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (home.homes_before) { %>
+      <div class="subsection">
+        <h3>The Homes Before This One</h3>
+        <% home.homes_before.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ YEAR BY YEAR ============ -->
+    <div id="page-years" class="page-section">
+      <p class="chapter-label">Chapter Four</p>
+      <h1 class="section-title">Year by Year</h1>
+      <p class="section-subtitle">Every year the family was together.</p>
+      <div class="section-divider"></div>
+      <p class="body-text">The years go fast. This chapter captures them: the highlights, the low points, the things that changed everything.</p>
+      <div class="year-grid" id="yearGrid"></div>
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ THE FAMILY ============ -->
+    <div id="page-family" class="page-section">
+      <p class="chapter-label">Chapter Five</p>
+      <h1 class="section-title">The Family</h1>
+      <p class="section-subtitle">The people who make up <%= familyName %>.</p>
+      <div class="section-divider"></div>
+      <p class="body-text">Every person in this section arrived in the family's story differently — some by birth, some by marriage, some by decades of Sunday dinners and choosing to show up.</p>
+      <div class="family-grid" id="familyGrid"></div>
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ ADVENTURES ============ -->
+    <div id="page-adventures" class="page-section">
+      <p class="chapter-label">Chapter Six</p>
+      <h1 class="section-title">Adventures</h1>
+      <p class="section-subtitle">The places we went and the things that happened when we got there.</p>
+      <div class="section-divider"></div>
+      <p class="body-text">Families are forged on road trips. These are the places your family went — and what happened there.</p>
+      <div class="adventure-grid" id="adventureGrid"></div>
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ TRADITIONS ============ -->
+    <div id="page-traditions" class="page-section">
+      <p class="chapter-label">Chapter Seven</p>
+      <h1 class="section-title">Traditions &amp; Celebrations</h1>
+      <p class="section-subtitle">The rituals that mark every year of being a family.</p>
+      <div class="section-divider"></div>
+
+      <% if (traditions.intro) { %>
+        <% traditions.intro.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      <% } %>
+
+      <div class="img-placeholder" style="background:var(--rose); opacity:0.3;">&#127881;</div>
+
+      <% if (traditions.how_we_celebrate) { %>
+      <div class="subsection">
+        <h3>How We Celebrate</h3>
+        <% traditions.how_we_celebrate.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (traditions.annual) { %>
+      <div class="subsection">
+        <h3>The Things We Do Every Year</h3>
+        <% traditions.annual.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (traditions.heritage) { %>
+      <div class="subsection">
+        <h3>A Tradition From Our Heritage</h3>
+        <% traditions.heritage.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <% if (traditions.started_ourselves) { %>
+      <div class="subsection">
+        <h3>A Tradition We Started Ourselves</h3>
+        <% traditions.started_ourselves.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+      </div>
+      <% } %>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ LETTERS ============ -->
+    <div id="page-letters" class="page-section">
+      <p class="chapter-label">Chapter Eight</p>
+      <h1 class="section-title">Letters</h1>
+      <p class="section-subtitle">Words written across time, for the people who matter most.</p>
+      <div class="section-divider"></div>
+      <p class="body-text">The most treasured pages of any family album aren't the photos — they're the words. These are the letters written by the people who love this family, at specific moments, for specific people.</p>
+
+      <% letters.forEach(function(letter) { %>
+      <div class="letter-block">
+        <p class="letter-heading">&#10022; <%= letter.heading || 'A Letter' %></p>
+        <div class="letter-body">
+          <% (letter.body || '').split('\n').filter(l=>l.trim()).forEach(function(p){ %><p><%= p %></p><% }); %>
+        </div>
+      </div>
+      <% }); %>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ RECIPES ============ -->
+    <div id="page-recipes" class="page-section">
+      <p class="chapter-label">Chapter Nine</p>
+      <h1 class="section-title">Family Recipes</h1>
+      <p class="section-subtitle">The flavors that always mean home.</p>
+      <div class="section-divider"></div>
+      <p class="body-text">Every family has a cuisine — the dishes that appear at every holiday, the things only one person knows how to make right, the recipe that's been in the family so long nobody remembers where it started.</p>
+
+      <div class="recipe-grid">
+        <% recipes.forEach(function(recipe) { %>
+        <div class="recipe-card">
+          <% if (recipe.label) { %><p class="recipe-label"><%= recipe.label %></p><% } %>
+          <h4><%= recipe.title || recipe.name || 'Family Recipe' %></h4>
+          <% if (recipe.note || recipe.description) { %><p class="recipe-note"><%= recipe.note || recipe.description %></p><% } %>
+          <% if (recipe.ingredients && recipe.ingredients.length > 0) { %>
+          <div class="recipe-ingredients">
+            <% recipe.ingredients.forEach(function(ing) { %><span><%= ing %></span><% }); %>
+          </div>
+          <% } %>
+        </div>
+        <% }); %>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+    <!-- ============ TIME CAPSULE ============ -->
+    <div id="page-vault" class="page-section">
+      <p class="chapter-label">The Vault</p>
+      <h1 class="section-title">The Family Time Capsule</h1>
+      <div class="section-divider" style="margin-left:auto;margin-right:auto;"></div>
+
+      <div class="vault-container">
+        <div class="vault-icon">&#128274;</div>
+        <div class="vault-box">
+          <% if (vault.message) { %>
+            <% vault.message.split('\n').filter(l=>l.trim()).forEach(function(p){ %><p class="body-text"><%= p %></p><% }); %>
+          <% } else { %>
+          <p class="body-text">Behind this lock are letters, photos, and memories sealed by your family — written for a future moment, not this one.</p>
+          <% } %>
+          <p class="body-text" style="margin-bottom:0;">This capsule unlocks on the family's <strong><%= vaultAnniversary %>th anniversary</strong>.</p>
+
+          <div class="countdown-row">
+            <div class="cd-unit">
+              <div class="cd-num" id="cdYears">--</div>
+              <div class="cd-label">Years</div>
+            </div>
+            <div class="cd-unit">
+              <div class="cd-num" id="cdMonths">--</div>
+              <div class="cd-label">Months</div>
+            </div>
+            <div class="cd-unit">
+              <div class="cd-num" id="cdDays">--</div>
+              <div class="cd-label">Days</div>
+            </div>
+          </div>
+
+          <p class="vault-sealed">&#128274; Sealed by Legacy Odyssey &middot; Protected Until <%= vaultUnlockYear %></p>
+        </div>
+      </div>
+
+      <div class="page-footer">Crafted with love by Legacy Odyssey &middot; <a href="https://legacyodyssey.com" target="_blank">legacyodyssey.com</a></div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- Year Modal -->
+<div class="modal-overlay" id="yearModal">
+  <div class="modal-content">
+    <button class="modal-close" id="yearModalClose">&times;</button>
+    <div class="year-num" id="modalYear"></div>
+    <h3 id="modalLabel"></h3>
+    <p class="highlight" id="modalHighlight"></p>
+    <p class="note" id="modalNote"></p>
+  </div>
+</div>
+
+<!-- Adventure Modal -->
+<div class="modal-overlay" id="advModal">
+  <div class="modal-content">
+    <button class="modal-close" id="advModalClose">&times;</button>
+    <h3 id="advModalTitle"></h3>
+    <p class="highlight" id="advModalDest"></p>
+    <p class="highlight" id="advModalTagline"></p>
+    <p class="note" id="advModalStory"></p>
+  </div>
+</div>
+
+<!-- Family Detail Panel -->
+<div id="family-detail-overlay"></div>
+<div id="family-detail">
+  <button class="detail-close" id="detailClose">&times;</button>
+  <div class="detail-emoji" id="detailEmoji"></div>
+  <h2 class="detail-name" id="detailName"></h2>
+  <p class="detail-role" id="detailRole"></p>
+  <div class="detail-meta" id="detailMeta"></div>
+  <p class="detail-story" id="detailStory1"></p>
+  <div class="detail-quote" id="detailQuote"></div>
+  <p class="detail-story" id="detailStory2"></p>
+</div>
+
+<script>
+// ── SERVER DATA ──
+const years = <%- JSON.stringify(years) %>;
+const familyMembers = <%- JSON.stringify(familyMembers) %>;
+const adventures = <%- JSON.stringify(adventures) %>;
+const vaultStartYear = <%= parseInt(vaultStartYear) || 2000 %>;
+const vaultAnniversaryYears = <%= parseInt(vaultAnniversary) || 25 %>;
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var navEl = document.querySelector('.nav-item[data-page="'+id+'"]');
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('main-content').scrollTop = 0;
+  closeMobileNav();
+}
+document.querySelectorAll('.nav-item').forEach(function(n){
+  n.addEventListener('click', function(){ showPage(this.getAttribute('data-page')); });
+});
+
+// ── MOBILE NAV ──
+var hamburger = document.getElementById('hamburger');
+var sidebar = document.getElementById('sidebar');
+var navOverlay = document.getElementById('navOverlay');
+hamburger.addEventListener('click', function(){
+  sidebar.classList.toggle('open');
+  navOverlay.classList.toggle('show');
+});
+navOverlay.addEventListener('click', closeMobileNav);
+function closeMobileNav(){
+  sidebar.classList.remove('open');
+  navOverlay.classList.remove('show');
+}
+
+// ── YEAR CARDS ──
+var yearColors = ['var(--blush)','var(--dusty-blue)','var(--sage)','var(--gold-light)','var(--rose)','var(--blush)','var(--ink-light)','var(--dusty-blue)','var(--sage)','var(--gold-light)'];
+var yearGrid = document.getElementById('yearGrid');
+years.forEach(function(y, i){
+  var card = document.createElement('div');
+  card.className = 'year-card';
+  card.innerHTML = '<div class="year-num">'+y.year+'</div><div class="year-label">'+(y.label||'')+'</div><div class="year-highlight">'+(y.highlight||'')+'</div>';
+  card.addEventListener('click', function(){ openYearModal(i); });
+  yearGrid.appendChild(card);
+});
+
+// ── YEAR MODAL ──
+var yearModal = document.getElementById('yearModal');
+function openYearModal(i){
+  var y = years[i];
+  document.getElementById('modalYear').textContent = y.year;
+  document.getElementById('modalLabel').textContent = y.label||'';
+  document.getElementById('modalHighlight').textContent = y.highlight||'';
+  document.getElementById('modalNote').textContent = y.note||'';
+  yearModal.classList.add('show');
+}
+document.getElementById('yearModalClose').addEventListener('click', function(){ yearModal.classList.remove('show'); });
+yearModal.addEventListener('click', function(e){ if(e.target===yearModal) yearModal.classList.remove('show'); });
+
+// ── FAMILY CARDS ──
+var familyGrid = document.getElementById('familyGrid');
+familyMembers.forEach(function(m, i){
+  var card = document.createElement('div');
+  card.className = 'family-card';
+  card.innerHTML = '<span class="member-emoji">'+(m.emoji||'👤')+'</span><div class="member-name">'+(m.name||'Family Member')+'</div><div class="member-role">'+(m.role||'')+'</div>';
+  card.addEventListener('click', function(){ openFamilyDetail(i); });
+  familyGrid.appendChild(card);
+});
+
+// ── FAMILY DETAIL PANEL ──
+var detailPanel = document.getElementById('family-detail');
+var detailOverlay = document.getElementById('family-detail-overlay');
+function openFamilyDetail(i){
+  var m = familyMembers[i];
+  document.getElementById('detailEmoji').textContent = m.emoji||'👤';
+  document.getElementById('detailName').textContent = m.name||'';
+  document.getElementById('detailRole').textContent = m.role||'';
+  var metaHtml = '';
+  (m.meta||[]).forEach(function(pair){
+    metaHtml += '<div class="meta-item"><div class="meta-label">'+pair[0]+'</div><div class="meta-value">'+pair[1]+'</div></div>';
+  });
+  document.getElementById('detailMeta').innerHTML = metaHtml;
+  document.getElementById('detailStory1').textContent = m.story1||'';
+  document.getElementById('detailQuote').textContent = m.quote||'';
+  document.getElementById('detailStory2').textContent = m.story2||'';
+  detailPanel.classList.add('open');
+  detailOverlay.classList.add('show');
+}
+function closeFamilyDetail(){
+  detailPanel.classList.remove('open');
+  detailOverlay.classList.remove('show');
+}
+document.getElementById('detailClose').addEventListener('click', closeFamilyDetail);
+detailOverlay.addEventListener('click', closeFamilyDetail);
+
+// ── ADVENTURE CARDS ──
+var adventureGrid = document.getElementById('adventureGrid');
+adventures.forEach(function(a, i){
+  var card = document.createElement('div');
+  card.className = 'adventure-card';
+  var color = a.color || 'var(--dusty-blue)';
+  card.innerHTML = '<div class="adventure-img" style="background:'+color+'; opacity:0.45;">'+(a.emoji||'✈️')+'</div><div class="adventure-body"><h4>'+(a.title||'Adventure')+'</h4><p class="adv-dest">'+(a.dest||'')+' &middot; '+(a.year||'')+'</p><p class="adv-tagline">&ldquo;'+(a.tagline||'')+'&rdquo;</p></div>';
+  card.addEventListener('click', function(){ openAdvModal(i); });
+  adventureGrid.appendChild(card);
+});
+
+// ── ADVENTURE MODAL ──
+var advModal = document.getElementById('advModal');
+function openAdvModal(i){
+  var a = adventures[i];
+  document.getElementById('advModalTitle').textContent = a.title||'';
+  document.getElementById('advModalDest').textContent = (a.dest||'') + ' · ' + (a.year||'');
+  document.getElementById('advModalTagline').textContent = '\u201c' + (a.tagline||'') + '\u201d';
+  document.getElementById('advModalStory').textContent = a.story||'';
+  advModal.classList.add('show');
+}
+document.getElementById('advModalClose').addEventListener('click', function(){ advModal.classList.remove('show'); });
+advModal.addEventListener('click', function(e){ if(e.target===advModal) advModal.classList.remove('show'); });
+
+// ── VAULT COUNTDOWN ──
+(function startCountdown() {
+  var unlockDate = new Date(vaultStartYear + vaultAnniversaryYears, 0, 1);
+  function update() {
+    var now = new Date();
+    var diff = unlockDate - now;
+    if (diff <= 0) {
+      document.getElementById('cdYears').textContent = '0';
+      document.getElementById('cdMonths').textContent = '0';
+      document.getElementById('cdDays').textContent = '0';
+      return;
+    }
+    var totalDays = Math.floor(diff / (1000*60*60*24));
+    var yrs = Math.floor(totalDays / 365);
+    var mos = Math.floor((totalDays % 365) / 30);
+    var dys = totalDays % 30;
+    document.getElementById('cdYears').textContent = yrs;
+    document.getElementById('cdMonths').textContent = mos;
+    document.getElementById('cdDays').textContent = dys;
+  }
+  update();
+  setInterval(update, 60000);
+})();
+
+// ── KEYBOARD: ESC closes modals/panels ──
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') {
+    yearModal.classList.remove('show');
+    advModal.classList.remove('show');
+    closeFamilyDetail();
+    closeMobileNav();
+  }
+});
+</script>
+</body>
+</html>
