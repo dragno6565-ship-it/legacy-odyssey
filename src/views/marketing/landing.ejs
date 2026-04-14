@@ -451,9 +451,34 @@
       <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;" id="founderModalSubtitle">$29 your first year &mdash; renews at $49.99/year. Cancel anytime.</p>
 
       <div id="founderModalForm">
+        <!-- Step 0: Product Type -->
+        <div id="founderStep0">
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.75rem;letter-spacing:0.05em;">STEP 1 — WHAT ARE YOU CREATING?</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;">
+            <div id="typeCardBabyBook" onclick="founderSelectType('baby_book')" style="padding:1.25rem 1rem;background:#2C2416;border:2px solid #B8935A;border-radius:8px;text-align:center;cursor:pointer;transition:all 0.2s;">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">👶</div>
+              <div style="color:#F8F2E6;font-weight:700;font-size:0.95rem;margin-bottom:0.25rem;">Baby Book</div>
+              <div style="color:rgba(248,242,230,0.5);font-size:0.75rem;line-height:1.4;">First year milestones, birth story, monthly memories</div>
+            </div>
+            <div id="typeCardFamilyAlbum" onclick="founderSelectType('family_album')" style="padding:1.25rem 1rem;background:#2C2416;border:2px solid rgba(184,147,90,0.25);border-radius:8px;text-align:center;cursor:pointer;transition:all 0.2s;">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">📔</div>
+              <div style="color:#F8F2E6;font-weight:700;font-size:0.95rem;margin-bottom:0.25rem;">Family Album</div>
+              <div style="color:rgba(248,242,230,0.5);font-size:0.75rem;line-height:1.4;">Your whole family's story — heritage, travels, traditions</div>
+            </div>
+          </div>
+          <button type="button" id="founderTypeNextBtn" disabled style="width:100%;padding:0.9rem;background:#4a3f2f;color:#8a7a5a;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:not-allowed;transition:all 0.2s;">
+            Next: Choose Your Domain &rarr;
+          </button>
+        </div>
+
         <!-- Step 1: Domain -->
-        <div id="founderStep1">
-          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.5rem;letter-spacing:0.05em;">STEP 1 — CHOOSE YOUR DOMAIN</label>
+        <div id="founderStep1" style="display:none;">
+          <button type="button" onclick="founderGoToStep0()" style="background:none;border:none;color:#B8935A;font-size:0.85rem;cursor:pointer;padding:0;margin-bottom:1rem;">&#8592; Back</button>
+          <div id="founderStep1TypeBadge" style="background:#2C2416;border:1px solid rgba(184,147,90,0.3);border-radius:6px;padding:0.5rem 0.85rem;margin-bottom:1rem;display:inline-block;">
+            <span style="color:rgba(248,242,230,0.5);font-size:0.78rem;">Creating: </span>
+            <span id="founderStep1TypeLabel" style="color:#B8935A;font-weight:700;font-size:0.78rem;"></span>
+          </div>
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.5rem;letter-spacing:0.05em;">STEP 2 — CHOOSE YOUR DOMAIN</label>
           <p style="font-size:0.8rem;color:rgba(248,242,230,0.55);margin:0 0 0.75rem;">This is the .com address your family book will live at. It's permanent — check spelling carefully.</p>
           <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
             <input type="text" id="founderDomainSearch" placeholder="smithfamily" autocomplete="off" spellcheck="false"
@@ -476,11 +501,11 @@
         <!-- Step 2: Email + Pay -->
         <div id="founderStep2" style="display:none;">
           <button type="button" onclick="founderGoBack()" style="background:none;border:none;color:#B8935A;font-size:0.85rem;cursor:pointer;padding:0;margin-bottom:1rem;">&#8592; Back</button>
-          <div style="background:#2C2416;border:1px solid rgba(184,147,90,0.3);border-radius:6px;padding:0.75rem 1rem;margin-bottom:1.25rem;">
-            <span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Your domain: </span>
-            <span id="founderStep2Domain" style="color:#B8935A;font-weight:700;"></span>
+          <div style="background:#2C2416;border:1px solid rgba(184,147,90,0.3);border-radius:6px;padding:0.75rem 1rem;margin-bottom:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;">
+            <span><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Type: </span><span id="founderStep2TypeLabel" style="color:#B8935A;font-weight:700;font-size:0.8rem;"></span></span>
+            <span><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Domain: </span><span id="founderStep2Domain" style="color:#B8935A;font-weight:700;font-size:0.8rem;"></span></span>
           </div>
-          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">STEP 2 — YOUR EMAIL</label>
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">STEP 3 — YOUR EMAIL</label>
           <input type="email" id="founderEmail" placeholder="you@example.com"
             style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;margin-bottom:1.25rem;">
           <button id="founderSubmitBtn" style="width:100%;padding:1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">
@@ -733,16 +758,27 @@
     });
   </script>
   <script>
-    // ===== CHECKOUT MODAL — two-step: domain first, then email + pay =====
+    // ===== CHECKOUT MODAL — three-step: type → domain → email + pay =====
     let _founderSelectedDomain = null;
     let _checkoutPlan = 'annual'; // 'annual' or 'monthly'
+    let _bookType = null; // 'baby_book' or 'family_album'
 
     function openFounderModal(plan) {
       _checkoutPlan = plan || 'annual';
-      // Reset to step 1
+      // Reset to step 0
       _founderSelectedDomain = null;
-      document.getElementById('founderStep1').style.display = '';
+      _bookType = null;
+      document.getElementById('founderStep0').style.display = '';
+      document.getElementById('founderStep1').style.display = 'none';
       document.getElementById('founderStep2').style.display = 'none';
+      // Reset type card highlights
+      document.getElementById('typeCardBabyBook').style.borderColor = 'rgba(184,147,90,0.25)';
+      document.getElementById('typeCardFamilyAlbum').style.borderColor = 'rgba(184,147,90,0.25)';
+      document.getElementById('founderTypeNextBtn').disabled = true;
+      document.getElementById('founderTypeNextBtn').style.background = '#4a3f2f';
+      document.getElementById('founderTypeNextBtn').style.color = '#8a7a5a';
+      document.getElementById('founderTypeNextBtn').style.cursor = 'not-allowed';
+      // Reset domain step
       document.getElementById('founderDomainSearch').value = '';
       document.getElementById('founderDomainResult').innerHTML = '';
       document.getElementById('founderDomainConfirmed').style.display = 'none';
@@ -751,16 +787,40 @@
       document.getElementById('founderNextBtn').style.color = '#8a7a5a';
       document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
       document.getElementById('founderModalError').style.display = 'none';
-      // Update title/subtitle for the selected plan
+      // Update subtitle for selected plan
       if (_checkoutPlan === 'monthly') {
-        document.getElementById('founderModalTitle').textContent = 'Start Your Family\'s Book';
         document.getElementById('founderModalSubtitle').textContent = '$4.99/month + $5.99 one-time setup fee. Cancel anytime.';
       } else {
-        document.getElementById('founderModalTitle').textContent = 'Start Your Family\'s Book';
         document.getElementById('founderModalSubtitle').textContent = '$29 your first year — renews at $49.99/year. Cancel anytime.';
       }
       document.getElementById('founderModal').style.display = 'flex';
-      setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
+    }
+
+    function founderSelectType(type) {
+      _bookType = type;
+      const babyCard = document.getElementById('typeCardBabyBook');
+      const albumCard = document.getElementById('typeCardFamilyAlbum');
+      if (type === 'baby_book') {
+        babyCard.style.borderColor = '#B8935A';
+        babyCard.style.background = '#3a2e1a';
+        albumCard.style.borderColor = 'rgba(184,147,90,0.25)';
+        albumCard.style.background = '#2C2416';
+      } else {
+        albumCard.style.borderColor = '#B8935A';
+        albumCard.style.background = '#3a2e1a';
+        babyCard.style.borderColor = 'rgba(184,147,90,0.25)';
+        babyCard.style.background = '#2C2416';
+      }
+      const btn = document.getElementById('founderTypeNextBtn');
+      btn.disabled = false;
+      btn.style.background = '#B8935A';
+      btn.style.color = '#1E1812';
+      btn.style.cursor = 'pointer';
+    }
+
+    function founderGoToStep0() {
+      document.getElementById('founderStep1').style.display = 'none';
+      document.getElementById('founderStep0').style.display = '';
     }
 
     function founderGoBack() {
@@ -847,8 +907,19 @@
         document.getElementById('founderDomainSearch').focus();
       });
 
+      document.getElementById('founderTypeNextBtn').addEventListener('click', function() {
+        if (!_bookType) return;
+        const typeLabel = _bookType === 'family_album' ? '📔 Family Album' : '👶 Baby Book';
+        document.getElementById('founderStep1TypeLabel').textContent = typeLabel;
+        document.getElementById('founderStep0').style.display = 'none';
+        document.getElementById('founderStep1').style.display = '';
+        setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
+      });
+
       document.getElementById('founderNextBtn').addEventListener('click', function() {
         if (!_founderSelectedDomain) return;
+        const typeLabel = _bookType === 'family_album' ? '📔 Family Album' : '👶 Baby Book';
+        document.getElementById('founderStep2TypeLabel').textContent = typeLabel;
         document.getElementById('founderStep2Domain').textContent = 'www.' + _founderSelectedDomain;
         document.getElementById('founderStep1').style.display = 'none';
         document.getElementById('founderStep2').style.display = '';
@@ -876,11 +947,11 @@
           let endpoint, body, trackValue;
           if (_checkoutPlan === 'monthly') {
             endpoint = '/api/stripe/create-checkout';
-            body = { email, domain: _founderSelectedDomain, period: 'monthly' };
+            body = { email, domain: _founderSelectedDomain, period: 'monthly', book_type: _bookType || 'baby_book' };
             trackValue = 4.99;
           } else {
             endpoint = '/api/stripe/create-founder-checkout';
-            body = { email, domain: _founderSelectedDomain };
+            body = { email, domain: _founderSelectedDomain, book_type: _bookType || 'baby_book' };
             trackValue = 29;
           }
           const res = await fetch(endpoint, {

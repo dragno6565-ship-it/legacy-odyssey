@@ -7,7 +7,7 @@ const router = Router();
 // POST /api/stripe/create-checkout
 router.post('/create-checkout', async (req, res, next) => {
   try {
-    const { email, domain, period, subdomain: legacySubdomain } = req.body;
+    const { email, domain, period, subdomain: legacySubdomain, book_type } = req.body;
 
     // Support both new domain flow and legacy subdomain flow
     const subdomain = domain
@@ -20,6 +20,8 @@ router.post('/create-checkout', async (req, res, next) => {
 
     const validPeriods = ['monthly', 'annual'];
     const resolvedPeriod = validPeriods.includes(period) ? period : 'monthly';
+    const validBookTypes = ['baby_book', 'family_album'];
+    const resolvedBookType = validBookTypes.includes(book_type) ? book_type : 'baby_book';
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
     const session = await stripeService.createCheckoutSession({
@@ -27,6 +29,7 @@ router.post('/create-checkout', async (req, res, next) => {
       subdomain,
       domain: domain || null,
       period: resolvedPeriod,
+      bookType: resolvedBookType,
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });
@@ -108,7 +111,7 @@ router.get('/founder-spots', async (req, res, next) => {
 // POST /api/stripe/create-founder-checkout
 router.post('/create-founder-checkout', async (req, res, next) => {
   try {
-    const { email, domain, subdomain: legacySubdomain } = req.body;
+    const { email, domain, subdomain: legacySubdomain, book_type } = req.body;
 
     const subdomain = domain
       ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -118,11 +121,15 @@ router.post('/create-founder-checkout', async (req, res, next) => {
       return res.status(400).json({ error: 'email is required' });
     }
 
+    const validBookTypes = ['baby_book', 'family_album'];
+    const resolvedBookType = validBookTypes.includes(book_type) ? book_type : 'baby_book';
+
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
     const session = await stripeService.createFounderCheckoutSession({
       email,
       subdomain,
       domain: domain || null,
+      bookType: resolvedBookType,
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });

@@ -34,13 +34,13 @@ function resolvePriceId(plan, period) {
   throw new Error(`No Stripe price configured for period="${resolvedPeriod}"`);
 }
 
-async function createCheckoutSession({ email, subdomain, domain, period, successUrl, cancelUrl }) {
+async function createCheckoutSession({ email, subdomain, domain, period, bookType, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const resolvedPeriod = period || 'monthly';
   const priceId = resolvePriceId(null, resolvedPeriod);
 
-  const metadata = { subdomain, period: resolvedPeriod };
+  const metadata = { subdomain, period: resolvedPeriod, book_type: bookType || 'baby_book' };
   if (domain) metadata.domain = domain;
 
   // Build line items: subscription + setup fee for monthly only
@@ -77,6 +77,7 @@ async function handleCheckoutComplete(session) {
   const subdomain = session.metadata?.subdomain;
   const domain = session.metadata?.domain || null;
   const period = session.metadata?.period || 'monthly';
+  const bookType = session.metadata?.book_type || 'baby_book';
   const stripeCustomerId = session.customer;
   const stripeSubscriptionId = session.subscription;
 
@@ -136,6 +137,7 @@ async function handleCheckoutComplete(session) {
     stripeCustomerId,
     customerName,
     plan: 'paid',
+    bookType,
   });
 
   // Update with subscription ID
@@ -146,8 +148,12 @@ async function handleCheckoutComplete(session) {
     plan: 'paid',
   });
 
-  // Create book with default content
-  await bookService.createBookWithDefaults(family.id);
+  // Create book with default content appropriate to product type
+  if (bookType === 'family_album') {
+    await bookService.createFamilyAlbumWithDefaults(family.id);
+  } else {
+    await bookService.createBookWithDefaults(family.id);
+  }
 
   // Send welcome email with credentials
   try {
@@ -222,13 +228,13 @@ async function getFounderCount() {
  * Create a Stripe Checkout session for the founder annual plan ($29/yr).
  * Enforces the 100-spot limit before creating.
  */
-async function createFounderCheckoutSession({ email, subdomain, domain, successUrl, cancelUrl }) {
+async function createFounderCheckoutSession({ email, subdomain, domain, bookType, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.subscription.annualIntro || PRICES.subscription.founder;
   if (!priceId) throw new Error('Annual intro price not configured');
 
-  const metadata = { subdomain, period: 'annual', plan: 'annual_intro' };
+  const metadata = { subdomain, period: 'annual', plan: 'annual_intro', book_type: bookType || 'baby_book' };
   if (domain) metadata.domain = domain;
 
   const sessionParams = {

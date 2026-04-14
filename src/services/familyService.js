@@ -70,7 +70,7 @@ async function findByStripeCustomerId(stripeCustomerId) {
   return data;
 }
 
-async function create({ email, authUserId, subdomain, displayName, stripeCustomerId, customerName, plan }) {
+async function create({ email, authUserId, subdomain, displayName, stripeCustomerId, customerName, plan, bookType }) {
   const { data, error } = await supabaseAdmin
     .from('families')
     .insert({
@@ -82,6 +82,7 @@ async function create({ email, authUserId, subdomain, displayName, stripeCustome
       book_password: 'legacy', // default
       subscription_status: plan === 'paid' ? 'active' : 'trialing',
       plan: plan || 'free',
+      book_type: bookType || 'baby_book',
       ...(customerName ? { customer_name: customerName } : {}),
     })
     .select()
