@@ -67,6 +67,8 @@ export function AuthProvider({ children }) {
           bookId: book.id,
           familyId: effectiveFamilyId,
           custom_domain: activeFamily?.custom_domain || '',
+          book_type: activeFamily?.book_type || 'baby_book',
+          plan: activeFamily?.plan || null,
         },
         families: famList,
         activeFamilyId: effectiveFamilyId,
@@ -93,6 +95,8 @@ export function AuthProvider({ children }) {
                 bookId: book.id,
                 familyId: effectiveFamilyId,
                 custom_domain: activeFamily?.custom_domain || '',
+                book_type: activeFamily?.book_type || 'baby_book',
+                plan: activeFamily?.plan || null,
               },
               families: famList,
               activeFamilyId: effectiveFamilyId,
@@ -209,6 +213,8 @@ export function AuthProvider({ children }) {
         bookId: book.id,
         familyId,
         custom_domain: activeFamily?.custom_domain || '',
+        book_type: activeFamily?.book_type || 'baby_book',
+        plan: activeFamily?.plan || null,
       }));
     } catch (err) {
       console.warn('Failed to load switched family:', err.message);

@@ -19,7 +19,7 @@ router.get('/mine', async (req, res, next) => {
     if (familyIds.length > 0) {
       const { data, error } = await supabaseAdmin
         .from('families')
-        .select('id, email, subdomain, display_name, custom_domain, subscription_status, created_at')
+        .select('id, email, subdomain, display_name, custom_domain, subscription_status, plan, book_type, created_at')
         .in('id', familyIds)
         .order('created_at', { ascending: true });
       if (error) throw error;
