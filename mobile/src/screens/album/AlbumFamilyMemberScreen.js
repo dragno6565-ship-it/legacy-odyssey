@@ -15,6 +15,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../../theme'
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../../api/client';
 import { useSavedToast } from '../../components/SavedToast';
+import PhotoPicker from '../../components/PhotoPicker';
 
 const EMOJI_OPTIONS = [
   '👨', '👩', '👦', '👧', '👴', '👵', '👶', '🧑', '🧔', '👱', '🧕', '🧒', '🐶', '🐱', '🐻',
@@ -36,6 +37,7 @@ export default function AlbumFamilyMemberScreen({ route, navigation }) {
   const [story1, setStory1] = useState('');
   const [quote, setQuote] = useState('');
   const [story2, setStory2] = useState('');
+  const [photoPath, setPhotoPath] = useState('');
 
   // Full array kept so we can write the whole thing back on save/delete
   const [allMembers, setAllMembers] = useState([]);
@@ -55,6 +57,7 @@ export default function AlbumFamilyMemberScreen({ route, navigation }) {
           setStory1(member.story1 || '');
           setQuote(member.quote || '');
           setStory2(member.story2 || '');
+          setPhotoPath(member.photo_path || '');
         }
       } catch (err) {
         if (err.status !== 404) {
@@ -78,6 +81,7 @@ export default function AlbumFamilyMemberScreen({ route, navigation }) {
       story1: story1.trim(),
       quote: quote.trim(),
       story2: story2.trim(),
+      photo_path: photoPath || null,
     };
   }
 
@@ -165,6 +169,12 @@ export default function AlbumFamilyMemberScreen({ route, navigation }) {
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
+
+        {/* Photo */}
+        <View style={styles.card}>
+          <Text style={styles.sectionHeader}>Photo</Text>
+          <PhotoPicker currentPhoto={photoPath} onPhotoSelected={setPhotoPath} />
+        </View>
 
         {/* Emoji Picker */}
         <View style={styles.card}>

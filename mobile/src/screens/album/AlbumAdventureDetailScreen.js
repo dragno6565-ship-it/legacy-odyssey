@@ -15,6 +15,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../../theme'
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../../api/client';
 import { useSavedToast } from '../../components/SavedToast';
+import PhotoPicker from '../../components/PhotoPicker';
 
 const EMOJI_OPTIONS = [
   '✈️', '🏖️', '🏔️', '🌊', '🗺️', '🏕️', '🎡', '🚗', '🚢', '🏛️', '🌴', '🌍', '🎿', '⛷️', '🤿',
@@ -40,6 +41,7 @@ export default function AlbumAdventureDetailScreen({ navigation, route }) {
   const [year, setYear] = useState('');
   const [tagline, setTagline] = useState('');
   const [story, setStory] = useState('');
+  const [photoPath, setPhotoPath] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -54,6 +56,7 @@ export default function AlbumAdventureDetailScreen({ navigation, route }) {
         setYear(entry.year || '');
         setTagline(entry.tagline || '');
         setStory(entry.story || '');
+        setPhotoPath(entry.photo_path || '');
       } catch (err) {
         if (err.status !== 404) {
           setError(err.message || 'Failed to load adventure data.');
@@ -76,6 +79,7 @@ export default function AlbumAdventureDetailScreen({ navigation, route }) {
         year: year.trim(),
         tagline: tagline.trim(),
         story: story.trim(),
+        photo_path: photoPath || null,
       };
       const updatedAdventures = [...allAdventures];
       updatedAdventures[adventureIndex] = updatedEntry;
@@ -223,6 +227,10 @@ export default function AlbumAdventureDetailScreen({ navigation, route }) {
             numberOfLines={8}
             textAlignVertical="top"
           />
+
+          {/* Photo */}
+          <Text style={styles.label}>Photo</Text>
+          <PhotoPicker currentPhoto={photoPath} onPhotoSelected={setPhotoPath} />
         </View>
 
         <TouchableOpacity

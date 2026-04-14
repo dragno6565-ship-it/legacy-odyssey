@@ -14,6 +14,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../../theme'
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../../api/client';
 import { useSavedToast } from '../../components/SavedToast';
+import PhotoPicker from '../../components/PhotoPicker';
 
 export default function AlbumHomeScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
@@ -26,6 +27,7 @@ export default function AlbumHomeScreen({ navigation }) {
   const [theHouse, setTheHouse] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [homesBefore, setHomesBefore] = useState('');
+  const [photoPath, setPhotoPath] = useState('');
 
   useEffect(() => {
     async function fetchAlbum() {
@@ -36,6 +38,7 @@ export default function AlbumHomeScreen({ navigation }) {
         setTheHouse(section.the_house || '');
         setNeighborhood(section.neighborhood || '');
         setHomesBefore(section.homes_before || '');
+        setPhotoPath(section.photo_path || '');
       } catch (err) {
         if (err.status !== 404) {
           setError(err.message || 'Failed to load album data.');
@@ -56,6 +59,7 @@ export default function AlbumHomeScreen({ navigation }) {
         the_house: theHouse,
         neighborhood,
         homes_before: homesBefore,
+        photo_path: photoPath || null,
       });
       showToast('Home updated.');
       setTimeout(() => navigation.goBack(), 1800);
@@ -96,6 +100,9 @@ export default function AlbumHomeScreen({ navigation }) {
         ) : null}
 
         <View style={styles.card}>
+          <Text style={styles.label}>Photo</Text>
+          <PhotoPicker currentPhoto={photoPath} onPhotoSelected={setPhotoPath} />
+
           <Text style={styles.label}>Intro</Text>
           <TextInput
             style={[styles.input, styles.textareaSm]}

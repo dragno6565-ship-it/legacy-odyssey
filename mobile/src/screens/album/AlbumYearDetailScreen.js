@@ -15,6 +15,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../../theme'
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../../api/client';
 import { useSavedToast } from '../../components/SavedToast';
+import PhotoPicker from '../../components/PhotoPicker';
 
 export default function AlbumYearDetailScreen({ navigation, route }) {
   const headerHeight = useHeaderHeight();
@@ -34,6 +35,7 @@ export default function AlbumYearDetailScreen({ navigation, route }) {
   const [label, setLabel] = useState('');
   const [highlight, setHighlight] = useState('');
   const [note, setNote] = useState('');
+  const [photoPath, setPhotoPath] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -46,6 +48,7 @@ export default function AlbumYearDetailScreen({ navigation, route }) {
         setLabel(entry.label || '');
         setHighlight(entry.highlight || '');
         setNote(entry.note || '');
+        setPhotoPath(entry.photo_path || '');
       } catch (err) {
         if (err.status !== 404) {
           setError(err.message || 'Failed to load year data.');
@@ -66,6 +69,7 @@ export default function AlbumYearDetailScreen({ navigation, route }) {
         label: label.trim(),
         highlight: highlight.trim(),
         note: note.trim(),
+        photo_path: photoPath || null,
       };
       const updatedYears = [...allYears];
       updatedYears[yearIndex] = updatedEntry;
@@ -139,6 +143,9 @@ export default function AlbumYearDetailScreen({ navigation, route }) {
         ) : null}
 
         <View style={styles.card}>
+          <Text style={styles.label}>Photo</Text>
+          <PhotoPicker currentPhoto={photoPath} onPhotoSelected={setPhotoPath} />
+
           <Text style={styles.label}>Year</Text>
           <TextInput
             style={styles.input}
