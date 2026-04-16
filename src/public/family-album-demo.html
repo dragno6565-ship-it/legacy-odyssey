@@ -82,85 +82,130 @@ h1, h2, h3, h4, h5 {
 #password-screen {
   position: fixed;
   inset: 0;
-  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--cream);
+  z-index: 1000;
+  background: var(--ink);
   transition: opacity 0.8s ease, visibility 0.8s ease;
 }
-#password-screen.hidden {
+#password-screen.fade-out {
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
 }
-.pw-box {
+.pw-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('./images/family-hero.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.18;
+}
+.pw-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+.pw-content {
+  position: relative;
   text-align: center;
-  max-width: 420px;
-  padding: 2rem;
+  padding: 3rem;
+  max-width: 460px;
+  width: 90%;
+  animation: fadeUp 1s ease forwards;
 }
-.pw-box h1 {
-  font-size: 2.8rem;
-  color: var(--ink);
-  margin-bottom: 0.25rem;
-  letter-spacing: 0.02em;
-}
-.pw-box .pw-subtitle {
-  font-family: 'Jost', sans-serif;
-  font-size: 0.95rem;
-  color: var(--ink-light);
-  letter-spacing: 0.12em;
+.pw-ornament {
+  font-size: 1.2rem;
+  color: var(--gold);
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  margin-bottom: 2.5rem;
-}
-.pw-box .pw-divider {
-  width: 60px;
-  height: 2px;
-  background: var(--gold);
-  margin: 0 auto 2rem;
-}
-.pw-box input {
-  display: block;
-  width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1.5px solid var(--gold-light);
-  border-radius: 8px;
-  background: var(--ivory);
   font-family: 'Jost', sans-serif;
-  font-size: 1rem;
-  text-align: center;
-  color: var(--ink);
-  outline: none;
-  transition: border-color 0.3s;
+  font-weight: 300;
   margin-bottom: 1rem;
 }
-.pw-box input:focus { border-color: var(--gold); }
-.pw-box button {
-  display: block;
-  width: 100%;
-  padding: 0.85rem 1rem;
+.pw-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.pw-title em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+.pw-subtitle {
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 2.5rem;
+}
+.pw-divider {
+  width: 60px;
+  height: 1px;
   background: var(--gold);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
+  margin: 0 auto 2.5rem;
+  opacity: 0.6;
+}
+.pw-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 0.75rem;
+}
+.pw-input-wrap {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+.pw-input {
+  width: 100%;
+  background: rgba(255,252,245,0.07);
+  border: 1px solid rgba(184,147,90,0.4);
+  border-radius: 2px;
+  padding: 1rem 1.4rem;
   font-family: 'Jost', sans-serif;
   font-size: 1rem;
-  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--cream);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.pw-input::placeholder { color: rgba(255,252,245,0.25); letter-spacing: 0.1em; }
+.pw-input:focus { border-color: var(--gold); }
+.pw-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
   cursor: pointer;
-  transition: background 0.3s;
-  letter-spacing: 0.02em;
+  transition: all 0.3s;
+  border-radius: 2px;
 }
-.pw-box button:hover { background: var(--gold-dark); }
-.pw-hint {
-  font-size: 0.82rem;
-  color: var(--ink-light);
-  margin-top: 1rem;
-}
+.pw-btn:hover { background: var(--gold); color: var(--ink); }
 .pw-error {
-  color: var(--rose);
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  display: none;
+  margin-top: 1rem;
+  color: #E07070;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.pw-error.visible { opacity: 1; }
+.pw-hint {
+  margin-top: 2rem;
+  font-size: 0.72rem;
+  color: rgba(156,139,120,0.6);
+  letter-spacing: 0.05em;
 }
 
 /* ── APP LAYOUT ── */
@@ -852,15 +897,22 @@ h1, h2, h3, h4, h5 {
 
 <!-- PASSWORD SCREEN -->
 <div id="password-screen">
-  <div class="pw-box">
-    <h1>Your Family's Name</h1>
+  <div class="pw-bg"></div>
+  <div class="pw-grain"></div>
+  <div class="pw-content">
+    <div class="pw-ornament"><a href="https://www.legacyodyssey.com" target="_blank" style="color:inherit;text-decoration:none;">✦ Legacy Odyssey ✦</a></div>
+    <h1 class="pw-title"><em>Your Family's</em><br>Name</h1>
     <p class="pw-subtitle">A Legacy Odyssey Family Album</p>
     <div class="pw-divider"></div>
-    <input type="password" id="pw-input" placeholder="Enter password" autocomplete="off">
-    <button id="pw-btn">Open the Album &rarr;</button>
-    <p class="pw-hint">Demo password: family</p>
-    <p class="pw-error" id="pw-error">Incorrect password. Please try again.</p>
-    <p style="margin-top:1.5rem;"><a href="#" onclick="unlockAlbum();return false;" style="font-size:0.85rem;color:var(--ink-light);text-decoration:underline;cursor:pointer;">Browse the Demo &rarr;</a></p>
+    <p class="pw-label">Enter the family password to continue</p>
+    <div class="pw-input-wrap">
+      <input type="password" class="pw-input" id="pwInput" placeholder="••••••••" />
+    </div>
+    <button class="pw-btn" onclick="checkPassword()">Open Book →</button>
+    <button class="pw-browse" onclick="browseDemo()" style="display:block;width:100%;padding:0.7rem;margin-top:0.75rem;background:transparent;color:#c8a96e;border:1px solid rgba(200,169,110,0.4);border-radius:6px;font-family:inherit;font-size:0.9rem;cursor:pointer;letter-spacing:0.06em;">Browse the Demo &rarr;</button>
+    <p style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:rgba(250,247,242,0.5);">Want your own baby book? <a href="https://www.legacyodyssey.com" target="_blank" style="color:#c8a96e;text-decoration:none;font-weight:600;">Create it at legacyodyssey.com &rarr;</a></p>
+    <p class="pw-error" id="pwError">Incorrect password. Please try again.</p>
+    <p class="pw-hint">Demo password: <strong style="color:var(--gold);opacity:0.7">family</strong></p>
   </div>
 </div>
 
@@ -1378,23 +1430,42 @@ const adventures = [
 ];
 
 // ── PASSWORD ──
-function unlockAlbum() {
-  document.getElementById('password-screen').classList.add('hidden');
-  document.getElementById('app').classList.add('visible');
-  startCountdown();
-}
-document.getElementById('pw-btn').addEventListener('click', checkPassword);
-document.getElementById('pw-input').addEventListener('keydown', function(e) { if(e.key==='Enter') checkPassword(); });
+const DEMO_PASSWORD = 'family';
+
 function checkPassword() {
-  var val = document.getElementById('pw-input').value.trim().toLowerCase();
-  if (val === 'family') {
-    unlockAlbum();
+  const val = document.getElementById('pwInput').value;
+  if (val === '' || val.toLowerCase() === DEMO_PASSWORD) {
+    const screen = document.getElementById('password-screen');
+    screen.classList.add('fade-out');
+    setTimeout(() => {
+      screen.style.display = 'none';
+      const app = document.getElementById('app');
+      app.style.display = 'flex';
+      startCountdown();
+    }, 800);
   } else {
-    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pwError').classList.add('visible');
+    document.getElementById('pwInput').value = '';
   }
 }
-// ?ref=fb bypass
-if (new URLSearchParams(window.location.search).get('ref') === 'fb') { unlockAlbum(); }
+
+function browseDemo() {
+  const screen = document.getElementById('password-screen');
+  screen.classList.add('fade-out');
+  setTimeout(() => {
+    screen.style.display = 'none';
+    const app = document.getElementById('app');
+    app.style.display = 'flex';
+    startCountdown();
+  }, 800);
+}
+
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('demo') || params.get('ref') === 'ad' || params.get('ref') === 'fb') {
+    setTimeout(function() { browseDemo(); }, 100);
+  }
+})();
 
 // ── NAVIGATION ──
 function showPage(id) {
