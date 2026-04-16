@@ -956,14 +956,14 @@ h1, h2, h3, h4, h5 {
 
     <!-- CTAs -->
     <div style="padding: 0 20px 18px;">
-      <button onclick="enterDemoAlbum()" style="width:100%;background:#7a6030;color:#f5ead0;font-size:13px;font-weight:500;padding:12px;border-radius:7px;border:none;cursor:pointer;letter-spacing:0.04em;font-family:'Jost',sans-serif;">
-        See Inside the Demo →
-      </button>
+      <a href="https://www.legacyodyssey.com/?product=family_album#pricing" target="_blank" style="display:block;width:100%;background:#c8a96e;color:#1a1510;font-size:13px;font-weight:700;padding:12px;border-radius:7px;border:none;cursor:pointer;letter-spacing:0.06em;font-family:'Jost',sans-serif;text-align:center;text-decoration:none;box-sizing:border-box;">
+        Start Your Family Album &rarr;
+      </a>
       <div style="text-align:center;font-size:10px;color:#4a3a1a;margin-top:7px;">
-        No account needed to browse · Takes 2 minutes
+        Starts at $29 &middot; Your own .com &middot; Yours forever
       </div>
       <div style="text-align:center;margin-top:6px;">
-        <span onclick="dismissPopupAlbum()" style="font-size:10px;color:#4a3a1a;text-decoration:underline;cursor:pointer;">
+        <span onclick="enterDemoAlbum()" style="font-size:10px;color:#4a3a1a;text-decoration:underline;cursor:pointer;">
           I'll look around on my own
         </span>
       </div>
@@ -976,18 +976,19 @@ h1, h2, h3, h4, h5 {
 function enterDemoAlbum() {
   sessionStorage.setItem('demo_popup_seen', '1');
   document.getElementById('demo-popup-overlay').remove();
-  if (typeof checkPassword === 'function') checkPassword();
+  if (typeof unlockAlbum === 'function') unlockAlbum();
 }
-function dismissPopupAlbum() {
-  sessionStorage.setItem('demo_popup_seen', '1');
-  document.getElementById('demo-popup-overlay').remove();
-}
+window._albumAutoUnlocked = false;
 (function() {
   var el = document.getElementById('demo-popup-overlay');
   if (el && sessionStorage.getItem('demo_popup_seen')) {
     el.remove();
-    // Also unlock the album immediately since popup was already seen
-    if (typeof checkPassword === 'function') checkPassword();
+    // Inline unlock since unlockAlbum isn't defined yet at this point in the page
+    var ps = document.getElementById('password-screen');
+    var ap = document.getElementById('app');
+    if (ps) ps.classList.add('hidden');
+    if (ap) ap.classList.add('visible');
+    window._albumAutoUnlocked = true;
   }
 })();
 </script>
@@ -1002,13 +1003,14 @@ function dismissPopupAlbum() {
     <button id="pw-btn">Open the Album &rarr;</button>
     <p class="pw-hint">Demo password: family</p>
     <p class="pw-error" id="pw-error">Incorrect password. Please try again.</p>
+    <p style="margin-top:1.5rem;"><a href="#" onclick="unlockAlbum();return false;" style="font-size:0.85rem;color:var(--ink-light);text-decoration:underline;cursor:pointer;">Browse the Demo &rarr;</a></p>
   </div>
 </div>
 
 <!-- DEMO BANNER -->
 <div id="demo-banner">
   <span>&#10022; This is a demo — create your own family album at Legacy Odyssey</span>
-  <a href="https://www.legacyodyssey.com" target="_blank" class="demo-banner-cta">Get Your Own Book &rarr;</a>
+  <a href="https://www.legacyodyssey.com/?product=family_album#pricing" target="_blank" class="demo-banner-cta">Start Your Family Album &rarr;</a>
 </div>
 
 <!-- APP -->
@@ -1043,7 +1045,7 @@ function dismissPopupAlbum() {
 
     <div class="sidebar-footer">
       <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;margin-bottom:0.6rem;">You're viewing a demo.<br>Create your own family book.</p>
-      <a href="https://www.legacyodyssey.com" target="_blank" style="display:block;background:#c8a96e;color:#1a1510;text-decoration:none;padding:0.5rem 0.75rem;border-radius:3px;font-weight:700;font-size:0.82rem;text-align:center;letter-spacing:0.04em;">Get Your Own Book &rarr;</a>
+      <a href="https://www.legacyodyssey.com/?product=family_album#pricing" target="_blank" style="display:block;background:#c8a96e;color:#1a1510;text-decoration:none;padding:0.5rem 0.75rem;border-radius:3px;font-weight:700;font-size:0.82rem;text-align:center;letter-spacing:0.04em;">Start Your Family Album &rarr;</a>
     </div>
   </nav>
 
@@ -1054,7 +1056,7 @@ function dismissPopupAlbum() {
     <div id="page-welcome" class="page-section active">
       <p class="eyebrow">&#10022; Your Family's Name &#10022;</p>
       <h1 class="section-title">Your Family's Name</h1>
-      <p class="section-subtitle">Est. 2009 &middot; Portland, Oregon</p>
+      <p class="section-subtitle">Est. [Year] &middot; [Your City]</p>
       <div class="section-divider"></div>
 
       <div class="quote-block">
@@ -1066,18 +1068,20 @@ function dismissPopupAlbum() {
       <p class="body-text">You'll find photos here from ordinary Tuesdays and extraordinary vacations. Letters written in the middle of the night and recipes passed down without measurements. Stories we've told a hundred times and ones we almost forgot to write down.</p>
       <p class="body-text">This album belongs to everyone in it. And one day, it will be the truest thing we leave behind.</p>
 
+      <img src="./images/family-hero.jpg" alt="Family" style="width:100%;border-radius:10px;margin-bottom:2rem;object-fit:cover;max-height:420px;display:block;">
+
       <div class="stats-row">
         <div class="stat-item">
           <div class="stat-label">Established</div>
-          <div class="stat-value">2009</div>
+          <div class="stat-value">[Year]</div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Members</div>
-          <div class="stat-value">6</div>
+          <div class="stat-value">[Number]</div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Years Together</div>
-          <div class="stat-value">15</div>
+          <div class="stat-value">[Years]</div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Miles Traveled</div>
@@ -1170,7 +1174,7 @@ function dismissPopupAlbum() {
       <p class="body-text">A home is more than an address. It's the smell of Sunday mornings and the corner of the couch everyone fights over. It's the wall where you mark heights and the drawer that never quite closes and the spot in the kitchen where everyone ends up at parties.</p>
       <p class="body-text">This chapter is about the places your family has lived &mdash; and what made them yours.</p>
 
-      <div class="img-placeholder" style="background:var(--sage); opacity:0.35;">&#127969;</div>
+      <img src="./images/family-home.jpg" alt="Our Home" style="width:100%;border-radius:10px;margin-bottom:2rem;object-fit:cover;max-height:380px;display:block;">
 
       <div class="subsection">
         <h3>The House</h3>
@@ -1517,13 +1521,25 @@ const adventures = [
 ];
 
 // ── PASSWORD ──
-document.getElementById('pw-btn').addEventListener('click', checkPassword);
-document.getElementById('pw-input').addEventListener('keydown', function(e) { if(e.key==='Enter') checkPassword(); });
-function checkPassword() {
+function unlockAlbum() {
   document.getElementById('password-screen').classList.add('hidden');
   document.getElementById('app').classList.add('visible');
   startCountdown();
 }
+document.getElementById('pw-btn').addEventListener('click', checkPassword);
+document.getElementById('pw-input').addEventListener('keydown', function(e) { if(e.key==='Enter') checkPassword(); });
+function checkPassword() {
+  var val = document.getElementById('pw-input').value.trim().toLowerCase();
+  if (val === 'family') {
+    unlockAlbum();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+  }
+}
+// ?ref=fb bypass
+if (new URLSearchParams(window.location.search).get('ref') === 'fb') { unlockAlbum(); }
+// Finish auto-unlock for returning visitors (popup removed, countdown not yet called)
+if (window._albumAutoUnlocked) { startCountdown(); }
 // Auto-skip password screen for returning visitors only (popup handles first visit)
 
 // ── NAVIGATION ──
@@ -1615,11 +1631,18 @@ document.getElementById('detailClose').addEventListener('click', closeFamilyDeta
 detailOverlay.addEventListener('click', closeFamilyDetail);
 
 // ── RENDER ADVENTURE CARDS ──
+var adventurePhotos = [
+  './images/adventure-roadtrip.jpg',
+  './images/adventure-beach.jpg',
+  './images/adventure-city.jpg',
+  './images/adventure-roadtrip.jpg',
+  './images/adventure-beach.jpg'
+];
 var adventureGrid = document.getElementById('adventureGrid');
 adventures.forEach(function(a, i){
   var card = document.createElement('div');
   card.className = 'adventure-card';
-  card.innerHTML = '<div class="adventure-img" style="background:'+a.color+'; opacity:0.35;">'+a.emoji+'</div><div class="adventure-body"><h4>'+a.title+'</h4><p class="adv-dest">'+a.dest+' &middot; '+a.year+'</p><p class="adv-tagline">&ldquo;'+a.tagline+'&rdquo;</p></div>';
+  card.innerHTML = '<div class="adventure-img" style="overflow:hidden;padding:0;"><img src="'+adventurePhotos[i]+'" alt="'+a.title+'" style="width:100%;height:140px;object-fit:cover;display:block;"></div><div class="adventure-body"><h4>'+a.title+'</h4><p class="adv-dest">'+a.dest+' &middot; '+a.year+'</p><p class="adv-tagline">&ldquo;'+a.tagline+'&rdquo;</p></div>';
   card.addEventListener('click', function(){ openAdvModal(i); });
   adventureGrid.appendChild(card);
 });
