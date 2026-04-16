@@ -68,6 +68,20 @@ const domainSearchLimiter = rateLimit({
 });
 app.use('/api/domains/search', domainSearchLimiter);
 
+// --- DOR Industries corporate site ---
+// Served when the request comes in on dorindustries.com
+const DOR_INDUSTRIES_HTML = require('fs').readFileSync(
+  require('path').join(__dirname, 'views', 'dorindustries.html'),
+  'utf8'
+);
+app.use((req, res, next) => {
+  const host = (req.headers['x-forwarded-host'] || req.hostname || '').replace(/:\d+$/, '');
+  if (host === 'dorindustries.com' || host === 'www.dorindustries.com') {
+    return res.send(DOR_INDUSTRIES_HTML);
+  }
+  next();
+});
+
 // --- Routes ---
 
 // Health check (includes hostname debug info)
