@@ -15,14 +15,11 @@ const PRICES = {
     monthly: process.env.STRIPE_PRICE_MONTHLY,
     annual: process.env.STRIPE_PRICE_ANNUAL,
     annualIntro: process.env.STRIPE_PRICE_ANNUAL_INTRO, // $49.99/yr with first-year coupon
-    founder: process.env.STRIPE_PRICE_FOUNDER,
   },
   setupFee: process.env.STRIPE_PRICE_SETUP,
   additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
   annualIntroCoupon: process.env.STRIPE_ANNUAL_INTRO_COUPON, // $20.99 off first invoice
 };
-
-const FOUNDER_LIMIT = 100;
 
 /**
  * Resolve the Stripe subscription price ID for a billing period.
@@ -211,22 +208,7 @@ async function createPortalSession(stripeCustomerId, returnUrl) {
 }
 
 /**
- * Count how many founder subscriptions have been created.
- */
-async function getFounderCount() {
-  if (!stripe) return 0;
-  const subs = await stripe.subscriptions.list({
-    price: PRICES.subscription.founder,
-    limit: 100,
-    status: 'all',
-  });
-  // Only count active/trialing — not canceled ones
-  return subs.data.filter(s => ['active', 'trialing', 'past_due'].includes(s.status)).length;
-}
-
-/**
- * Create a Stripe Checkout session for the founder annual plan ($29/yr).
- * Enforces the 100-spot limit before creating.
+ * Create a Stripe Checkout session for the annual intro plan ($29/yr first year).
  */
 async function createFounderCheckoutSession({ email, subdomain, domain, bookType, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
@@ -324,10 +306,8 @@ async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subd
 
 module.exports = {
   PRICES,
-  FOUNDER_LIMIT,
   createCheckoutSession,
   createFounderCheckoutSession,
-  getFounderCount,
   createGiftCheckoutSession,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,

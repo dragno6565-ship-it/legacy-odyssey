@@ -92,22 +92,6 @@ router.post('/redeem-gift', async (req, res, next) => {
   }
 });
 
-// GET /api/stripe/founder-spots — Returns remaining founder spots for the landing page counter
-router.get('/founder-spots', async (req, res, next) => {
-  try {
-    const { getFounderCount, FOUNDER_LIMIT } = require('../../services/stripeService');
-    const count = await getFounderCount();
-    res.json({
-      claimed: count,
-      total: FOUNDER_LIMIT,
-      remaining: Math.max(0, FOUNDER_LIMIT - count),
-      soldOut: count >= FOUNDER_LIMIT,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
 // POST /api/stripe/create-founder-checkout
 router.post('/create-founder-checkout', async (req, res, next) => {
   try {

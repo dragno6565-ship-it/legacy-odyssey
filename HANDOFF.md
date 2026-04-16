@@ -72,8 +72,6 @@ Railway auto-deploys from `main`. Push to GitHub → Railway picks it up in ~60 
 | Additional domain | $12.99/yr | `price_1TDVIAQzzNThrLYKNnMljEkp` | For adding a second site |
 | Gift card | $49.99 one-time | Inline `price_data` in code | No price ID — computed at checkout |
 
-**Founder limit:** 100 spots (`FOUNDER_LIMIT = 100` in `stripeService.js`). `GET /api/stripe/founder-spots` returns remaining count.
-
 **Checkout endpoints:**
 - Founder/annual intro: `POST /api/stripe/create-founder-checkout`
 - Monthly/annual: `POST /api/stripe/create-checkout`
@@ -121,7 +119,6 @@ STRIPE_PRICE_MONTHLY
 STRIPE_PRICE_ANNUAL
 STRIPE_PRICE_ANNUAL_INTRO     # price_1TLojVJk2GIrL5uS0oQORYsr
 STRIPE_PRICE_SETUP
-STRIPE_PRICE_FOUNDER
 STRIPE_PRICE_ADDITIONAL_DOMAIN  # price_1TDVIAQzzNThrLYKNnMljEkp
 STRIPE_ANNUAL_INTRO_COUPON    # sX2lEPb6
 ```
