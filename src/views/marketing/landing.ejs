@@ -355,8 +355,8 @@
     <p class="domain-urgency fade-up">
       Every day, thousands of domain names are registered. Don't let someone else take yours.
     </p>
-    <p class="domain-refund-notice fade-up">
-      <strong>Important:</strong> Domain names are purchased exclusively for you and <strong>cannot be refunded</strong> once registered. Please check the spelling carefully before completing your order.
+    <p class="domain-refund-notice fade-up" style="font-size:0.8rem;color:#8a7e6b;text-align:center;margin-top:0.5rem;">
+      ℹ️ Take your time — domains are permanent once registered. Double-check spelling before checkout.
     </p>
   </section>
 
@@ -364,32 +364,10 @@
   <section class="pricing" id="pricing">
     <h2 class="section-title">Invest in Memories That Last</h2>
     <p class="section-subtitle">
-      Start free, or unlock everything with a paid plan.
+      Everything included. One simple plan, two ways to pay.
     </p>
 
     <div class="pricing-cards" style="display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:flex-start;">
-
-      <!-- Free Card -->
-      <div class="pricing-card" style="flex:1;min-width:260px;max-width:320px;opacity:0.92;">
-        <div class="pricing-name">Free</div>
-        <div class="pricing-price">
-          <span class="pricing-amount">$0</span>
-          <span class="pricing-period">/ forever</span>
-        </div>
-        <p class="pricing-desc">A beautiful preview of your book — always free.</p>
-        <ul class="pricing-features">
-          <li>Welcome page</li>
-          <li>Before You Arrived</li>
-          <li>Birth Story</li>
-          <li>Subdomain hosting (yourname.legacyodyssey.com)</li>
-          <li>Mobile app (iOS &amp; Android)</li>
-          <li style="color:#b0a090;list-style:none;padding-left:0;margin-top:6px;font-size:0.82rem;">🔒 Custom .com domain</li>
-          <li style="color:#b0a090;list-style:none;padding-left:0;font-size:0.82rem;">🔒 Coming Home, Month by Month</li>
-          <li style="color:#b0a090;list-style:none;padding-left:0;font-size:0.82rem;">🔒 Family profiles, Firsts, Letters &amp; more</li>
-        </ul>
-        <a href="/signup" class="btn-secondary" data-free="true" style="display:block;text-align:center;padding:0.85rem;border-color:#c8bfaf;color:#6b5f50;">Get Started Free &rarr;</a>
-        <p style="font-size:0.75rem;color:#b0a090;text-align:center;margin:8px 0 0;">No credit card required.</p>
-      </div>
 
       <!-- Annual Intro Card -->
       <div class="pricing-card featured" style="flex:1;min-width:280px;max-width:360px;position:relative;">
@@ -533,13 +511,26 @@
             <span><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Type: </span><span id="founderStep2TypeLabel" style="color:#B8935A;font-weight:700;font-size:0.8rem;"></span></span>
             <span><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Domain: </span><span id="founderStep2Domain" style="color:#B8935A;font-weight:700;font-size:0.8rem;"></span></span>
           </div>
+          <!-- Value Summary -->
+          <div id="founderStep2Summary" style="background:#1a2e1a;border:1px solid #4a8a4a;border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+            <div style="color:#7cb87c;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;margin-bottom:0.6rem;">✓ YOUR ORDER</div>
+            <div style="display:flex;flex-direction:column;gap:0.35rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span id="step3TypeSummary" style="color:#F8F2E6;font-size:0.85rem;">Baby Book</span>
+                <span id="step3PriceSummary" style="color:#B8935A;font-weight:700;font-size:0.85rem;">$29 first year</span>
+              </div>
+              <div style="color:#B8935A;font-size:0.82rem;">🌐 <span id="step3DomainSummary" style="font-weight:600;"></span></div>
+              <div style="color:rgba(248,242,230,0.45);font-size:0.74rem;margin-top:0.2rem;">Unlimited photos · milestones · letters · recipes · SSL hosting</div>
+              <div style="color:rgba(248,242,230,0.35);font-size:0.72rem;">Renews at $49.99/yr after first year — cancel anytime</div>
+            </div>
+          </div>
           <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">STEP 3 — YOUR EMAIL</label>
           <input type="email" id="founderEmail" placeholder="you@example.com"
             style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;margin-bottom:1.25rem;">
           <button id="founderSubmitBtn" style="width:100%;padding:1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">
             Continue to Payment &rarr;
           </button>
-          <p style="font-size:0.75rem;color:rgba(248,242,230,0.35);text-align:center;margin:0.75rem 0 0;">Domain names are non-refundable once registered.</p>
+          <p style="font-size:0.72rem;color:rgba(248,242,230,0.28);text-align:center;margin:0.75rem 0 0;">ℹ️ Please verify domain spelling above before completing purchase.</p>
         </div>
 
         <p id="founderModalError" style="display:none;color:#c0392b;font-size:0.85rem;margin:0.75rem 0 0;text-align:center;"></p>
@@ -781,17 +772,21 @@
     let _checkoutPlan = 'annual'; // 'annual' or 'monthly'
     let _bookType = null; // 'baby_book' or 'family_album'
 
-    function openFounderModal(plan) {
+    let _founderPrefillDomain = null;
+
+    function openFounderModal(plan, prefillDomain) {
       _checkoutPlan = plan || 'annual';
-      // Reset to step 0
       _founderSelectedDomain = null;
       _bookType = null;
+      _founderPrefillDomain = prefillDomain || null;
       document.getElementById('founderStep0').style.display = '';
       document.getElementById('founderStep1').style.display = 'none';
       document.getElementById('founderStep2').style.display = 'none';
       // Reset type card highlights
       document.getElementById('typeCardBabyBook').style.borderColor = 'rgba(184,147,90,0.25)';
+      document.getElementById('typeCardBabyBook').style.background = '#2C2416';
       document.getElementById('typeCardFamilyAlbum').style.borderColor = 'rgba(184,147,90,0.25)';
+      document.getElementById('typeCardFamilyAlbum').style.background = '#2C2416';
       document.getElementById('founderTypeNextBtn').disabled = true;
       document.getElementById('founderTypeNextBtn').style.background = '#4a3f2f';
       document.getElementById('founderTypeNextBtn').style.color = '#8a7a5a';
@@ -931,7 +926,17 @@
         document.getElementById('founderStep1TypeLabel').textContent = typeLabel;
         document.getElementById('founderStep0').style.display = 'none';
         document.getElementById('founderStep1').style.display = '';
-        setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
+        // If a domain was pre-filled from hero search, auto-populate and confirm it
+        if (_founderPrefillDomain) {
+          const domainInput = document.getElementById('founderDomainSearch');
+          const resultEl = document.getElementById('founderDomainResult');
+          domainInput.value = _founderPrefillDomain.replace('.com', '');
+          resultEl.innerHTML = '<span style="color:#7cb87c;font-weight:600;">&#10003; ' + _founderPrefillDomain + ' is available!</span>';
+          founderConfirmDomain(_founderPrefillDomain);
+          _founderPrefillDomain = null;
+        } else {
+          setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
+        }
       });
 
       document.getElementById('founderNextBtn').addEventListener('click', function() {
@@ -939,6 +944,10 @@
         const typeLabel = _bookType === 'family_album' ? '📔 Family Album' : '👶 Baby Book';
         document.getElementById('founderStep2TypeLabel').textContent = typeLabel;
         document.getElementById('founderStep2Domain').textContent = 'www.' + _founderSelectedDomain;
+        // Populate Step 3 value summary
+        document.getElementById('step3TypeSummary').textContent = typeLabel;
+        document.getElementById('step3DomainSummary').textContent = 'www.' + _founderSelectedDomain;
+        document.getElementById('step3PriceSummary').textContent = _checkoutPlan === 'monthly' ? '$4.99/mo' : '$29 first year';
         document.getElementById('founderStep1').style.display = 'none';
         document.getElementById('founderStep2').style.display = '';
         setTimeout(() => document.getElementById('founderEmail').focus(), 100);
@@ -997,6 +1006,12 @@
       document.getElementById('founderModal').addEventListener('click', function(e) {
         if (e.target === this) this.style.display = 'none';
       });
+
+      // Auto-open checkout modal if URL has ?open=checkout
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('open') === 'checkout') {
+        setTimeout(() => openFounderModal('annual'), 600);
+      }
     });
 
     document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
