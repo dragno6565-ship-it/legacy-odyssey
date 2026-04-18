@@ -304,7 +304,9 @@ router.get('/mine/months/:num', async (req, res, next) => {
     const { supabaseAdmin } = require('../../config/supabase');
     const { data } = await supabaseAdmin.from('months').select('*').eq('book_id', book.id).eq('month_number', num).maybeSingle();
     if (!data) return res.status(404).json({ error: 'Month not found' });
-    res.json({ ...data, photo_path: resolvePhoto(data.photo_path) });
+    const resolvedPath = resolvePhoto(data.photo_path);
+    console.log(`[months/${num}] raw=${data.photo_path} resolved=${resolvedPath}`);
+    res.json({ ...data, photo_path: resolvedPath });
   } catch (err) {
     next(err);
   }
