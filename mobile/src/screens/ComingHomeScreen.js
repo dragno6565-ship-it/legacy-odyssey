@@ -16,12 +16,7 @@ import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { useSavedToast } from '../components/SavedToast';
 
-const DEFAULT_CARDS = [
-  { photo_path: '', title: '', subtitle: '', body: '' },
-  { photo_path: '', title: '', subtitle: '', body: '' },
-  { photo_path: '', title: '', subtitle: '', body: '' },
-  { photo_path: '', title: '', subtitle: '', body: '' },
-];
+const BLANK_CARD = () => ({ photo_path: '', title: '', subtitle: '', body: '' });
 
 export default function ComingHomeScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
@@ -29,19 +24,21 @@ export default function ComingHomeScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [cards, setCards] = useState(DEFAULT_CARDS);
+  const [cards, setCards] = useState([BLANK_CARD()]);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const res = await get('/api/books/mine/coming-home');
         const fetched = Array.isArray(res.data) ? res.data : [];
-        const merged = [0, 1, 2, 3].map((i) => ({
-          photo_path: fetched[i]?.photo_path || '',
-          title: fetched[i]?.title || '',
-          subtitle: fetched[i]?.subtitle || '',
-          body: fetched[i]?.body || '',
-        }));
+        const merged = fetched.length > 0
+          ? fetched.map((c) => ({
+              photo_path: c.photo_path || '',
+              title: c.title || '',
+              subtitle: c.subtitle || '',
+              body: c.body || '',
+            }))
+          : [BLANK_CARD()];
         setCards(merged);
       } catch (err) {
         if (err.status !== 404) {
@@ -60,6 +57,14 @@ export default function ComingHomeScreen({ navigation }) {
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
+  }
+
+  function addCard() {
+    setCards((prev) => [...prev, BLANK_CARD()]);
+  }
+
+  function removeCard(index) {
+    setCards((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSave() {
@@ -107,7 +112,14 @@ export default function ComingHomeScreen({ navigation }) {
 
         {cards.map((card, index) => (
           <View key={index} style={styles.card}>
-            <Text style={styles.cardNumber}>Card {index + 1}</Text>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardNumber}>Card {index + 1}</Text>
+              {cards.length > 1 && (
+                <TouchableOpacity onPress={() => removeCard(index)} activeOpacity={0.7}>
+                  <Text style={styles.removeText}>Remove</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <PhotoPicker
               currentPhoto={card.photo_path}
@@ -146,6 +158,10 @@ export default function ComingHomeScreen({ navigation }) {
           </View>
         ))}
 
+        <TouchableOpacity style={styles.addButton} onPress={addCard} activeOpacity={0.8}>
+          <Text style={styles.addButtonText}>+ Add Card</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
           onPress={handleSave}
@@ -173,7 +189,11 @@ const styles = StyleSheet.create({
   errorContainer: { backgroundColor: colors.errorLight, borderRadius: borderRadius.sm, padding: spacing.md, marginBottom: spacing.md },
   errorText: { color: colors.error, fontSize: typography.sizes.sm, textAlign: 'center' },
   card: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.lg, ...shadows.card },
-  cardNumber: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.gold, marginBottom: spacing.sm },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+  cardNumber: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.gold },
+  removeText: { fontSize: typography.sizes.sm, color: colors.error },
+  addButton: { borderWidth: 1.5, borderColor: colors.gold, borderStyle: 'dashed', borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginBottom: spacing.md },
+  addButtonText: { color: colors.gold, fontSize: typography.sizes.md, fontWeight: typography.weights.semibold },
   label: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginBottom: spacing.xs, marginTop: spacing.sm },
   input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.md, fontSize: typography.sizes.md, color: colors.textPrimary },
   bodyInput: { minHeight: 100, paddingTop: spacing.md },

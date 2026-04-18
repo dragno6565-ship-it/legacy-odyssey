@@ -15,11 +15,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
 
-const DEFAULT_LETTERS = [
-  { from_label: '', salutation: '', body: '', signature: '' },
-  { from_label: '', salutation: '', body: '', signature: '' },
-  { from_label: '', salutation: '', body: '', signature: '' },
-];
+const BLANK_LETTER = () => ({ from_label: '', salutation: '', body: '', signature: '' });
 
 export default function LettersScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
@@ -27,21 +23,23 @@ export default function LettersScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [letters, setLetters] = useState(DEFAULT_LETTERS);
+  const [letters, setLetters] = useState([BLANK_LETTER()]);
 
   useEffect(() => {
     async function fetchLetters() {
       try {
         const res = await get('/api/books/mine/letters');
         const data = res.data;
-        // Ensure we always have 3 letters
         const fetched = Array.isArray(data) ? data : data.letters || [];
-        const merged = [0, 1, 2].map((i) => ({
-          from_label: fetched[i]?.from_label || '',
-          salutation: fetched[i]?.salutation || '',
-          body: fetched[i]?.body || '',
-          signature: fetched[i]?.signature || '',
-        }));
+        // Use however many letters exist in the DB; start with one blank if none
+        const merged = fetched.length > 0
+          ? fetched.map((l) => ({
+              from_label: l.from_label || '',
+              salutation: l.salutation || '',
+              body: l.body || '',
+              signature: l.signature || '',
+            }))
+          : [BLANK_LETTER()];
         setLetters(merged);
       } catch (err) {
         if (err.status !== 404) {
@@ -60,6 +58,14 @@ export default function LettersScreen({ navigation }) {
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
+  }
+
+  function addLetter() {
+    setLetters((prev) => [...prev, BLANK_LETTER()]);
+  }
+
+  function removeLetter(index) {
+    setLetters((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSaveAll() {
@@ -109,7 +115,14 @@ export default function LettersScreen({ navigation }) {
 
         {letters.map((letter, index) => (
           <View key={index} style={styles.letterCard}>
-            <Text style={styles.letterNumber}>Letter {index + 1}</Text>
+            <View style={styles.cardHeader}>
+              <Text style={styles.letterNumber}>Letter {index + 1}</Text>
+              {letters.length > 1 && (
+                <TouchableOpacity onPress={() => removeLetter(index)} activeOpacity={0.7}>
+                  <Text style={styles.removeText}>Remove</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <Text style={styles.label}>From</Text>
             <TextInput
@@ -151,6 +164,10 @@ export default function LettersScreen({ navigation }) {
             />
           </View>
         ))}
+
+        <TouchableOpacity style={styles.addButton} onPress={addLetter} activeOpacity={0.8}>
+          <Text style={styles.addButtonText}>+ Add Letter</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
@@ -215,12 +232,35 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     ...shadows.card,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
   letterNumber: {
     fontFamily: typography.fontFamily.serif,
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.semibold,
     color: colors.gold,
-    marginBottom: spacing.sm,
+  },
+  removeText: {
+    fontSize: typography.sizes.sm,
+    color: colors.error,
+  },
+  addButton: {
+    borderWidth: 1.5,
+    borderColor: colors.gold,
+    borderStyle: 'dashed',
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  addButtonText: {
+    color: colors.gold,
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   label: {
     fontSize: typography.sizes.sm,

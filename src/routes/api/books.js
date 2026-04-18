@@ -1,6 +1,14 @@
 const { Router } = require('express');
 const requireAuth = require('../../middleware/requireAuth');
 const bookService = require('../../services/bookService');
+const { getPublicUrl } = require('../../utils/imageUrl');
+
+// Helper: convert a stored photo value (may be relative path or full URL) to
+// a full public URL the mobile app can use directly.
+function resolvePhoto(val) {
+  if (!val) return '';
+  return getPublicUrl(val) || '';
+}
 
 const router = Router();
 
@@ -45,6 +53,8 @@ router.get('/mine', async (req, res, next) => {
 
     res.json({
       ...book,
+      // Resolve hero photo to full URL so the mobile app can display it
+      hero_image_path: resolvePhoto(book.hero_image_path),
       child,
       months,
       // Aliases for SettingsScreen which reads book.password / book.slug
@@ -227,7 +237,14 @@ router.get('/mine/birth', async (req, res, next) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     const { supabaseAdmin } = require('../../config/supabase');
     const { data } = await supabaseAdmin.from('birth_stories').select('*').eq('book_id', book.id).maybeSingle();
-    res.json(data || {});
+    if (!data) return res.json({});
+    res.json({
+      ...data,
+      mom_photo_1: resolvePhoto(data.mom_photo_1),
+      mom_photo_2: resolvePhoto(data.mom_photo_2),
+      dad_photo_1: resolvePhoto(data.dad_photo_1),
+      dad_photo_2: resolvePhoto(data.dad_photo_2),
+    });
   } catch (err) {
     next(err);
   }
@@ -249,7 +266,8 @@ router.get('/mine/coming-home', async (req, res, next) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     const { supabaseAdmin } = require('../../config/supabase');
     const { data } = await supabaseAdmin.from('coming_home_cards').select('*').eq('book_id', book.id).order('sort_order');
-    res.json(data || []);
+    const cards = (data || []).map(c => ({ ...c, photo_path: resolvePhoto(c.photo_path) }));
+    res.json(cards);
   } catch (err) {
     next(err);
   }
@@ -286,7 +304,7 @@ router.get('/mine/months/:num', async (req, res, next) => {
     const { supabaseAdmin } = require('../../config/supabase');
     const { data } = await supabaseAdmin.from('months').select('*').eq('book_id', book.id).eq('month_number', num).maybeSingle();
     if (!data) return res.status(404).json({ error: 'Month not found' });
-    res.json(data);
+    res.json({ ...data, photo_path: resolvePhoto(data.photo_path) });
   } catch (err) {
     next(err);
   }
@@ -310,7 +328,14 @@ router.get('/mine/family', async (req, res, next) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     const { supabaseAdmin } = require('../../config/supabase');
     const { data } = await supabaseAdmin.from('family_members').select('*').eq('book_id', book.id).order('sort_order');
-    res.json(data || []);
+    const members = (data || []).map(m => ({
+      ...m,
+      photo_path:    resolvePhoto(m.photo_path),
+      album_1_path:  resolvePhoto(m.album_1_path),
+      album_2_path:  resolvePhoto(m.album_2_path),
+      album_3_path:  resolvePhoto(m.album_3_path),
+    }));
+    res.json(members);
   } catch (err) {
     next(err);
   }
@@ -400,7 +425,8 @@ router.get('/mine/celebrations', async (req, res, next) => {
       .eq('book_id', book.id)
       .eq('year_label', yearLabel)
       .order('sort_order');
-    res.json(data || []);
+    const items = (data || []).map(c => ({ ...c, photo_path: resolvePhoto(c.photo_path) }));
+    res.json(items);
   } catch (err) { next(err); }
 });
 
@@ -465,7 +491,8 @@ router.put('/mine/photo-position', async (req, res, next) => {
     const cy = Math.max(0, Math.min(100, Number(y)));
 
     const book = await bookService.getBookByFamilyId(req.family.id);
-    if (!book) return res.status(404).json({ error: 'No book found' });
+    // If this family has no book record (e.g. Family Album type), silently succeed
+    if (!book) return res.json({ success: true, storagePath, x: cx, y: cy });
 
     const { supabaseAdmin } = require('../../config/supabase');
     // Use JSONB merge: update only this key in photo_positions

@@ -234,7 +234,7 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
           </View>
         ) : (
           <Text style={styles.buttonText}>
-            {currentPhoto ? 'Change Photo' : 'Choose Photo'}
+            {currentPhoto ? 'Change / Edit Photo' : 'Choose Photo'}
           </Text>
         )}
       </TouchableOpacity>
