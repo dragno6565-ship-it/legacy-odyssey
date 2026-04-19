@@ -12,11 +12,14 @@ const FAMILY_ID_KEY = 'legacy_odyssey_family_id_v2';
 let _token = null;
 let _familyId = null;
 
-// Base URL: use environment variable or fallback to production Railway URL
+// Base URL: use the custom domain, NOT the auto-generated Railway subdomain.
+// The *.up.railway.app hostname historically points to a stale/older service
+// that has diverged from the live production deploy, which is why photo APIs
+// returned stale data. legacyodyssey.com is always the canonical current deploy.
 const BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ||
   process.env.API_URL ||
-  'https://legacy-odyssey-production-a9d1.up.railway.app';
+  'https://legacyodyssey.com';
 
 const client = axios.create({
   baseURL: BASE_URL,
