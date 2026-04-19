@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Image } from 'expo-image';
+import { Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { BASE_URL } from '../api/client';
@@ -210,8 +210,7 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
           <Image
             source={{ uri: photoUri }}
             style={styles.preview}
-            contentFit="cover"
-            contentPosition={{ left: `${focalPoint.x}%`, top: `${focalPoint.y}%` }}
+            resizeMode="cover"
           />
         </View>
       ) : (

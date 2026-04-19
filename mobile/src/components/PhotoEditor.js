@@ -11,7 +11,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import { Image } from 'expo-image';
+import { Image } from 'react-native';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { colors, spacing, typography, borderRadius } from '../theme';
 
@@ -152,7 +152,7 @@ export default function PhotoEditor({ visible, photoUri, initialPos, onSave, onC
             <Image
               source={{ uri: photoUri }}
               style={[styles.previewImage, rotation !== 0 && { transform: [{ rotate: `${rotation}deg` }] }]}
-              contentFit="contain"
+              resizeMode="contain"
             />
 
             {/* Focal point crosshair */}
