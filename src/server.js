@@ -96,6 +96,14 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Disable HTTP caching for all API routes so mobile app always gets fresh data
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 // API routes (JSON — consumed by mobile app)
 app.use('/api/auth', require('./routes/api/auth'));
 app.use('/api/books', require('./routes/api/books'));
