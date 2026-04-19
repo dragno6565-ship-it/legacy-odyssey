@@ -23,6 +23,11 @@ const client = axios.create({
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
+    // Force Android's OkHttp to bypass its disk cache and always fetch fresh
+    // data from Railway. Without this, OkHttp serves stale cached API responses
+    // (with relative photo paths) instead of hitting the live server.
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
   },
 });
 
