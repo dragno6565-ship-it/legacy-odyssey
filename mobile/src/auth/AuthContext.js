@@ -4,7 +4,7 @@ import { post, get, setToken, clearToken, getToken, setActiveFamilyId, getActive
 
 const AuthContext = createContext(null);
 
-const REFRESH_KEY = 'legacy_odyssey_refresh';
+const REFRESH_KEY = 'legacy_odyssey_refresh_v2'; // v2 matches client.js key rotation
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
