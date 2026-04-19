@@ -51,10 +51,13 @@ router.get('/mine', async (req, res, next) => {
       .from('families').select('book_password, subdomain, custom_domain')
       .eq('id', req.family.id).single();
 
+    // DIAGNOSTIC: log hero image resolution
+    const resolvedHero = resolvePhoto(book.hero_image_path);
+    console.log('[DIAG /mine] family_id=%s raw_hero=%s resolved_hero=%s', req.family.id, book.hero_image_path, resolvedHero);
     res.json({
       ...book,
       // Resolve hero photo to full URL so the mobile app can display it
-      hero_image_path: resolvePhoto(book.hero_image_path),
+      hero_image_path: resolvedHero,
       child,
       months,
       // Aliases for SettingsScreen which reads book.password / book.slug
@@ -335,6 +338,11 @@ router.get('/mine/family', async (req, res, next) => {
       album_2_path:  resolvePhoto(m.album_2_path),
       album_3_path:  resolvePhoto(m.album_3_path),
     }));
+    // DIAGNOSTIC: log raw vs resolved photo paths
+    console.log('[DIAG /mine/family] family_id=%s members=%d', req.family.id, members.length);
+    (data || []).forEach((m, i) => {
+      console.log('[DIAG member %d] name=%s raw_photo_path=%s resolved=%s', i, m.name, m.photo_path, members[i].photo_path);
+    });
     res.json(members);
   } catch (err) {
     next(err);
