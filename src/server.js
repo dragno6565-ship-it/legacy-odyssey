@@ -104,6 +104,36 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+// --- Diagnostic request tail (in-memory ring buffer) ---
+// Records the last 200 /api/* requests so we can verify mobile traffic.
+// Read via GET /diag/tail?key=<DIAG_KEY>  (key defaults to "trace" if env not set)
+const DIAG_KEY = process.env.DIAG_KEY || 'trace';
+const __diagBuf = [];
+app.use('/api', (req, res, next) => {
+  const entry = {
+    t: new Date().toISOString(),
+    method: req.method,
+    path: req.originalUrl.split('?')[0],
+    ip: (req.headers['x-forwarded-for'] || req.ip || '').toString().split(',')[0].trim(),
+    ua: (req.headers['user-agent'] || '').slice(0, 120),
+    famHdr: req.headers['x-family-id'] ? 'yes' : 'no',
+    authHdr: req.headers.authorization ? 'yes' : 'no',
+  };
+  __diagBuf.push(entry);
+  if (__diagBuf.length > 200) __diagBuf.shift();
+  next();
+});
+app.get('/diag/tail', (req, res) => {
+  if (req.query.key !== DIAG_KEY) return res.status(401).json({ error: 'bad key' });
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ count: __diagBuf.length, now: new Date().toISOString(), entries: __diagBuf.slice().reverse() });
+});
+app.post('/diag/clear', (req, res) => {
+  if (req.query.key !== DIAG_KEY) return res.status(401).json({ error: 'bad key' });
+  __diagBuf.length = 0;
+  res.json({ cleared: true });
+});
+
 // API routes (JSON — consumed by mobile app)
 app.use('/api/auth', require('./routes/api/auth'));
 app.use('/api/books', require('./routes/api/books'));
