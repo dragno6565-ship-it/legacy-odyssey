@@ -159,7 +159,7 @@ async function handleCheckoutComplete(session) {
       to: email,
       displayName: family.display_name || subdomain,
       tempPassword,
-      bookPassword: 'legacy',
+      bookPassword: family.book_password,
       subdomain,
       customDomain: domain || null,
     });

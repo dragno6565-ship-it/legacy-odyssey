@@ -322,15 +322,15 @@
             <div class="detail-card">
               <h3>&#9993; Send Welcome Email</h3>
               <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 12px;">
-                Send a branded welcome email with login credentials, app download link, and book URL.
+                Sends a fresh temporary password (auto-generated and applied to their account) plus their book password and app download link.
               </p>
               <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div class="form-group">
-                  <label>App Password (for email)</label>
-                  <input type="text" id="welcomePassword" placeholder="Enter the customer's app password" value="">
+                  <label>Send To (leave blank to use account email)</label>
+                  <input type="text" id="welcomeSendTo" placeholder="<%= family.email %>" value="">
                 </div>
                 <button type="button" class="btn btn-primary btn-sm" onclick="sendWelcomeEmail()" id="sendEmailBtn">
-                  &#9993; Send Welcome Email to <%= family.email %>
+                  &#9993; Send Welcome Email
                 </button>
               </div>
             </div>
@@ -372,12 +372,8 @@
     }
 
     function sendWelcomeEmail() {
-      const password = document.getElementById('welcomePassword').value;
-      if (!password) {
-        alert('Please enter the app password to include in the email.');
-        return;
-      }
-      if (!confirm('Send welcome email to <%= family.email %>?')) return;
+      const sendTo = document.getElementById('welcomeSendTo').value.trim() || '<%= family.email %>';
+      if (!confirm('Send welcome email to ' + sendTo + '?\n\nThis will reset their app login password to a new temporary one.')) return;
 
       // Create a hidden form and submit it
       const form = document.createElement('form');
@@ -386,8 +382,8 @@
 
       const input = document.createElement('input');
       input.type = 'hidden';
-      input.name = 'temp_password';
-      input.value = password;
+      input.name = 'send_to_email';
+      input.value = sendTo;
       form.appendChild(input);
 
       document.body.appendChild(form);

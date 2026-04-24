@@ -96,7 +96,7 @@ router.post('/', async (req, res, next) => {
         subdomain: subdomain ? subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '') : null,
         custom_domain: customDomain || null,
         display_name: displayName || 'New Website',
-        book_password: 'legacy',
+        book_password: require('crypto').randomBytes(4).toString('hex'),
         subscription_status: 'trialing',
       })
       .select()

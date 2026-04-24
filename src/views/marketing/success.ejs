@@ -327,12 +327,12 @@
       </ol>
     </div>
 
-    <!-- Password -->
+    <!-- App Login Password -->
     <div class="card">
       <h2><span class="card-icon">&#128272;</span> Your Temporary Password</h2>
       <% if (tempPassword) { %>
       <div class="password-box">
-        <div class="password-label">Your temporary password is:</div>
+        <div class="password-label">Your temporary app password is:</div>
         <div class="password-value"><%= tempPassword %></div>
         <div class="password-warning">&#9888; Save this now! This is the only time it will be shown.</div>
       </div>
@@ -346,6 +346,21 @@
       </div>
       <% } %>
     </div>
+
+    <!-- Book Viewing Password -->
+    <% if (bookPassword) { %>
+    <div class="card">
+      <h2><span class="card-icon">&#128214;</span> Your Book Password</h2>
+      <p style="font-size: 0.9rem; color: #6b5f4f; margin-bottom: 0.75rem; line-height: 1.5;">
+        Share this password with family and friends so they can view your book. You can change it anytime from the app.
+      </p>
+      <div class="password-box">
+        <div class="password-label">Book viewing password:</div>
+        <div class="password-value"><%= bookPassword %></div>
+        <div class="password-note">Share this with grandparents, aunts, uncles &mdash; anyone you want to see the book.</div>
+      </div>
+    </div>
+    <% } %>
 
     <!-- CTA -->
     <div class="cta-section">

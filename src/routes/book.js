@@ -230,6 +230,7 @@ router.get('/stripe/success', async (req, res) => {
         planValue,
         email,
         tempPassword: null,
+        bookPassword: family.book_password || null,
         purchaseEventId,
       });
     }
@@ -244,6 +245,7 @@ router.get('/stripe/success', async (req, res) => {
       planValue,
       email,
       tempPassword: result.tempPassword,
+      bookPassword: result.family.book_password || null,
       purchaseEventId,
     });
   } catch (err) {

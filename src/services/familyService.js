@@ -79,7 +79,7 @@ async function create({ email, authUserId, subdomain, displayName, stripeCustome
       subdomain,
       display_name: displayName,
       stripe_customer_id: stripeCustomerId,
-      book_password: 'legacy', // default
+      book_password: require('crypto').randomBytes(4).toString('hex'), // unique per family
       subscription_status: plan === 'paid' ? 'active' : 'trialing',
       plan: plan || 'free',
       book_type: bookType || 'baby_book',

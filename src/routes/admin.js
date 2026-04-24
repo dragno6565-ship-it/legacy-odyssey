@@ -273,7 +273,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
         display_name: display_name.trim(),
         subdomain: subdomain.trim().toLowerCase(),
         custom_domain: custom_domain ? custom_domain.trim().toLowerCase() : null,
-        book_password: book_password || 'legacy',
+        book_password: book_password || require('crypto').randomBytes(4).toString('hex'),
         subscription_status: subscription_status || 'trialing',
         trial_ends_at: trialDays > 0 ? trialEndsAt.toISOString() : null,
         is_active: true,
@@ -307,7 +307,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
         display_name: display_name.trim(),
         email: email.trim().toLowerCase(),
         temp_password,
-        book_password: book_password || 'legacy',
+        book_password: book_password || family.book_password,
         custom_domain: custom_domain ? custom_domain.trim().toLowerCase() : null,
         subdomain: subdomain.trim().toLowerCase(),
         subscription_status: subscription_status || 'trialing',
@@ -329,22 +329,28 @@ router.post('/families/:id/send-welcome', requireAdmin, async (req, res, next) =
     const family = await familyService.findById(req.params.id);
     if (!family) return res.status(404).send('Family not found');
 
-    const apkUrl = 'https://expo.dev/artifacts/eas/dEWDhAKzbdohggvEofzuEy.apk';
+    // Auto-generate a fresh temp password and update the user's Supabase auth so they can actually log in with it
+    const tempPassword = require('crypto').randomBytes(8).toString('hex');
+    if (family.auth_user_id) {
+      const { error: pwErr } = await supabaseAdmin.auth.admin.updateUserById(family.auth_user_id, {
+        password: tempPassword,
+      });
+      if (pwErr) console.error('Failed to reset auth password for welcome email:', pwErr.message);
+    }
 
-    // Get the temp password from the form or use a placeholder
-    const tempPassword = req.body.temp_password || '(check with admin)';
+    // Allow admin to override the recipient address (defaults to family.email)
+    const sendTo = (req.body.send_to_email || '').trim() || family.email;
 
     await emailService.sendWelcomeEmail({
-      to: family.email,
+      to: sendTo,
       displayName: family.display_name,
       tempPassword,
-      bookPassword: family.book_password || 'legacy',
+      bookPassword: family.book_password,
       subdomain: family.subdomain,
       customDomain: family.custom_domain,
-      apkUrl,
     });
 
-    res.redirect(`/admin/families/${family.id}?success=Welcome+email+sent+to+${encodeURIComponent(family.email)}`);
+    res.redirect(`/admin/families/${family.id}?success=Welcome+email+sent+to+${encodeURIComponent(sendTo)}`);
   } catch (err) {
     console.error('Send welcome email error:', err);
     res.redirect(`/admin/families/${req.params.id}?error=Failed+to+send+welcome+email:+${encodeURIComponent(err.message)}`);
