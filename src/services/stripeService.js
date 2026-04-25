@@ -330,6 +330,43 @@ async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subd
   return session;
 }
 
+/**
+ * Cancel a family's subscription at the end of its current billing period.
+ * Customer keeps access through what they've already paid for.
+ *
+ * No-op if family has no stripe_subscription_id.
+ * Returns { canceled: bool, periodEnd: ISO string|null, alreadyCanceled: bool }.
+ */
+async function cancelSubscriptionAtPeriodEnd(family) {
+  if (!stripe) throw new Error('Stripe not configured');
+  if (!family || !family.stripe_subscription_id) {
+    return { canceled: false, periodEnd: null, alreadyCanceled: false, reason: 'no-subscription' };
+  }
+
+  // Read current state — Stripe lets us call update on already-canceled subs but
+  // it's cleaner to detect and skip. cancel_at_period_end=true is idempotent.
+  const sub = await stripe.subscriptions.retrieve(family.stripe_subscription_id);
+  if (sub.status === 'canceled') {
+    return { canceled: true, periodEnd: null, alreadyCanceled: true };
+  }
+  if (sub.cancel_at_period_end) {
+    return {
+      canceled: true,
+      periodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+      alreadyCanceled: true,
+    };
+  }
+
+  const updated = await stripe.subscriptions.update(family.stripe_subscription_id, {
+    cancel_at_period_end: true,
+  });
+  return {
+    canceled: true,
+    periodEnd: updated.current_period_end ? new Date(updated.current_period_end * 1000).toISOString() : null,
+    alreadyCanceled: false,
+  };
+}
+
 module.exports = {
   PRICES,
   createCheckoutSession,
@@ -337,6 +374,7 @@ module.exports = {
   createGiftCheckoutSession,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,
+  cancelSubscriptionAtPeriodEnd,
   syncSubscriptionStatus,
   createPortalSession,
 };

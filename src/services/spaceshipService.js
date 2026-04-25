@@ -188,6 +188,17 @@ async function setupUrlRedirect(domain) {
   console.log(`URL redirect skipped for ${domain} (Spaceship endpoint deprecated; root traffic unhandled)`);
 }
 
+/**
+ * Toggle auto-renewal for a registered domain.
+ * Spaceship API: PUT /domains/{domain}/autoRenew with body { isEnabled: bool }.
+ * Rate limit: 5 requests per domain per 300 seconds.
+ */
+async function setAutoRenew(domain, enabled) {
+  if (!spaceship) throw new Error('Spaceship API not configured');
+  await spaceship.put(`/domains/${encodeURIComponent(domain)}/autoRenew`, { isEnabled: !!enabled });
+  console.log(`Spaceship auto-renew ${enabled ? 'ENABLED' : 'DISABLED'} for ${domain}`);
+}
+
 module.exports = {
   checkAvailability,
   checkMultipleTlds,
@@ -195,6 +206,7 @@ module.exports = {
   pollOperation,
   setupDns,
   setupUrlRedirect,
+  setAutoRenew,
   PRIMARY_TLDS,
   MAX_REGISTRATION_PRICE,
 };

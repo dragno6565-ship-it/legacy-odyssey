@@ -354,10 +354,19 @@
               Reactivate Account
             </a>
           <% } %>
+          <!-- Cancel & Archive: soft cancel that keeps all data for resubscribe. -->
+          <form action="/admin/families/<%= family.id %>/cancel" method="POST" style="margin-left: 8px;"
+                onsubmit="return confirm('Cancel & archive this account?\n\n• Stripe subscription cancels at period end\n• Spaceship domain auto-renew stops\n• Family marked archived; book shows suspended page\n• Photos, content, and login user PRESERVED for resubscribe');">
+            <button type="submit" class="btn btn-sm" style="background:#b08e4a;color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;">
+              Cancel & Archive
+            </button>
+          </form>
+          <!-- Permanent delete: requires typing email to confirm. -->
           <form action="/admin/families/<%= family.id %>/delete" method="POST" style="margin-left: 8px;"
-                onsubmit="return confirm('PERMANENTLY DELETE this account and all data? This cannot be undone.');">
+                onsubmit="return confirmPermanentDelete(this);">
+            <input type="hidden" name="confirm_email" id="confirmEmailInput" value="">
             <button type="submit" class="btn btn-sm" style="background:#8b0000;color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;">
-              Delete Account
+              Permanently Delete
             </button>
           </form>
         </div>
@@ -369,6 +378,25 @@
       navigator.clipboard.writeText(code).then(function() {
         alert('Gift code copied: ' + code);
       });
+    }
+
+    // PERMANENTLY DELETE — typed email confirmation. Photos + auth user wiped,
+    // SQL rows deleted, Stripe cancelled, Spaceship auto-renew stopped.
+    function confirmPermanentDelete(form) {
+      const expected = '<%= (family.email || "").toLowerCase() %>';
+      if (!expected) { alert('This family has no email — cannot use typed-email confirm. Use Cancel & Archive instead.'); return false; }
+      const typed = window.prompt(
+        'PERMANENTLY DELETE this account?\n\n' +
+        'This wipes ALL data: photos, books, content, login user.\n' +
+        'Stripe subscription cancels, Spaceship auto-renew stops, but the\n' +
+        'domain registration itself stays in your account until expiry.\n\n' +
+        'CANNOT BE UNDONE.\n\n' +
+        'Type the family email to confirm:\n' + expected
+      );
+      if (!typed) return false;
+      if (typed.trim().toLowerCase() !== expected) { alert('Typed email did not match. Aborted.'); return false; }
+      form.querySelector('#confirmEmailInput').value = typed.trim();
+      return true;
     }
 
     function sendWelcomeEmail() {

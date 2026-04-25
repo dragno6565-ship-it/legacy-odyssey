@@ -416,25 +416,140 @@ router.get('/families/:id/toggle-active', requireAdmin, async (req, res, next) =
   }
 });
 
-// Delete family (and all related data)
+// Hardcoded protected emails — never cancel or delete these via the admin UI.
+// (Apple App Store reviewers depend on the demo account; admins shouldn't be
+// able to nuke their own auth user from the panel.)
+const PROTECTED_EMAILS = new Set(['review@legacyodyssey.com']);
+
+/**
+ * Block cancellation/deletion of: any admin's own account, or hardcoded
+ * protected emails. Returns string reason if blocked, null if OK.
+ */
+async function checkProtectedFamily(family) {
+  if (!family || !family.email) return null;
+  const email = family.email.toLowerCase();
+  if (PROTECTED_EMAILS.has(email)) return `${email} is protected (Apple Review Demo) and cannot be cancelled or deleted from the admin panel`;
+  const { data: admins } = await supabaseAdmin.from('admin_users').select('email');
+  const adminEmails = new Set((admins || []).map(a => a.email?.toLowerCase()).filter(Boolean));
+  if (adminEmails.has(email)) return `${email} is an admin account and cannot be cancelled or deleted from the admin panel (would lock you out)`;
+  return null;
+}
+
+/**
+ * Soft cancel: mark archived, cancel Stripe at period end, stop Spaceship
+ * auto-renew. Keeps all data so the customer can resubscribe later.
+ */
+router.post('/families/:id/cancel', requireAdmin, async (req, res, next) => {
+  try {
+    const family = await familyService.findById(req.params.id);
+    if (!family) return res.status(404).send('Family not found');
+
+    const blocked = await checkProtectedFamily(family);
+    if (blocked) return res.redirect(`/admin/families/${family.id}?error=${encodeURIComponent(blocked)}`);
+
+    const summary = [];
+
+    // 1. Cancel Stripe subscription at period end
+    try {
+      const stripeService = require('../services/stripeService');
+      const result = await stripeService.cancelSubscriptionAtPeriodEnd(family);
+      if (result.canceled && result.alreadyCanceled) summary.push('Stripe subscription was already cancelled');
+      else if (result.canceled) summary.push(`Stripe subscription will end ${result.periodEnd?.slice(0, 10) || 'at period end'}`);
+      else summary.push('No Stripe subscription on file (skipped)');
+    } catch (err) {
+      console.error(`Stripe cancel failed for family ${family.id}:`, err.message);
+      summary.push(`⚠ Stripe cancel failed: ${err.message}`);
+    }
+
+    // 2. Stop Spaceship auto-renew on the custom domain (if any)
+    if (family.custom_domain) {
+      try {
+        const spaceshipService = require('../services/spaceshipService');
+        await spaceshipService.setAutoRenew(family.custom_domain, false);
+        summary.push(`Spaceship auto-renew disabled on ${family.custom_domain}`);
+      } catch (err) {
+        console.error(`Spaceship auto-renew failed for ${family.custom_domain}:`, err.message);
+        summary.push(`⚠ Spaceship auto-renew failed: ${err.message}`);
+      }
+    }
+
+    // 3. Mark family as archived/cancelled. The existing book/suspended page
+    //    is already shown when subscription_status === 'canceled'.
+    await supabaseAdmin
+      .from('families')
+      .update({
+        subscription_status: 'canceled',
+        archived_at: new Date().toISOString(),
+      })
+      .eq('id', family.id);
+    summary.push('Family marked archived; book is now suspended');
+
+    res.redirect(`/admin/families/${family.id}?success=${encodeURIComponent('Cancelled & archived: ' + summary.join('; '))}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Hard delete: requires the admin to type the exact email as confirmation.
+ * Performs all soft-cancel steps PLUS purges photos from storage and
+ * deletes all SQL rows + the auth user.
+ */
 router.post('/families/:id/delete', requireAdmin, async (req, res, next) => {
   try {
     const family = await familyService.findById(req.params.id);
     if (!family) return res.status(404).send('Family not found');
 
-    // Delete in order: books → family → auth user
-    await supabaseAdmin.from('books').delete().eq('family_id', family.id);
-    await supabaseAdmin.from('families').delete().eq('id', family.id);
+    // Confirmation: the form must POST `confirm_email` matching family.email.
+    const typed = (req.body.confirm_email || '').trim().toLowerCase();
+    if (!typed || typed !== (family.email || '').toLowerCase()) {
+      return res.redirect(`/admin/families/${family.id}?error=${encodeURIComponent('Confirmation email did not match — deletion aborted')}`);
+    }
 
-    if (family.email) {
-      const { data: authUser } = await supabaseAdmin.auth.admin.listUsers();
-      const user = authUser?.users?.find(u => u.email === family.email);
-      if (user) {
-        await supabaseAdmin.auth.admin.deleteUser(user.id);
+    const blocked = await checkProtectedFamily(family);
+    if (blocked) return res.redirect(`/admin/families/${family.id}?error=${encodeURIComponent(blocked)}`);
+
+    // 1. Cancel Stripe + Spaceship first (best-effort; do not block hard delete on failure)
+    try {
+      const stripeService = require('../services/stripeService');
+      await stripeService.cancelSubscriptionAtPeriodEnd(family);
+    } catch (err) {
+      console.error(`Pre-delete Stripe cancel failed for family ${family.id}:`, err.message);
+    }
+    if (family.custom_domain) {
+      try {
+        const spaceshipService = require('../services/spaceshipService');
+        await spaceshipService.setAutoRenew(family.custom_domain, false);
+      } catch (err) {
+        console.error(`Pre-delete Spaceship auto-renew failed for ${family.custom_domain}:`, err.message);
       }
     }
 
-    res.redirect('/admin?success=Account+deleted');
+    // 2. Purge storage photos at photos/{family_id}/...
+    try {
+      const { data: files } = await supabaseAdmin.storage.from('photos').list(family.id, { limit: 1000 });
+      if (files && files.length) {
+        const paths = files.map(f => `${family.id}/${f.name}`);
+        await supabaseAdmin.storage.from('photos').remove(paths);
+        console.log(`[admin-delete] Purged ${paths.length} photo(s) for family ${family.id}`);
+      }
+    } catch (err) {
+      console.error(`Storage purge failed for family ${family.id}:`, err.message);
+    }
+
+    // 3. Delete SQL rows. books → cascade deletes all 11 content tables.
+    //    domain_orders/gift_codes have ON DELETE SET NULL — they remain as orphans (intentional).
+    await supabaseAdmin.from('books').delete().eq('family_id', family.id);
+    await supabaseAdmin.from('families').delete().eq('id', family.id);
+
+    // 4. Delete Supabase Auth user
+    if (family.email) {
+      const { data: authUser } = await supabaseAdmin.auth.admin.listUsers();
+      const user = authUser?.users?.find(u => u.email?.toLowerCase() === family.email.toLowerCase());
+      if (user) await supabaseAdmin.auth.admin.deleteUser(user.id);
+    }
+
+    res.redirect('/admin?success=' + encodeURIComponent('Account permanently deleted'));
   } catch (err) {
     next(err);
   }
