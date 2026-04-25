@@ -141,6 +141,10 @@ const server = app.listen(PORT, () => {
   // Start daily domain-order alert scheduler (notifies admin about failed/stuck orders)
   const { startDomainOrderAlertsScheduler } = require('./jobs/domainOrderAlerts');
   startDomainOrderAlertsScheduler();
+
+  // Start daily photo backup to Cloudflare R2 (mirrors Supabase Storage off-site)
+  const { startPhotoBackupScheduler } = require('./jobs/photoBackup');
+  startPhotoBackupScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).

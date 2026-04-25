@@ -13,6 +13,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1037.0",
     "@sentry/node": "^10.45.0",
     "@supabase/supabase-js": "^2.97.0",
     "axios": "^1.13.5",
