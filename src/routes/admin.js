@@ -338,13 +338,26 @@ router.post('/families/:id/send-welcome', requireAdmin, async (req, res, next) =
       if (pwErr) console.error('Failed to reset auth password for welcome email:', pwErr.message);
     }
 
+    // Generate a recovery link so the customer can set their own password
+    let setPasswordUrl = null;
+    try {
+      const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email: family.email,
+        options: { redirectTo: 'https://legacyodyssey.com/set-password' },
+      });
+      setPasswordUrl = linkData?.properties?.action_link || null;
+    } catch (e) {
+      console.error('Failed to generate recovery link for welcome resend:', e.message);
+    }
+
     // Allow admin to override the recipient address (defaults to family.email)
     const sendTo = (req.body.send_to_email || '').trim() || family.email;
 
     await emailService.sendWelcomeEmail({
       to: sendTo,
       displayName: family.display_name,
-      tempPassword,
+      setPasswordUrl,
       bookPassword: family.book_password,
       subdomain: family.subdomain,
       customDomain: family.custom_domain,

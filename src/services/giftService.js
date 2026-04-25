@@ -84,6 +84,19 @@ async function redeemGiftCode({ code, email, domain }) {
   });
   if (authError) throw authError;
 
+  // Generate a recovery link so the customer can set their own password
+  let setPasswordUrl = null;
+  try {
+    const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email,
+      options: { redirectTo: 'https://legacyodyssey.com/set-password' },
+    });
+    setPasswordUrl = linkData?.properties?.action_link || null;
+  } catch (e) {
+    console.error('Failed to generate recovery link for gift redemption:', e.message);
+  }
+
   // 3. Derive subdomain from domain
   const subdomain = domain ? domain.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '').toLowerCase() : null;
 
@@ -165,7 +178,7 @@ async function redeemGiftCode({ code, email, domain }) {
     await sendWelcomeEmail({
       to: email,
       displayName: family.display_name || subdomain,
-      tempPassword,
+      setPasswordUrl,
       bookPassword: family.book_password,
       subdomain,
       customDomain: domain || null,
@@ -174,7 +187,7 @@ async function redeemGiftCode({ code, email, domain }) {
     console.error('Gift welcome email failed:', emailErr.message);
   }
 
-  return { family, tempPassword, domain, gift };
+  return { family, tempPassword, setPasswordUrl, domain, gift };
 }
 
 module.exports = {

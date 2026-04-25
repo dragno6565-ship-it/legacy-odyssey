@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { supabaseAdmin } = require('../config/supabase');
-const { sendDay1Email, sendDay3Email, sendDay7Email, sendTrialEndingEmail } = require('../services/emailService');
+const { sendDay1Email, sendDay3Email, sendDay7Email, sendDay13Email } = require('../services/emailService');
 
 /**
  * Onboarding email drip campaign.
@@ -8,14 +8,14 @@ const { sendDay1Email, sendDay3Email, sendDay7Email, sendTrialEndingEmail } = re
  *   Day 1  — "Upload your first photo"
  *   Day 3  — "Explore your book sections"
  *   Day 7  — "Share your book"
- *   Day 13 — "Trial ending tomorrow"
+ *   Day 13 — "Have you shared your book yet?"
  */
 
 const EMAIL_SCHEDULE = [
   { day: 1, key: 'day1_sent', send: sendDay1Email },
   { day: 3, key: 'day3_sent', send: sendDay3Email },
   { day: 7, key: 'day7_sent', send: sendDay7Email },
-  { day: 13, key: 'day13_sent', send: sendTrialEndingEmail },
+  { day: 13, key: 'day13_sent', send: sendDay13Email },
 ];
 
 async function runOnboardingEmails() {

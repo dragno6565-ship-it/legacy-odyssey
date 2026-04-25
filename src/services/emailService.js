@@ -35,10 +35,10 @@ function getFirstName(displayName, email) {
 }
 
 /**
- * Send welcome email to a new customer with their login credentials,
- * book URL, and APK download link.
+ * Send welcome email to a new customer with a set-password link,
+ * book URL, and app download links.
  */
-async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, subdomain, customDomain, apkUrl, expoGoUrl }) {
+async function sendWelcomeEmail({ to, displayName, setPasswordUrl, bookPassword, subdomain, customDomain }) {
   const client = getResend();
   if (!client) {
     console.warn('Resend not configured — skipping welcome email');
@@ -52,13 +52,11 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
   const html = buildWelcomeHtml({
     displayName,
     email: to,
-    tempPassword,
+    setPasswordUrl,
     bookPassword,
     bookUrl,
     subdomain,
     customDomain,
-    apkUrl,
-    expoGoUrl,
   });
 
   const { data, error } = await client.emails.send({
@@ -81,10 +79,11 @@ async function sendWelcomeEmail({ to, displayName, tempPassword, bookPassword, s
  * Build the welcome email HTML.
  * Inline styles for maximum email client compatibility.
  */
-function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, bookUrl, subdomain, customDomain, apkUrl, expoGoUrl }) {
+function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bookUrl, subdomain, customDomain }) {
   const firstName = getFirstName(displayName, email);
   const websiteDisplay = customDomain ? `www.${customDomain}` : `legacyodyssey.com/book/${subdomain}`;
   const hasDomain = !!customDomain;
+  const setPasswordHref = setPasswordUrl || 'https://legacyodyssey.com/account';
 
   return `
 <!DOCTYPE html>
@@ -117,7 +116,7 @@ function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, book
             <td style="padding:40px;background-color:#FFFFFF;border-left:1px solid #E8E0D0;border-right:1px solid #E8E0D0;">
 
               <h2 style="margin:0 0 20px;font-family:'Georgia','Times New Roman',serif;font-size:24px;color:#1A1A2E;">
-                Welcome, ${firstName}! &#127881;
+                Welcome, ${firstName}!
               </h2>
 
               <p style="margin:0 0 16px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#4A4A5A;line-height:1.7;">
@@ -125,37 +124,39 @@ function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, book
               </p>
 
               <p style="margin:0 0 28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#4A4A5A;line-height:1.7;">
-                Below you'll find your login details and a quick guide to get started. It only takes a few minutes!
+                First, set your password using the button below, then download the app to start building your book.
               </p>
+
+              <!-- Set Password Button (prominent) -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+                <tr>
+                  <td align="center">
+                    <a href="${setPasswordHref}" style="display:inline-block;padding:16px 36px;background-color:#C9A96E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
+                      Set Your Password &rarr;
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:10px;">
+                    <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#A0A0B8;">
+                      This link expires in 24 hours. Use it to choose your password, then sign in to the app.
+                    </p>
+                  </td>
+                </tr>
+              </table>
 
               <!-- Credentials Box -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
                 <tr>
                   <td style="padding:28px;background-color:#FAF7F0;border:1px solid #E8E0D0;border-radius:10px;">
                     <h3 style="margin:0 0 6px;font-family:'Georgia','Times New Roman',serif;font-size:17px;color:#1A1A2E;">
-                      &#128272; Your Login Credentials
+                      &#128272; Your Account Info
                     </h3>
                     <p style="margin:0 0 18px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#8A8A9A;line-height:1.5;">
                       Keep these handy &mdash; you'll need them to sign in to the app and share your book.
                     </p>
 
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="padding:8px 0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#8A8A9A;width:130px;vertical-align:top;">
-                          App Password
-                        </td>
-                        <td style="padding:8px 0;font-family:'Courier New',monospace;font-size:15px;color:#1A1A2E;font-weight:bold;">
-                          ${tempPassword}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td colspan="2" style="padding:2px 0;">
-                          <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;color:#A0A0B8;line-height:1.4;">
-                            Use this with your email to sign in to the Legacy Odyssey app.
-                          </p>
-                        </td>
-                      </tr>
-                      <tr><td colspan="2" style="padding:6px 0;"><hr style="border:none;border-top:1px solid #E8E0D0;margin:0;"></td></tr>
                       <tr>
                         <td style="padding:8px 0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#8A8A9A;vertical-align:top;">
                           Book Password
@@ -192,7 +193,7 @@ function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, book
                 Getting Started
               </h3>
 
-              <!-- Step 1: Download App -->
+              <!-- Step 1: Set Password -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
                 <tr>
                   <td style="width:36px;vertical-align:top;padding-top:2px;">
@@ -200,76 +201,68 @@ function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, book
                   </td>
                   <td style="padding-left:12px;">
                     <h4 style="margin:0 0 6px;font-family:'Georgia','Times New Roman',serif;font-size:16px;color:#1A1A2E;">
-                      Get the App
+                      Set Your Password
                     </h4>
                     <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
-                      Choose your device below to install Legacy Odyssey:
+                      Click the <strong>Set Your Password</strong> button above to choose your password. You'll use it with your email to sign in to the app.
                     </p>
                   </td>
                 </tr>
               </table>
 
-              <!-- iPhone / Android buttons side by side -->
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 12px;">
-                <tr>
-                  <td align="center">
-                    <table role="presentation" cellpadding="0" cellspacing="0">
-                      <tr>
-                        ${expoGoUrl ? `<td align="center" style="padding-right:10px;">
-                          <a href="https://apps.apple.com/app/expo-go/id982107779" target="_blank" style="display:inline-block;padding:14px 24px;background-color:#1A1A2E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
-                            &#127822; iPhone
-                          </a>
-                        </td>` : ''}
-                        ${apkUrl ? `<td align="center" style="padding-left:10px;">
-                          <a href="${apkUrl}" target="_blank" style="display:inline-block;padding:14px 24px;background-color:#C9A96E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
-                            &#129302; Android
-                          </a>
-                        </td>` : ''}
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              ${expoGoUrl ? `<!-- iPhone Instructions -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
-                <tr>
-                  <td style="padding:16px 20px;background-color:#F5F0FF;border:1px solid #E0D8F0;border-radius:8px;">
-                    <p style="margin:0 0 8px;font-family:'Georgia','Times New Roman',serif;font-size:14px;color:#1A1A2E;font-weight:bold;">
-                      &#127822; iPhone Instructions
-                    </p>
-                    <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A4A5A;line-height:1.6;">
-                      1. Search <strong>"Legacy Odyssey"</strong> on the App Store and download it.
-                    </p>
-                    <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A4A5A;line-height:1.6;">
-                      2. Open the app and sign in with your credentials above.
-                    </p>
-                  </td>
-                </tr>
-              </table>` : `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 32px;"><tr><td>&nbsp;</td></tr></table>`}
-
-              <!-- Step 2 -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <!-- Step 2: Download App -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
                 <tr>
                   <td style="width:36px;vertical-align:top;padding-top:2px;">
                     <div style="width:28px;height:28px;border-radius:50%;background-color:#C9A96E;text-align:center;line-height:28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;font-weight:bold;">2</div>
                   </td>
                   <td style="padding-left:12px;">
                     <h4 style="margin:0 0 6px;font-family:'Georgia','Times New Roman',serif;font-size:16px;color:#1A1A2E;">
+                      Download the App
+                    </h4>
+                    <p style="margin:0 0 12px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
+                      Available on iPhone and Android:
+                    </p>
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding-right:10px;">
+                          <a href="https://apps.apple.com/app/id6760883565" target="_blank" style="display:inline-block;padding:12px 20px;background-color:#1A1A2E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
+                            &#127822; App Store
+                          </a>
+                        </td>
+                        <td>
+                          <a href="https://play.google.com/store/apps/details?id=com.legacyodyssey.app" target="_blank" style="display:inline-block;padding:12px 20px;background-color:#C9A96E;border-radius:8px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:0.3px;">
+                            &#129302; Google Play
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Step 3: Sign In -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;margin-top:16px;">
+                <tr>
+                  <td style="width:36px;vertical-align:top;padding-top:2px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background-color:#C9A96E;text-align:center;line-height:28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;font-weight:bold;">3</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <h4 style="margin:0 0 6px;font-family:'Georgia','Times New Roman',serif;font-size:16px;color:#1A1A2E;">
                       Sign In &amp; Start Building
                     </h4>
                     <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
-                      Open the app and sign in with your email and <strong>App Password</strong> above. From there you can add photos, write stories, record milestones, and fill in all the special details of your little one's journey.
+                      Open the app and sign in with your email and new password. Add photos, write stories, record milestones, and fill in all the special details of your little one's journey.
                     </p>
                   </td>
                 </tr>
               </table>
 
-              <!-- Step 3 -->
+              <!-- Step 4: Share -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
                 <tr>
                   <td style="width:36px;vertical-align:top;padding-top:2px;">
-                    <div style="width:28px;height:28px;border-radius:50%;background-color:#C9A96E;text-align:center;line-height:28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;font-weight:bold;">3</div>
+                    <div style="width:28px;height:28px;border-radius:50%;background-color:#C9A96E;text-align:center;line-height:28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#FFFFFF;font-weight:bold;">4</div>
                   </td>
                   <td style="padding-left:12px;">
                     <h4 style="margin:0 0 6px;font-family:'Georgia','Times New Roman',serif;font-size:16px;color:#1A1A2E;">
@@ -287,7 +280,7 @@ function buildWelcomeHtml({ displayName, email, tempPassword, bookPassword, book
                 <tr>
                   <td style="padding:18px 20px;background-color:#F0F7F0;border-left:4px solid #7CAE7C;border-radius:0 8px 8px 0;">
                     <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A5A4A;line-height:1.6;">
-                      <strong>&#128161; Tip:</strong> Start with a hero photo &mdash; it's the first thing visitors see when they open your book! You can always come back and add more sections whenever inspiration strikes.
+                      <strong>Tip:</strong> Start with a hero photo &mdash; it's the first thing visitors see when they open your book! You can always come back and add more sections whenever inspiration strikes.
                     </p>
                   </td>
                 </tr>
@@ -431,18 +424,23 @@ async function sendDay7Email({ to, displayName, subdomain, customDomain }) {
 }
 
 /**
- * Send Day 13 nudge: "Trial ending soon"
+ * Send Day 13 check-in: "Have you shared your book yet?"
  */
-async function sendTrialEndingEmail({ to, displayName }) {
+async function sendDay13Email({ to, displayName, subdomain, customDomain }) {
   const firstName = getFirstName(displayName, to);
+  const bookUrl = customDomain
+    ? `https://www.${customDomain}`
+    : subdomain
+      ? `https://${subdomain}.legacyodyssey.com`
+      : 'https://legacyodyssey.com/account';
   return sendOnboardingEmail({
     to,
-    subject: `${firstName}, your free trial ends tomorrow`,
-    preheader: 'Keep your family memories safe — subscribe to Legacy Odyssey.',
-    heading: `Your trial ends tomorrow`,
-    body: `${firstName}, your Legacy Odyssey trial is ending soon. If you've been enjoying building your family's book, subscribe now to keep your memories safe and your website live. All your photos, stories, and milestones will be preserved exactly as you left them.`,
-    ctaText: 'Subscribe Now',
-    ctaUrl: 'https://legacyodyssey.com/account',
+    subject: `${firstName}, have you shared your book yet?`,
+    preheader: "Your family would love to see what you've built.",
+    heading: `${firstName}, your book is ready to share`,
+    body: `It's been two weeks since you set up your Legacy Odyssey book — how's it coming along? Now's the perfect time to share it with the people who matter most. Send the link to grandparents, aunts, uncles, and friends. They can visit from any device, anywhere in the world, anytime they miss your little one.`,
+    ctaText: 'View & Share Your Book',
+    ctaUrl: bookUrl,
   });
 }
 
@@ -552,7 +550,7 @@ module.exports = {
   sendDay1Email,
   sendDay3Email,
   sendDay7Email,
-  sendTrialEndingEmail,
+  sendDay13Email,
   sendGiftPurchaseEmail,
   sendGiftNotificationEmail,
   sendPasswordResetEmail,

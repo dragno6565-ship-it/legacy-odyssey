@@ -27,6 +27,14 @@ function makePhotoPos(photoPositions) {
 
 const router = Router();
 
+// Set password page — linked from welcome email recovery link
+router.get('/set-password', (req, res) => {
+  res.render('marketing/set-password', {
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+  });
+});
+
 // Domains that show the book as a demo (password bypassed, CTA shown)
 const DEMO_BOOK_DOMAINS = ['your-childs-name.com', 'your-family-photo-album.com'];
 

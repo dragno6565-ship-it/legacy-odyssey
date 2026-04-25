@@ -95,6 +95,19 @@ async function handleCheckoutComplete(session) {
       ...(customerName ? { customer_name: customerName } : {}),
     });
 
+    // Generate a recovery link so they can set their own password
+    let setPasswordUrl = null;
+    try {
+      const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email,
+        options: { redirectTo: 'https://legacyodyssey.com/set-password' },
+      });
+      setPasswordUrl = linkData?.properties?.action_link || null;
+    } catch (e) {
+      console.error('Failed to generate recovery link for reinstatement:', e.message);
+    }
+
     // If a custom domain was selected, kick off domain purchase
     if (domain) {
       try {
@@ -113,7 +126,7 @@ async function handleCheckoutComplete(session) {
       }
     }
 
-    return { family: existingFamily, tempPassword: null, domain };
+    return { family: existingFamily, tempPassword: null, setPasswordUrl, domain };
   }
 
   // No existing free account — create a brand new one
@@ -124,6 +137,19 @@ async function handleCheckoutComplete(session) {
     email_confirm: true,
   });
   if (authError) throw authError;
+
+  // Generate a recovery link so the customer can set their own password
+  let setPasswordUrl = null;
+  try {
+    const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email,
+      options: { redirectTo: 'https://legacyodyssey.com/set-password' },
+    });
+    setPasswordUrl = linkData?.properties?.action_link || null;
+  } catch (e) {
+    console.error('Failed to generate recovery link:', e.message);
+  }
 
   // Create family as paid (Stripe checkout = paid plan)
   const family = await familyService.create({
@@ -152,13 +178,13 @@ async function handleCheckoutComplete(session) {
     await bookService.createBookWithDefaults(family.id);
   }
 
-  // Send welcome email with credentials
+  // Send welcome email with set-password link
   try {
     const { sendWelcomeEmail } = require('./emailService');
     await sendWelcomeEmail({
       to: email,
       displayName: family.display_name || subdomain,
-      tempPassword,
+      setPasswordUrl,
       bookPassword: family.book_password,
       subdomain,
       customDomain: domain || null,
@@ -189,7 +215,7 @@ async function handleCheckoutComplete(session) {
     }
   }
 
-  return { family, tempPassword, domain };
+  return { family, tempPassword, setPasswordUrl, domain };
 }
 
 async function syncSubscriptionStatus(stripeCustomerId, status) {
