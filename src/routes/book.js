@@ -109,6 +109,51 @@ router.get('/download', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/download.html'));
 });
 
+// GET /unsubscribe?token=... — One-click unsubscribe from drip-campaign emails.
+// Honoured by the daily onboarding cron — anyone with unsubscribed_at set is
+// skipped. Transactional emails (welcome, cancellation, password reset) still
+// send because they're operationally necessary.
+router.get('/unsubscribe', async (req, res) => {
+  const { verifyUnsubscribeToken } = require('../services/unsubscribeTokens');
+  const { supabaseAdmin } = require('../config/supabase');
+  const familyId = verifyUnsubscribeToken(req.query.token);
+  if (!familyId) {
+    return res.status(400).send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unsubscribe</title></head><body style="font-family:Georgia,serif;background:#faf7f2;padding:40px;text-align:center;color:#2c2416;"><h1>Invalid or expired link</h1><p>This unsubscribe link isn't valid. If you'd like to opt out, just reply to any email and let us know.</p></body></html>`);
+  }
+  const { data: family } = await supabaseAdmin.from('families').select('id, email, unsubscribed_at').eq('id', familyId).maybeSingle();
+  if (!family) {
+    return res.status(404).send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unsubscribe</title></head><body style="font-family:Georgia,serif;background:#faf7f2;padding:40px;text-align:center;color:#2c2416;"><h1>Account not found</h1></body></html>`);
+  }
+
+  // Resubscribe path: ?action=resubscribe
+  if (req.query.action === 'resubscribe') {
+    await supabaseAdmin.from('families').update({ unsubscribed_at: null }).eq('id', familyId);
+    return res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resubscribed</title></head><body style="font-family:Georgia,serif;background:#faf7f2;padding:40px;text-align:center;color:#2c2416;"><h1>You're back on the list</h1><p>Welcome back, ${family.email}. You'll receive Legacy Odyssey emails again.</p></body></html>`);
+  }
+
+  if (!family.unsubscribed_at) {
+    await supabaseAdmin.from('families').update({ unsubscribed_at: new Date().toISOString() }).eq('id', familyId);
+  }
+  const resubUrl = `/unsubscribe?token=${req.query.token}&action=resubscribe`;
+  res.send(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Unsubscribed — Legacy Odyssey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      body { background:#faf7f2; font-family:'Jost',sans-serif; color:#2c2416; padding:40px 20px; min-height:80vh; display:flex; align-items:center; justify-content:center; }
+      .card { max-width:520px; background:#fff; border:1px solid #e0d5c4; border-radius:14px; padding:48px 40px; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.06); }
+      h1 { font-family:'Cormorant Garamond',serif; font-size:30px; margin:0 0 12px; color:#1a1a2e; }
+      p { color:#8a7e6b; line-height:1.6; margin:0 0 16px; }
+      .muted { font-size:13px; color:#a09080; }
+      a.btn { display:inline-block; margin-top:18px; padding:11px 26px; background:transparent; border:1px solid #c8a96e; color:#c8a96e; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; }
+      a.btn:hover { background:#c8a96e; color:#fff; }
+    </style></head>
+    <body><div class="card">
+      <h1>You've been unsubscribed</h1>
+      <p>We've removed <strong>${family.email}</strong> from our marketing emails.</p>
+      <p class="muted">You'll still receive transactional emails (welcome, password resets, billing confirmations) — those are part of your account and can't be turned off.</p>
+      <a class="btn" href="${resubUrl}">Changed your mind? Resubscribe</a>
+    </div></body></html>`);
+});
+
 // GET /signup — Free account signup page
 router.get('/signup', (req, res) => {
   res.render('marketing/signup');

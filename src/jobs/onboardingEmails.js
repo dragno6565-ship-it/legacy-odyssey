@@ -22,12 +22,15 @@ async function runOnboardingEmails() {
   console.log('[onboarding] Checking for emails to send...');
 
   try {
-    // Get all active/trialing families
+    // Get all active/trialing families that haven't unsubscribed.
+    // Archived/canceled families are also excluded (subscription_status filter).
     const { data: families, error } = await supabaseAdmin
       .from('families')
-      .select('id, email, display_name, subdomain, custom_domain, created_at, onboarding_emails_sent')
+      .select('id, email, display_name, subdomain, custom_domain, created_at, onboarding_emails_sent, unsubscribed_at, archived_at')
       .in('subscription_status', ['active', 'trialing'])
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .is('unsubscribed_at', null)
+      .is('archived_at', null);
 
     if (error) {
       console.error('[onboarding] Failed to query families:', error.message);
@@ -35,7 +38,7 @@ async function runOnboardingEmails() {
     }
 
     if (!families || families.length === 0) {
-      console.log('[onboarding] No active families found.');
+      console.log('[onboarding] No active subscribed families found.');
       return;
     }
 
@@ -56,6 +59,7 @@ async function runOnboardingEmails() {
               displayName: family.display_name,
               subdomain: family.subdomain,
               customDomain: family.custom_domain,
+              familyId: family.id,
             });
 
             // Mark this email as sent

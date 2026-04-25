@@ -316,10 +316,18 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
 /**
  * Send a simple onboarding nudge email.
  * Used for the drip campaign (day 1, 3, 7, 13).
+ *
+ * unsubscribeUrl is appended to the footer and a List-Unsubscribe header
+ * is set so Gmail/Apple Mail render a native unsubscribe button. If
+ * unsubscribeUrl is omitted, the email goes out without one (transactional).
  */
-async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaText, ctaUrl }) {
+async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaText, ctaUrl, unsubscribeUrl }) {
   const client = getResend();
   if (!client) return null;
+
+  const unsubscribeFooter = unsubscribeUrl
+    ? `<p style="font-size:11px;color:#a09080;margin:8px 0 0;">Don't want these emails? <a href="${unsubscribeUrl}" style="color:#a09080;text-decoration:underline;">Unsubscribe</a></p>`
+    : '';
 
   const html = `<!DOCTYPE html>
 <html>
@@ -342,6 +350,7 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
         <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
           <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your family's story, beautifully told</p>
           <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
+          ${unsubscribeFooter}
         </td></tr>
       </table>
     </td></tr>
@@ -349,11 +358,21 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
 </body>
 </html>`;
 
+  // List-Unsubscribe headers (RFC 8058) — Gmail/Apple Mail render a native
+  // "Unsubscribe" button next to the sender when these are present.
+  const headers = unsubscribeUrl
+    ? {
+        'List-Unsubscribe': `<${unsubscribeUrl}>, <mailto:unsubscribe@legacyodyssey.com>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      }
+    : undefined;
+
   const { data, error } = await client.emails.send({
     from: FROM_ADDRESS,
     to,
     subject,
     html,
+    headers,
   });
 
   if (error) {
@@ -365,10 +384,21 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
   return data;
 }
 
+function buildUnsub(familyId) {
+  if (!familyId) return null;
+  try {
+    const { buildUnsubscribeUrl } = require('./unsubscribeTokens');
+    return buildUnsubscribeUrl(familyId);
+  } catch (err) {
+    console.warn('buildUnsubscribeUrl failed:', err.message);
+    return null;
+  }
+}
+
 /**
  * Send Day 1 nudge: "Upload your first photo"
  */
-async function sendDay1Email({ to, displayName }) {
+async function sendDay1Email({ to, displayName, familyId }) {
   const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
@@ -378,13 +408,14 @@ async function sendDay1Email({ to, displayName }) {
     body: `Your Legacy Odyssey book is set up and ready to go! The best way to start is by uploading your first photo. Open the app, tap any section, and add a photo that means something to your family. It only takes a minute, and it'll make your book feel like home.`,
     ctaText: 'Open the App',
     ctaUrl: 'https://legacyodyssey.com/download',
+    unsubscribeUrl: buildUnsub(familyId),
   });
 }
 
 /**
  * Send Day 3 nudge: "Your book is waiting"
  */
-async function sendDay3Email({ to, displayName }) {
+async function sendDay3Email({ to, displayName, familyId }) {
   const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
@@ -394,13 +425,14 @@ async function sendDay3Email({ to, displayName }) {
     body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you preserve the moments that matter most. Pick one and start filling it in today.`,
     ctaText: 'Add a Memory',
     ctaUrl: 'https://legacyodyssey.com/download',
+    unsubscribeUrl: buildUnsub(familyId),
   });
 }
 
 /**
  * Send Day 7 nudge: "Share your book"
  */
-async function sendDay7Email({ to, displayName, subdomain, customDomain }) {
+async function sendDay7Email({ to, displayName, subdomain, customDomain, familyId }) {
   const firstName = getFirstName(displayName, to);
   const bookUrl = customDomain
     ? `https://www.${customDomain}`
@@ -420,13 +452,14 @@ async function sendDay7Email({ to, displayName, subdomain, customDomain }) {
     body: `Your Legacy Odyssey book is looking great! Now's the perfect time to share it with grandparents, aunts, uncles, and friends. Send them <strong>${bookDisplay}</strong> along with your book password and they'll be able to see everything you've added from any device.`,
     ctaText: 'View Your Book',
     ctaUrl: bookUrl,
+    unsubscribeUrl: buildUnsub(familyId),
   });
 }
 
 /**
  * Send Day 13 check-in: "Have you shared your book yet?"
  */
-async function sendDay13Email({ to, displayName, subdomain, customDomain }) {
+async function sendDay13Email({ to, displayName, subdomain, customDomain, familyId }) {
   const firstName = getFirstName(displayName, to);
   const bookUrl = customDomain
     ? `https://www.${customDomain}`
@@ -441,6 +474,7 @@ async function sendDay13Email({ to, displayName, subdomain, customDomain }) {
     body: `It's been two weeks since you set up your Legacy Odyssey book — how's it coming along? Now's the perfect time to share it with the people who matter most. Send the link to grandparents, aunts, uncles, and friends. They can visit from any device, anywhere in the world, anytime they miss your little one.`,
     ctaText: 'View & Share Your Book',
     ctaUrl: bookUrl,
+    unsubscribeUrl: buildUnsub(familyId),
   });
 }
 
