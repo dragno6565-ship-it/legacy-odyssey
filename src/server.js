@@ -149,6 +149,10 @@ const server = app.listen(PORT, () => {
   // Detect when each new customer's site comes up (DNS+TLS done) and email them
   const { startSiteLiveDetectScheduler } = require('./jobs/siteLiveDetect');
   startSiteLiveDetectScheduler();
+
+  // Daily system health check; emails admin on any FAIL
+  const { startHealthCheckScheduler } = require('./jobs/healthCheckCron');
+  startHealthCheckScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).

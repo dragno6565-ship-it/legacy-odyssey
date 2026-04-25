@@ -87,6 +87,24 @@ router.get('/', requireAdmin, async (req, res, next) => {
   }
 });
 
+// Health check page — runs every block's checks live and renders results.
+// (Admin-only. Each render triggers a fresh check pass — typically 5-15s.)
+router.get('/health', requireAdmin, async (req, res, next) => {
+  try {
+    const { runAll, listBlocks } = require('../services/healthChecks');
+    const blockFilter = req.query.block || null;
+    const report = await runAll({ blockFilter });
+    res.render('admin/health', {
+      admin: req.admin,
+      report,
+      blocks: listBlocks(),
+      blockFilter,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Gift Codes list
 router.get('/gifts', requireAdmin, async (req, res, next) => {
   try {
