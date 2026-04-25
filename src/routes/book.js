@@ -78,6 +78,7 @@ router.get('/sitemap.xml', async (req, res) => {
     { loc: `https://${appDomain}/privacy`, priority: '0.3', changefreq: 'monthly' },
     { loc: `https://${appDomain}/blog`, priority: '0.6', changefreq: 'weekly' },
     { loc: `https://${appDomain}/blog/what-to-write-in-baby-book`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/getting-started-with-legacy-odyssey`, priority: '0.7', changefreq: 'monthly' },
   ];
 
   if (families) {
@@ -172,6 +173,14 @@ router.get('/privacy', (req, res) => {
 // Blog posts registry — add new posts here
 const BLOG_POSTS = [
   {
+    title: 'Getting Started with Legacy Odyssey: A Complete Walkthrough',
+    excerpt: 'A thorough walkthrough of everything that happens after you purchase — setting your password, downloading the app, filling in every section of your book, sharing with family, and the Time Vault.',
+    url: '/blog/getting-started-with-legacy-odyssey',
+    category: 'Getting Started',
+    date: 'April 25, 2026',
+    readTime: '12 min read',
+  },
+  {
     title: 'What to Write in Your Baby\'s First Year Book (A Complete Guide for New Parents)',
     excerpt: 'Don\'t know where to start? Here\'s everything worth writing down in your baby\'s first year — from the birth story to milestone moments to letters they\'ll read one day.',
     url: '/blog/what-to-write-in-baby-book',
@@ -184,6 +193,11 @@ const BLOG_POSTS = [
 // GET /blog — Blog index
 router.get('/blog', (req, res) => {
   res.render('marketing/blog-index', { posts: BLOG_POSTS });
+});
+
+// GET /blog/getting-started-with-legacy-odyssey
+router.get('/blog/getting-started-with-legacy-odyssey', (req, res) => {
+  res.render('marketing/blog-getting-started');
 });
 
 // GET /blog/what-to-write-in-baby-book

@@ -275,6 +275,23 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                 </tr>
               </table>
 
+              <!-- Walkthrough box — link to the comprehensive Getting Started guide -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;margin-bottom:16px;">
+                <tr>
+                  <td style="padding:20px 22px;background-color:#FAF7F0;border:1px solid #E8E0D0;border-radius:10px;text-align:center;">
+                    <h3 style="margin:0 0 8px;font-family:'Georgia','Times New Roman',serif;font-size:17px;color:#1A1A2E;">
+                      Want a thorough walkthrough?
+                    </h3>
+                    <p style="margin:0 0 14px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
+                      We wrote a complete guide that walks you through every section of your book, both passwords, sharing with family, and how the Time Vault works.
+                    </p>
+                    <a href="https://legacyodyssey.com/blog/getting-started-with-legacy-odyssey" style="display:inline-block;padding:11px 26px;background-color:transparent;border:1px solid #C9A96E;border-radius:6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#C9A96E;text-decoration:none;font-weight:600;">
+                      Read the Getting Started Guide &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
               <!-- Tip Box -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
                 <tr>
