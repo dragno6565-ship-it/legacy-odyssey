@@ -11,11 +11,11 @@ import {
   Linking,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
-import { get, put, del, post } from '../api/client';
+import { get, put, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useSavedToast } from '../components/SavedToast';
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.6';
 
 export default function SettingsScreen({ navigation }) {
   const { logout, families, activeFamilyId } = useAuth();
@@ -93,38 +93,102 @@ export default function SettingsScreen({ navigation }) {
     Linking.openURL('https://legacyodyssey.com/#pricing');
   }
 
-  function handleDeleteAccount() {
+  // ─── Cancel Subscription ─────────────────────────────────────────────────
+  // Soft cancel the customer's account(s). Preserves photos + content for 1 year
+  // so they can resubscribe and pick up where they left off.
+  // Multi-site rule (Scenario A): cancelling the Primary while other sites exist
+  // requires either promoting a secondary OR cancelling all.
+
+  async function doCancel(body, onApiError) {
+    try {
+      await post('/api/auth/cancel', body);
+      Alert.alert(
+        'Subscription Cancelled',
+        "Check your email for confirmation. You'll be signed out now.",
+        [{ text: 'OK', onPress: async () => { await logout(); } }]
+      );
+    } catch (err) {
+      // Server returns 400 + JSON {error: 'PROMOTE_OR_CANCEL_ALL_REQUIRED', otherFamilies: [...]}
+      // when trying to cancel the primary while other sites exist.
+      const data = err?.response?.data;
+      if (data && onApiError) onApiError(data);
+      else Alert.alert('Could not cancel', err?.message || 'Please contact support@legacyodyssey.com.');
+    }
+  }
+
+  function confirmCancelSingle(family) {
     Alert.alert(
-      'Delete Account',
-      'This will permanently delete your account, all book data, and cancel your subscription. This cannot be undone.',
+      'Cancel Subscription',
+      "Cancel your Legacy Odyssey subscription?\n\n• You keep access until your next renewal date\n• Photos & stories preserved for 1 year — resubscribe anytime to restore\n• Custom domain auto-renewal stops\n• You will not be charged anything today",
       [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Continue',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert(
-              'Are you absolutely sure?',
-              'All your memories, photos, and book data will be permanently deleted.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Delete Forever',
-                  style: 'destructive',
-                  onPress: async () => {
-                    try {
-                      await del('/api/auth/account');
-                      await logout();
-                    } catch (err) {
-                      Alert.alert('Error', err.message || 'Failed to delete account. Please contact support.');
-                    }
-                  },
-                },
-              ]
-            );
-          },
-        },
+        { text: 'Keep It', style: 'cancel' },
+        { text: 'Cancel Subscription', style: 'destructive', onPress: () => doCancel({ familyId: family.id }, handlePrimaryBlock) },
       ]
+    );
+  }
+
+  function confirmCancelAll() {
+    Alert.alert(
+      'Cancel ALL Sites?',
+      'This cancels every Legacy Odyssey site on your account.\n\n• Each site keeps access until its own renewal date\n• Photos & stories preserved for 1 year on every site\n• Custom domain auto-renewals stop\n• You will not be charged anything today',
+      [
+        { text: 'Keep Them', style: 'cancel' },
+        { text: 'Cancel All Sites', style: 'destructive', onPress: () => doCancel({ all: true }) },
+      ]
+    );
+  }
+
+  // Server tells us "this is your primary, you must promote or cancel-all".
+  // Show the promotion picker with each non-archived secondary as a button.
+  function handlePrimaryBlock(apiError) {
+    if (apiError?.error !== 'PROMOTE_OR_CANCEL_ALL_REQUIRED') {
+      Alert.alert('Could not cancel', apiError?.message || 'Please try again.');
+      return;
+    }
+    const others = apiError.otherFamilies || [];
+    const cancelTargetId = (families || []).find(f => f.subscription_status !== 'canceled' && !f.archived_at)?.id;
+    const buttons = [
+      { text: 'Cancel', style: 'cancel' },
+      ...others.map(other => ({
+        text: `Promote "${other.display_name || other.subdomain || 'this site'}"`,
+        onPress: () => {
+          // Confirm promotion before doing it
+          Alert.alert(
+            'Confirm Promotion',
+            `${other.display_name || other.subdomain || 'This site'} will become your new Primary site.\n\n• Its billing rate stays the same until your current Primary's renewal date, then switches to the Primary rate\n• You will not be charged anything today\n• Your current Primary site will cancel at its next renewal`,
+            [
+              { text: 'Back', style: 'cancel' },
+              { text: 'Promote & Cancel', style: 'destructive', onPress: () => doCancel({ familyId: cancelTargetId, promoteFamilyId: other.id }) },
+            ]
+          );
+        },
+      })),
+      { text: 'Cancel ALL Sites Instead', style: 'destructive', onPress: confirmCancelAll },
+    ];
+    Alert.alert('This is your Primary site', `${apiError.message}\n\nWhich site should become your new Primary?`, buttons);
+  }
+
+  function handleCancelSubscription() {
+    const liveFamilies = (families || []).filter(f => !f.archived_at && f.subscription_status !== 'canceled');
+    if (liveFamilies.length === 0) {
+      Alert.alert('No active subscription', "Your account doesn't have an active subscription to cancel.");
+      return;
+    }
+    if (liveFamilies.length === 1) { confirmCancelSingle(liveFamilies[0]); return; }
+
+    // Multi-site: present an action sheet to pick which site or cancel all
+    const buttons = [
+      { text: 'Cancel', style: 'cancel' },
+      ...liveFamilies.map(f => ({
+        text: `Cancel "${f.display_name || f.subdomain || f.email || 'this site'}"`,
+        onPress: () => confirmCancelSingle(f),
+      })),
+      { text: 'Cancel ALL Sites', style: 'destructive', onPress: confirmCancelAll },
+    ];
+    Alert.alert(
+      'Cancel Subscription',
+      `You have ${liveFamilies.length} active sites. Which would you like to cancel?`,
+      buttons
     );
   }
 
@@ -257,18 +321,18 @@ export default function SettingsScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Delete Account */}
+      {/* Cancel Subscription */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Delete Account</Text>
+        <Text style={styles.sectionTitle}>Cancel Subscription</Text>
         <Text style={styles.sectionDescription}>
-          Permanently delete your account and all book data. This cannot be undone.
+          Cancel your Legacy Odyssey subscription. Your photos and stories will be safely preserved for one year — you can reactivate anytime to restore everything. You will not be charged anything to cancel.
         </Text>
         <TouchableOpacity
           style={styles.deleteAccountButton}
-          onPress={handleDeleteAccount}
+          onPress={handleCancelSubscription}
           activeOpacity={0.8}
         >
-          <Text style={styles.deleteAccountButtonText}>Delete Account</Text>
+          <Text style={styles.deleteAccountButtonText}>Cancel Subscription</Text>
         </TouchableOpacity>
       </View>
 

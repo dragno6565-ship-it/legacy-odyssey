@@ -29,25 +29,6 @@ import LoginScreen from './src/auth/LoginScreen';
 import SignupScreen from './src/auth/SignupScreen';
 import ForgotPasswordScreen from './src/auth/ForgotPasswordScreen';
 
-// Album screens
-import AlbumDashboardScreen from './src/screens/album/AlbumDashboardScreen';
-import AlbumWelcomeScreen from './src/screens/album/AlbumWelcomeScreen';
-import AlbumOurStoryScreen from './src/screens/album/AlbumOurStoryScreen';
-import AlbumRootsScreen from './src/screens/album/AlbumRootsScreen';
-import AlbumHomeScreen from './src/screens/album/AlbumHomeScreen';
-import AlbumYearsScreen from './src/screens/album/AlbumYearsScreen';
-import AlbumYearDetailScreen from './src/screens/album/AlbumYearDetailScreen';
-import AlbumFamilyScreen from './src/screens/album/AlbumFamilyScreen';
-import AlbumFamilyMemberScreen from './src/screens/album/AlbumFamilyMemberScreen';
-import AlbumAdventuresScreen from './src/screens/album/AlbumAdventuresScreen';
-import AlbumAdventureDetailScreen from './src/screens/album/AlbumAdventureDetailScreen';
-import AlbumTraditionsScreen from './src/screens/album/AlbumTraditionsScreen';
-import AlbumLettersScreen from './src/screens/album/AlbumLettersScreen';
-import AlbumLetterDetailScreen from './src/screens/album/AlbumLetterDetailScreen';
-import AlbumRecipesScreen from './src/screens/album/AlbumRecipesScreen';
-import AlbumRecipeDetailScreen from './src/screens/album/AlbumRecipeDetailScreen';
-import AlbumVaultScreen from './src/screens/album/AlbumVaultScreen';
-
 // Baby book screens
 import DashboardScreen from './src/screens/DashboardScreen';
 import ChildInfoScreen from './src/screens/ChildInfoScreen';
@@ -73,7 +54,6 @@ import AdditionalDomainScreen from './src/screens/AdditionalDomainScreen';
 
 const AuthStack = createNativeStackNavigator();
 const AppStack = createNativeStackNavigator();
-const AlbumStack = createNativeStackNavigator();
 
 const defaultScreenOptions = {
   headerStyle: {
@@ -106,58 +86,7 @@ function AuthNavigator() {
   );
 }
 
-function FamilyAlbumNavigator() {
-  return (
-    <AlbumStack.Navigator screenOptions={defaultScreenOptions}>
-      <AlbumStack.Screen
-        name="AlbumDashboard"
-        component={AlbumDashboardScreen}
-        options={{ headerShown: false }}
-      />
-      <AlbumStack.Screen name="AlbumWelcome" component={AlbumWelcomeScreen} options={{ title: 'Welcome & Intro' }} />
-      <AlbumStack.Screen name="AlbumOurStory" component={AlbumOurStoryScreen} options={{ title: 'Our Story' }} />
-      <AlbumStack.Screen name="AlbumRoots" component={AlbumRootsScreen} options={{ title: 'Our Roots' }} />
-      <AlbumStack.Screen name="AlbumHome" component={AlbumHomeScreen} options={{ title: 'Our Home' }} />
-      <AlbumStack.Screen name="AlbumYears" component={AlbumYearsScreen} options={{ title: 'Our Years' }} />
-      <AlbumStack.Screen
-        name="AlbumYearDetail"
-        component={AlbumYearDetailScreen}
-        options={({ route }) => ({ title: route.params?.year || 'Year Details' })}
-      />
-      <AlbumStack.Screen name="AlbumFamily" component={AlbumFamilyScreen} options={{ title: 'Family Members' }} />
-      <AlbumStack.Screen
-        name="AlbumFamilyMember"
-        component={AlbumFamilyMemberScreen}
-        options={({ route }) => ({ title: route.params?.memberName || 'Family Member' })}
-      />
-      <AlbumStack.Screen name="AlbumAdventures" component={AlbumAdventuresScreen} options={{ title: 'Adventures' }} />
-      <AlbumStack.Screen
-        name="AlbumAdventureDetail"
-        component={AlbumAdventureDetailScreen}
-        options={({ route }) => ({ title: route.params?.title || 'Adventure' })}
-      />
-      <AlbumStack.Screen name="AlbumTraditions" component={AlbumTraditionsScreen} options={{ title: 'Traditions' }} />
-      <AlbumStack.Screen name="AlbumLetters" component={AlbumLettersScreen} options={{ title: 'Letters' }} />
-      <AlbumStack.Screen
-        name="AlbumLetterDetail"
-        component={AlbumLetterDetailScreen}
-        options={({ route }) => ({ title: route.params?.heading || 'Letter' })}
-      />
-      <AlbumStack.Screen name="AlbumRecipes" component={AlbumRecipesScreen} options={{ title: 'Family Recipes' }} />
-      <AlbumStack.Screen
-        name="AlbumRecipeDetail"
-        component={AlbumRecipeDetailScreen}
-        options={({ route }) => ({ title: route.params?.title || 'Recipe' })}
-      />
-      <AlbumStack.Screen name="AlbumVault" component={AlbumVaultScreen} options={{ title: 'The Vault' }} />
-      {/* Shared screens */}
-      <AlbumStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
-      <AlbumStack.Screen name="Help" component={HelpScreen} options={{ title: 'Help & Support' }} />
-      <AlbumStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Album Preview', headerRight: null }} />
-      <AlbumStack.Screen name="NewWebsite" component={NewWebsiteScreen} options={{ title: 'New Website' }} />
-    </AlbumStack.Navigator>
-  );
-}
+// FamilyAlbumNavigator removed — Family Album product retired. Baby Book is the only product now.
 
 function AppNavigator() {
   return (
@@ -212,8 +141,7 @@ function RootNavigator() {
 
   if (!isAuthenticated) return <AuthNavigator />;
 
-  // Route to the correct navigator based on account type
-  if (user?.book_type === 'family_album') return <FamilyAlbumNavigator />;
+  // Baby Book is the only product. (Family Album retired.)
   return <AppNavigator />;
 }
 
