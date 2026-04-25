@@ -16,7 +16,7 @@ const { supabaseAdmin } = require('../config/supabase');
  */
 
 const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssey.com>';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'dragno65@hotmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com';
 
 let resend = null;
 function getResend() {
