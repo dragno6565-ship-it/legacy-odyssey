@@ -62,6 +62,40 @@ router.use((req, res, next) => {
   next();
 });
 
+// GET /robots.txt — Domain-aware robots policy.
+//
+// On legacyodyssey.com (the marketing site) we want the public pages indexed
+// but admin/api hidden. On every customer's custom domain or subdomain
+// ({customer}.legacyodyssey.com), we return Disallow:/ — every customer
+// book is private and password-protected, and we don't want search engines
+// touching them at all. This middleware runs BEFORE the static-file middleware
+// in server.js so it overrides the static public/robots.txt.
+router.get('/robots.txt', (req, res) => {
+  const host = (req.hostname || '').toLowerCase();
+  const appDomain = (process.env.APP_DOMAIN || 'legacyodyssey.com').toLowerCase();
+  const isMarketing = host === appDomain || host === `www.${appDomain}` || host === 'localhost' || host === '127.0.0.1';
+
+  res.set('Content-Type', 'text/plain');
+
+  if (isMarketing) {
+    return res.send(`User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /stripe/
+Disallow: /set-password
+Disallow: /unsubscribe
+
+Sitemap: https://${appDomain}/sitemap.xml
+`);
+  }
+
+  // Customer domain (custom_domain or subdomain) — block everything
+  res.send(`User-agent: *
+Disallow: /
+`);
+});
+
 // GET /sitemap.xml — Dynamic sitemap
 router.get('/sitemap.xml', async (req, res) => {
   const { supabaseAdmin } = require('../config/supabase');
