@@ -343,51 +343,9 @@ async function createBookWithDefaults(familyId) {
   return book;
 }
 
-// --- Family Album specific ---
-
-async function getFamilyAlbumBook(familyId) {
-  const { data } = await supabaseAdmin
-    .from('books')
-    .select('id, family_album_data')
-    .eq('family_id', familyId)
-    .single();
-  return data;
-}
-
-async function updateFamilyAlbumData(familyId, albumData) {
-  const book = await getFamilyAlbumBook(familyId);
-  if (!book) throw new Error('Book not found for family');
-  const { data, error } = await supabaseAdmin
-    .from('books')
-    .update({ family_album_data: albumData })
-    .eq('id', book.id)
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}
-
-async function createFamilyAlbumWithDefaults(familyId) {
-  const { data: book, error: bookError } = await supabaseAdmin
-    .from('books')
-    .insert({
-      family_id: familyId,
-      child_first_name: '',
-      child_last_name: '',
-      family_album_data: {},
-    })
-    .select()
-    .single();
-  if (bookError) throw bookError;
-  return book;
-}
-
 module.exports = {
   getBookByFamilyId,
   getFullBook,
-  getFamilyAlbumBook,
-  updateFamilyAlbumData,
-  createFamilyAlbumWithDefaults,
   updateBook,
   upsertMonth,
   upsertFamilyMember,

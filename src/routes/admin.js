@@ -150,7 +150,6 @@ router.post('/families/:id', requireAdmin, async (req, res, next) => {
       'subdomain',
       'custom_domain',
       'subscription_status',
-      'book_type',
     ];
 
     const updates = {};
@@ -206,7 +205,6 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
     subdomain,
     subscription_status,
     trial_days,
-    book_type,
   } = req.body;
 
   // Re-render helper for errors
@@ -278,7 +276,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
         subscription_status: subscription_status || 'trialing',
         trial_ends_at: trialDays > 0 ? trialEndsAt.toISOString() : null,
         is_active: true,
-        book_type: book_type || 'baby_book',
+        book_type: 'baby_book',
       })
       .select()
       .single();
@@ -291,11 +289,7 @@ router.post('/customers/new', requireAdmin, async (req, res, next) => {
     }
 
     // 4. Create book with defaults (customer fills in details via the app)
-    if ((book_type || 'baby_book') === 'family_album') {
-      await bookService.createFamilyAlbumWithDefaults(family.id);
-    } else {
-      await bookService.createBookWithDefaults(family.id);
-    }
+    await bookService.createBookWithDefaults(family.id);
 
     // 5. Render success page
     const apkUrl = 'https://expo.dev/artifacts/eas/dEWDhAKzbdohggvEofzuEy.apk';

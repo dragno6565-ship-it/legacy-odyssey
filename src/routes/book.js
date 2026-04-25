@@ -104,6 +104,11 @@ ${urls.map(u => `  <url>
 </urlset>`);
 });
 
+// GET /download — Smart app download page (detects iOS/Android and redirects)
+router.get('/download', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/download.html'));
+});
+
 // GET /signup — Free account signup page
 router.get('/signup', (req, res) => {
   res.render('marketing/signup');
@@ -326,12 +331,6 @@ router.get('/redeem', (req, res) => {
   res.render('marketing/redeem', { code, error: null });
 });
 
-// GET /edit — Family Album web editor (client-side auth via JWT)
-router.get('/edit', (req, res) => {
-  const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
-  res.render('family-album/editor', { appDomain });
-});
-
 // GET / — Main book route (or marketing landing page)
 router.get('/', resolveFamily, (req, res, next) => {
   // If no family found, show the marketing landing page
@@ -347,20 +346,7 @@ router.get('/', resolveFamily, (req, res, next) => {
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
-    // Family Album
-    if (req.family.book_type === 'family_album') {
-      const bookRecord = await bookService.getFamilyAlbumBook(req.family.id);
-      const album = (bookRecord && bookRecord.family_album_data) || {};
-      return res.render('family-album/index', {
-        family: req.family,
-        book: bookRecord,
-        album,
-        isFree: req.family.plan !== 'paid' && req.family.subscription_status !== 'active',
-        isDemoDomain: isDemoBookDomain(req.hostname),
-      });
-    }
-
-    // Baby Book (default)
+    // Baby Book
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
@@ -389,20 +375,7 @@ router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, n
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
-    // Family Album
-    if (req.family.book_type === 'family_album') {
-      const bookRecord = await bookService.getFamilyAlbumBook(req.family.id);
-      const album = (bookRecord && bookRecord.family_album_data) || {};
-      return res.render('family-album/index', {
-        family: req.family,
-        book: bookRecord,
-        album,
-        isFree: req.family.plan !== 'paid' && req.family.subscription_status !== 'active',
-        isDemoDomain: isDemoBookDomain(req.hostname),
-      });
-    }
-
-    // Baby Book (default)
+    // Baby Book
     const data = await bookService.getFullBook(req.family.id);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';

@@ -100,20 +100,6 @@
               </div>
             </div>
 
-            <!-- Product Type -->
-            <div class="detail-card">
-              <h3>Product Type</h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="book_type">Type</label>
-                  <select id="book_type" name="book_type">
-                    <option value="baby_book" <%= (formData.book_type || 'baby_book') === 'baby_book' ? 'selected' : '' %>>👶 Baby Book</option>
-                    <option value="family_album" <%= formData.book_type === 'family_album' ? 'selected' : '' %>>📔 Family Album</option>
-                  </select>
-                  <div class="help-text">Determines which template and app screens the customer sees</div>
-                </div>
-              </div>
-            </div>
 
             <!-- Subscription -->
             <div class="detail-card">

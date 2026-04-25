@@ -108,7 +108,6 @@ app.use('/api', (req, res, next) => {
 // API routes (JSON — consumed by mobile app)
 app.use('/api/auth', require('./routes/api/auth'));
 app.use('/api/books', require('./routes/api/books'));
-app.use('/api/album', require('./routes/api/album'));
 app.use('/api', require('./routes/api/upload'));
 app.use('/api/stripe', require('./routes/api/stripe'));
 app.use('/api/domains', require('./routes/api/domains'));

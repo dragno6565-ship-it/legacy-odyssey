@@ -171,12 +171,8 @@ async function handleCheckoutComplete(session) {
     plan: 'paid',
   });
 
-  // Create book with default content appropriate to product type
-  if (bookType === 'family_album') {
-    await bookService.createFamilyAlbumWithDefaults(family.id);
-  } else {
-    await bookService.createBookWithDefaults(family.id);
-  }
+  // Create book with default content (Baby Book only — Family Album product retired)
+  await bookService.createBookWithDefaults(family.id);
 
   // Send welcome email with set-password link
   try {

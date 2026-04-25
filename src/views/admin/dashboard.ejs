@@ -88,7 +88,6 @@
               <th class="sortable" data-sort="name" onclick="sortBy('name')" style="cursor:pointer;user-select:none;">Customer <span class="sort-arrow"></span></th>
               <th>Email</th>
               <th>Website</th>
-              <th>Type</th>
               <th class="sortable" data-sort="status" onclick="sortBy('status')" style="cursor:pointer;user-select:none;">Status <span class="sort-arrow"></span></th>
               <th class="sortable" data-sort="date" onclick="sortBy('date')" style="cursor:pointer;user-select:none;">Signed Up <span class="sort-arrow"></span></th>
               <th>Actions</th>
@@ -119,11 +118,6 @@
                   <% } else { %>
                     <span style="color: var(--ink-light);">No domain</span>
                   <% } %>
-                </td>
-                <td>
-                  <span style="font-size:0.78rem;color:var(--ink-light);">
-                    <%= fam.book_type === 'family_album' ? '📔 Album' : '👶 Baby Book' %>
-                  </span>
                 </td>
                 <td>
                   <% if (!fam.is_active) { %>

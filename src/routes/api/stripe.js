@@ -20,8 +20,7 @@ router.post('/create-checkout', async (req, res, next) => {
 
     const validPeriods = ['monthly', 'annual'];
     const resolvedPeriod = validPeriods.includes(period) ? period : 'monthly';
-    const validBookTypes = ['baby_book', 'family_album'];
-    const resolvedBookType = validBookTypes.includes(book_type) ? book_type : 'baby_book';
+    const resolvedBookType = 'baby_book'; // Family Album product retired
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
     const session = await stripeService.createCheckoutSession({
@@ -105,8 +104,7 @@ router.post('/create-founder-checkout', async (req, res, next) => {
       return res.status(400).json({ error: 'email is required' });
     }
 
-    const validBookTypes = ['baby_book', 'family_album'];
-    const resolvedBookType = validBookTypes.includes(book_type) ? book_type : 'baby_book';
+    const resolvedBookType = 'baby_book'; // Family Album product retired
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
     const session = await stripeService.createFounderCheckoutSession({
