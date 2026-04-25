@@ -33,9 +33,18 @@ router.post('/', contactLimiter, async (req, res) => {
       feature: 'Feature Request',
     };
 
+    // Send to both help@legacyodyssey.com (the public-facing alias) AND the
+    // catch-all gmail directly. The @legacyodyssey.com → legacyodysseyapp@gmail.com
+    // forwarding has been unreliable in the past, so we send to the gmail
+    // explicitly to guarantee delivery. Customers see help@legacyodyssey.com
+    // as the brand-consistent contact destination; we receive it regardless.
+    const adminEmail = process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com';
+    const recipients = ['help@legacyodyssey.com'];
+    if (adminEmail && !recipients.includes(adminEmail)) recipients.push(adminEmail);
+
     const { data, error } = await resend.emails.send({
       from: 'Legacy Odyssey <noreply@legacyodyssey.com>',
-      to: 'help@legacyodyssey.com',
+      to: recipients,
       replyTo: email,
       subject: `[${topicLabels[topic] || 'Contact'}] from ${name}`,
       html: `

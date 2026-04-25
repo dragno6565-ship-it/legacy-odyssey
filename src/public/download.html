@@ -7,46 +7,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Site-wide marketing nav + footer styles -->
+  <link rel="stylesheet" href="/css/marketing.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
       background: #faf7f2;
       font-family: 'Jost', sans-serif;
       color: #2c2416;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      margin: 0;
     }
 
-    header {
-      background: #1A1A2E;
-      padding: 20px 24px;
-      text-align: center;
-    }
-
-    header h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 26px;
-      font-weight: 600;
-      color: #C9A96E;
-      letter-spacing: 1px;
-    }
-
-    header p {
-      font-size: 11px;
-      color: #A0A0B8;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-top: 6px;
-    }
-
+    /* Lift body to fill viewport so the footer sits at the bottom on short content pages */
     main {
-      flex: 1;
+      min-height: calc(100vh - 90px); /* offset for the fixed nav */
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
+      padding: 120px 20px 60px;
     }
 
     .card {
@@ -71,14 +50,14 @@
       font-size: 28px;
       font-weight: 600;
       color: #1A1A2E;
-      margin-bottom: 10px;
+      margin: 0 0 10px;
     }
 
     .card p {
       font-size: 14px;
       color: #8a7e6b;
       line-height: 1.6;
-      margin-bottom: 32px;
+      margin: 0 0 32px;
     }
 
     .store-buttons {
@@ -111,17 +90,13 @@
       color: #fff;
     }
 
-    /* Redirecting state */
-    .redirecting {
-      display: none;
-    }
-
+    /* Auto-redirect overlay (mobile) */
+    .redirecting { display: none; }
     .redirecting p {
       margin-bottom: 0;
       font-size: 15px;
       color: #8a7e6b;
     }
-
     .spinner {
       width: 32px;
       height: 32px;
@@ -131,43 +106,36 @@
       animation: spin 0.8s linear infinite;
       margin: 0 auto 20px;
     }
-
     @keyframes spin {
       to { transform: rotate(360deg); }
-    }
-
-    footer {
-      background: #1A1A2E;
-      padding: 20px 24px;
-      text-align: center;
-    }
-
-    footer p {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 14px;
-      color: #C9A96E;
-    }
-
-    footer small {
-      display: block;
-      font-size: 11px;
-      color: #6A6A8A;
-      margin-top: 4px;
-      font-family: 'Jost', sans-serif;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Legacy Odyssey</h1>
-    <p>A Baby Book as Unique as Your Family</p>
-  </header>
+  <!-- Site nav (matches landing/blog for consistent navigation) -->
+  <nav class="marketing-nav" id="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">Legacy <span>Odyssey</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#how-it-works">How It Works</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/#pricing">Pricing</a></li>
+        <li><a href="/#help">Help</a></li>
+        <li><a href="/account">My Account</a></li>
+        <li><a href="/#pricing" class="nav-cta">Get Started</a></li>
+      </ul>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
 
   <main>
     <div class="card">
 
-      <!-- Auto-redirect state (shown briefly on mobile) -->
+      <!-- Auto-redirect state (briefly shown on mobile) -->
       <div class="redirecting" id="redirecting-view">
         <div class="spinner"></div>
         <p>Taking you to the app store&hellip;</p>
@@ -191,12 +159,37 @@
     </div>
   </main>
 
-  <footer>
-    <p>Legacy Odyssey</p>
-    <small>Every family has a story worth telling.</small>
+  <!-- Site footer (matches landing/blog) -->
+  <footer class="marketing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">Legacy <span>Odyssey</span></div>
+      <ul class="footer-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#pricing">Pricing</a></li>
+        <li><a href="/#help">Help</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/terms">Terms</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+      <div class="footer-copy">&copy; 2026 Legacy Odyssey. All rights reserved.</div>
+    </div>
   </footer>
 
   <script>
+    // Mobile nav toggle (matches the rest of the marketing site)
+    const ham = document.getElementById('hamburger');
+    const links = document.getElementById('navLinks');
+    if (ham && links) ham.addEventListener('click', () => links.classList.toggle('open'));
+
+    // Nav scroll effect — adds .scrolled to the nav once the user scrolls past the top
+    const nav = document.getElementById('nav');
+    if (nav) {
+      const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 20);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    // ── Platform detection + auto-redirect ──────────────────────────────────
     const IOS_URL     = 'https://apps.apple.com/app/id6760883565';
     const ANDROID_URL = 'https://play.google.com/store/apps/details?id=com.legacyodyssey.app';
 
@@ -208,7 +201,6 @@
     }
 
     const platform = detect();
-
     if (platform === 'ios') {
       document.getElementById('choose-view').style.display = 'none';
       document.getElementById('redirecting-view').style.display = 'block';
