@@ -129,6 +129,11 @@ async function pollOperation(operationId) {
 /**
  * Set DNS records for a domain to point to Railway.
  * Sets CNAME for www (root @ cannot use CNAME per DNS standard).
+ *
+ * Spaceship API: PUT /dns/records/{domain} — replaces ALL records for the domain,
+ * so we read existing records first and merge in the www CNAME, preserving everything else.
+ * Schema: items=[{ type, name, ttl, ...typeSpecificFields }] where CNAME uses `cname`,
+ * A uses `address`, MX uses `exchange`+`preference`, TXT/etc use `value`.
  */
 async function setupDns(domain, cnameTarget) {
   if (!spaceship) throw new Error('Spaceship API not configured');
@@ -137,36 +142,45 @@ async function setupDns(domain, cnameTarget) {
   const target = cnameTarget || process.env.RAILWAY_CNAME_TARGET;
   if (!target) throw new Error('No CNAME target provided and RAILWAY_CNAME_TARGET not configured');
 
-  // Set CNAME for www (root @ cannot use CNAME per DNS standard)
-  await spaceship.put('/dns-records', {
-    domain,
-    records: [
-      { type: 'CNAME', name: 'www', content: target, ttl: 300 },
-    ],
+  // Read existing records — Spaceship PUT is a full replace, so we must preserve them.
+  const { data: existing } = await spaceship.get(`/dns/records/${encodeURIComponent(domain)}`, {
+    params: { take: 100, skip: 0 },
+  });
+  const items = (existing.items || []).map((rec) => {
+    // Strip read-only metadata before re-submitting
+    const { group, ...rest } = rec;
+    return rest;
   });
 
-  console.log(`DNS configured for ${domain} â†’ ${target}`);
+  // If www CNAME already points to the right place, no-op
+  const wwwIdx = items.findIndex((i) => i.type === 'CNAME' && i.name === 'www');
+  if (wwwIdx >= 0 && items[wwwIdx].cname === target) {
+    console.log(`DNS already configured for ${domain} → ${target}`);
+    return;
+  }
+
+  // Replace or append the www CNAME
+  const wwwRecord = { type: 'CNAME', name: 'www', cname: target, ttl: 1800 };
+  if (wwwIdx >= 0) items[wwwIdx] = wwwRecord;
+  else items.push(wwwRecord);
+
+  await spaceship.put(`/dns/records/${encodeURIComponent(domain)}`, { force: true, items });
+  console.log(`DNS configured for ${domain} → ${target}`);
 }
 
 /**
  * Set up a 301 URL redirect from the root domain to https://www.{domain}.
- * This handles root-domain traffic since root cannot use CNAME.
+ * NOTE: As of 2026, Spaceship removed the /url-forwardings API endpoint.
+ * Root-domain redirects must be configured manually in the Spaceship dashboard,
+ * OR by setting A records on @ pointing to a redirect service.
+ * Customers reach their book via www. (from emails, links). Root @ traffic without
+ * a redirect simply fails — non-critical for the primary user journey.
  */
 async function setupUrlRedirect(domain) {
-  if (!spaceship) throw new Error('Spaceship API not configured');
-
-  await spaceship.put(`/domains/${encodeURIComponent(domain)}/url-forwardings`, {
-    forwardings: [
-      {
-        source: '@',
-        destination: `https://www.${domain}`,
-        type: 'permanent', // 301
-        includeSubdomains: false,
-      },
-    ],
-  });
-
-  console.log(`URL redirect configured: ${domain} -> https://www.${domain}`);
+  // Endpoint removed by Spaceship — no-op. Caller already wraps this in try/catch
+  // so it gracefully degrades. Keeping the function signature so the caller still
+  // compiles and we don't break the orchestration flow.
+  console.log(`URL redirect skipped for ${domain} (Spaceship endpoint deprecated; root traffic unhandled)`);
 }
 
 module.exports = {
