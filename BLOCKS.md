@@ -131,18 +131,23 @@ Last updated: April 25, 2026
 
 ---
 
-## Block 7 — Cron Jobs (planned)
+## Block 7 — Cron Jobs
 
-**Status:** not yet covered by automated checks. Will be added in a follow-up commit that introduces a `cron_runs` tracking table.
+**What it is:** every scheduled background job + the freshness invariants that prove they're still running.
 
-The active crons today:
-- `onboardingEmails` — daily 9:07 AM UTC
-- `domainOrderAlerts` — daily 9:30 AM UTC  
-- `photoBackup` — daily 3:30 AM UTC
-- `siteLiveDetect` — every 5 minutes
-- `healthCheckCron` — daily 2:30 AM UTC
+| Cron | Schedule | Expected max gap | What it does |
+|---|---|---|---|
+| `onboarding-emails` | Daily 9:07 AM UTC | 25 h | Day 1 / 3 / 7 / 13 drip emails to new customers |
+| `domain-order-alerts` | Daily 9:30 AM UTC | 25 h | Emails admin if any domain order is failed or stuck |
+| `photo-backup` | Daily 3:30 AM UTC | 26 h | Mirrors Supabase Storage → Cloudflare R2 |
+| `site-live-detect` | Every 5 min | 15 min | Polls each new customer's domain; emails them when reachable |
+| `health-check` | Daily 2:30 AM UTC | 25 h | This very check — self-monitoring |
 
-Each has its own internal logging today. Future health check will verify each cron has run within its expected interval.
+**How tracking works:** every cron's `start` and `end` are recorded in the `cron_runs` table via the `withTracking()` wrapper in `src/services/cronTracker.js`. Each row holds `last_started_at`, `last_finished_at`, `last_success_at`, `last_error`, `consecutive_failures`.
+
+**What can break it:** the cron module crashes on import, the scheduler is never started (server boot bug), the cron throws an unhandled exception every time, the tracker fails to record runs.
+
+**What the health check verifies:** for each of the 5 crons — last finish within the expected max interval, AND `consecutive_failures` is 0 (warn at 1, fail at 2+).
 
 ---
 

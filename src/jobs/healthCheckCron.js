@@ -92,8 +92,10 @@ async function runHealthCheckJob() {
 }
 
 function startHealthCheckScheduler() {
+  const { withTracking } = require('../services/cronTracker');
+  const tracked = withTracking('health-check', runHealthCheckJob);
   // Daily at 2:30 AM UTC — quietly between photo-backup (3:30) and onboarding (9:07)
-  cron.schedule('30 2 * * *', runHealthCheckJob);
+  cron.schedule('30 2 * * *', tracked);
   console.log('[health] Scheduler started — runs daily at 2:30 AM UTC');
 }
 

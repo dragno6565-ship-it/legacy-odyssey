@@ -167,13 +167,15 @@ async function runPhotoBackup() {
 }
 
 function startPhotoBackupScheduler() {
+  const { withTracking } = require('../services/cronTracker');
+  const tracked = withTracking('photo-backup', runPhotoBackup);
   // Daily at 3:30 AM UTC — quiet hours, between the other crons
-  cron.schedule('30 3 * * *', runPhotoBackup);
+  cron.schedule('30 3 * * *', tracked);
   console.log('[photo-backup] Scheduler started — runs daily at 3:30 AM UTC');
 
   // First run on startup, after a 90s delay to let the server warm up
   // (ahead of onboarding's 60s and domain-alert's defaults)
-  setTimeout(runPhotoBackup, 90000);
+  setTimeout(tracked, 90000);
 }
 
 module.exports = { startPhotoBackupScheduler, runPhotoBackup };

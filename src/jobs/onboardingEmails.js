@@ -85,12 +85,14 @@ async function runOnboardingEmails() {
 }
 
 function startOnboardingScheduler() {
+  const { withTracking } = require('../services/cronTracker');
+  const tracked = withTracking('onboarding-emails', runOnboardingEmails);
   // Run daily at 9:07 AM (offset to avoid :00 congestion)
-  cron.schedule('7 9 * * *', runOnboardingEmails);
+  cron.schedule('7 9 * * *', tracked);
   console.log('[onboarding] Scheduler started — runs daily at 9:07 AM');
 
   // Also run once on startup (after a 30s delay to let the server warm up)
-  setTimeout(runOnboardingEmails, 30000);
+  setTimeout(tracked, 30000);
 }
 
 module.exports = { startOnboardingScheduler, runOnboardingEmails };

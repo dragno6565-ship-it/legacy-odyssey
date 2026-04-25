@@ -109,11 +109,13 @@ async function runSiteLiveDetect() {
 }
 
 function startSiteLiveDetectScheduler() {
-  cron.schedule(POLL_INTERVAL_CRON, runSiteLiveDetect);
+  const { withTracking } = require('../services/cronTracker');
+  const tracked = withTracking('site-live-detect', runSiteLiveDetect);
+  cron.schedule(POLL_INTERVAL_CRON, tracked);
   console.log(`[site-live] Scheduler started — polls every 5 min, gives up after ${GIVE_UP_AFTER_HOURS}h`);
 
   // First run on startup, after a 2-minute delay so the server is fully ready
-  setTimeout(runSiteLiveDetect, 120000);
+  setTimeout(tracked, 120000);
 }
 
 module.exports = { startSiteLiveDetectScheduler, runSiteLiveDetect };

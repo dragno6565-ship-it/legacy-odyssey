@@ -149,12 +149,14 @@ async function runDomainOrderAlerts() {
 }
 
 function startDomainOrderAlertsScheduler() {
+  const { withTracking } = require('../services/cronTracker');
+  const tracked = withTracking('domain-order-alerts', runDomainOrderAlerts);
   // Daily at 9:30 AM (offset from onboarding's 9:07 to spread API load)
-  cron.schedule('30 9 * * *', runDomainOrderAlerts);
+  cron.schedule('30 9 * * *', tracked);
   console.log(`[domain-alerts] Scheduler started — runs daily at 9:30 AM, alerts → ${ADMIN_EMAIL}`);
 
   // Also run once on startup (after a 60s delay to let the server warm up)
-  setTimeout(runDomainOrderAlerts, 60000);
+  setTimeout(tracked, 60000);
 }
 
 module.exports = { startDomainOrderAlertsScheduler, runDomainOrderAlerts };

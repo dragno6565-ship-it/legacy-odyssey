@@ -24,9 +24,8 @@ const BLOCKS = [
   require('./block4Checkout'),
   require('./block5MobileApi'),
   require('./block6Backups'),
+  require('./block7Crons'),
   require('./block8Customers'),
-  // Block 7 (cron health) is intentionally added later — needs a separate
-  // cron_runs tracking table that doesn't exist yet.
 ];
 
 const CHECK_TIMEOUT_MS = 10000;
