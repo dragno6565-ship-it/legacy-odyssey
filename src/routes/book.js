@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const path = require('path');
 const resolveFamily = require('../middleware/resolveFamily');
-const { requireBookPassword, hashPassword } = require('../middleware/requireBookPassword');
+const { requireBookPassword, hashPassword, computeSiteLabel } = require('../middleware/requireBookPassword');
 const bookService = require('../services/bookService');
 const { getPublicUrl } = require('../utils/imageUrl');
 
@@ -179,7 +179,8 @@ router.post('/verify-password', resolveFamily, async (req, res) => {
     return res.redirect(`/book/${slug}`);
   }
 
-  res.render('book/password', { family: req.family, error: true });
+  const siteLabel = await computeSiteLabel(req.family);
+  res.render('book/password', { family: req.family, siteLabel, error: true });
 });
 
 // Stripe success callback
