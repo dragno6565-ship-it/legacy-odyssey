@@ -126,51 +126,54 @@ async function pollOperation(operationId) {
   return data.status; // 'pending', 'success', 'failed'
 }
 
-/**
- * Set DNS records for a domain to point to Railway.
- * Sets CNAME for www (root @ cannot use CNAME per DNS standard) AND the
- * Railway verification TXT record (_railway-verify.www = railway-verify=...).
- * Without the TXT record Railway never validates ownership and TLS never issues.
- *
- * Spaceship API: PUT /dns/records/{domain} — replaces ALL records for the domain,
- * so we read existing records first and merge in www CNAME + verification TXT,
- * preserving everything else.
- * Schema: items=[{ type, name, ttl, ...typeSpecificFields }] where CNAME uses `cname`,
- * A uses `address`, MX uses `exchange`+`preference`, TXT uses `value`.
- */
-async function setupDns(domain, cnameTarget, { verificationHost, verificationToken } = {}) {
-  if (!spaceship) throw new Error('Spaceship API not configured');
+// Fastly's anycast IP that Railway routes through — the same IP all .up.railway.app
+// hostnames resolve to. We use it as an A record on customer apex domains since
+// CNAME on apex is illegal per DNS standards (RFC 1034).
+const RAILWAY_FASTLY_IP = '151.101.2.15';
 
-  // Use the Railway-assigned CNAME target if provided, fall back to env var
-  const target = cnameTarget || process.env.RAILWAY_CNAME_TARGET;
+/**
+ * Set DNS records on a customer domain so BOTH www and apex serve their book.
+ *
+ * Writes 4 records:
+ *   A     @                       → 151.101.2.15  (Fastly/Railway edge)
+ *   TXT   _railway-verify         → railway-verify=<apex-token>
+ *   CNAME www                     → <railway-www-target>
+ *   TXT   _railway-verify.www     → railway-verify=<www-token>
+ *
+ * Both verification TXT records are required — without them Railway stays in
+ * VALIDATING_OWNERSHIP forever and never issues Let's Encrypt certs.
+ *
+ * Spaceship API: PUT /dns/records/{domain}. The endpoint is non-destructive
+ * in some cases (Spaceship admin-API quirk discovered 2026-04-25), so we
+ * DELETE-then-PUT to ensure clean state.
+ *
+ * @param domain    bare domain, e.g. "kateragno.com"
+ * @param wwwTarget Railway CNAME target for www, e.g. "abc123.up.railway.app"
+ * @param opts.verificationHost / verificationToken — for the www verification TXT
+ * @param opts.apexVerifyHost / apexVerifyToken — for the apex verification TXT (optional;
+ *           if absent, apex registration is skipped — useful for legacy single-domain customers)
+ */
+async function setupDns(domain, wwwTarget, opts = {}) {
+  if (!spaceship) throw new Error('Spaceship API not configured');
+  const target = wwwTarget || process.env.RAILWAY_CNAME_TARGET;
   if (!target) throw new Error('No CNAME target provided and RAILWAY_CNAME_TARGET not configured');
 
-  // Read existing records — Spaceship PUT is a full replace, so we must preserve them.
-  const { data: existing } = await spaceship.get(`/dns/records/${encodeURIComponent(domain)}`, {
-    params: { take: 100, skip: 0 },
-  });
-  const items = (existing.items || []).map((rec) => {
-    // Strip read-only metadata before re-submitting
-    const { group, ...rest } = rec;
-    return rest;
-  });
+  const { verificationHost, verificationToken, apexVerifyHost, apexVerifyToken } = opts;
 
-  // Replace or append the www CNAME
-  const wwwIdx = items.findIndex((i) => i.type === 'CNAME' && i.name === 'www');
-  const wwwRecord = { type: 'CNAME', name: 'www', cname: target, ttl: 1800 };
-  if (wwwIdx >= 0) items[wwwIdx] = wwwRecord;
-  else items.push(wwwRecord);
-
-  // Replace or append the Railway verification TXT
+  // Build the desired record set
+  const items = [
+    { type: 'CNAME', name: 'www', cname: target, ttl: 1800 },
+  ];
   if (verificationHost && verificationToken) {
-    const txtIdx = items.findIndex((i) => i.type === 'TXT' && i.name === verificationHost);
-    const txtRecord = { type: 'TXT', name: verificationHost, value: verificationToken, ttl: 1800 };
-    if (txtIdx >= 0) items[txtIdx] = txtRecord;
-    else items.push(txtRecord);
+    items.push({ type: 'TXT', name: verificationHost, value: verificationToken, ttl: 1800 });
+  }
+  if (apexVerifyHost && apexVerifyToken) {
+    items.push({ type: 'A', name: '@', address: RAILWAY_FASTLY_IP, ttl: 1800 });
+    items.push({ type: 'TXT', name: apexVerifyHost, value: apexVerifyToken, ttl: 1800 });
   }
 
   await spaceship.put(`/dns/records/${encodeURIComponent(domain)}`, { force: true, items });
-  console.log(`DNS configured for ${domain} → ${target}${verificationHost ? ` (+ verify TXT at ${verificationHost})` : ''}`);
+  console.log(`DNS configured for ${domain}: www → ${target}${apexVerifyHost ? `, apex → ${RAILWAY_FASTLY_IP}` : ''}`);
 }
 
 /**

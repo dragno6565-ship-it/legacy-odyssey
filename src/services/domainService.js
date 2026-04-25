@@ -205,35 +205,43 @@ async function purchaseAndSetupDomain(orderId) {
     await updateDomainOrder(orderId, { status: 'registered', registered_at: new Date().toISOString() });
     console.log(`Domain registered: ${order.domain}`);
 
-    // Step 3: Add www domain to Railway only. Root domains cannot use CNAME
-    // so Railway can never issue TLS for them. Root traffic is handled by
-    // a Spaceship URL redirect → https://www.{domain}.
+    // Step 3: Add BOTH www and apex (bare domain) to Railway as custom domains.
+    // We need both registered so Railway will issue TLS certs for both forms,
+    // and so resolveFamily can serve traffic on either. Apex routing uses an
+    // A record (CNAME on apex is illegal per DNS standards); www uses CNAME.
     let railwayDomainId = null;
-    let cnameTarget = null;
-    let verificationHost = null;
-    let verificationToken = null;
+    let wwwTarget = null;
+    let wwwVerifyHost = null;
+    let wwwVerifyToken = null;
+    let apexVerifyHost = null;
+    let apexVerifyToken = null;
     try {
       const railwayService = require('./railwayService');
       const wwwResult = await railwayService.addCustomDomain(`www.${order.domain}`);
       railwayDomainId = wwwResult.id;
-      cnameTarget = wwwResult.cnameTarget;
-      verificationHost = wwwResult.verificationHost;
-      verificationToken = wwwResult.verificationToken;
-      console.log(`Railway www domain added: www.${order.domain} (cname: ${cnameTarget})`);
+      wwwTarget = wwwResult.cnameTarget;
+      wwwVerifyHost = wwwResult.verificationHost;
+      wwwVerifyToken = wwwResult.verificationToken;
+      console.log(`Railway www domain added: www.${order.domain} (cname: ${wwwTarget})`);
+
+      const apexResult = await railwayService.addCustomDomain(order.domain);
+      apexVerifyHost = apexResult.verificationHost;
+      apexVerifyToken = apexResult.verificationToken;
+      console.log(`Railway apex domain added: ${order.domain}`);
     } catch (err) {
-      console.error(`Railway custom domain setup failed for www.${order.domain}:`, err.message);
-      // Non-fatal — will fall back to RAILWAY_CNAME_TARGET env var for DNS
+      console.error(`Railway custom domain setup failed for ${order.domain}:`, err.message);
+      // Non-fatal — DNS write will still happen but TLS may not provision
     }
 
-    // Step 4: Set up DNS (www CNAME + Railway verification TXT). Without the TXT,
-    // Railway never validates ownership and TLS never issues.
-    await spaceshipService.setupDns(order.domain, cnameTarget, { verificationHost, verificationToken });
-    try {
-      await spaceshipService.setupUrlRedirect(order.domain);
-    } catch (redirectErr) {
-      console.error(`URL redirect setup failed for ${order.domain}:`, redirectErr.message);
-      // Non-fatal — www still works without root redirect
-    }
+    // Step 4: Set up DNS — www CNAME + Railway verify TXT for www, AND
+    // apex A record (Fastly anycast) + Railway verify TXT for apex. Both
+    // verification TXTs are required for Railway to issue Let's Encrypt certs.
+    await spaceshipService.setupDns(order.domain, wwwTarget, {
+      verificationHost: wwwVerifyHost,
+      verificationToken: wwwVerifyToken,
+      apexVerifyHost,
+      apexVerifyToken,
+    });
     await updateDomainOrder(orderId, { status: 'dns_setup', dns_configured_at: new Date().toISOString() });
 
     // Step 5: Update family record with custom domain
