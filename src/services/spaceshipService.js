@@ -128,14 +128,17 @@ async function pollOperation(operationId) {
 
 /**
  * Set DNS records for a domain to point to Railway.
- * Sets CNAME for www (root @ cannot use CNAME per DNS standard).
+ * Sets CNAME for www (root @ cannot use CNAME per DNS standard) AND the
+ * Railway verification TXT record (_railway-verify.www = railway-verify=...).
+ * Without the TXT record Railway never validates ownership and TLS never issues.
  *
  * Spaceship API: PUT /dns/records/{domain} — replaces ALL records for the domain,
- * so we read existing records first and merge in the www CNAME, preserving everything else.
+ * so we read existing records first and merge in www CNAME + verification TXT,
+ * preserving everything else.
  * Schema: items=[{ type, name, ttl, ...typeSpecificFields }] where CNAME uses `cname`,
- * A uses `address`, MX uses `exchange`+`preference`, TXT/etc use `value`.
+ * A uses `address`, MX uses `exchange`+`preference`, TXT uses `value`.
  */
-async function setupDns(domain, cnameTarget) {
+async function setupDns(domain, cnameTarget, { verificationHost, verificationToken } = {}) {
   if (!spaceship) throw new Error('Spaceship API not configured');
 
   // Use the Railway-assigned CNAME target if provided, fall back to env var
@@ -152,20 +155,22 @@ async function setupDns(domain, cnameTarget) {
     return rest;
   });
 
-  // If www CNAME already points to the right place, no-op
-  const wwwIdx = items.findIndex((i) => i.type === 'CNAME' && i.name === 'www');
-  if (wwwIdx >= 0 && items[wwwIdx].cname === target) {
-    console.log(`DNS already configured for ${domain} → ${target}`);
-    return;
-  }
-
   // Replace or append the www CNAME
+  const wwwIdx = items.findIndex((i) => i.type === 'CNAME' && i.name === 'www');
   const wwwRecord = { type: 'CNAME', name: 'www', cname: target, ttl: 1800 };
   if (wwwIdx >= 0) items[wwwIdx] = wwwRecord;
   else items.push(wwwRecord);
 
+  // Replace or append the Railway verification TXT
+  if (verificationHost && verificationToken) {
+    const txtIdx = items.findIndex((i) => i.type === 'TXT' && i.name === verificationHost);
+    const txtRecord = { type: 'TXT', name: verificationHost, value: verificationToken, ttl: 1800 };
+    if (txtIdx >= 0) items[txtIdx] = txtRecord;
+    else items.push(txtRecord);
+  }
+
   await spaceship.put(`/dns/records/${encodeURIComponent(domain)}`, { force: true, items });
-  console.log(`DNS configured for ${domain} → ${target}`);
+  console.log(`DNS configured for ${domain} → ${target}${verificationHost ? ` (+ verify TXT at ${verificationHost})` : ''}`);
 }
 
 /**

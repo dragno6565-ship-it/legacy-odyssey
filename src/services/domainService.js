@@ -210,19 +210,24 @@ async function purchaseAndSetupDomain(orderId) {
     // a Spaceship URL redirect → https://www.{domain}.
     let railwayDomainId = null;
     let cnameTarget = null;
+    let verificationHost = null;
+    let verificationToken = null;
     try {
       const railwayService = require('./railwayService');
       const wwwResult = await railwayService.addCustomDomain(`www.${order.domain}`);
       railwayDomainId = wwwResult.id;
       cnameTarget = wwwResult.cnameTarget;
+      verificationHost = wwwResult.verificationHost;
+      verificationToken = wwwResult.verificationToken;
       console.log(`Railway www domain added: www.${order.domain} (cname: ${cnameTarget})`);
     } catch (err) {
       console.error(`Railway custom domain setup failed for www.${order.domain}:`, err.message);
       // Non-fatal — will fall back to RAILWAY_CNAME_TARGET env var for DNS
     }
 
-    // Step 4: Set up DNS (www CNAME → Railway) and root URL redirect → www
-    await spaceshipService.setupDns(order.domain, cnameTarget);
+    // Step 4: Set up DNS (www CNAME + Railway verification TXT). Without the TXT,
+    // Railway never validates ownership and TLS never issues.
+    await spaceshipService.setupDns(order.domain, cnameTarget, { verificationHost, verificationToken });
     try {
       await spaceshipService.setupUrlRedirect(order.domain);
     } catch (redirectErr) {

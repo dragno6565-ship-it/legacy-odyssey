@@ -8,7 +8,12 @@ const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 
 /**
  * Add a custom domain to the Railway service.
- * Returns { id, cnameTarget } on success.
+ * Returns { id, cnameTarget, verificationHost, verificationToken } on success.
+ *
+ * Railway requires TWO DNS records for verification + cert provisioning:
+ *   1. CNAME at hostlabel (e.g. "www") → cnameTarget
+ *   2. TXT at verificationHost (e.g. "_railway-verify.www") = verificationToken
+ * Without the TXT record, Railway never validates ownership and TLS is never issued.
  */
 async function addCustomDomain(domain) {
   if (!RAILWAY_TOKEN || !SERVICE_ID || !ENVIRONMENT_ID) {
@@ -21,6 +26,8 @@ async function addCustomDomain(domain) {
         id
         domain
         status {
+          verificationDnsHost
+          verificationToken
           dnsRecords {
             requiredValue
             hostlabel
@@ -60,9 +67,11 @@ async function addCustomDomain(domain) {
   // Extract the CNAME target Railway assigned for this domain
   const cnameRecord = result.status?.dnsRecords?.find(r => r.requiredValue);
   const cnameTarget = cnameRecord?.requiredValue || null;
+  const verificationHost = result.status?.verificationDnsHost || null;
+  const verificationToken = result.status?.verificationToken || null;
 
-  console.log(`Railway custom domain added: ${result.domain} (id: ${result.id}, cname: ${cnameTarget})`);
-  return { id: result.id, cnameTarget };
+  console.log(`Railway custom domain added: ${result.domain} (id: ${result.id}, cname: ${cnameTarget}, verifyHost: ${verificationHost})`);
+  return { id: result.id, cnameTarget, verificationHost, verificationToken };
 }
 
 module.exports = {
