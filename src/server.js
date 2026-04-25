@@ -138,6 +138,10 @@ const server = app.listen(PORT, () => {
   // Start onboarding email scheduler
   const { startOnboardingScheduler } = require('./jobs/onboardingEmails');
   startOnboardingScheduler();
+
+  // Start daily domain-order alert scheduler (notifies admin about failed/stuck orders)
+  const { startDomainOrderAlertsScheduler } = require('./jobs/domainOrderAlerts');
+  startDomainOrderAlertsScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).
