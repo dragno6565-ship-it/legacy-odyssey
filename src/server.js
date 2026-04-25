@@ -145,6 +145,10 @@ const server = app.listen(PORT, () => {
   // Start daily photo backup to Cloudflare R2 (mirrors Supabase Storage off-site)
   const { startPhotoBackupScheduler } = require('./jobs/photoBackup');
   startPhotoBackupScheduler();
+
+  // Detect when each new customer's site comes up (DNS+TLS done) and email them
+  const { startSiteLiveDetectScheduler } = require('./jobs/siteLiveDetect');
+  startSiteLiveDetectScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).

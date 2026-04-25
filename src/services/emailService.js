@@ -127,7 +127,7 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
               </h2>
 
               <p style="margin:0 0 16px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#4A4A5A;line-height:1.7;">
-                Thank you for choosing Legacy Odyssey! Your very own digital baby book is all set up and waiting for you.${hasDomain ? ` Your custom website <a href="${bookUrl}" style="color:#C9A96E;font-weight:bold;text-decoration:none;">${websiteDisplay}</a> is live and ready to share with the world.` : ''}
+                Thank you for choosing Legacy Odyssey! Your very own digital baby book account is all set up and waiting for you.${hasDomain ? ` Your custom website <a href="${bookUrl}" style="color:#C9A96E;font-weight:bold;text-decoration:none;">${websiteDisplay}</a> is being set up right now &mdash; we'll email you again as soon as it's live (usually within 15 minutes).` : ''}
               </p>
 
               <p style="margin:0 0 28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#4A4A5A;line-height:1.7;">
@@ -763,6 +763,79 @@ async function sendReactivationEmail({ to, displayName, customDomain, subdomain 
   }
 }
 
+/**
+ * Sent when the site-live detection cron sees a customer's site responding
+ * for the first time. Confirms the URL works and reminds them of the book
+ * password to share with family.
+ */
+async function sendSiteLiveEmail({ to, displayName, customDomain, subdomain, bookPassword }) {
+  const client = getResend();
+  if (!client || !to) return null;
+  const firstName = getFirstName(displayName, to);
+  const url = customDomain
+    ? `https://www.${customDomain}`
+    : subdomain
+      ? `https://${subdomain}.legacyodyssey.com`
+      : 'https://legacyodyssey.com';
+  const display = customDomain ? `www.${customDomain}` : subdomain ? `${subdomain}.legacyodyssey.com` : 'your book';
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr><td style="background:#1a1a2e;padding:24px;text-align:center;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:#c8a96e;letter-spacing:2px;">LEGACY ODYSSEY</span>
+        </td></tr>
+        <tr><td style="padding:36px 32px;">
+          <h1 style="font-family:Georgia,serif;font-size:24px;color:#1a1a2e;margin:0 0 16px;">${firstName}, your site is live! 🎉</h1>
+          <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 22px;">
+            Your custom site at <a href="${url}" style="color:#c8a96e;font-weight:bold;text-decoration:none;">${display}</a> is now online and password-protected. It works with or without "www" in front, on any device.
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 24px;">
+            <a href="${url}" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;">Visit Your Site &rarr;</a>
+          </td></tr></table>
+          ${bookPassword ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;">
+            <tr><td style="padding:18px 22px;background:#FAF7F0;border:1px solid #E8E0D0;border-radius:10px;">
+              <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#8A8A9A;text-transform:uppercase;letter-spacing:0.5px;">Book password (share this with family)</p>
+              <p style="margin:0;font-family:'Courier New',monospace;font-size:18px;font-weight:bold;color:#1a1a2e;letter-spacing:1px;">${bookPassword}</p>
+            </td></tr>
+          </table>` : ''}
+          <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
+            <strong>Ready to share?</strong> Send <em>${display}</em> and the book password above to grandparents, aunts, uncles, and friends. Anyone with the link and password can view from anywhere.
+          </p>
+          <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:24px 0 0;">
+            Want a complete walkthrough of every section in your book? Read the <a href="https://legacyodyssey.com/blog/getting-started-with-legacy-odyssey" style="color:#c8a96e;">Getting Started guide</a>.
+          </p>
+          <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:8px 0 0;">
+            Questions? Just reply &mdash; a real human will get back to you.
+          </p>
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Every family has a story worth telling</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  try {
+    const { data, error } = await client.emails.send({
+      from: FROM_ADDRESS, to: [to], replyTo: REPLY_TO,
+      subject: `${firstName}, your site is live!`,
+      html,
+    });
+    if (error) { console.error('Site-live email failed:', error); return null; }
+    console.log(`Site-live email sent to ${to} (id: ${data.id})`);
+    return data;
+  } catch (err) {
+    console.error('Site-live email error:', err.message);
+    return null;
+  }
+}
+
 module.exports = {
   sendWelcomeEmail,
   sendOnboardingEmail,
@@ -775,4 +848,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendCancellationEmail,
   sendReactivationEmail,
+  sendSiteLiveEmail,
 };
