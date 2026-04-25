@@ -112,6 +112,21 @@ async function listAll() {
 }
 
 async function updateSubscriptionStatus(stripeCustomerId, status) {
+  // Don't overwrite admin-archived families. When admin clicks Cancel & Archive,
+  // we set archived_at + subscription_status='canceled' and call Stripe with
+  // cancel_at_period_end=true. Stripe immediately fires customer.subscription.updated
+  // (status still 'active'), which without this guard would race-overwrite our
+  // 'canceled' status back to 'active'.
+  const { data: existing } = await supabaseAdmin
+    .from('families')
+    .select('id, archived_at')
+    .eq('stripe_customer_id', stripeCustomerId)
+    .maybeSingle();
+  if (existing?.archived_at) {
+    console.log(`[stripe-webhook] family ${existing.id} is archived — ignoring status sync to "${status}"`);
+    return existing;
+  }
+
   const now = new Date();
   const updates = { subscription_status: status };
 
