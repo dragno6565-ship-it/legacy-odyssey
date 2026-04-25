@@ -448,62 +448,10 @@ router.post('/families/:id/cancel', requireAdmin, async (req, res, next) => {
     const blocked = await checkProtectedFamily(family);
     if (blocked) return res.redirect(`/admin/families/${family.id}?error=${encodeURIComponent(blocked)}`);
 
-    const summary = [];
-    let periodEnd = null;
+    const subscriptionService = require('../services/subscriptionService');
+    const result = await subscriptionService.softCancelFamily(family, { source: 'admin' });
 
-    // 1. Cancel Stripe subscription at period end
-    try {
-      const stripeService = require('../services/stripeService');
-      const result = await stripeService.cancelSubscriptionAtPeriodEnd(family);
-      periodEnd = result.periodEnd;
-      if (result.canceled && result.alreadyCanceled) summary.push('Stripe subscription was already cancelled');
-      else if (result.canceled) summary.push(`Stripe subscription will end ${result.periodEnd?.slice(0, 10) || 'at period end'}`);
-      else summary.push('No Stripe subscription on file (skipped)');
-    } catch (err) {
-      console.error(`Stripe cancel failed for family ${family.id}:`, err.message);
-      summary.push(`⚠ Stripe cancel failed: ${err.message}`);
-    }
-
-    // 2. Stop Spaceship auto-renew on the custom domain (if any)
-    if (family.custom_domain) {
-      try {
-        const spaceshipService = require('../services/spaceshipService');
-        await spaceshipService.setAutoRenew(family.custom_domain, false);
-        summary.push(`Spaceship auto-renew disabled on ${family.custom_domain}`);
-      } catch (err) {
-        console.error(`Spaceship auto-renew failed for ${family.custom_domain}:`, err.message);
-        summary.push(`⚠ Spaceship auto-renew failed: ${err.message}`);
-      }
-    }
-
-    // 3. Mark family as archived/cancelled. The existing book/suspended page
-    //    is already shown when subscription_status === 'canceled'.
-    await supabaseAdmin
-      .from('families')
-      .update({
-        subscription_status: 'canceled',
-        archived_at: new Date().toISOString(),
-      })
-      .eq('id', family.id);
-    summary.push('Family marked archived; book is now suspended');
-
-    // 4. Send confirmation email (best-effort; doesn't block on failure)
-    try {
-      await emailService.sendCancellationEmail({
-        to: family.email,
-        displayName: family.customer_name || family.display_name,
-        type: 'archive',
-        periodEnd,
-        customDomain: family.custom_domain,
-        subdomain: family.subdomain,
-      });
-      summary.push(`Confirmation email sent to ${family.email}`);
-    } catch (err) {
-      console.error(`Cancellation email failed for ${family.email}:`, err.message);
-      summary.push(`⚠ Email failed: ${err.message}`);
-    }
-
-    res.redirect(`/admin/families/${family.id}?success=${encodeURIComponent('Cancelled & archived: ' + summary.join('; '))}`);
+    res.redirect(`/admin/families/${family.id}?success=${encodeURIComponent('Cancelled & archived: ' + result.summary.join('; '))}`);
   } catch (err) {
     next(err);
   }

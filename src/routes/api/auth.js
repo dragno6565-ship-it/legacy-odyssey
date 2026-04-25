@@ -174,50 +174,85 @@ router.post('/reset-password', async (req, res, next) => {
   }
 });
 
-// DELETE /api/auth/account
-// Permanently deletes the authenticated user's account, all family/book data, and Stripe subscriptions.
-router.delete('/account', require('../../middleware/requireAuth'), async (req, res, next) => {
+// POST /api/auth/cancel
+// Customer-initiated soft cancel (mobile app + web). Replaces the old
+// DELETE /api/auth/account hard-delete flow.
+//
+// Body:
+//   { all: true }                      → cancel all linked families (Cancel All)
+//   { familyId: "..." }                → cancel a specific non-primary family
+//   { familyId: "...", promoteFamilyId: "..." }
+//                                       → cancel the primary; promote the named secondary
+//                                         to primary (price flips to primary rate at retiring
+//                                         primary's period_end via Stripe Subscription Schedule)
+//
+// Multi-family rule (Scenario A): if the targeted family is the primary and the
+// customer has other linked families, the request MUST include either
+// `all: true` or `promoteFamilyId`. Otherwise we return 400.
+router.post('/cancel', require('../../middleware/requireAuth'), async (req, res, next) => {
   try {
-    const { stripe } = require('../../config/stripe');
+    const subscriptionService = require('../../services/subscriptionService');
     const familyService = require('../../services/familyService');
-
     const userId = req.user.id;
 
-    // Get all families for this user
-    const families = await familyService.findAllByAuthUserId(userId);
+    const linked = await familyService.findAllByAuthUserId(userId);
+    if (!linked.length) return res.status(404).json({ error: 'No families found for this user' });
 
-    // Cancel all Stripe subscriptions
-    for (const family of families) {
-      if (family.stripe_subscription_id) {
-        try {
-          await stripe.subscriptions.cancel(family.stripe_subscription_id);
-        } catch (stripeErr) {
-          // Log but don't block deletion if subscription is already cancelled
-          console.error(`Failed to cancel subscription ${family.stripe_subscription_id}:`, stripeErr.message);
-        }
+    // Cancel All path
+    if (req.body.all === true || req.body.all === 'true') {
+      const r = await subscriptionService.softCancelAllForUser(userId, { source: 'customer-mobile' });
+      return res.json({ ok: true, mode: 'all', cancelled: r.canceled, results: r.results });
+    }
+
+    const familyId = req.body.familyId;
+    if (!familyId) return res.status(400).json({ error: 'familyId or all=true required' });
+    const target = linked.find(f => f.id === familyId);
+    if (!target) return res.status(404).json({ error: 'Family not found or not linked to your account' });
+
+    const isPrimary = await subscriptionService.isPrimaryFamily(target);
+    const otherLinked = linked.filter(f => f.id !== target.id && !f.archived_at);
+
+    // If target is the primary AND there are other active families, require promote or all
+    if (isPrimary && otherLinked.length > 0) {
+      const promoteId = req.body.promoteFamilyId;
+      if (!promoteId) {
+        return res.status(400).json({
+          error: 'PROMOTE_OR_CANCEL_ALL_REQUIRED',
+          message: `You must always have one Primary site. To cancel your Primary, either promote another site to Primary or cancel all sites.`,
+          otherFamilies: otherLinked.map(f => ({ id: f.id, subdomain: f.subdomain, custom_domain: f.custom_domain, display_name: f.display_name })),
+        });
       }
+      const promoteTarget = otherLinked.find(f => f.id === promoteId);
+      if (!promoteTarget) return res.status(400).json({ error: 'promoteFamilyId is not a valid linked family' });
+
+      const promoteResult = await subscriptionService.promoteSecondaryToPrimary(promoteTarget, target, { source: 'customer-mobile' });
+      const cancelResult = await subscriptionService.softCancelFamily(target, { source: 'customer-mobile' });
+      return res.json({
+        ok: true,
+        mode: 'promote-and-cancel',
+        promoted: { familyId: promoteTarget.id, switchAt: promoteResult.switchAt, scheduleId: promoteResult.scheduleId },
+        cancelled: { familyId: target.id, summary: cancelResult.summary },
+      });
     }
 
-    // Delete all family records (books/sections cascade via DB foreign keys)
-    for (const family of families) {
-      await supabaseAdmin.from('book_sections').delete().eq('book_id',
-        (await supabaseAdmin.from('books').select('id').eq('family_id', family.id).single()).data?.id
-      );
-      await supabaseAdmin.from('books').delete().eq('family_id', family.id);
-      await supabaseAdmin.from('families').delete().eq('id', family.id);
-    }
-
-    // Delete the Supabase auth user
-    const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (deleteUserError) {
-      console.error('Failed to delete auth user:', deleteUserError.message);
-      // Don't expose this error — data is already deleted
-    }
-
-    res.json({ success: true });
+    // Simple case: cancel a non-primary family OR the only family the user has
+    const result = await subscriptionService.softCancelFamily(target, { source: 'customer-mobile' });
+    return res.json({ ok: true, mode: 'single', cancelled: { familyId: target.id, summary: result.summary } });
   } catch (err) {
     next(err);
   }
+});
+
+// DELETE /api/auth/account — DEPRECATED
+// The old hard-delete endpoint. Customer-initiated hard delete is no longer
+// supported; only admins can permanently delete via the admin panel. Old app
+// versions still call this — return 410 Gone with a message instructing the
+// user to update their app.
+router.delete('/account', require('../../middleware/requireAuth'), (req, res) => {
+  res.status(410).json({
+    error: 'ENDPOINT_REMOVED',
+    message: 'Account cancellation has moved to a new flow. Please update your Legacy Odyssey app from the App Store or Google Play to continue.',
+  });
 });
 
 // POST /api/auth/update-password

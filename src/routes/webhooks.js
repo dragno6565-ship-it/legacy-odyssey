@@ -109,12 +109,37 @@ router.post('/stripe/webhook', async (req, res) => {
       }
       case 'customer.subscription.updated': {
         const sub = event.data.object;
+        // Safety net: if the family is archived but Stripe says the sub is back to active,
+        // un-archive them. Catches Stripe-Portal renewal of a previously cancelled sub.
+        if (sub.status === 'active' || sub.status === 'trialing') {
+          const familyService = require('../services/familyService');
+          const subscriptionService = require('../services/subscriptionService');
+          const fam = await familyService.findByStripeCustomerId(sub.customer);
+          if (fam?.archived_at) {
+            console.log(`[webhook] reactivating archived family ${fam.id} (Stripe subscription went ${sub.status})`);
+            await subscriptionService.reactivateFamily(fam, { source: 'stripe-webhook' });
+            break;
+          }
+        }
         await stripeService.syncSubscriptionStatus(sub.customer, sub.status);
         break;
       }
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
-        await stripeService.syncSubscriptionStatus(sub.customer, 'canceled');
+        // Safety net: if the customer cancelled directly via Stripe Customer Portal
+        // (bypassing our app), run the full soft-cancel orchestration so Spaceship
+        // auto-renew gets disabled and the confirmation email fires. The check for
+        // archived_at prevents double-running when we initiated the cancel ourselves
+        // (admin/customer-app routes set archived_at first, then call Stripe).
+        const familyService = require('../services/familyService');
+        const subscriptionService = require('../services/subscriptionService');
+        const fam = await familyService.findByStripeCustomerId(sub.customer);
+        if (fam && !fam.archived_at) {
+          console.log(`[webhook] auto-archiving family ${fam.id} after Stripe Portal cancellation`);
+          await subscriptionService.softCancelFamily(fam, { source: 'stripe-webhook' });
+        } else {
+          await stripeService.syncSubscriptionStatus(sub.customer, 'canceled');
+        }
         break;
       }
       case 'invoice.payment_succeeded': {

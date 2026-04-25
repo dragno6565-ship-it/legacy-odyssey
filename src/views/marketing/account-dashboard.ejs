@@ -111,7 +111,46 @@
       color: #8a7e6b;
     }
     .footer a { color: #c8a96e; text-decoration: none; }
+
+    /* Cancel buttons */
+    .btn-cancel-secondary {
+      background: #fff;
+      color: #c0392b;
+      border: 1px solid #c0392b;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 0.4rem;
+    }
+    .btn-cancel-secondary:hover { background: #fdecea; }
+    .btn-cancel-danger {
+      background: #c0392b;
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 0.4rem;
+    }
+    .btn-cancel-danger:hover { background: #a02818; }
   </style>
+
+  <script>
+    function confirmPrimaryCancel(form) {
+      const sel = form.querySelector('#promoteSelect') || document.getElementById('promoteSelect');
+      const promoteId = sel?.value;
+      if (!promoteId) { alert('Please choose a site to promote to Primary first.'); return false; }
+      const promoteName = sel.options[sel.selectedIndex].text;
+      return confirm('Confirm:\n\n• This Primary site will cancel at your next renewal\n• ' + promoteName + ' will become your new Primary\n• Its billing stays at the current rate until this Primary\'s renewal date, then switches to the Primary rate\n• You will not be charged anything today\n\nProceed?');
+    }
+    function confirmCancelAll(form) {
+      return confirm('Cancel ALL of your Legacy Odyssey sites?\n\n• Each site keeps access until its own next renewal date\n• Photos and stories are preserved for 1 year on all sites\n• Custom domain auto-renewals are turned off\n• You will not be charged anything today\n\nProceed?');
+    }
+  </script>
 
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
@@ -228,7 +267,47 @@
         <form method="POST" action="/account/portal">
           <button type="submit" class="btn-gold">Manage Subscription</button>
         </form>
-        <p class="portal-note">Update your payment method, view invoices, or cancel your subscription.</p>
+        <p class="portal-note">Update your payment method or view invoices.</p>
+
+        <% if (family.subscription_status !== 'canceled' && !family.archived_at) { %>
+          <hr style="margin:24px 0;border:none;border-top:1px solid #e8e0d0;">
+          <% if (typeof linkedFamilies !== 'undefined' && linkedFamilies && linkedFamilies.length > 1) { %>
+            <!-- Multi-site customer: show Cancel This Site + Cancel All buttons -->
+            <% if (typeof isPrimary !== 'undefined' && isPrimary) { %>
+              <p style="font-size:14px;color:#4a4a5a;margin:0 0 12px;">
+                This is your <strong>Primary site</strong>. To cancel just this one, you'll need to promote another site to be your new Primary. Or cancel everything at once.
+              </p>
+              <form method="POST" action="/account/cancel" onsubmit="return confirmPrimaryCancel(this);" style="display:inline-block;margin-right:8px;">
+                <select name="promoteFamilyId" id="promoteSelect" style="padding:10px;border-radius:6px;border:1px solid #e0d5c4;margin-right:8px;">
+                  <option value="">— Promote which site? —</option>
+                  <% linkedFamilies.filter(f => f.id !== family.id && !f.archived_at).forEach(function(f) { %>
+                    <option value="<%= f.id %>"><%= f.display_name || f.subdomain || f.email %><% if (f.custom_domain) { %> (<%= f.custom_domain %>)<% } %></option>
+                  <% }) %>
+                </select>
+                <button type="submit" class="btn-cancel-secondary">Promote & Cancel This Site</button>
+              </form>
+              <form method="POST" action="/account/cancel" onsubmit="return confirmCancelAll(this);" style="display:inline-block;">
+                <input type="hidden" name="all" value="true">
+                <button type="submit" class="btn-cancel-danger">Cancel All <%= linkedFamilies.filter(f => !f.archived_at).length %> Sites</button>
+              </form>
+            <% } else { %>
+              <p style="font-size:14px;color:#4a4a5a;margin:0 0 12px;">This site is one of your additional Legacy Odyssey sites. You can cancel it without affecting your Primary site.</p>
+              <form method="POST" action="/account/cancel" onsubmit="return confirm('Cancel this site? You will keep access until your next renewal date, then this book goes offline. Your photos are saved for 1 year.');" style="display:inline-block;">
+                <button type="submit" class="btn-cancel-secondary">Cancel This Site</button>
+              </form>
+            <% } %>
+          <% } else { %>
+            <!-- Single-site customer: simple Cancel button -->
+            <form method="POST" action="/account/cancel" onsubmit="return confirm('Cancel your Legacy Odyssey subscription?\n\n• You keep access until your next renewal date\n• Your photos and stories are preserved for 1 year\n• Your custom domain auto-renewal stops\n• You can reactivate anytime within 1 year');">
+              <button type="submit" class="btn-cancel-secondary">Cancel My Subscription</button>
+            </form>
+          <% } %>
+          <p class="portal-note" style="margin-top:8px;">
+            You will not be charged anything to cancel. Photos and stories are saved for 1 year.
+          </p>
+        <% } else { %>
+          <p class="portal-note" style="color:#c0392b;"><strong>Cancelled.</strong> Your subscription is no longer active.</p>
+        <% } %>
       <% } else { %>
         <a href="https://<%= appDomain %>/#pricing" class="btn-gold">View Plans</a>
         <p class="portal-note">You're on a free trial. Visit our pricing page to subscribe.</p>

@@ -104,6 +104,68 @@ router.get('/logout', (req, res) => {
   res.redirect('/account');
 });
 
+// ─── Customer-initiated soft cancel (web) ─────────────────────────────────────
+
+/**
+ * POST /account/cancel
+ *
+ * Soft-cancels the customer's currently-active family (the one in their session
+ * cookie). If their session family is the Primary AND they have other linked
+ * sites, returns 400 with the list — the form should re-prompt for promote/cancel-all.
+ *
+ * Body:
+ *   { all: true }                                   → cancel ALL linked families
+ *   { promoteFamilyId: "<uuid>" }                   → cancel session family (primary), promote
+ *                                                     the named secondary
+ *   {}                                              → cancel just session family (only valid if
+ *                                                     it's not primary, or it's the only family)
+ */
+router.post('/cancel', requireAccountSession, async (req, res, next) => {
+  try {
+    const subscriptionService = require('../services/subscriptionService');
+
+    // Cancel All
+    if (req.body.all === 'true' || req.body.all === true) {
+      if (!req.family.auth_user_id) {
+        return res.redirect('/account/dashboard?error=' + encodeURIComponent('Cannot cancel all — no auth user linked'));
+      }
+      await subscriptionService.softCancelAllForUser(req.family.auth_user_id, { source: 'customer-web' });
+      res.clearCookie(COOKIE_NAME);
+      return res.redirect('/account?cancelled=all');
+    }
+
+    // Single-family path: figure out if it's primary AND there are others
+    const linked = req.family.auth_user_id
+      ? await familyService.findAllByAuthUserId(req.family.auth_user_id)
+      : [req.family];
+    const isPrimary = await subscriptionService.isPrimaryFamily(req.family);
+    const otherActive = linked.filter(f => f.id !== req.family.id && !f.archived_at);
+
+    if (isPrimary && otherActive.length > 0) {
+      const promoteId = req.body.promoteFamilyId;
+      if (!promoteId) {
+        // Re-render dashboard with the choice prompt — the view will offer promote vs cancel-all
+        return res.redirect('/account/dashboard?cancel_blocked=primary_with_secondaries');
+      }
+      const promoteTarget = otherActive.find(f => f.id === promoteId);
+      if (!promoteTarget) {
+        return res.redirect('/account/dashboard?error=' + encodeURIComponent('Invalid promotion target'));
+      }
+      await subscriptionService.promoteSecondaryToPrimary(promoteTarget, req.family, { source: 'customer-web' });
+      await subscriptionService.softCancelFamily(req.family, { source: 'customer-web' });
+      res.clearCookie(COOKIE_NAME);
+      return res.redirect('/account?cancelled=promoted');
+    }
+
+    // Not primary, or only family — straightforward soft cancel
+    await subscriptionService.softCancelFamily(req.family, { source: 'customer-web' });
+    res.clearCookie(COOKIE_NAME);
+    return res.redirect('/account?cancelled=single');
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── Forgot / Reset password ──────────────────────────────────────────────────
 
 router.get('/forgot-password', (req, res) => {
@@ -202,16 +264,34 @@ router.get('/dashboard', async (req, res) => {
   try {
     const { data: family, error } = await supabaseAdmin
       .from('families')
-      .select('id, email, display_name, subscription_status, billing_period, stripe_customer_id')
+      .select('id, email, display_name, subscription_status, billing_period, stripe_customer_id, stripe_subscription_id, custom_domain, subdomain, archived_at, auth_user_id')
       .eq('id', familyId)
       .single();
     if (error || !family) {
       res.clearCookie(COOKIE_NAME);
       return res.redirect('/account');
     }
-    res.render('marketing/account-dashboard', { family, appDomain: APP_DOMAIN(), error: null });
+
+    // Multi-family context — used by the cancel UI to show promote/cancel-all options.
+    const subscriptionService = require('../services/subscriptionService');
+    let linkedFamilies = [family];
+    if (family.auth_user_id) {
+      try { linkedFamilies = await familyService.findAllByAuthUserId(family.auth_user_id); }
+      catch (err) { console.error('listing linked families failed:', err.message); }
+    }
+    let isPrimary = null;
+    try { isPrimary = await subscriptionService.isPrimaryFamily(family); }
+    catch (err) { console.error('isPrimaryFamily failed:', err.message); }
+
+    res.render('marketing/account-dashboard', {
+      family,
+      linkedFamilies,
+      isPrimary,
+      appDomain: APP_DOMAIN(),
+      error: null,
+    });
   } catch (err) {
-    res.render('marketing/account-dashboard', { family: null, appDomain: APP_DOMAIN(), error: 'Could not load account details.' });
+    res.render('marketing/account-dashboard', { family: null, linkedFamilies: [], isPrimary: null, appDomain: APP_DOMAIN(), error: 'Could not load account details.' });
   }
 });
 
