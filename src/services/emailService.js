@@ -377,7 +377,7 @@ async function sendDay1Email({ to, displayName }) {
     heading: `Hey ${firstName}, ready to get started?`,
     body: `Your Legacy Odyssey book is set up and ready to go! The best way to start is by uploading your first photo. Open the app, tap any section, and add a photo that means something to your family. It only takes a minute, and it'll make your book feel like home.`,
     ctaText: 'Open the App',
-    ctaUrl: 'https://legacyodyssey.com/account',
+    ctaUrl: 'https://legacyodyssey.com/download',
   });
 }
 
@@ -393,7 +393,7 @@ async function sendDay3Email({ to, displayName }) {
     heading: `${firstName}, there's so much to capture`,
     body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you preserve the moments that matter most. Pick one and start filling it in today.`,
     ctaText: 'Add a Memory',
-    ctaUrl: 'https://legacyodyssey.com/account',
+    ctaUrl: 'https://legacyodyssey.com/download',
   });
 }
 
@@ -406,7 +406,7 @@ async function sendDay7Email({ to, displayName, subdomain, customDomain }) {
     ? `https://www.${customDomain}`
     : subdomain
       ? `https://${subdomain}.legacyodyssey.com`
-      : 'https://legacyodyssey.com/account';
+      : 'https://legacyodyssey.com/download';
   const bookDisplay = customDomain
     ? `www.${customDomain}`
     : subdomain
@@ -432,7 +432,7 @@ async function sendDay13Email({ to, displayName, subdomain, customDomain }) {
     ? `https://www.${customDomain}`
     : subdomain
       ? `https://${subdomain}.legacyodyssey.com`
-      : 'https://legacyodyssey.com/account';
+      : 'https://legacyodyssey.com/download';
   return sendOnboardingEmail({
     to,
     subject: `${firstName}, have you shared your book yet?`,
@@ -544,6 +544,108 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
   return data;
 }
 
+/**
+ * Send a cancellation confirmation email when admin cancels or deletes an account.
+ *
+ * type='archive' — soft cancel (Stripe at period end, data preserved 1 yr)
+ * type='delete'  — hard delete (everything wiped, unrecoverable)
+ *
+ * Best-effort: logs and swallows errors so the cancel flow doesn't fail just
+ * because email couldn't go out (the account state is already correct).
+ */
+async function sendCancellationEmail({ to, displayName, type, periodEnd, customDomain, subdomain }) {
+  const client = getResend();
+  if (!client) {
+    console.warn('Resend not configured — skipping cancellation email');
+    return null;
+  }
+  if (!to) {
+    console.warn('No recipient — skipping cancellation email');
+    return null;
+  }
+
+  const firstName = getFirstName(displayName, to);
+  const isHard = type === 'delete';
+  const bookUrl = customDomain
+    ? `https://www.${customDomain}`
+    : subdomain ? `https://${subdomain}.legacyodyssey.com` : null;
+  const niceDate = periodEnd
+    ? new Date(periodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : null;
+
+  const subject = isHard
+    ? 'Your Legacy Odyssey account has been removed'
+    : 'Your Legacy Odyssey subscription has been canceled';
+
+  const heading = isHard
+    ? `${firstName}, your account has been removed`
+    : `${firstName}, your subscription has been canceled`;
+
+  // Body content — different by type
+  const body = isHard
+    ? `<p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
+         We're confirming that your Legacy Odyssey account has been permanently removed at your request. All photos, stories, and content associated with your book have been deleted, and your custom domain auto-renewal has been turned off.
+       </p>
+       <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 24px;">
+         This action cannot be undone. If you'd like to start fresh in the future, we'd love to have you back &mdash; just visit <a href="https://legacyodyssey.com" style="color:#c8a96e;">legacyodyssey.com</a> to create a new account.
+       </p>`
+    : `<p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
+         We're confirming that your Legacy Odyssey subscription has been canceled${niceDate ? `. You'll continue to have access to your book until <strong>${niceDate}</strong>` : ''}, after which your book site will go offline and your custom domain auto-renewal will stop.
+       </p>
+       <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
+         <strong>Your photos and stories are safe.</strong> We'll keep them stored securely for one full year. If you change your mind during that time, just reply to this email and we'll bring everything back exactly as you left it.
+       </p>
+       ${bookUrl ? `<p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 24px;">Want to download your photos before then? Reply to this email and we'll help.</p>` : ''}
+       <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 24px;">
+         <a href="https://legacyodyssey.com/account" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;">Reactivate My Subscription</a>
+       </td></tr></table>`;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr><td style="background:#1a1a2e;padding:24px;text-align:center;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:#c8a96e;letter-spacing:2px;">LEGACY ODYSSEY</span>
+        </td></tr>
+        <tr><td style="padding:36px 32px;">
+          <h1 style="font-family:Georgia,serif;font-size:22px;color:#1a1a2e;margin:0 0 16px;">${heading}</h1>
+          ${body}
+          <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:24px 0 0;">
+            Questions? Just reply to this email &mdash; a real human will get back to you.
+          </p>
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Every family has a story worth telling</p>
+          <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:hello@legacyodyssey.com" style="color:#c8a96e;">hello@legacyodyssey.com</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const { data, error } = await client.emails.send({
+      from: FROM_ADDRESS,
+      to: [to],
+      subject,
+      html,
+    });
+    if (error) {
+      console.error('Failed to send cancellation email:', error);
+      return null;
+    }
+    console.log(`Cancellation email (${type}) sent to ${to} (id: ${data.id})`);
+    return data;
+  } catch (err) {
+    console.error('Cancellation email error:', err.message);
+    return null;
+  }
+}
+
 module.exports = {
   sendWelcomeEmail,
   sendOnboardingEmail,
@@ -554,4 +656,5 @@ module.exports = {
   sendGiftPurchaseEmail,
   sendGiftNotificationEmail,
   sendPasswordResetEmail,
+  sendCancellationEmail,
 };
