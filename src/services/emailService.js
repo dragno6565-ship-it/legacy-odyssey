@@ -11,6 +11,12 @@ function getResend() {
 
 const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssey.com>';
 
+// Where customer replies should land. Defaults to the catch-all gmail because
+// the @legacyodyssey.com → gmail forwarding via Spacemail has been unreliable.
+// Once Spacemail aliases are confirmed working, this can be set to
+// hello@legacyodyssey.com via env var to keep replies fully on-brand.
+const REPLY_TO = process.env.EMAIL_REPLY_TO || process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com';
+
 // Words that appear as first word of a family/display name but aren't a real first name
 const NON_NAME_WORDS = new Set(['the', 'your', 'our', 'my', 'a', 'an', 'apple', 'google', 'sample', 'demo', 'test', 'family', 'review']);
 
@@ -62,6 +68,7 @@ async function sendWelcomeEmail({ to, displayName, setPasswordUrl, bookPassword,
   const { data, error } = await client.emails.send({
     from: FROM_ADDRESS,
     to: [to],
+    replyTo: REPLY_TO,
     subject: `Welcome to Legacy Odyssey, ${getFirstName(displayName, to)}!`,
     html,
   });
@@ -387,6 +394,7 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
   const { data, error } = await client.emails.send({
     from: FROM_ADDRESS,
     to,
+    replyTo: REPLY_TO,
     subject,
     html,
     headers,
@@ -582,6 +590,7 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
   const { data, error } = await client.emails.send({
     from: FROM_ADDRESS,
     to: [to],
+    replyTo: REPLY_TO,
     subject: 'Reset your Legacy Odyssey password',
     html,
   });
@@ -682,6 +691,7 @@ async function sendCancellationEmail({ to, displayName, type, periodEnd, customD
     const { data, error } = await client.emails.send({
       from: FROM_ADDRESS,
       to: [to],
+      replyTo: REPLY_TO,
       subject,
       html,
     });
@@ -740,6 +750,7 @@ async function sendReactivationEmail({ to, displayName, customDomain, subdomain 
   try {
     const { data, error } = await client.emails.send({
       from: FROM_ADDRESS, to: [to],
+      replyTo: REPLY_TO,
       subject: `Welcome back to Legacy Odyssey, ${firstName}!`,
       html,
     });
