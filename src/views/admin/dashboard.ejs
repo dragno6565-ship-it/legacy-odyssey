@@ -59,11 +59,25 @@
           <div class="kpi-label">Canceled</div>
           <div class="kpi-value"><%= stats.canceled %></div>
         </div>
+        <div class="kpi-card" style="border-left:3px solid #8a7e6b;">
+          <div class="kpi-label">Archived</div>
+          <div class="kpi-value"><%= stats.archived %></div>
+        </div>
+      </div>
+
+      <!-- View tabs: Active customers vs Archived -->
+      <div style="display:flex;gap:8px;margin:24px 0 12px;">
+        <button type="button" id="tabActive" class="btn btn-sm" style="background:#1a1a2e;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;" onclick="setView('active')">
+          Active (<span id="activeCount"><%= stats.total - stats.archived %></span>)
+        </button>
+        <button type="button" id="tabArchived" class="btn btn-sm" style="background:#fff;color:#1a1a2e;border:1px solid #e0d5c4;padding:8px 18px;border-radius:6px;cursor:pointer;" onclick="setView('archived')">
+          Archived (<%= stats.archived %>)
+        </button>
       </div>
 
       <!-- Search -->
       <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search by name, email, or domain..." oninput="filterTable()">
+        <input type="text" id="searchInput" placeholder="Search by name, email, or domain..." oninput="applyFilters()">
       </div>
 
       <!-- Customer Table -->
@@ -71,18 +85,23 @@
         <table class="data-table" id="customersTable">
           <thead>
             <tr>
-              <th>Customer</th>
+              <th class="sortable" data-sort="name" onclick="sortBy('name')" style="cursor:pointer;user-select:none;">Customer <span class="sort-arrow"></span></th>
               <th>Email</th>
               <th>Website</th>
               <th>Type</th>
-              <th>Status</th>
-              <th>Signed Up</th>
+              <th class="sortable" data-sort="status" onclick="sortBy('status')" style="cursor:pointer;user-select:none;">Status <span class="sort-arrow"></span></th>
+              <th class="sortable" data-sort="date" onclick="sortBy('date')" style="cursor:pointer;user-select:none;">Signed Up <span class="sort-arrow"></span></th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <% families.forEach(function(fam) { %>
-              <tr data-search="<%= (fam.customer_name || '').toLowerCase() %> <%= (fam.display_name || '').toLowerCase() %> <%= (fam.childName || '').toLowerCase() %> <%= (fam.email || '').toLowerCase() %> <%= (fam.subdomain || '').toLowerCase() %> <%= (fam.custom_domain || '').toLowerCase() %> <%= (fam.subscription_status || '').toLowerCase() %>">
+              <tr
+                data-archived="<%= fam.archived_at ? '1' : '0' %>"
+                data-name="<%= ((fam.customer_name || fam.display_name || fam.email || '').toLowerCase()) %>"
+                data-status="<%= (fam.subscription_status || '').toLowerCase() %>"
+                data-date="<%= fam.created_at ? new Date(fam.created_at).getTime() : 0 %>"
+                data-search="<%= (fam.customer_name || '').toLowerCase() %> <%= (fam.display_name || '').toLowerCase() %> <%= (fam.childName || '').toLowerCase() %> <%= (fam.email || '').toLowerCase() %> <%= (fam.subdomain || '').toLowerCase() %> <%= (fam.custom_domain || '').toLowerCase() %> <%= (fam.subscription_status || '').toLowerCase() %>">
                 <td class="cell-name">
                   <%= fam.customer_name || fam.display_name || 'Unnamed' %>
                   <% if (fam.customer_name && fam.display_name) { %>
@@ -134,14 +153,90 @@
   </div>
 
   <script>
-    function filterTable() {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    // ── State ──
+    let currentView = 'active';   // 'active' | 'archived'
+    let currentSort = { key: 'date', dir: 'desc' }; // default: newest signups first
+
+    // ── Filter (combines tab + search) ──
+    function applyFilters() {
+      const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
       const rows = document.querySelectorAll('#customersTable tbody tr');
+      let visibleCount = 0;
       rows.forEach(function(row) {
-        const text = row.getAttribute('data-search') || '';
-        row.style.display = text.includes(query) ? '' : 'none';
+        const archived = row.getAttribute('data-archived') === '1';
+        const matchesView = (currentView === 'archived') ? archived : !archived;
+        const matchesSearch = !query || (row.getAttribute('data-search') || '').includes(query);
+        const visible = matchesView && matchesSearch;
+        row.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
       });
     }
+
+    // ── Tab switching ──
+    function setView(view) {
+      currentView = view;
+      const active = document.getElementById('tabActive');
+      const archived = document.getElementById('tabArchived');
+      if (view === 'active') {
+        active.style.background = '#1a1a2e'; active.style.color = '#fff'; active.style.border = 'none';
+        archived.style.background = '#fff'; archived.style.color = '#1a1a2e'; archived.style.border = '1px solid #e0d5c4';
+      } else {
+        archived.style.background = '#1a1a2e'; archived.style.color = '#fff'; archived.style.border = 'none';
+        active.style.background = '#fff'; active.style.color = '#1a1a2e'; active.style.border = '1px solid #e0d5c4';
+      }
+      applyFilters();
+    }
+
+    // ── Sortable columns ──
+    function sortBy(key) {
+      // Toggle direction if same key clicked twice; otherwise default ascending
+      // (except date, which defaults to descending — newest first feels right)
+      if (currentSort.key === key) {
+        currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.key = key;
+        currentSort.dir = (key === 'date') ? 'desc' : 'asc';
+      }
+      applySort();
+      updateSortArrows();
+    }
+
+    function applySort() {
+      const tbody = document.querySelector('#customersTable tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const key = currentSort.key;
+      const dir = currentSort.dir === 'asc' ? 1 : -1;
+      rows.sort(function(a, b) {
+        let av = a.getAttribute('data-' + key) || '';
+        let bv = b.getAttribute('data-' + key) || '';
+        if (key === 'date') { av = parseInt(av, 10) || 0; bv = parseInt(bv, 10) || 0; return (av - bv) * dir; }
+        if (av < bv) return -1 * dir;
+        if (av > bv) return 1 * dir;
+        return 0;
+      });
+      rows.forEach(function(r) { tbody.appendChild(r); });
+    }
+
+    function updateSortArrows() {
+      document.querySelectorAll('.sortable').forEach(function(th) {
+        const arrow = th.querySelector('.sort-arrow');
+        if (!arrow) return;
+        if (th.getAttribute('data-sort') === currentSort.key) {
+          arrow.textContent = currentSort.dir === 'asc' ? ' ▲' : ' ▼';
+          arrow.style.color = '#c8a96e';
+        } else {
+          arrow.textContent = ' ↕';
+          arrow.style.color = '#c8c0b0';
+        }
+      });
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', function() {
+      applySort();
+      updateSortArrows();
+      applyFilters();
+    });
   </script>
 </body>
 </html>

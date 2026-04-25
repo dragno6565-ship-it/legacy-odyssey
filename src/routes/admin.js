@@ -78,6 +78,7 @@ router.get('/', requireAdmin, async (req, res, next) => {
       active: families.filter((f) => f.subscription_status === 'active').length,
       trialing: families.filter((f) => f.subscription_status === 'trialing').length,
       canceled: families.filter((f) => f.subscription_status === 'canceled').length,
+      archived: families.filter((f) => !!f.archived_at).length,
     };
 
     res.render('admin/dashboard', { families: enriched, stats, admin: req.admin });
