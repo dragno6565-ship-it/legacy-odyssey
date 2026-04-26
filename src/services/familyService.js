@@ -30,15 +30,29 @@ async function findById(id) {
 }
 
 async function findByAuthUserId(authUserId) {
-  // Returns the first family (for backward compat with .single())
-  const { data } = await supabaseAdmin
+  // Prefer the active (non-archived) family. Falls back to the most recent
+  // archived one only if every family is archived (so an old cancelled
+  // customer can still see their dashboard).
+  // Bug pre-fix: ordered ascending by created_at and ignored archived_at, so
+  // a customer who cancelled then re-signed via gift saw their oldest
+  // cancelled family on /account/dashboard. Discovered Apr 26 2026.
+  const { data: active } = await supabaseAdmin
     .from('families')
     .select('*')
     .eq('auth_user_id', authUserId)
-    .order('created_at', { ascending: true })
+    .is('archived_at', null)
+    .order('created_at', { ascending: false })
     .limit(1)
-    .single();
-  return data;
+    .maybeSingle();
+  if (active) return active;
+  const { data: latest } = await supabaseAdmin
+    .from('families')
+    .select('*')
+    .eq('auth_user_id', authUserId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return latest || null;
 }
 
 async function findAllByAuthUserId(authUserId) {
@@ -51,14 +65,25 @@ async function findAllByAuthUserId(authUserId) {
 }
 
 async function findByEmail(email) {
-  const { data } = await supabaseAdmin
+  // Same logic as findByAuthUserId: prefer active, fall back to most recent
+  // archived.
+  const { data: active } = await supabaseAdmin
     .from('families')
     .select('*')
     .eq('email', email)
-    .order('created_at', { ascending: true })
+    .is('archived_at', null)
+    .order('created_at', { ascending: false })
     .limit(1)
-    .single();
-  return data;
+    .maybeSingle();
+  if (active) return active;
+  const { data: latest } = await supabaseAdmin
+    .from('families')
+    .select('*')
+    .eq('email', email)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return latest || null;
 }
 
 async function findByStripeCustomerId(stripeCustomerId) {
