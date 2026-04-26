@@ -175,7 +175,7 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                       <tr>
                         <td colspan="2" style="padding:2px 0;">
                           <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;color:#A0A0B8;line-height:1.4;">
-                            Share this with family &amp; friends so they can view the baby book online.
+                            Share this with family &amp; friends so they can view the baby book online. You can change it anytime in the app under <strong>Settings &rarr; Book Password</strong>.
                           </p>
                         </td>
                       </tr>
