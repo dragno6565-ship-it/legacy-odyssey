@@ -75,14 +75,36 @@ async function redeemGiftCode({ code, email, domain }) {
   if (gift.status !== 'purchased') throw new Error('This gift code has already been redeemed.');
   if (new Date(gift.expires_at) < new Date()) throw new Error('This gift code has expired.');
 
-  // 2. Create auth user
+  // 2. Create auth user — or reuse one that already exists.
+  // A previous customer who cancelled and is now redeeming a gift would
+  // already have a row in auth.users (cancellation only archives the family,
+  // not the auth account). Surface a friendly error if found, then proceed.
   const tempPassword = crypto.randomBytes(16).toString('hex');
-  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+  let authUserId = null;
+  const { data: createData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password: tempPassword,
     email_confirm: true,
   });
-  if (authError) throw authError;
+  if (createData?.user) {
+    authUserId = createData.user.id;
+  } else if (authError && /already (been )?registered|already exists|email_exists|duplicate/i.test(authError.message || '')) {
+    // Find the existing auth user. Supabase admin doesn't have a direct
+    // "find by email" — listUsers paginates. The list is small enough
+    // that one page is enough for the foreseeable future.
+    const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    if (listError) throw listError;
+    const existing = (listData.users || []).find((u) => (u.email || '').toLowerCase() === email.toLowerCase());
+    if (!existing) {
+      throw new Error(`Gift redemption: email ${email} reported as existing but not found in user list.`);
+    }
+    authUserId = existing.id;
+    console.log(`Gift redemption reusing existing auth user for ${email} (${authUserId})`);
+  } else if (authError) {
+    throw authError;
+  } else {
+    throw new Error('Gift redemption: unexpected createUser response (no user, no error).');
+  }
 
   // Generate a recovery link so the customer can set their own password
   let setPasswordUrl = null;
@@ -103,7 +125,7 @@ async function redeemGiftCode({ code, email, domain }) {
   // 4. Create family
   const family = await familyService.create({
     email,
-    authUserId: authData.user.id,
+    authUserId,
     subdomain,
     displayName: subdomain ? `The ${subdomain} Family` : 'My Family',
     customerName: gift.recipient_name || null,

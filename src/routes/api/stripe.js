@@ -84,10 +84,13 @@ router.post('/redeem-gift', async (req, res, next) => {
       domain: result.domain,
     });
   } catch (err) {
-    if (err.message.includes('gift code')) {
-      return res.status(400).json({ error: err.message });
-    }
-    next(err);
+    console.error('redeem-gift error:', err.message, err.stack);
+    // Always return JSON so the client can display the actual error.
+    // Previously only gift-code errors returned JSON; everything else fell
+    // through to next(err) which returned HTML, which the client parsed as
+    // an empty data.error and showed the generic "Something went wrong".
+    const status = err.message.includes('gift code') ? 400 : 500;
+    return res.status(status).json({ error: err.message || 'Redemption failed.' });
   }
 });
 
