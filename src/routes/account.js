@@ -245,8 +245,8 @@ router.post('/reset-password', async (req, res) => {
     });
 
     if (updateError) {
-      console.error('Password update error:', updateError.message);
-      return renderError('Failed to update password. Please try again.');
+      console.error('Password update error:', updateError.message, updateError);
+      return renderError(`Failed to update password: ${updateError.message}`);
     }
 
     res.render('marketing/account-reset-password', { token_hash: '', error: null, success: true });
