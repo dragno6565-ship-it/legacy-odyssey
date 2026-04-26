@@ -9,7 +9,7 @@ function hashPassword(password, familyId) {
 }
 
 /**
- * Compute the public-facing label for a book ("The Reese Tatler Site").
+ * Compute the public-facing label for a book ("The Smith Family Site").
  *  - Prefer child's first + last name from the books table
  *  - Fall back to the bare custom domain (without TLD) or subdomain
  *  - Always wrapped as "The X Site"
