@@ -68,27 +68,48 @@
 
     .domain-input-group {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       gap: 0;
+      flex-wrap: wrap;
     }
 
     .domain-input-group input {
+      flex: 1 1 140px;
+      min-width: 0;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
       border-right: none;
     }
 
     .domain-suffix {
-      padding: 0.85rem 1rem;
+      padding: 0.85rem 0.75rem;
       background: var(--cream);
-      border: 1px solid rgba(184, 147, 90, 0.25);
-      border-left: none;
-      border-radius: 0 8px 8px 0;
+      border-top: 1px solid rgba(184, 147, 90, 0.25);
+      border-bottom: 1px solid rgba(184, 147, 90, 0.25);
       font-family: 'Jost', sans-serif;
       font-size: 1rem;
       color: var(--ink-light);
       white-space: nowrap;
+      display: flex;
+      align-items: center;
     }
+
+    .domain-check-btn {
+      flex: 0 0 auto;
+      padding: 0.85rem 1.1rem;
+      background: var(--gold);
+      color: var(--white);
+      border: none;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .domain-check-btn:hover { background: var(--gold-dark); }
+    .domain-check-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .domain-hint {
       font-size: 0.8rem;
@@ -96,6 +117,15 @@
       font-weight: 300;
       margin-top: 0.3rem;
     }
+
+    .domain-result {
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+      min-height: 1.2rem;
+    }
+    .domain-result.available { color: #2e7d32; font-weight: 500; }
+    .domain-result.unavailable { color: var(--rose); }
+    .domain-result.checking { color: var(--ink-light); font-style: italic; }
 
     .redeem-btn {
       display: block;
@@ -248,15 +278,17 @@
           <label for="domain">Choose Your Domain <span style="color: var(--rose);">*</span></label>
           <div class="domain-input-group">
             <input type="text" id="domain" name="domain" required
-              placeholder="yourfamilyname"
+              placeholder="yourchildsname"
               pattern="[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]"
               title="Letters, numbers, and hyphens only">
             <span class="domain-suffix">.com</span>
+            <button type="button" class="domain-check-btn" id="domainCheckBtn">Check</button>
           </div>
-          <p class="domain-hint">We'll check availability and help you set it up.</p>
+          <p class="domain-result" id="domainResult"></p>
+          <p class="domain-hint">Click Check to confirm the .com is available before redeeming.</p>
         </div>
 
-        <button type="submit" class="redeem-btn" id="redeemBtn">Redeem Gift</button>
+        <button type="submit" class="redeem-btn" id="redeemBtn" disabled>Redeem Gift</button>
         <p class="redeem-error" id="redeemError"></p>
       </form>
 
@@ -288,32 +320,114 @@
   </footer>
 
   <script>
+    let selectedDomain = null;
+
+    function setRedeemEnabled(enabled) {
+      const btn = document.getElementById('redeemBtn');
+      btn.disabled = !enabled;
+    }
+
+    function confirmDomain(fullDomain) {
+      selectedDomain = fullDomain;
+      const resultEl = document.getElementById('domainResult');
+      resultEl.className = 'domain-result available';
+      resultEl.innerHTML = '&#10003; ' + fullDomain + ' is available — ready to redeem.';
+      setRedeemEnabled(true);
+    }
+
+    function clearDomainSelection() {
+      selectedDomain = null;
+      setRedeemEnabled(false);
+    }
+
+    async function searchDomain() {
+      const input = document.getElementById('domain');
+      const resultEl = document.getElementById('domainResult');
+      const checkBtn = document.getElementById('domainCheckBtn');
+      const raw = input.value.trim().replace(/\.[a-z]+$/i, '').replace(/[^a-zA-Z0-9-]/g, '');
+      if (!raw || raw.length < 2) {
+        resultEl.className = 'domain-result unavailable';
+        resultEl.textContent = 'Please enter at least 2 characters.';
+        clearDomainSelection();
+        return;
+      }
+      const domain = raw.toLowerCase() + '.com';
+      resultEl.className = 'domain-result checking';
+      resultEl.textContent = 'Checking availability…';
+      clearDomainSelection();
+      checkBtn.disabled = true;
+      try {
+        const res = await fetch('/api/domains/search?name=' + encodeURIComponent(raw));
+        const data = await res.json();
+        const primary = (data.results || []).find(r => r.domain === domain);
+        if (primary && primary.available && primary.underBudget) {
+          confirmDomain(domain);
+        } else if (primary) {
+          // Taken — show alternatives
+          resultEl.className = 'domain-result unavailable';
+          resultEl.innerHTML = '&#10007; ' + domain + ' is taken.';
+          if (data.alternatives && data.alternatives.length) {
+            const hint = document.createElement('div');
+            hint.style.cssText = 'margin-top:0.5rem;font-size:0.85rem;color:var(--ink-light);';
+            hint.textContent = 'Try one of these:';
+            resultEl.appendChild(hint);
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'margin-top:0.4rem;display:flex;flex-wrap:wrap;gap:0.4rem;';
+            data.alternatives.slice(0, 6).forEach(function(alt) {
+              const altBtn = document.createElement('button');
+              altBtn.type = 'button';
+              altBtn.style.cssText = 'padding:0.4rem 0.75rem;background:var(--cream);border:1px solid rgba(184,147,90,0.3);border-radius:6px;color:var(--ink);font-size:0.85rem;cursor:pointer;font-family:Jost,sans-serif;';
+              altBtn.textContent = alt.domain;
+              altBtn.onclick = function() {
+                input.value = alt.domain.replace(/\.[a-z]+$/i, '');
+                confirmDomain(alt.domain);
+              };
+              wrap.appendChild(altBtn);
+            });
+            resultEl.appendChild(wrap);
+          }
+        } else {
+          resultEl.className = 'domain-result unavailable';
+          resultEl.textContent = 'Could not check availability. Try again.';
+        }
+      } catch(err) {
+        resultEl.className = 'domain-result unavailable';
+        resultEl.textContent = 'Connection error — please try again.';
+      }
+      checkBtn.disabled = false;
+    }
+
+    document.getElementById('domainCheckBtn').addEventListener('click', searchDomain);
+    document.getElementById('domain').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); searchDomain(); }
+    });
+    document.getElementById('domain').addEventListener('input', clearDomainSelection);
+
     document.getElementById('redeemForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('redeemBtn');
       const errorEl = document.getElementById('redeemError');
       errorEl.textContent = '';
+      if (!selectedDomain) {
+        errorEl.textContent = 'Please check domain availability first.';
+        return;
+      }
       btn.disabled = true;
-      btn.textContent = 'Redeeming...';
-
+      btn.textContent = 'Redeeming…';
       try {
         const res = await fetch('/api/stripe/redeem-gift', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            giftCode: document.getElementById('giftCode').value.trim(),
-            recipientEmail: document.getElementById('recipientEmail').value,
-            domain: document.getElementById('domain').value.trim(),
+            code: document.getElementById('giftCode').value.trim(),
+            email: document.getElementById('recipientEmail').value.trim(),
+            domain: selectedDomain,
           }),
         });
-
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
-
         document.getElementById('redeemForm').style.display = 'none';
         document.getElementById('redeemSuccess').style.display = 'block';
-
         if (data.loginUrl) {
           document.getElementById('loginLink').href = data.loginUrl;
         }
