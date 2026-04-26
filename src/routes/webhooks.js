@@ -111,11 +111,24 @@ router.post('/stripe/webhook', async (req, res) => {
         const sub = event.data.object;
         // Safety net: if the family is archived but Stripe says the sub is back to active,
         // un-archive them. Catches Stripe-Portal renewal of a previously cancelled sub.
-        if (sub.status === 'active' || sub.status === 'trialing') {
+        //
+        // Two guards against false-positive reactivation:
+        //   1. Stripe also fires this event when WE cancel (cancel_at_period_end=true is
+        //      set, status stays 'trialing'/'active' until the period ends). That is NOT
+        //      a reactivation — the customer is leaving.
+        //   2. We archive ~100ms before Stripe fires the event, so a "just-archived" family
+        //      hasn't actually had time to be reactivated by anyone. 60s window is plenty
+        //      to ride out the post-cancel event burst.
+        if ((sub.status === 'active' || sub.status === 'trialing') && !sub.cancel_at_period_end) {
           const familyService = require('../services/familyService');
           const subscriptionService = require('../services/subscriptionService');
           const fam = await familyService.findByStripeCustomerId(sub.customer);
           if (fam?.archived_at) {
+            const archivedMsAgo = Date.now() - new Date(fam.archived_at).getTime();
+            if (archivedMsAgo < 60_000) {
+              console.log(`[webhook] skipping reactivation for family ${fam.id} — archived ${Math.round(archivedMsAgo)}ms ago (post-cancel event burst)`);
+              break;
+            }
             console.log(`[webhook] reactivating archived family ${fam.id} (Stripe subscription went ${sub.status})`);
             await subscriptionService.reactivateFamily(fam, { source: 'stripe-webhook' });
             break;
