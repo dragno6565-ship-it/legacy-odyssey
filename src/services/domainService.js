@@ -209,33 +209,47 @@ async function purchaseAndSetupDomain(orderId) {
     // We need both registered so Railway will issue TLS certs for both forms,
     // and so resolveFamily can serve traffic on either. Apex routing uses an
     // A record (CNAME on apex is illegal per DNS standards); www uses CNAME.
+    //
+    // Each side is wrapped in its own try/catch so a www-success + apex-failure
+    // is captured precisely. Both halves used to share one catch, so apex
+    // failures (e.g. Railway plan cap reached) were silently swallowed and the
+    // order still got marked `active` — leaving customers with a half-broken
+    // domain. Now apex failure surfaces in error_message + dns_setup status,
+    // which the domain-order-alerts cron picks up.
+    const railwayService = require('./railwayService');
     let railwayDomainId = null;
     let wwwTarget = null;
     let wwwVerifyHost = null;
     let wwwVerifyToken = null;
     let apexVerifyHost = null;
     let apexVerifyToken = null;
+    let wwwSetupError = null;
+    let apexSetupError = null;
+
     try {
-      const railwayService = require('./railwayService');
       const wwwResult = await railwayService.addCustomDomain(`www.${order.domain}`);
       railwayDomainId = wwwResult.id;
       wwwTarget = wwwResult.cnameTarget;
       wwwVerifyHost = wwwResult.verificationHost;
       wwwVerifyToken = wwwResult.verificationToken;
       console.log(`Railway www domain added: www.${order.domain} (cname: ${wwwTarget})`);
+    } catch (err) {
+      wwwSetupError = err.message;
+      console.error(`Railway www add FAILED for ${order.domain}: ${err.message}`);
+    }
 
+    try {
       const apexResult = await railwayService.addCustomDomain(order.domain);
       apexVerifyHost = apexResult.verificationHost;
       apexVerifyToken = apexResult.verificationToken;
       console.log(`Railway apex domain added: ${order.domain}`);
     } catch (err) {
-      console.error(`Railway custom domain setup failed for ${order.domain}:`, err.message);
-      // Non-fatal — DNS write will still happen but TLS may not provision
+      apexSetupError = err.message;
+      console.error(`Railway apex add FAILED for ${order.domain}: ${err.message}`);
     }
 
-    // Step 4: Set up DNS — www CNAME + Railway verify TXT for www, AND
-    // apex A record (Fastly anycast) + Railway verify TXT for apex. Both
-    // verification TXTs are required for Railway to issue Let's Encrypt certs.
+    // Step 4: Write DNS records via Spaceship for whichever halves succeeded.
+    // setupDns is a no-op for a side whose verify token is missing.
     await spaceshipService.setupDns(order.domain, wwwTarget, {
       verificationHost: wwwVerifyHost,
       verificationToken: wwwVerifyToken,
@@ -249,13 +263,26 @@ async function purchaseAndSetupDomain(orderId) {
       await familyService.update(order.family_id, { custom_domain: order.domain });
     }
 
-    // Step 6: Mark as active
-    await updateDomainOrder(orderId, {
-      status: 'active',
-      railway_domain_id: railwayDomainId,
-    });
-
-    console.log(`Domain fully active: ${order.domain}`);
+    // Step 6: Final status — only mark `active` when BOTH sides succeeded.
+    // Otherwise leave at `dns_setup` with an error_message, which the daily
+    // domain-order-alerts cron will surface to admin.
+    if (wwwSetupError || apexSetupError) {
+      const parts = [];
+      if (wwwSetupError) parts.push(`www: ${wwwSetupError}`);
+      if (apexSetupError) parts.push(`apex: ${apexSetupError}`);
+      await updateDomainOrder(orderId, {
+        status: 'dns_setup',
+        railway_domain_id: railwayDomainId,
+        error_message: `Partial Railway setup — ${parts.join('; ')}`,
+      });
+      console.warn(`Domain ${order.domain} ended in PARTIAL state — ${parts.join('; ')}`);
+    } else {
+      await updateDomainOrder(orderId, {
+        status: 'active',
+        railway_domain_id: railwayDomainId,
+      });
+      console.log(`Domain fully active: ${order.domain}`);
+    }
   } catch (err) {
     console.error(`Domain purchase failed for order ${orderId}:`, err.message);
     try {

@@ -174,6 +174,41 @@ async function setupDns(domain, wwwTarget, opts = {}) {
 
   await spaceship.put(`/dns/records/${encodeURIComponent(domain)}`, { force: true, items });
   console.log(`DNS configured for ${domain}: www → ${target}${apexVerifyHost ? `, apex → ${RAILWAY_FASTLY_IP}` : ''}`);
+
+  // Sanity check: Spaceship registers new domains with a default `URL Redirect`
+  // connection that injects locked `group: product` apex A records pointing at
+  // their parking IP (e.g. 15.197.162.184). Those records can NOT be removed
+  // via the API — only by clicking "Remove connection" on the URL Redirect
+  // panel in the Spaceship dashboard. If we don't catch this, the customer's
+  // apex serves DNS round-robin between Fastly (works) and the parking IP
+  // (404), which is invisible until customers complain.
+  // Discovered Apr 25 2026 via roypatrickthompson.com.
+  if (apexVerifyHost) {
+    try {
+      const { data } = await spaceship.get(`/dns/records/${encodeURIComponent(domain)}`, { params: { take: 100, skip: 0 } });
+      const all = data.items || [];
+      const apexA = all.filter((r) => r.type === 'A' && (r.name === '@' || r.name === ''));
+      const polluters = apexA.filter((r) => r.address !== RAILWAY_FASTLY_IP);
+      if (polluters.length > 0) {
+        const groups = Array.from(new Set(polluters.map((r) => r.group?.type || 'unknown')));
+        // Throw — caller (processDomainOrder) records this in error_message and
+        // leaves the order at dns_setup. Admin sees the alert and removes the
+        // URL Redirect connection in the Spaceship dashboard.
+        throw new Error(
+          `Apex polluted by ${polluters.length} non-Fastly A record(s) (${polluters.map((r) => r.address).join(', ')}; group=${groups.join(',')}). ` +
+          `Likely Spaceship URL Redirect — remove via dashboard: Domain Manager → ${domain} → URL redirect → Remove connection.`
+        );
+      }
+    } catch (err) {
+      // If verification GET itself fails, log and continue — don't block
+      // on Spaceship origin flakes (we hit 502s during apex repairs).
+      if (!/polluted/.test(err.message || '')) {
+        console.warn(`setupDns verification GET failed for ${domain}: ${err.message}`);
+      } else {
+        throw err;
+      }
+    }
+  }
 }
 
 /**

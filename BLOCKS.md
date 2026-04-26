@@ -38,9 +38,14 @@ Last updated: April 25, 2026
 | Domain auto-renewal | Spaceship | Auto-renew=true for active customers, false for archived/cancelled |
 | `domain_orders` table | Supabase | Every purchase tracked here with status pending → registering → registered → dns_setup → active (or failed) |
 
-**What can break it:** Spaceship API endpoint changes (we hit this Apr 2026 when `/dns-records` moved to `/dns/records/{domain}`), Railway's CNAME target changes, missing verify TXT records (TLS validation never completes), apex A records pointing somewhere wrong.
+**What can break it:** Spaceship API endpoint changes (we hit this Apr 2026 when `/dns-records` moved to `/dns/records/{domain}`), Railway's CNAME target changes, missing verify TXT records (TLS validation never completes), apex A records pointing somewhere wrong, **Spaceship "URL Redirect" connection on a domain auto-injects locked `group: product` parking-IP A records that override our Fastly A** (discovered Apr 25 2026 via `roypatrickthompson.com`), Railway's per-service custom-domain cap silently swallowing apex adds.
 
-**What the health check verifies:** Every active customer's domain returns 200 over HTTPS at both apex and www, no domain orders failed in the last 24 hours, no domain orders stuck in transitional state >1 hour.
+**Recovery runbooks:**
+- **Apex polluted by Spaceship URL Redirect:** Domain Manager → click the domain → click "URL redirect" in the right panel → Remove connection. The locked product-group A records disappear automatically. Cannot be done via API.
+- **Apex never set up (status `dns_setup` with error_message about Railway):** `node scripts/repair-apex-dns.js <domain>`. Then `node scripts/delete-stale-a-records.js <domain>` if the apex previously pointed elsewhere (GitHub Pages, Vercel, etc.).
+- **Verify final state:** `node scripts/check-spaceship-dns.js <domain>` — should show 4 records: A @ → 151.101.2.15, CNAME www → *.up.railway.app, TXT _railway-verify, TXT _railway-verify.www.
+
+**What the health check verifies:** Every active customer's domain returns 200 over HTTPS at **both** apex and www (`isFullyServing` — strict; passes both URLs in parallel, fails the audit if either is broken), no domain orders failed in the last 24 hours, no domain orders stuck in transitional state >1 hour. The site-live-detect cron uses the looser `isSiteLive` (either side OK) so the welcome email fires as soon as www is up.
 
 **Related crons:** `siteLiveDetect` (every 5 min) — emails customer when their site first responds 200. `domainOrderAlerts` (daily 9:30 AM UTC) — emails admin if any orders in `failed` or stuck-mid-flow state.
 

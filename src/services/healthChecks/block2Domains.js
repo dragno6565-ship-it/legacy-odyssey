@@ -1,12 +1,13 @@
 const { supabaseAdmin } = require('../../config/supabase');
-const { isSiteLive } = require('../siteHealthCheck');
+const { isFullyServing } = require('../siteHealthCheck');
 const { pass, warn, fail } = require('./helpers');
 
 /**
- * For every active customer with a custom_domain, both apex and www must
- * respond. We don't run this as one fan-out check (would explode the
- * report); instead we aggregate per-result into a single "domain reach"
- * check, and add a per-domain entry only when it fails.
+ * For every active customer with a custom_domain, BOTH apex and www must
+ * respond. Earlier this check used `isSiteLive` which passed on www alone —
+ * that hid a long-running bug where Spaceship's URL Redirect feature was
+ * silently polluting customer apexes with parking-IP A records. Use the
+ * stricter `isFullyServing` here so half-broken setups page admin.
  */
 module.exports = {
   blockName: 'domains',
@@ -14,7 +15,7 @@ module.exports = {
   checks: [
     {
       id: 'all-active-customers-reachable',
-      name: 'All active customers’ custom domains reachable',
+      name: 'All active customers’ custom domains fully reachable (apex + www)',
       fn: async () => {
         const { data: families } = await supabaseAdmin
           .from('families')
@@ -28,11 +29,14 @@ module.exports = {
 
         const broken = [];
         for (const f of families) {
-          const r = await isSiteLive(f.custom_domain);
-          if (!r.live) broken.push({ domain: f.custom_domain, email: f.email, urls: r.checkedUrls });
+          const r = await isFullyServing(f.custom_domain);
+          if (!r.live) {
+            const failed = r.checkedUrls.filter((c) => !c.ok).map((c) => `${c.url}=${c.status || c.error}`);
+            broken.push({ domain: f.custom_domain, email: f.email, failed });
+          }
         }
-        if (!broken.length) return pass(`All ${families.length} customer domain(s) reachable`);
-        return fail(`${broken.length} of ${families.length} domain(s) unreachable: ${broken.map(b => b.domain).join(', ')}`,
+        if (!broken.length) return pass(`All ${families.length} customer domain(s) fully serving`);
+        return fail(`${broken.length} of ${families.length} domain(s) half-broken: ${broken.map(b => `${b.domain} (${b.failed.join(', ')})`).join(' | ')}`,
           { broken });
       },
     },
