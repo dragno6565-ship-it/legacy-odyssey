@@ -75,6 +75,17 @@
       transition: border-color 0.15s;
     }
     input:focus { border-color: #c8a96e; }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 3.5rem; }
+    .pw-toggle {
+      position: absolute; top: 50%; right: 0.75rem;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 500;
+      color: #c8a96e; padding: 0.25rem 0.5rem;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .pw-toggle:hover { color: #b08e4a; }
     .error {
       background: #fdf2f2;
       border: 1px solid #e0b4b4;
@@ -178,10 +189,22 @@
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••">
+          <div class="pw-wrap">
+            <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••">
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password">Show</button>
+          </div>
         </div>
         <button type="submit" class="btn">Sign In</button>
       </form>
+      <script>
+        document.getElementById('pwToggle').addEventListener('click', function() {
+          var input = document.getElementById('password');
+          var showing = input.type === 'text';
+          input.type = showing ? 'password' : 'text';
+          this.textContent = showing ? 'Show' : 'Hide';
+          this.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+        });
+      </script>
     </div>
 
     <div class="footer-links">

@@ -306,7 +306,15 @@
             You will not be charged anything to cancel. Photos and stories are saved for 1 year.
           </p>
         <% } else { %>
-          <p class="portal-note" style="color:#c0392b;"><strong>Cancelled.</strong> Your subscription is no longer active.</p>
+          <hr style="margin:24px 0;border:none;border-top:1px solid #e8e0d0;">
+          <div style="background:#fdf6e7;border:1px solid #e8d5a8;border-radius:10px;padding:18px 20px;">
+            <p style="margin:0 0 8px;font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:600;color:#1a1a2e;">Your subscription is cancelled</p>
+            <p style="margin:0 0 12px;font-size:14px;color:#4a4a5a;line-height:1.6;">All your photos, stories, and book content are still here — nothing has been deleted. Reactivate to bring your site back online.</p>
+            <form method="POST" action="/account/reactivate-checkout" style="margin:0;">
+              <button type="submit" class="btn-gold" style="margin:0;">Reactivate — $49.99/year</button>
+            </form>
+            <p style="margin:10px 0 0;font-size:12px;color:#8a7e6b;">You'll be taken to Stripe to enter payment. Your custom domain auto-renewal will turn back on.</p>
+          </div>
         <% } %>
       <% } else { %>
         <a href="https://<%= appDomain %>/#pricing" class="btn-gold">View Plans</a>

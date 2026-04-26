@@ -166,6 +166,50 @@ router.post('/cancel', requireAccountSession, async (req, res, next) => {
   }
 });
 
+/**
+ * POST /account/reactivate-checkout
+ *
+ * Customer-facing "Reactivate" flow for an archived family. Creates a new
+ * Stripe Checkout session for the standard annual price; on completion the
+ * webhook will un-archive the family, re-enable Spaceship auto-renew, and
+ * send the welcome-back email. All book content is preserved (we only
+ * archived; nothing was deleted).
+ */
+router.post('/reactivate-checkout', requireAccountSession, async (req, res, next) => {
+  try {
+    const family = req.family;
+    if (!family.archived_at) {
+      return res.redirect('/account/dashboard?error=' + encodeURIComponent('Your subscription is already active.'));
+    }
+    const { stripe } = require('../config/stripe');
+    if (!stripe) throw new Error('Stripe not configured');
+
+    let customerId = family.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: family.email,
+        metadata: { family_id: family.id },
+      });
+      customerId = customer.id;
+      await familyService.update(family.id, { stripe_customer_id: customerId });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: customerId,
+      line_items: [{ price: process.env.STRIPE_PRICE_ANNUAL, quantity: 1 }],
+      metadata: { type: 'reactivation', family_id: family.id },
+      subscription_data: { metadata: { family_id: family.id, type: 'reactivation' } },
+      success_url: `https://${APP_DOMAIN()}/account/dashboard?reactivated=1`,
+      cancel_url: `https://${APP_DOMAIN()}/account/dashboard`,
+    });
+
+    res.redirect(session.url);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── Forgot / Reset password ──────────────────────────────────────────────────
 
 router.get('/forgot-password', (req, res) => {

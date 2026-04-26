@@ -54,6 +54,29 @@ router.post('/stripe/webhook', async (req, res) => {
               redeemUrl,
             });
           }
+        } else if (session.metadata?.type === 'reactivation') {
+          // Customer-initiated reactivation: a previously-archived family
+          // just paid for a new subscription. Un-archive, restore Spaceship
+          // auto-renew, send the welcome-back email, and bind the new sub
+          // to the family so future Stripe events route correctly.
+          const familyService = require('../services/familyService');
+          const subscriptionService = require('../services/subscriptionService');
+          const familyId = session.metadata.family_id;
+          if (familyId) {
+            const family = await familyService.findById(familyId);
+            if (family) {
+              if (session.subscription) {
+                await familyService.update(family.id, {
+                  stripe_subscription_id: session.subscription,
+                  stripe_customer_id: session.customer || family.stripe_customer_id,
+                });
+              }
+              await subscriptionService.reactivateFamily(family, { source: 'reactivation-checkout' });
+              console.log(`[webhook] reactivation-checkout completed for family ${family.id}`);
+            } else {
+              console.error(`[webhook] reactivation-checkout: family ${familyId} not found`);
+            }
+          }
         } else if (session.metadata?.type === 'additional_site') {
           // Handle additional site purchase for existing customer
           const familyService = require('../services/familyService');
