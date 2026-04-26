@@ -278,7 +278,7 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
             description: 'One-year gift subscription. Recipient redeems a gift code to create their own account and choose their custom domain.',
             images: ['https://legacyodyssey.com/images/og-image.png'],
           },
-          unit_amount: 2999, // $29.99
+          unit_amount: 2900, // $29.00
         },
         quantity: 1,
       },
