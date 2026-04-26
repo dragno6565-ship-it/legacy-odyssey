@@ -293,6 +293,22 @@ async function purchaseAndSetupDomain(orderId) {
     } catch (updateErr) {
       console.error('Failed to update domain order status:', updateErr.message);
     }
+
+    // If Spaceship already registered the domain before the failure (i.e.
+    // we crashed somewhere after step 2), disable auto-renew so we don't
+    // get billed again next year for an orphaned domain. Discovered Apr 26
+    // 2026: legacyodysseytest5/6.com both registered ($12.99 each) but
+    // Railway addCustomDomain failed at the per-service cap, so custom_domain
+    // never got written to the family — softCancelFamily then saw a null
+    // custom_domain and never disabled the renewal.
+    if (order && order.registered_at && order.domain) {
+      try {
+        await spaceshipService.setAutoRenew(order.domain, false);
+        console.log(`Disabled Spaceship auto-renew on orphaned ${order.domain}`);
+      } catch (renewErr) {
+        console.error(`Failed to disable auto-renew on orphaned ${order.domain}:`, renewErr.message);
+      }
+    }
   }
 }
 
