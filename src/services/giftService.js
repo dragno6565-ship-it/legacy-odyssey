@@ -119,9 +119,13 @@ async function redeemGiftCode({ code, email, domain }) {
       const trialEnd = new Date(gift.created_at);
       trialEnd.setMonth(trialEnd.getMonth() + gift.months_prepaid);
 
+      // Gift recipients are explicitly told on the gift page that the post-
+      // gift-year auto-renew is $49.99/yr — so use STRIPE_PRICE_ANNUAL.
+      // (Earlier code preferred MONTHLY which would have rebilled at $4.99/mo,
+      // contradicting the disclosure on the gift page.)
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
-        items: [{ price: process.env.STRIPE_PRICE_MONTHLY || process.env.STRIPE_PRICE_ANNUAL }],
+        items: [{ price: process.env.STRIPE_PRICE_ANNUAL }],
         trial_end: Math.floor(trialEnd.getTime() / 1000),
         payment_behavior: 'default_incomplete',
         payment_settings: { save_default_payment_method: 'on_subscription' },
