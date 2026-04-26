@@ -149,6 +149,10 @@
             <input type="file" id="momFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','momPhotoPath','momPhotoZone','momPreview','momUploading')">
           </div>
           <div class="photo-side">
+            <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
+              <label>Mom's Headline</label>
+              <input type="text" name="mom_title" value="<%= birthStory.mom_title || '' %>" placeholder='"The moment I heard you cry..."' maxlength="120">
+            </div>
             <div class="form-group" style="margin-bottom:0;flex:1;">
               <label>Mom's Narrative</label>
               <div id="momEditor" style="margin-top:0.25rem;"><%= birthStory.mom_narrative || '' %></div>
@@ -179,6 +183,10 @@
             <input type="file" id="dadFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','dadPhotoPath','dadPhotoZone','dadPreview','dadUploading')">
           </div>
           <div class="photo-side">
+            <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
+              <label>Dad's Headline</label>
+              <input type="text" name="dad_title" value="<%= birthStory.dad_title || '' %>" placeholder='"I was completely unprepared for how I felt..."' maxlength="120">
+            </div>
             <div class="form-group" style="margin-bottom:0;flex:1;">
               <label>Dad's Narrative</label>
               <div id="dadEditor" style="margin-top:0.25rem;"><%= birthStory.dad_narrative || '' %></div>

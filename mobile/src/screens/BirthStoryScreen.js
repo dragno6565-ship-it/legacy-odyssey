@@ -24,7 +24,9 @@ export default function BirthStoryScreen({ navigation }) {
   const [error, setError] = useState('');
 
   const [firstHeldBy, setFirstHeldBy] = useState('');
+  const [momTitle, setMomTitle] = useState('');
   const [momNarrative, setMomNarrative] = useState('');
+  const [dadTitle, setDadTitle] = useState('');
   const [dadNarrative, setDadNarrative] = useState('');
   const [momPhoto1, setMomPhoto1] = useState('');
   const [momPhoto2, setMomPhoto2] = useState('');
@@ -37,7 +39,9 @@ export default function BirthStoryScreen({ navigation }) {
         const res = await get('/api/books/mine/birth');
         const d = res.data || {};
         setFirstHeldBy(d.first_held_by || '');
+        setMomTitle(d.mom_title || '');
         setMomNarrative(d.mom_narrative || '');
+        setDadTitle(d.dad_title || '');
         setDadNarrative(d.dad_narrative || '');
         setMomPhoto1(d.mom_photo_1 || '');
         setMomPhoto2(d.mom_photo_2 || '');
@@ -60,7 +64,9 @@ export default function BirthStoryScreen({ navigation }) {
     try {
       await put('/api/books/mine/birth', {
         first_held_by: firstHeldBy.trim(),
+        mom_title: momTitle.trim(),
         mom_narrative: momNarrative.trim(),
+        dad_title: dadTitle.trim(),
         dad_narrative: dadNarrative.trim(),
         mom_photo_1: momPhoto1,
         mom_photo_2: momPhoto2,
@@ -116,6 +122,16 @@ export default function BirthStoryScreen({ navigation }) {
 
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Mom's Perspective</Text>
+          <Text style={styles.fieldLabel}>Headline</Text>
+          <TextInput
+            style={styles.input}
+            value={momTitle}
+            onChangeText={setMomTitle}
+            placeholder='"The moment I heard you cry..."'
+            placeholderTextColor={colors.placeholder}
+            maxLength={120}
+          />
+          <Text style={styles.fieldLabel}>Narrative</Text>
           <TextInput
             style={[styles.input, styles.narrativeInput]}
             value={momNarrative}
@@ -134,6 +150,16 @@ export default function BirthStoryScreen({ navigation }) {
 
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Dad's Perspective</Text>
+          <Text style={styles.fieldLabel}>Headline</Text>
+          <TextInput
+            style={styles.input}
+            value={dadTitle}
+            onChangeText={setDadTitle}
+            placeholder='"I was completely unprepared for how I felt..."'
+            placeholderTextColor={colors.placeholder}
+            maxLength={120}
+          />
+          <Text style={styles.fieldLabel}>Narrative</Text>
           <TextInput
             style={[styles.input, styles.narrativeInput]}
             value={dadNarrative}
@@ -182,6 +208,7 @@ const styles = StyleSheet.create({
   section: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginTop: spacing.lg, ...shadows.card },
   sectionHeader: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.gold, marginBottom: spacing.sm },
   photoLabel: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginTop: spacing.md, marginBottom: spacing.xs },
+  fieldLabel: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginBottom: spacing.xs, marginTop: spacing.sm },
   saveButton: { backgroundColor: colors.gold, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', justifyContent: 'center', marginTop: spacing.xl, minHeight: 50, ...shadows.button },
   saveButtonDisabled: { opacity: 0.7 },
   saveButtonText: { color: colors.white, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold },

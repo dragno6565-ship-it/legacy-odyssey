@@ -29,7 +29,7 @@
   <div class="birth-perspectives">
     <div class="perspective">
       <div class="perspective-who">&#10022; From Mom's Point of View</div>
-      <h3 class="perspective-title">"The moment I heard you cry..."</h3>
+      <h3 class="perspective-title"><%= (birthStory && birthStory.mom_title && birthStory.mom_title.trim()) ? birthStory.mom_title : '"The moment I heard you cry..."' %></h3>
       <p class="perspective-text"><%- ((birthStory && birthStory.mom_narrative) || '').replace(/\n/g, '<br>') %></p>
       <% if (birthStory && birthStory.mom_photo_1) { %>
         <div class="perspective-photo">
@@ -39,7 +39,7 @@
     </div>
     <div class="perspective">
       <div class="perspective-who">&#10022; From Dad's Point of View</div>
-      <h3 class="perspective-title">"I was completely unprepared for how I felt..."</h3>
+      <h3 class="perspective-title"><%= (birthStory && birthStory.dad_title && birthStory.dad_title.trim()) ? birthStory.dad_title : '"I was completely unprepared for how I felt..."' %></h3>
       <p class="perspective-text"><%- ((birthStory && birthStory.dad_narrative) || '').replace(/\n/g, '<br>') %></p>
       <% if (birthStory && birthStory.dad_photo_1) { %>
         <div class="perspective-photo">

@@ -409,7 +409,9 @@ router.post('/book/birth-story', requireAccountSession, async (req, res, next) =
     const book = await bookService.getBookByFamilyId(req.family.id);
     await bookService.upsertBirthStory(book.id, {
       first_held_by: req.body.first_held_by || null,
+      mom_title: (req.body.mom_title || '').trim() || null,
       mom_narrative: sanitizeBookHtml(req.body.mom_narrative),
+      dad_title: (req.body.dad_title || '').trim() || null,
       dad_narrative: sanitizeBookHtml(req.body.dad_narrative),
       mom_photo_1: req.body.mom_photo_1 || null,
       dad_photo_1: req.body.dad_photo_1 || null,

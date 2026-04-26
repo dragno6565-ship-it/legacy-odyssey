@@ -213,7 +213,7 @@ async function upsertFamilyMember(bookId, memberKey, fields) {
 
 async function upsertBirthStory(bookId, fields) {
   // Whitelist allowed fields to prevent DB errors from unknown columns
-  const allowed = ['first_held_by', 'mom_narrative', 'dad_narrative', 'mom_photo_1', 'mom_photo_2', 'dad_photo_1', 'dad_photo_2'];
+  const allowed = ['first_held_by', 'mom_title', 'mom_narrative', 'dad_title', 'dad_narrative', 'mom_photo_1', 'mom_photo_2', 'dad_photo_1', 'dad_photo_2'];
   const safe = {};
   for (const key of allowed) {
     if (fields[key] !== undefined) safe[key] = fields[key];
