@@ -4,6 +4,75 @@ A scrollable, dated log of long working sessions. Newest first. Append a new sec
 
 ---
 
+## April 27, 2026 — Cloudflare for SaaS migration (Roy first; architecture validated)
+
+**Outcome:** Architecture migrated from Railway custom domains to Cloudflare for SaaS. Root cause for the Railway cap is permanently solved — we can now scale to ~50 customers free, ~$0.10/mo per hostname after that. First customer (Roy) fully migrated and serving 200 on both apex + www. Other 7 customers ready to migrate the same way.
+
+### Architecture before vs. after
+
+**Before:**
+- Each customer: 2 Railway custom domain entries (apex + www)
+- Railway Pro plan caps at 20 entries per service
+- New signups failing past ~10 customers
+
+**After:**
+- Each customer: their domain becomes a Cloudflare zone (Free plan, unlimited zones)
+- Cloudflare for SaaS terminates TLS per customer, proxies to a single Railway origin (`edge.legacyodyssey.com`)
+- Railway uses 1 custom domain entry total (the fallback origin) — unlimited customer headroom
+- 100 Custom Hostnames included free; $0.10/month per additional past 100
+
+### What we built today
+
+| Step | Detail |
+|---|---|
+| Cloudflare account | Confirmed existing — `Legacyodysseyapp@gmail.com`, account `bc2ebc94444d987c7a78809a1d9449cb` (already used for R2 photo backup) |
+| Add `legacyodyssey.com` as Cloudflare zone | Imported 14 records, manually added 3 CF missed (`_acme-challenge`, `_railway-verify`, `spacemail._domainkey`) |
+| Switch Spaceship NS for `legacyodyssey.com` | `launch1/2.spaceship.net` → `khalid.ns.cloudflare.com` + `sima.ns.cloudflare.com`. Marketing site stays serving 200 throughout |
+| Subscribe to Cloudflare for SaaS (Free) | $0/mo, 100 hostnames included |
+| Add `edge.legacyodyssey.com` as Railway custom domain | Single Railway slot serves all customers. Authorized Railway↔Cloudflare DNS integration to auto-add the CNAME + verify TXT |
+| Set Cloudflare Fallback Origin = `edge.legacyodyssey.com` | Status went Initializing → Active |
+| Created API token "Legacy Odyssey Server" | Zone-scoped to `legacyodyssey.com`. Permissions: DNS Edit + SSL & Certificates Edit (Custom Hostnames is gated by SSL permission) |
+| Set 3 Railway env vars | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID=78a493539f48075096aec16f26075500`, `CLOUDFLARE_FALLBACK_ORIGIN=edge.legacyodyssey.com` |
+| New `src/services/cloudflareService.js` | Wraps Custom Hostnames API: add/find/delete/list. Tested via `scripts/cloudflare-test.js` |
+| Updated `domainService.purchaseAndSetupDomain` | Replaced `railwayService.addCustomDomain` with `cloudflareService.addCustomHostname`. New customer signups now register as CF Custom Hostnames, no Railway slot consumed |
+| Updated `spaceshipService.setupDns` | Writes 2 CNAMEs (apex + www) to fallback origin instead of Fastly A + Railway verify TXTs |
+
+### The apex problem
+
+Cloudflare for SaaS rejected Roy's apex with "custom hostname does not CNAME to this zone." Why: Spaceship CNAME-at-apex isn't a real CNAME (RFC-illegal); Spaceship flattens it to A; Cloudflare's verifier sees A records and rejects. Tried and failed:
+
+- A records pointing at Cloudflare anycast IPs (`104.21.27.18`, `172.67.140.204`) — still rejected
+- `_cf-custom-hostname` TXT ownership verification — solved a different check, not this one
+- PATCH `custom_origin_server` via API — verifier still ran and failed
+
+**Working fix:** add the customer's domain itself as a Cloudflare zone (Free plan, unlimited zones). With Cloudflare's nameservers serving the zone, apex CNAME flattening preserves CNAME visibility for the SaaS verifier. Worked on first try for Roy after NS propagation.
+
+### Roy's migration steps (template for the other 7)
+
+1. Cloudflare → Connect a domain → `roypatrickthompson.com` → Free plan
+2. Edit imported records: replace 2 apex A records with 1 CNAME `@` → `edge.legacyodyssey.com` (proxied)
+3. Verify CNAME `www` → `edge.legacyodyssey.com` already imported (proxied)
+4. Custom Hostnames on `legacyodyssey.com` SaaS zone (apex + www) — already added earlier today
+5. Spaceship → roypatrickthompson.com → Nameservers & DNS → Change → Custom: `khalid.ns.cloudflare.com` + `sima.ns.cloudflare.com`
+6. Wait 5–15 min for NS propagation + Let's Encrypt cert issuance
+7. Verify: `curl -I https://roypatrickthompson.com` returns 200
+
+### Open items
+
+1. **Migrate the other 7 customers** (Eowyn, Kate, Lindsey/Emma, Jeff, Lachlan, Reese, family-photo-album) using the recipe above. ~10 min of clicks per customer + ~15 min wait — ~1–2 hours total.
+2. **Account-scoped API token** so the migration AND new-customer-signup flows can be fully automated without dashboard clicks. Current token is zone-scoped to `legacyodyssey.com` only and can't create or edit customer zones.
+3. **Update Block 2 health check** to also verify each customer's Cloudflare zone is Active and Custom Hostnames are issued.
+4. **Document new failure modes**: edge.legacyodyssey.com Railway disruption now affects ALL customers, Cloudflare zone deletion would require restoring NS at Spaceship.
+5. **Eventually delete old Railway custom domain entries** for migrated customers (frees ~14 slots). Not urgent — safe to leave until everyone is migrated.
+
+### Commits today
+
+- `7fad8b9` — Migrate domain pipeline from Railway custom domains to Cloudflare for SaaS
+- `ae92438` — Cloudflare for SaaS test + customer migration scripts
+- `5b5037d` — Add per-customer Cloudflare zone migration scripts (apex fix)
+
+---
+
 ## April 25–26, 2026 — Health checks, multi-site cancel, gift E2E, Railway cap
 
 **Outcome:** Annual + Gift purchase flows tested with real money end-to-end and confirmed working. Customer reactivation flow built. Major hardening of the domain pipeline. Hit Railway's per-service custom-domain cap (20 on Pro), confirmed with Railway support — must move custom-domain handling to Cloudflare for SaaS to scale past ~10 customers. Monthly E2E test still TODO.

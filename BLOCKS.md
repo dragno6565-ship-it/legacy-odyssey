@@ -26,28 +26,51 @@ Last updated: April 25, 2026
 
 ---
 
-## Block 2 — Customer Domains
+## Block 2 — Customer Domains (post Apr 27 2026 Cloudflare for SaaS migration)
 
-**What it is:** every paying customer has their own .com domain (e.g. `kateragno.com`) that serves their book at both www and apex. We register the domain via Spaceship at checkout, register the domain with Railway as a custom domain (one for www, one for apex), and write 4 DNS records via Spaceship: CNAME www, A apex, and two `_railway-verify` TXT records for TLS.
+**What it is:** every paying customer has their own .com domain (e.g. `kateragno.com`) serving their book at both www and apex. The domain is registered via Spaceship at checkout, then added as a Cloudflare zone (Free plan, unlimited zones); the customer's nameservers are switched from Spaceship to Cloudflare. Cloudflare for SaaS terminates TLS per customer hostname and proxies to a single Railway origin (`edge.legacyodyssey.com`).
+
+**Traffic flow:**
+```
+Visitor → kateragno.com (DNS via Cloudflare nameservers for the per-customer zone)
+       → Cloudflare edge (TLS termination per customer)
+       → Cloudflare for SaaS Custom Hostname routing → fallback origin
+       → edge.legacyodyssey.com (1 Railway custom domain — serves ALL customers)
+       → Railway service (Express reads Host header, routes to family/book)
+```
 
 | Component | Owner | Notes |
 |---|---|---|
 | Domain registration | Spaceship API | $12.99/yr or whatever's in budget |
-| Domain DNS records | Spaceship "basic" DNS (`launch1/2.spaceship.net`) | We write the records via the Spaceship admin API |
-| TLS certificates | Railway (Let's Encrypt) | Issued automatically once Railway sees the verify TXT |
+| Domain DNS authority | Cloudflare nameservers (`khalid.ns.cloudflare.com` + `sima.ns.cloudflare.com`) | One free zone per customer |
+| Customer DNS records | Cloudflare zone for the customer's domain | CNAME `@` and CNAME `www`, both → `edge.legacyodyssey.com` (proxied) |
+| TLS certificates | Cloudflare (Let's Encrypt via HTTP-01) | Issued automatically once NS propagates |
+| Custom Hostname registration | Cloudflare for SaaS on `legacyodyssey.com` zone | apex + www added via API; status flips to `active` once CNAME-to-zone validation passes |
+| Fallback origin | `edge.legacyodyssey.com` | Single Railway custom domain that all customer traffic proxies to |
+| Cost | Cloudflare for SaaS Free | 100 hostnames included; $0.10/mo per additional past 100 |
 | Domain auto-renewal | Spaceship | Auto-renew=true for active customers, false for archived/cancelled |
 | `domain_orders` table | Supabase | Every purchase tracked here with status pending → registering → registered → dns_setup → active (or failed) |
 
-**What can break it:** Spaceship API endpoint changes (we hit this Apr 2026 when `/dns-records` moved to `/dns/records/{domain}`), Railway's CNAME target changes, missing verify TXT records (TLS validation never completes), apex A records pointing somewhere wrong, **Spaceship "URL Redirect" connection on a domain auto-injects locked `group: product` parking-IP A records that override our Fastly A** (discovered Apr 25 2026 via `roypatrickthompson.com`), Railway's per-service custom-domain cap silently swallowing apex adds.
+**Why each customer needs their own Cloudflare zone:** Cloudflare for SaaS rejects apex hostnames with "custom hostname does not CNAME to this zone" when the customer's DNS is on a registrar that flattens CNAME-at-apex without preserving CNAME visibility (which Spaceship does). Hosting the customer's domain as a Cloudflare zone makes Cloudflare authoritative; Cloudflare's flattening preserves CNAME visibility for the SaaS verifier. Discovered Apr 27 2026 via `roypatrickthompson.com`.
+
+**What can break it:** `edge.legacyodyssey.com` Railway disruption (single point of failure for ALL customers — but Railway Pro uptime is excellent), Cloudflare API token revoked, Cloudflare zone deletion, customer's nameservers somehow reverting (Spaceship Domain Manager UI), past 100 hostnames + payment lapse.
 
 **Recovery runbooks:**
-- **Apex polluted by Spaceship URL Redirect:** Domain Manager → click the domain → click "URL redirect" in the right panel → Remove connection. The locked product-group A records disappear automatically. Cannot be done via API.
-- **Apex never set up (status `dns_setup` with error_message about Railway):** `node scripts/repair-apex-dns.js <domain>`. Then `node scripts/delete-stale-a-records.js <domain>` if the apex previously pointed elsewhere (GitHub Pages, Vercel, etc.).
-- **Verify final state:** `node scripts/check-spaceship-dns.js <domain>` — should show 4 records: A @ → 151.101.2.15, CNAME www → *.up.railway.app, TXT _railway-verify, TXT _railway-verify.www.
+- **Migrate a new customer (or repair an existing one):** Cloudflare → Connect a domain → `<customer.com>` → Free plan. Edit imported records: replace 2 apex A records with 1 CNAME `@` → `edge.legacyodyssey.com` (proxied). Verify CNAME `www` → `edge.legacyodyssey.com` is also proxied. Add Custom Hostnames for apex + www on the `legacyodyssey.com` SaaS zone (`scripts/migrate-customer-to-cf.js`). Spaceship → Domain Manager → `<customer.com>` → Nameservers & DNS → Change → Custom: `khalid.ns.cloudflare.com` + `sima.ns.cloudflare.com`. Wait 5–15 min for NS propagation + cert issuance. Verify with `curl -I https://<customer.com>` returning 200.
+- **Cloudflare API token expired/revoked:** create a new one at `dash.cloudflare.com/profile/api-tokens` → Custom token → Zone-scoped to `legacyodyssey.com` → Permissions: Zone DNS Edit + Zone SSL & Certificates Edit. Update `CLOUDFLARE_API_TOKEN` env on Railway.
+- **Cloudflare zone deleted (unlikely catastrophe):** re-create the zone, manually re-add `edge` CNAME, restore Custom Hostnames per customer (maintain a periodic export — `node scripts/cloudflare-test.js` lists current state). Restore Spaceship NS to the new Cloudflare nameservers.
+- **Old/legacy issues from the pre-CF era** (pre Apr 27): Spaceship URL Redirect injecting parking-IP A records — Domain Manager → URL redirect → Remove connection.
 
 **What the health check verifies:** Every active customer's domain returns 200 over HTTPS at **both** apex and www (`isFullyServing` — strict; passes both URLs in parallel, fails the audit if either is broken), no domain orders failed in the last 24 hours, no domain orders stuck in transitional state >1 hour. The site-live-detect cron uses the looser `isSiteLive` (either side OK) so the welcome email fires as soon as www is up.
 
+**TODO add to health check:** verify each customer's Cloudflare zone is `active` and all Custom Hostnames have `ssl.status=active` (not just curl-OK). Catches state where Cloudflare deactivated something while the cached cert keeps serving.
+
 **Related crons:** `siteLiveDetect` (every 5 min) — emails customer when their site first responds 200. `domainOrderAlerts` (daily 9:30 AM UTC) — emails admin if any orders in `failed` or stuck-mid-flow state.
+
+**Migration scripts:**
+- `scripts/cloudflare-test.js` — read-only verification of token, zone, fallback origin, and Custom Hostnames API
+- `scripts/migrate-customer-to-cf.js` — registers a customer's domain as Custom Hostnames on the SaaS zone, flips Spaceship DNS to point at fallback origin (apex stays on Spaceship — only www works under this model)
+- `scripts/migrate-customer-zone-to-cf.js` — full migration including making the customer's domain its own Cloudflare zone (preferred long-term; what we did for Roy)
 
 ---
 
