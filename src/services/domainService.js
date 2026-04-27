@@ -205,39 +205,44 @@ async function purchaseAndSetupDomain(orderId) {
     await updateDomainOrder(orderId, { status: 'registered', registered_at: new Date().toISOString() });
     console.log(`Domain registered: ${order.domain}`);
 
-    // Step 3: Register BOTH apex and www as Cloudflare for SaaS Custom Hostnames.
-    // Replaces the old Railway addCustomDomain calls — Railway's per-service cap
-    // of 20 custom domains was blocking new signups (confirmed by Railway support
-    // Apr 26 2026). Cloudflare for SaaS includes 100 hostnames free, $0.10/mo
-    // beyond that, with no architectural cap. Each side is wrapped in its own
-    // try/catch so partial failures are surfaced to the daily alert cron.
-    const cloudflareService = require('./cloudflareService');
-    let apexHostnameId = null;
-    let wwwHostnameId = null;
+    // Step 3: Register BOTH apex and www as Approximated virtual hosts.
+    // Replaces Cloudflare for SaaS (which replaced Railway). Approximated
+    // gives unlimited TLS-terminated hostnames per cluster with no zone-
+    // creation permission politics — built for exactly this use case.
+    // Discovered Apr 27 2026 after Cloudflare's account-scoped Zone:Edit
+    // permission proved unavailable through the custom-token UI.
+    //
+    // Order matters: register virtual hosts BEFORE writing DNS so the
+    // proxy is ready to issue a cert the moment customer DNS propagates.
+    // Each side wrapped in its own try/catch so partial failures don't
+    // mask the half that worked.
+    const approximatedService = require('./approximatedService');
+    let apexVhostId = null;
+    let wwwVhostId = null;
     let wwwSetupError = null;
     let apexSetupError = null;
 
     try {
-      const wwwResult = await cloudflareService.addCustomHostname(`www.${order.domain}`);
-      wwwHostnameId = wwwResult.id;
-      console.log(`Cloudflare www hostname added: www.${order.domain}`);
+      const wwwResult = await approximatedService.addVirtualHost(`www.${order.domain}`);
+      wwwVhostId = wwwResult.id;
+      console.log(`Approximated www vhost added: www.${order.domain} (id: ${wwwVhostId})`);
     } catch (err) {
       wwwSetupError = err.message;
-      console.error(`Cloudflare www add FAILED for ${order.domain}: ${err.message}`);
+      console.error(`Approximated www add FAILED for ${order.domain}: ${err.message}`);
     }
 
     try {
-      const apexResult = await cloudflareService.addCustomHostname(order.domain);
-      apexHostnameId = apexResult.id;
-      console.log(`Cloudflare apex hostname added: ${order.domain}`);
+      const apexResult = await approximatedService.addVirtualHost(order.domain);
+      apexVhostId = apexResult.id;
+      console.log(`Approximated apex vhost added: ${order.domain} (id: ${apexVhostId})`);
     } catch (err) {
       apexSetupError = err.message;
-      console.error(`Cloudflare apex add FAILED for ${order.domain}: ${err.message}`);
+      console.error(`Approximated apex add FAILED for ${order.domain}: ${err.message}`);
     }
 
-    // Step 4: Write the customer's Spaceship DNS — both apex and www CNAME
-    // to our Cloudflare fallback origin. setupDns no longer needs verify
-    // tokens; Cloudflare validates ownership via HTTP-01 once DNS resolves.
+    // Step 4: Write Spaceship DNS — apex + www A records → Approximated
+    // cluster IP. No verify TXTs. Cert auto-issues once Approximated sees
+    // traffic at the cluster.
     await spaceshipService.setupDns(order.domain);
     await updateDomainOrder(orderId, { status: 'dns_setup', dns_configured_at: new Date().toISOString() });
 
@@ -253,16 +258,16 @@ async function purchaseAndSetupDomain(orderId) {
       if (apexSetupError) parts.push(`apex: ${apexSetupError}`);
       await updateDomainOrder(orderId, {
         status: 'dns_setup',
-        railway_domain_id: apexHostnameId || wwwHostnameId, // reuse column for cf hostname id (rename in future migration)
-        error_message: `Partial Cloudflare setup — ${parts.join('; ')}`,
+        railway_domain_id: String(apexVhostId || wwwVhostId || ''), // legacy column name; now stores Approximated vhost id
+        error_message: `Partial Approximated setup — ${parts.join('; ')}`,
       });
       console.warn(`Domain ${order.domain} ended in PARTIAL state — ${parts.join('; ')}`);
     } else {
       await updateDomainOrder(orderId, {
         status: 'active',
-        railway_domain_id: apexHostnameId,
+        railway_domain_id: String(apexVhostId), // legacy column name; stores Approximated vhost id
       });
-      console.log(`Domain fully active: ${order.domain}`);
+      console.log(`Domain fully active on Approximated: ${order.domain}`);
     }
   } catch (err) {
     console.error(`Domain purchase failed for order ${orderId}:`, err.message);

@@ -134,54 +134,57 @@ const RAILWAY_FASTLY_IP = '151.101.2.15';
 
 /**
  * Set DNS records on a customer domain so BOTH apex and www route through
- * Cloudflare for SaaS to our service.
+ * Approximated.app's proxy cluster to our service.
  *
- * Post-migration model (Apr 2026): customer DNS becomes just two CNAMEs:
- *   CNAME @    → edge.legacyodyssey.com  (Cloudflare fallback origin)
- *   CNAME www  → edge.legacyodyssey.com
+ * Post-Approximated model (Apr 27 2026): customer DNS becomes two A records:
+ *   A @    → 137.66.1.199  (APPROXIMATED_CLUSTER_IP)
+ *   A www  → 137.66.1.199
  *
- * Cloudflare handles TLS termination and Host-header proxying back to our
- * single Railway origin. No verify TXT records needed — Cloudflare's HTTP-01
- * challenge happens through their own proxied request once DNS resolves.
+ * Approximated terminates TLS via Caddy On-Demand TLS (Let's Encrypt) and
+ * Host-header proxies traffic to our origin (legacyodyssey.com:443).
+ * No verify TXTs needed — Approximated provisions certs based on virtual-host
+ * registration alone, no DNS challenge round-trip.
  *
- * Why CNAME at apex works: Spaceship allows it (validated empirically across
- * existing customer domains), and Cloudflare flattens it transparently when
- * resolvers query the SaaS endpoint.
+ * Why A records (not CNAME): Approximated's cluster IP is stable. Using A
+ * records sidesteps Spaceship's CNAME-at-apex flattening quirk entirely and
+ * matches what Approximated's docs prescribe.
  *
  * Spaceship API quirk: PUT /dns/records/{domain} is non-destructive — it
- * appends rather than replacing. To get a clean state we'd need to GET, then
- * DELETE existing records. For NEW signups that's not needed (zone is fresh).
- * For migrating existing customers we use scripts/migrate-customer-to-cf.js.
+ * appends rather than replacing. For NEW signups that's not needed (zone is
+ * fresh). For migrating existing customers, see
+ * scripts/migrate-customer-to-approximated.js.
  *
  * @param domain  bare domain, e.g. "kateragno.com"
  */
 async function setupDns(domain) {
   if (!spaceship) throw new Error('Spaceship API not configured');
-  const target = process.env.CLOUDFLARE_FALLBACK_ORIGIN;
-  if (!target) throw new Error('CLOUDFLARE_FALLBACK_ORIGIN not configured');
+  const clusterIp = process.env.APPROXIMATED_CLUSTER_IP;
+  if (!clusterIp) throw new Error('APPROXIMATED_CLUSTER_IP not configured');
 
   const items = [
-    { type: 'CNAME', name: '@',   cname: target, ttl: 1800 },
-    { type: 'CNAME', name: 'www', cname: target, ttl: 1800 },
+    { type: 'A', name: '@',   address: clusterIp, ttl: 1800 },
+    { type: 'A', name: 'www', address: clusterIp, ttl: 1800 },
   ];
 
   await spaceship.put(`/dns/records/${encodeURIComponent(domain)}`, { force: true, items });
-  console.log(`DNS configured for ${domain}: apex + www → ${target}`);
+  console.log(`DNS configured for ${domain}: apex + www → ${clusterIp} (Approximated)`);
 
   // Sanity check: Spaceship registers new domains with a default `URL Redirect`
   // connection that injects locked `group: product` apex A records pointing at
   // their parking IP (e.g. 15.197.162.184). Those records can NOT be removed
   // via the API — only by clicking "Remove connection" on the URL Redirect
-  // panel in the Spaceship dashboard. With Cloudflare for SaaS, those locked
-  // A records compete with our CNAME and break routing. Discovered Apr 25 2026.
+  // panel in the Spaceship dashboard. With Approximated, ANY apex A pointing
+  // somewhere other than our cluster IP will compete with our record and break
+  // routing. Discovered Apr 25 2026.
   try {
     const { data } = await spaceship.get(`/dns/records/${encodeURIComponent(domain)}`, { params: { take: 100, skip: 0 } });
     const all = data.items || [];
     const apexA = all.filter((r) => r.type === 'A' && (r.name === '@' || r.name === ''));
-    if (apexA.length > 0) {
-      const groups = Array.from(new Set(apexA.map((r) => r.group?.type || 'unknown')));
+    const stray = apexA.filter((r) => r.address !== clusterIp);
+    if (stray.length > 0) {
+      const groups = Array.from(new Set(stray.map((r) => r.group?.type || 'unknown')));
       throw new Error(
-        `Apex polluted by ${apexA.length} A record(s) (${apexA.map((r) => r.address).join(', ')}; group=${groups.join(',')}). ` +
+        `Apex polluted by ${stray.length} stray A record(s) (${stray.map((r) => r.address).join(', ')}; group=${groups.join(',')}). ` +
         `Likely Spaceship URL Redirect — remove via dashboard: Domain Manager → ${domain} → URL redirect → Remove connection.`
       );
     }
