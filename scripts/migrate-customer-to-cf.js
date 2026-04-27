@@ -78,14 +78,31 @@ async function main() {
     console.log('\n3) No old records to delete.');
   }
 
-  // 4. Add new CNAME records (apex + www both → fallback origin)
-  console.log('\n4) Adding new CNAME records → fallback origin…');
+  // 4. Add new records: apex + www CNAME, plus the apex ownership TXT.
+  // Why the TXT: Cloudflare verifies hostname ownership by checking that
+  // the record CNAMEs to the SaaS zone. CNAME-at-apex is RFC-illegal —
+  // Spaceship flattens it to A, so Cloudflare's verifier sees A records
+  // (not a CNAME) and rejects with "custom hostname does not CNAME to
+  // this zone." Fallback: add the TXT _cf-custom-hostname record they
+  // give us in the Custom Hostname response. The www subdomain has a
+  // legal CNAME so it doesn't need this. Discovered Apr 27 2026 with
+  // roypatrickthompson.com.
+  const apexHost = await cloudflareService.findCustomHostname(domain);
+  const ov = apexHost?.ownership_verification;
+  console.log('\n4) Adding new DNS records…');
   const newItems = [
     { type: 'CNAME', name: '@',   cname: FALLBACK_ORIGIN, ttl: 1800 },
     { type: 'CNAME', name: 'www', cname: FALLBACK_ORIGIN, ttl: 1800 },
   ];
+  if (ov && ov.type === 'txt') {
+    const relName = ov.name.endsWith('.' + domain) ? ov.name.slice(0, -(domain.length + 1)) : ov.name;
+    newItems.push({ type: 'TXT', name: relName, value: ov.value, ttl: 1800 });
+    console.log(`   Adding apex ownership TXT: ${relName} = ${ov.value.slice(0, 12)}…`);
+  } else {
+    console.warn('   ⚠ No ownership_verification TXT found — apex may fail validation');
+  }
   await spaceship.put(`/dns/records/${domain}`, { force: true, items: newItems });
-  console.log(`   Wrote: CNAME @ → ${FALLBACK_ORIGIN}, CNAME www → ${FALLBACK_ORIGIN}`);
+  console.log(`   Wrote: CNAME @ → ${FALLBACK_ORIGIN}, CNAME www → ${FALLBACK_ORIGIN}${ov ? ', TXT _cf-custom-hostname (apex ownership)' : ''}`);
 
   // 5. Verify final Spaceship state
   console.log('\n5) Verifying Spaceship state after changes…');
