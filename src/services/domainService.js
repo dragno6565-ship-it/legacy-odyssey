@@ -205,57 +205,40 @@ async function purchaseAndSetupDomain(orderId) {
     await updateDomainOrder(orderId, { status: 'registered', registered_at: new Date().toISOString() });
     console.log(`Domain registered: ${order.domain}`);
 
-    // Step 3: Add BOTH www and apex (bare domain) to Railway as custom domains.
-    // We need both registered so Railway will issue TLS certs for both forms,
-    // and so resolveFamily can serve traffic on either. Apex routing uses an
-    // A record (CNAME on apex is illegal per DNS standards); www uses CNAME.
-    //
-    // Each side is wrapped in its own try/catch so a www-success + apex-failure
-    // is captured precisely. Both halves used to share one catch, so apex
-    // failures (e.g. Railway plan cap reached) were silently swallowed and the
-    // order still got marked `active` — leaving customers with a half-broken
-    // domain. Now apex failure surfaces in error_message + dns_setup status,
-    // which the domain-order-alerts cron picks up.
-    const railwayService = require('./railwayService');
-    let railwayDomainId = null;
-    let wwwTarget = null;
-    let wwwVerifyHost = null;
-    let wwwVerifyToken = null;
-    let apexVerifyHost = null;
-    let apexVerifyToken = null;
+    // Step 3: Register BOTH apex and www as Cloudflare for SaaS Custom Hostnames.
+    // Replaces the old Railway addCustomDomain calls — Railway's per-service cap
+    // of 20 custom domains was blocking new signups (confirmed by Railway support
+    // Apr 26 2026). Cloudflare for SaaS includes 100 hostnames free, $0.10/mo
+    // beyond that, with no architectural cap. Each side is wrapped in its own
+    // try/catch so partial failures are surfaced to the daily alert cron.
+    const cloudflareService = require('./cloudflareService');
+    let apexHostnameId = null;
+    let wwwHostnameId = null;
     let wwwSetupError = null;
     let apexSetupError = null;
 
     try {
-      const wwwResult = await railwayService.addCustomDomain(`www.${order.domain}`);
-      railwayDomainId = wwwResult.id;
-      wwwTarget = wwwResult.cnameTarget;
-      wwwVerifyHost = wwwResult.verificationHost;
-      wwwVerifyToken = wwwResult.verificationToken;
-      console.log(`Railway www domain added: www.${order.domain} (cname: ${wwwTarget})`);
+      const wwwResult = await cloudflareService.addCustomHostname(`www.${order.domain}`);
+      wwwHostnameId = wwwResult.id;
+      console.log(`Cloudflare www hostname added: www.${order.domain}`);
     } catch (err) {
       wwwSetupError = err.message;
-      console.error(`Railway www add FAILED for ${order.domain}: ${err.message}`);
+      console.error(`Cloudflare www add FAILED for ${order.domain}: ${err.message}`);
     }
 
     try {
-      const apexResult = await railwayService.addCustomDomain(order.domain);
-      apexVerifyHost = apexResult.verificationHost;
-      apexVerifyToken = apexResult.verificationToken;
-      console.log(`Railway apex domain added: ${order.domain}`);
+      const apexResult = await cloudflareService.addCustomHostname(order.domain);
+      apexHostnameId = apexResult.id;
+      console.log(`Cloudflare apex hostname added: ${order.domain}`);
     } catch (err) {
       apexSetupError = err.message;
-      console.error(`Railway apex add FAILED for ${order.domain}: ${err.message}`);
+      console.error(`Cloudflare apex add FAILED for ${order.domain}: ${err.message}`);
     }
 
-    // Step 4: Write DNS records via Spaceship for whichever halves succeeded.
-    // setupDns is a no-op for a side whose verify token is missing.
-    await spaceshipService.setupDns(order.domain, wwwTarget, {
-      verificationHost: wwwVerifyHost,
-      verificationToken: wwwVerifyToken,
-      apexVerifyHost,
-      apexVerifyToken,
-    });
+    // Step 4: Write the customer's Spaceship DNS — both apex and www CNAME
+    // to our Cloudflare fallback origin. setupDns no longer needs verify
+    // tokens; Cloudflare validates ownership via HTTP-01 once DNS resolves.
+    await spaceshipService.setupDns(order.domain);
     await updateDomainOrder(orderId, { status: 'dns_setup', dns_configured_at: new Date().toISOString() });
 
     // Step 5: Update family record with custom domain
@@ -264,22 +247,20 @@ async function purchaseAndSetupDomain(orderId) {
     }
 
     // Step 6: Final status — only mark `active` when BOTH sides succeeded.
-    // Otherwise leave at `dns_setup` with an error_message, which the daily
-    // domain-order-alerts cron will surface to admin.
     if (wwwSetupError || apexSetupError) {
       const parts = [];
       if (wwwSetupError) parts.push(`www: ${wwwSetupError}`);
       if (apexSetupError) parts.push(`apex: ${apexSetupError}`);
       await updateDomainOrder(orderId, {
         status: 'dns_setup',
-        railway_domain_id: railwayDomainId,
-        error_message: `Partial Railway setup — ${parts.join('; ')}`,
+        railway_domain_id: apexHostnameId || wwwHostnameId, // reuse column for cf hostname id (rename in future migration)
+        error_message: `Partial Cloudflare setup — ${parts.join('; ')}`,
       });
       console.warn(`Domain ${order.domain} ended in PARTIAL state — ${parts.join('; ')}`);
     } else {
       await updateDomainOrder(orderId, {
         status: 'active',
-        railway_domain_id: railwayDomainId,
+        railway_domain_id: apexHostnameId,
       });
       console.log(`Domain fully active: ${order.domain}`);
     }

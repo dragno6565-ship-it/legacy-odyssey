@@ -126,87 +126,70 @@ async function pollOperation(operationId) {
   return data.status; // 'pending', 'success', 'failed'
 }
 
-// Fastly's anycast IP that Railway routes through — the same IP all .up.railway.app
-// hostnames resolve to. We use it as an A record on customer apex domains since
-// CNAME on apex is illegal per DNS standards (RFC 1034).
+// Legacy: Fastly's anycast IP that Railway routes through. Used pre-Cloudflare
+// migration (Apr 2026); kept here for reference and for the apex-pollution
+// detector that audits whether a Spaceship URL Redirect connection is
+// injecting locked records.
 const RAILWAY_FASTLY_IP = '151.101.2.15';
 
 /**
- * Set DNS records on a customer domain so BOTH www and apex serve their book.
+ * Set DNS records on a customer domain so BOTH apex and www route through
+ * Cloudflare for SaaS to our service.
  *
- * Writes 4 records:
- *   A     @                       → 151.101.2.15  (Fastly/Railway edge)
- *   TXT   _railway-verify         → railway-verify=<apex-token>
- *   CNAME www                     → <railway-www-target>
- *   TXT   _railway-verify.www     → railway-verify=<www-token>
+ * Post-migration model (Apr 2026): customer DNS becomes just two CNAMEs:
+ *   CNAME @    → edge.legacyodyssey.com  (Cloudflare fallback origin)
+ *   CNAME www  → edge.legacyodyssey.com
  *
- * Both verification TXT records are required — without them Railway stays in
- * VALIDATING_OWNERSHIP forever and never issues Let's Encrypt certs.
+ * Cloudflare handles TLS termination and Host-header proxying back to our
+ * single Railway origin. No verify TXT records needed — Cloudflare's HTTP-01
+ * challenge happens through their own proxied request once DNS resolves.
  *
- * Spaceship API: PUT /dns/records/{domain}. The endpoint is non-destructive
- * in some cases (Spaceship admin-API quirk discovered 2026-04-25), so we
- * DELETE-then-PUT to ensure clean state.
+ * Why CNAME at apex works: Spaceship allows it (validated empirically across
+ * existing customer domains), and Cloudflare flattens it transparently when
+ * resolvers query the SaaS endpoint.
  *
- * @param domain    bare domain, e.g. "kateragno.com"
- * @param wwwTarget Railway CNAME target for www, e.g. "abc123.up.railway.app"
- * @param opts.verificationHost / verificationToken — for the www verification TXT
- * @param opts.apexVerifyHost / apexVerifyToken — for the apex verification TXT (optional;
- *           if absent, apex registration is skipped — useful for legacy single-domain customers)
+ * Spaceship API quirk: PUT /dns/records/{domain} is non-destructive — it
+ * appends rather than replacing. To get a clean state we'd need to GET, then
+ * DELETE existing records. For NEW signups that's not needed (zone is fresh).
+ * For migrating existing customers we use scripts/migrate-customer-to-cf.js.
+ *
+ * @param domain  bare domain, e.g. "kateragno.com"
  */
-async function setupDns(domain, wwwTarget, opts = {}) {
+async function setupDns(domain) {
   if (!spaceship) throw new Error('Spaceship API not configured');
-  const target = wwwTarget || process.env.RAILWAY_CNAME_TARGET;
-  if (!target) throw new Error('No CNAME target provided and RAILWAY_CNAME_TARGET not configured');
+  const target = process.env.CLOUDFLARE_FALLBACK_ORIGIN;
+  if (!target) throw new Error('CLOUDFLARE_FALLBACK_ORIGIN not configured');
 
-  const { verificationHost, verificationToken, apexVerifyHost, apexVerifyToken } = opts;
-
-  // Build the desired record set
   const items = [
+    { type: 'CNAME', name: '@',   cname: target, ttl: 1800 },
     { type: 'CNAME', name: 'www', cname: target, ttl: 1800 },
   ];
-  if (verificationHost && verificationToken) {
-    items.push({ type: 'TXT', name: verificationHost, value: verificationToken, ttl: 1800 });
-  }
-  if (apexVerifyHost && apexVerifyToken) {
-    items.push({ type: 'A', name: '@', address: RAILWAY_FASTLY_IP, ttl: 1800 });
-    items.push({ type: 'TXT', name: apexVerifyHost, value: apexVerifyToken, ttl: 1800 });
-  }
 
   await spaceship.put(`/dns/records/${encodeURIComponent(domain)}`, { force: true, items });
-  console.log(`DNS configured for ${domain}: www → ${target}${apexVerifyHost ? `, apex → ${RAILWAY_FASTLY_IP}` : ''}`);
+  console.log(`DNS configured for ${domain}: apex + www → ${target}`);
 
   // Sanity check: Spaceship registers new domains with a default `URL Redirect`
   // connection that injects locked `group: product` apex A records pointing at
   // their parking IP (e.g. 15.197.162.184). Those records can NOT be removed
   // via the API — only by clicking "Remove connection" on the URL Redirect
-  // panel in the Spaceship dashboard. If we don't catch this, the customer's
-  // apex serves DNS round-robin between Fastly (works) and the parking IP
-  // (404), which is invisible until customers complain.
-  // Discovered Apr 25 2026 via roypatrickthompson.com.
-  if (apexVerifyHost) {
-    try {
-      const { data } = await spaceship.get(`/dns/records/${encodeURIComponent(domain)}`, { params: { take: 100, skip: 0 } });
-      const all = data.items || [];
-      const apexA = all.filter((r) => r.type === 'A' && (r.name === '@' || r.name === ''));
-      const polluters = apexA.filter((r) => r.address !== RAILWAY_FASTLY_IP);
-      if (polluters.length > 0) {
-        const groups = Array.from(new Set(polluters.map((r) => r.group?.type || 'unknown')));
-        // Throw — caller (processDomainOrder) records this in error_message and
-        // leaves the order at dns_setup. Admin sees the alert and removes the
-        // URL Redirect connection in the Spaceship dashboard.
-        throw new Error(
-          `Apex polluted by ${polluters.length} non-Fastly A record(s) (${polluters.map((r) => r.address).join(', ')}; group=${groups.join(',')}). ` +
-          `Likely Spaceship URL Redirect — remove via dashboard: Domain Manager → ${domain} → URL redirect → Remove connection.`
-        );
-      }
-    } catch (err) {
-      // If verification GET itself fails, log and continue — don't block
-      // on Spaceship origin flakes (we hit 502s during apex repairs).
-      if (!/polluted/.test(err.message || '')) {
-        console.warn(`setupDns verification GET failed for ${domain}: ${err.message}`);
-      } else {
-        throw err;
-      }
+  // panel in the Spaceship dashboard. With Cloudflare for SaaS, those locked
+  // A records compete with our CNAME and break routing. Discovered Apr 25 2026.
+  try {
+    const { data } = await spaceship.get(`/dns/records/${encodeURIComponent(domain)}`, { params: { take: 100, skip: 0 } });
+    const all = data.items || [];
+    const apexA = all.filter((r) => r.type === 'A' && (r.name === '@' || r.name === ''));
+    if (apexA.length > 0) {
+      const groups = Array.from(new Set(apexA.map((r) => r.group?.type || 'unknown')));
+      throw new Error(
+        `Apex polluted by ${apexA.length} A record(s) (${apexA.map((r) => r.address).join(', ')}; group=${groups.join(',')}). ` +
+        `Likely Spaceship URL Redirect — remove via dashboard: Domain Manager → ${domain} → URL redirect → Remove connection.`
+      );
+    }
+  } catch (err) {
+    if (!/polluted/.test(err.message || '')) {
+      console.warn(`setupDns verification GET failed for ${domain}: ${err.message}`);
+    } else {
+      throw err;
     }
   }
 }
