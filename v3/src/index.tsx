@@ -32,6 +32,7 @@ import { BookLayout } from './views/book/BookLayout';
 import authApi from './routes/api/auth';
 import booksApi from './routes/api/books';
 import familiesApi from './routes/api/families';
+import uploadApi from './routes/api/upload';
 import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -66,6 +67,9 @@ app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'))
 app.route('/api/auth', authApi);
 app.route('/api/books', booksApi);
 app.route('/api/families', familiesApi);
+// upload mounts at /api so its inner POST /upload + DELETE /photos/:path
+// resolve to /api/upload and /api/photos/:path — matches the Express layout.
+app.route('/api', uploadApi);
 
 // Route order: resolveFamily first, then everything else can read c.var.family.
 app.use('*', resolveFamily);
