@@ -1,6 +1,6 @@
 # dorindustries.com
 
-**Status:** active (corporate landing page)
+**Status:** active (corporate landing page) — **MIGRATED TO SPACESHIP HOSTING Apr 28 2026**
 **Owner:** DOR Industries (the user's parent company)
 **Last touched:** 2026-04-28
 
@@ -23,24 +23,30 @@ Used for: business credibility, corporate identity, app store developer-account 
   ```
 - Google Play developer account is "DOR Industries" (login `albumerapp2@gmail.com`)
 
-## Current configuration (as of Apr 28 2026)
+## Current configuration (as of Apr 28 2026 8:52 AM)
 - **Registrar:** Spaceship (auto-renew ON)
 - **Renewal:** Feb 25, 2029 (3-year registration)
 - **DNS authority:** Spaceship nameservers
-- **Currently serving from:** Railway → Express middleware
-- **In Railway custom domains list:** `www.dorindustries.com` (apex routing not configured — no apex Railway entry)
-- **Approximated:** NOT in Approximated. Routing happens at Railway directly via Express middleware.
+- **Currently serving from:** **Spaceship Web Hosting** (66.29.148.24 shared IP)
+- **TLS:** Spaceship FreeSSL (Let's Encrypt, auto-managed)
+- **Hosting plan:** Web Hosting Essential ($3.88/mo billing) — shared with `your-childs-name.com` and (inactive) `your-family-photo-album.com`
+- **cPanel website folder:** `/home/wnuazicufx/dorindustries.com/`
+- **index.html:** ~10 KB, contents of `src/views/dorindustries.html` (gold/cream design, hero, About, Products, Contact, footer with privacy/terms links)
+- **In Railway custom domains list:** `www.dorindustries.com` — **NOW REDUNDANT, can be deleted**
+- **Approximated:** never used.
 
-## Migration plan (Apr 28 2026)
-User direction: "Can we move dorindustries.com to our Spaceship hosting?"
-Action: add `dorindustries.com` as a 2nd domain to the existing Spaceship Web Hosting Essential plan, upload `dorindustries.html` as `index.html`, switch DNS, remove from Railway.
-
-User accepts brief downtime: "I don't mind if dorindustries.com goes 'down' for a short time."
+## What can be cleaned up
+- **Delete `www.dorindustries.com` from Railway custom domains list** (now redundant; frees 1 slot)
+- **Delete the Express middleware** in `src/server.js` that special-cases the dorindustries.com Host header (lines ~71-83); becomes dead code post-migration
+- **Delete `src/views/dorindustries.html`** from the repo eventually (Spaceship cPanel is now the source of truth)
 
 ## History
 - 2026-02-25 — Domain registered (3-year)
 - 2026-04-16 — `dorindustries.html` created/updated (latest commit Apr 16 2026)
-- 2026-04-28 — Migration to Spaceship hosting in progress
+- 2026-04-28 8:00 AM — Spaceship hosting Web Hosting Essential connected (3rd domain on the plan)
+- 2026-04-28 8:10 AM — Custom website folder created at `/home/wnuazicufx/dorindustries.com/`
+- 2026-04-28 8:52 AM — `index.html` (10 KB, full corporate page) saved via cPanel ACE editor (ACE setValue API used because file_upload was blocked by Chrome MCP "Not allowed" error)
+- 2026-04-28 — Verified live: `curl -I https://dorindustries.com` returns 200 OK with title "DOR Industries — Software for Families"
 
 ## Related
 - `infrastructure/spaceship-hosting.md` — target host

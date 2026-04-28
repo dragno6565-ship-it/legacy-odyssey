@@ -14,10 +14,11 @@ NOT the same product as the Spaceship registrar; this is a separate Spaceship of
 - Will host `dorindustries.com` and `your-family-photo-album.com` (in-progress migration Apr 28)
 
 ## Current configuration
-- **Plan:** Web Hosting Essential
+- **Plan:** Web Hosting Essential ($3.88/mo billing)
 - **Storage:** 0.1 / 20 GB used
-- **Domains:** 1 / 5 (`your-childs-name.com` attached; 4 free slots)
-- **Websites:** 1 (custom website folder created Apr 28 for `your-childs-name.com`)
+- **Domains:** 3 / 5 — `your-childs-name.com`, `dorindustries.com`, `your-family-photo-album.com` (2 free slots)
+- **Websites:** 3 (all 3 domains have website folders; YFP folder is empty)
+- **Shared IP:** `66.29.148.24` (this is what DNS A records point at)
 - **cPanel server hostname:** `server5.shared.spaceship.host:2083`
 - **cPanel username:** `wnuazicufx`
 - **Home dir:** `/home/wnuazicufx/`
