@@ -33,6 +33,29 @@ import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
 
+// Same-origin proxy for the legacy book.js / book.css. Mounted BEFORE
+// resolveFamily so the Host header (e.g. workers.dev) doesn't 404 us.
+//
+// Why we proxy instead of <script src="https://legacyodyssey.com/...">:
+// loading book.js cross-origin from the workers.dev hostname fails in the
+// browser ("error" event on <script>, despite curl returning 200). This
+// re-serves the same bytes from the Worker so nothing is cross-origin.
+//
+// TTL=14400 matches what Express sets, and Cloudflare caches at the edge.
+const proxyAsset = (path: string, contentType: string) => async () => {
+  const upstream = `https://legacyodyssey.com${path}`;
+  const res = await fetch(upstream, { cf: { cacheTtl: 14400, cacheEverything: true } as any });
+  return new Response(res.body, {
+    status: res.status,
+    headers: {
+      'content-type': contentType,
+      'cache-control': 'public, max-age=14400',
+    },
+  });
+};
+app.get('/js/book.js', proxyAsset('/js/book.js', 'text/javascript; charset=utf-8'));
+app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'));
+
 // Route order: resolveFamily first, then everything else can read c.var.family.
 app.use('*', resolveFamily);
 

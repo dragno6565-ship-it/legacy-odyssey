@@ -1,0 +1,104 @@
+/**
+ * "The Birth Story" — chapter two. Direct port of birth.ejs.
+ */
+import type { FC } from 'hono/jsx';
+import { nl2br } from './nl2br';
+
+type Row = Record<string, any>;
+
+type Props = {
+  book: Row;
+  birthStory: Row;
+  imageUrl: (path: string | null | undefined) => string | null;
+  photoPos: (path: string | null | undefined) => string;
+};
+
+export const BirthStory: FC<Props> = ({ book, birthStory, imageUrl, photoPos }) => {
+  const date = book.birth_date
+    ? new Date(book.birth_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : '';
+  const weight = book.birth_weight_lbs
+    ? `${book.birth_weight_lbs} lbs ${book.birth_weight_oz || 0} oz`
+    : '';
+  const length = book.birth_length_inches ? `${book.birth_length_inches} inches` : '';
+  const momTitle =
+    birthStory && birthStory.mom_title && String(birthStory.mom_title).trim()
+      ? birthStory.mom_title
+      : '"The moment I heard you cry..."';
+  const dadTitle =
+    birthStory && birthStory.dad_title && String(birthStory.dad_title).trim()
+      ? birthStory.dad_title
+      : '"I was completely unprepared for how I felt..."';
+
+  return (
+    <section id="page-birth" class="page-section">
+      <div class="page-header">
+        <div class="page-header-eyebrow">Chapter Two</div>
+        <h2 class="page-header-title">The <em>Birth Story</em></h2>
+        <p class="page-header-sub">
+          The day the world changed. Written by the people who were there.
+        </p>
+      </div>
+      <div class="birth-stats-bar">
+        <div class="birth-stat">
+          <div class="birth-stat-label">Date</div>
+          <div class="birth-stat-value">{date}</div>
+        </div>
+        <div class="birth-stat">
+          <div class="birth-stat-label">Time</div>
+          <div class="birth-stat-value">{book.birth_time || ''}</div>
+        </div>
+        <div class="birth-stat">
+          <div class="birth-stat-label">Weight</div>
+          <div class="birth-stat-value">{weight}</div>
+        </div>
+        <div class="birth-stat">
+          <div class="birth-stat-label">Length</div>
+          <div class="birth-stat-value">{length}</div>
+        </div>
+        <div class="birth-stat">
+          <div class="birth-stat-label">First Held By</div>
+          <div class="birth-stat-value">{(birthStory && birthStory.first_held_by) || ''}</div>
+        </div>
+      </div>
+      <div class="birth-perspectives">
+        <div class="perspective">
+          <div class="perspective-who">✦ From Mom's Point of View</div>
+          <h3 class="perspective-title">{momTitle}</h3>
+          <p
+            class="perspective-text"
+            dangerouslySetInnerHTML={{ __html: nl2br(birthStory && birthStory.mom_narrative) }}
+          />
+          {birthStory && birthStory.mom_photo_1 && (
+            <div class="perspective-photo">
+              <img
+                src={imageUrl(birthStory.mom_photo_1) || ''}
+                alt="Mom's birth photo"
+                loading="lazy"
+                style={photoPos(birthStory.mom_photo_1)}
+              />
+            </div>
+          )}
+        </div>
+        <div class="perspective">
+          <div class="perspective-who">✦ From Dad's Point of View</div>
+          <h3 class="perspective-title">{dadTitle}</h3>
+          <p
+            class="perspective-text"
+            dangerouslySetInnerHTML={{ __html: nl2br(birthStory && birthStory.dad_narrative) }}
+          />
+          {birthStory && birthStory.dad_photo_1 && (
+            <div class="perspective-photo">
+              <img
+                src={imageUrl(birthStory.dad_photo_1) || ''}
+                alt="Dad's birth photo"
+                loading="lazy"
+                style={photoPos(birthStory.dad_photo_1)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
