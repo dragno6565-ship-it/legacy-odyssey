@@ -28,6 +28,10 @@
  */
 import { Hono } from 'hono';
 import type { Env } from '../lib/supabase';
+import { stripeClient } from '../lib/stripeClient';
+import { adminClient } from '../lib/supabase';
+import { findBySubdomain, findByStripeCustomerId } from '../lib/familyService';
+import { StripeSuccess } from '../views/marketing/StripeSuccess';
 
 // Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
 //
@@ -82,6 +86,7 @@ marketing.get('/robots.txt', (c) => proxyMarketing(c.env, '/robots.txt'));
 marketing.get('/sitemap.xml', (c) => proxyMarketing(c.env, '/sitemap.xml'));
 
 // Marketing pages. Each maps to the same path on production.
+// /stripe/success is now native (see below); the rest are still proxied.
 const MARKETING_PAGES = [
   '/gift',
   '/gift/success',
@@ -93,12 +98,72 @@ const MARKETING_PAGES = [
   '/blog',
   '/blog/getting-started-with-legacy-odyssey',
   '/blog/what-to-write-in-baby-book',
-  '/stripe/success',
   '/additional-site/success',
 ];
 for (const path of MARKETING_PAGES) {
   marketing.get(path, (c) => proxyMarketing(c.env, path));
 }
+
+/**
+ * GET /stripe/success — native port of stripe-success page from Express.
+ *
+ * Customer arrives here with ?session_id=cs_live_… set as the success_url
+ * on the Checkout session. We retrieve the Stripe session, verify the
+ * payment status, look up the family the webhook should have created,
+ * and render the success view. Race-tolerant: if the webhook hasn't
+ * fired yet (rare), we still render the page with whatever info we have
+ * from the Checkout session metadata.
+ */
+marketing.get('/stripe/success', async (c) => {
+  const sessionId = c.req.query('session_id');
+  if (!sessionId) return c.redirect('/');
+
+  let stripe;
+  try {
+    stripe = stripeClient(c.env);
+  } catch {
+    return c.redirect('/');
+  }
+
+  let session;
+  try {
+    session = await stripe.checkout.sessions.retrieve(sessionId);
+  } catch (err: any) {
+    console.error('[stripe/success] retrieve failed:', err.message);
+    return c.redirect('/');
+  }
+
+  if (session.payment_status !== 'paid') return c.redirect('/');
+
+  const meta = (session.metadata || {}) as Record<string, string>;
+  const subdomain = meta.subdomain || null;
+  const domain = meta.domain || null;
+  const plan = meta.plan || 'starter';
+  const email =
+    session.customer_email || (session.customer_details as any)?.email || '';
+  const planValue = plan === 'annual' || plan === 'annual_intro' ? 49.99 : 4.99;
+  const purchaseEventId = `purchase_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
+  const supabase = adminClient(c.env);
+  let family = subdomain ? await findBySubdomain(supabase, subdomain) : null;
+  if (!family && session.customer) {
+    family = await findByStripeCustomerId(supabase, String(session.customer));
+  }
+
+  return c.html(
+    <StripeSuccess
+      email={email}
+      subdomain={family?.subdomain || subdomain}
+      appDomain={c.env.APP_DOMAIN || 'legacyodyssey.com'}
+      plan={plan}
+      planValue={planValue}
+      domain={domain}
+      tempPassword={null}
+      bookPassword={family?.book_password || null}
+      purchaseEventId={purchaseEventId}
+    />
+  );
+});
 
 // Account dashboard pages — also proxied for now. The /account/* surface
 // is a web mirror of the mobile editor; mobile customers don't need it.
