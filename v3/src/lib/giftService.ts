@@ -19,6 +19,7 @@ import { stripeClient } from './stripeClient';
 import { createFamily } from './familyService';
 import { createBookWithDefaults, type FullBook } from './bookService';
 import { updateFamily } from './familyService';
+import { sendWelcomeEmail } from './email';
 import * as seedData from './seedData';
 import type { Family } from './types';
 
@@ -228,9 +229,16 @@ export async function redeemGiftCode(
       `[gift.redeem] domain registration for ${args.domain} (family ${family.id}) deferred (domainService port pending)`
     );
   }
-  console.warn(
-    `[gift.redeem] welcome email for ${args.email} deferred (Resend port pending)`
-  );
+
+  // Welcome email — best-effort. Match Express: never throw out of redeem.
+  await sendWelcomeEmail(env, {
+    to: args.email,
+    displayName: family.display_name || subdomain,
+    setPasswordUrl,
+    bookPassword: family.book_password,
+    subdomain,
+    customDomain: args.domain || null,
+  });
 
   return { family, gift, domain: args.domain || null, setPasswordUrl };
 }

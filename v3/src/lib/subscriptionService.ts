@@ -27,6 +27,7 @@ import { adminClient } from './supabase';
 import { stripeClient } from './stripeClient';
 import { findAllByAuthUserId } from './familyService';
 import { setAutoRenew } from './spaceshipApi';
+import { sendCancellationEmail, sendReactivationEmail } from './email';
 import type { Family } from './types';
 
 function primaryPriceIds(env: Env): Set<string> {
@@ -163,8 +164,17 @@ export async function softCancelFamily(
     .eq('id', family.id);
   summary.push('Family marked archived; book is now suspended');
 
-  // 4. (Deferred) Confirmation email — Resend port lands separately.
-  summary.push('TODO: cancellation email — pending Resend port');
+  // 4. Confirmation email (best-effort — email failures must not unwind the cancel).
+  if (opts.sendEmail !== false) {
+    const sent = await sendCancellationEmail(env, {
+      to: family.email,
+      displayName: family.customer_name || family.display_name,
+      periodEnd,
+      customDomain: family.custom_domain,
+      subdomain: family.subdomain,
+    });
+    summary.push(sent ? `Confirmation email sent to ${family.email}` : '⚠ Email send failed (non-fatal)');
+  }
 
   return { canceled: true, periodEnd, summary };
 }
@@ -284,6 +294,13 @@ export async function reactivateFamily(
     }
   }
 
-  summary.push('TODO: welcome-back email — pending Resend port');
+  // Best-effort welcome-back email
+  const sent = await sendReactivationEmail(env, {
+    to: family.email,
+    displayName: family.customer_name || family.display_name,
+    customDomain: family.custom_domain,
+    subdomain: family.subdomain,
+  });
+  summary.push(sent ? 'Welcome-back email sent' : '⚠ Email send failed (non-fatal)');
   return { reactivated: true, summary };
 }

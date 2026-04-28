@@ -43,6 +43,12 @@ import {
   reactivateFamily,
   softCancelFamily,
 } from '../lib/subscriptionService';
+import { createGiftCode } from '../lib/giftService';
+import {
+  sendGiftNotificationEmail,
+  sendGiftPurchaseEmail,
+  sendWelcomeEmail,
+} from '../lib/email';
 
 const webhooks = new Hono<{ Bindings: Env }>();
 
@@ -78,10 +84,41 @@ webhooks.post('/stripe/webhook', async (c) => {
         const metaType = (session.metadata as any)?.type;
 
         if (metaType === 'gift') {
-          // TODO(resend): create gift code + send buyer/recipient emails.
-          // For now just log so the event isn't lost.
-          console.warn(
-            `[webhook] gift checkout completed for ${session.id} — gift_code creation deferred (Resend port pending)`
+          // Direct port of the Express gift webhook branch.
+          const md = (session.metadata || {}) as Record<string, string>;
+          const buyerEmail =
+            session.customer_email || (session.customer_details as any)?.email || '';
+          if (!buyerEmail) {
+            console.error('[webhook] gift checkout: no buyer email on session', session.id);
+            break;
+          }
+          const gift = await createGiftCode(supabase, {
+            buyerEmail,
+            buyerName: md.buyer_name || null,
+            recipientName: md.recipient_name || null,
+            recipientEmail: md.recipient_email || null,
+            recipientMessage: md.gift_message || null,
+            stripeSessionId: session.id,
+          });
+          const appDomain = c.env.APP_DOMAIN || 'legacyodyssey.com';
+          const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+          await sendGiftPurchaseEmail(c.env, {
+            to: gift.buyer_email,
+            buyerName: gift.buyer_name,
+            giftCode: gift.code,
+            redeemUrl,
+          });
+          if (gift.recipient_email) {
+            await sendGiftNotificationEmail(c.env, {
+              to: gift.recipient_email,
+              buyerName: gift.buyer_name,
+              message: gift.recipient_message,
+              redeemUrl,
+            });
+          }
+          console.log(
+            `[webhook] gift code ${gift.code} created for buyer ${gift.buyer_email}` +
+              (gift.recipient_email ? ` → notified ${gift.recipient_email}` : '')
           );
         } else if (metaType === 'reactivation') {
           const familyId = (session.metadata as any)?.family_id;
@@ -317,9 +354,29 @@ async function handleCheckoutComplete(env: Env, session: Stripe.Checkout.Session
 
   await createBookWithDefaults(supabase, family.id, seedData);
 
-  console.warn(
-    `[webhook] welcome email for new paid signup ${family.id} deferred (Resend port pending)`
-  );
+  // Generate a Supabase recovery link so the customer can set their own password.
+  let setPasswordUrl: string | null = null;
+  try {
+    const { data: linkData } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email,
+      options: { redirectTo: `https://${env.APP_DOMAIN || 'legacyodyssey.com'}/set-password` },
+    });
+    setPasswordUrl = (linkData as any)?.properties?.action_link || null;
+  } catch (e: any) {
+    console.error('[webhook] failed to generate recovery link:', e.message);
+  }
+
+  // Welcome email (best-effort — never throw or unwind the family/book creation)
+  await sendWelcomeEmail(env, {
+    to: email,
+    displayName: family.display_name || subdomain,
+    setPasswordUrl,
+    bookPassword: family.book_password,
+    subdomain,
+    customDomain: domain,
+  });
+
   if (domain) {
     console.warn(
       `[webhook] domain registration for ${domain} (family ${family.id}) deferred (domainService port pending)`
