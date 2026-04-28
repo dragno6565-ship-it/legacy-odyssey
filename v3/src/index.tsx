@@ -24,9 +24,11 @@ import { setCookie } from 'hono/cookie';
 import { adminClient, type Env } from './lib/supabase';
 import { computeSiteLabel } from './lib/siteLabel';
 import { hashPassword } from './lib/passwordHash';
+import { getFullBook, imageUrl as makeImageUrl, makePhotoPos } from './lib/bookService';
 import { resolveFamily } from './middleware/resolveFamily';
 import { requireBookPassword } from './middleware/requireBookPassword';
 import { PasswordGate } from './views/PasswordGate';
+import { BookLayout } from './views/book/BookLayout';
 import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -58,16 +60,41 @@ app.get('/health', (c) => {
   });
 });
 
-// Root path — password gate (via middleware) → book viewer placeholder for now.
+// Root path — password gate (via middleware) → real book viewer.
 // Marketing-site routes (no family resolved) ported in Phase 3.
 app.get('/', requireBookPassword, async (c) => {
   const family = c.var.family;
   if (!family) {
     return c.html(marketingPlaceholder(c.req.header('host') || 'unknown'));
   }
-  // Past the password gate — Phase 1 next step ports the real book viewer
-  // (months, family, recipes, etc.). Placeholder until then.
-  return c.html(bookPlaceholder(family.custom_domain || family.subdomain || 'Book'));
+
+  const supabase = adminClient(c.env);
+  const data = await getFullBook(supabase, family.id);
+  if (!data) {
+    return c.html('<h1>404 — No book found for this family</h1>', 404);
+  }
+
+  const imageUrl = (path: string | null | undefined) => makeImageUrl(c.env.SUPABASE_URL, path);
+  const photoPos = makePhotoPos(data.book.photo_positions);
+  return c.html(<BookLayout data={data} imageUrl={imageUrl} photoPos={photoPos} />);
+});
+
+// /book/:slug — same as / but routed by path (used by mobile app preview
+// and any test environment where the Host doesn't match a customer domain).
+// resolveFamily already handles the slug lookup and stashes the family.
+app.get('/book/:slug', requireBookPassword, async (c) => {
+  const family = c.var.family;
+  if (!family) {
+    return c.html('<h1>404 — Book not found</h1>', 404);
+  }
+  const supabase = adminClient(c.env);
+  const data = await getFullBook(supabase, family.id);
+  if (!data) {
+    return c.html('<h1>404 — No book found for this family</h1>', 404);
+  }
+  const imageUrl = (path: string | null | undefined) => makeImageUrl(c.env.SUPABASE_URL, path);
+  const photoPos = makePhotoPos(data.book.photo_positions);
+  return c.html(<BookLayout data={data} imageUrl={imageUrl} photoPos={photoPos} />);
 });
 
 // POST /verify-password — set the HMAC cookie and redirect to /
