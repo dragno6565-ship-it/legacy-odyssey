@@ -93,6 +93,75 @@ app.route('/api', uploadApi);
 // Route order: resolveFamily first, then everything else can read c.var.family.
 app.use('*', resolveFamily);
 
+// /v3-status — cutover-day debugging: which secrets/vars are bound, which
+// upstreams reachable, recent cron health. Doesn't expose any secret values,
+// only shape (length / prefix). Public — useful for SREs without admin auth.
+app.get('/v3-status', async (c) => {
+  const env = c.env;
+  const present = (k: keyof typeof env): { present: boolean; len?: number; prefix?: string } => {
+    const v = (env as any)[k] as string | undefined;
+    if (!v) return { present: false };
+    return { present: true, len: v.length, prefix: v.slice(0, 6) };
+  };
+  // Quick upstream pings (HEAD only, 2s budget each — fail soft).
+  async function ping(url: string) {
+    try {
+      const t0 = Date.now();
+      const res = await fetch(url, { method: 'HEAD', cf: { cacheTtl: 0 } as any });
+      return { url, status: res.status, ms: Date.now() - t0 };
+    } catch (err: any) {
+      return { url, error: err?.message || 'fetch failed' };
+    }
+  }
+  const [supabase, railway, stripeApi, spaceshipApi] = await Promise.all([
+    ping(`${env.SUPABASE_URL}/rest/v1/`),
+    ping('https://legacy-odyssey-production.up.railway.app/health'),
+    ping('https://api.stripe.com/v1'),
+    ping('https://spaceship.dev/api/v1/health'),
+  ]);
+  return c.json({
+    worker: 'legacy-odyssey-v3',
+    version: 'v3-phase5',
+    timestamp: new Date().toISOString(),
+    routes_mounted: [
+      '/health', '/v3-status',
+      '/api/auth/*', '/api/books/*', '/api/contact', '/api/domains/search',
+      '/api/families/*', '/api/stripe/*', '/api/upload', '/api/photos/:path',
+      '/api/waitlist',
+      '/stripe/webhook',
+      '/css/{book,marketing,admin}.css', '/js/book.js',
+      '/, /gift, /redeem, /set-password, /signup, /privacy, /terms',
+      '/blog, /blog/*, /stripe/success, /additional-site/success',
+      '/account, /account/*',
+      '/book/:slug',
+    ],
+    secrets: {
+      SUPABASE_SERVICE_ROLE_KEY: present('SUPABASE_SERVICE_ROLE_KEY'),
+      SESSION_SECRET: present('SESSION_SECRET'),
+      STRIPE_SECRET_KEY: present('STRIPE_SECRET_KEY'),
+      STRIPE_WEBHOOK_SECRET: present('STRIPE_WEBHOOK_SECRET'),
+      RESEND_API_KEY: present('RESEND_API_KEY'),
+      SPACESHIP_API_KEY: present('SPACESHIP_API_KEY'),
+      SPACESHIP_API_SECRET: present('SPACESHIP_API_SECRET'),
+      SPACESHIP_CONTACT_ID: present('SPACESHIP_CONTACT_ID'),
+      APPROXIMATED_API_KEY: present('APPROXIMATED_API_KEY'),
+    },
+    vars: {
+      APP_DOMAIN: env.APP_DOMAIN,
+      NODE_ENV: env.NODE_ENV,
+      SUPABASE_URL: env.SUPABASE_URL,
+      APPROXIMATED_CLUSTER_IP: env.APPROXIMATED_CLUSTER_IP,
+      APPROXIMATED_TARGET: env.APPROXIMATED_TARGET,
+    },
+    upstreams: { supabase, railway, stripe: stripeApi, spaceship: spaceshipApi },
+    cron: { schedule: '* * * * *', purpose: 'advance domain_orders one step per tick' },
+    cf: {
+      colo: (c.req.raw as any).cf?.colo,
+      country: (c.req.raw as any).cf?.country,
+    },
+  });
+});
+
 // Health check — useful for verifying deploy + family resolution.
 app.get('/health', (c) => {
   const family = c.var.family;
@@ -126,7 +195,10 @@ app.get('/', requireBookPassword, async (c) => {
   if (!family) {
     // Proxy the production landing page — same trick as /css/marketing.css
     // and /js/book.js. Cached at the Cloudflare edge for 5 minutes.
-    const upstream = await fetch('https://legacyodyssey.com/', {
+    // Hits Railway directly, NOT legacyodyssey.com — at DNS cutover
+    // legacyodyssey.com will resolve to this Worker and a self-proxy
+    // would loop. See routes/marketing.ts for the same pattern.
+    const upstream = await fetch('https://legacy-odyssey-production.up.railway.app/', {
       cf: { cacheTtl: 300, cacheEverything: true } as any,
     });
     const headers = new Headers();

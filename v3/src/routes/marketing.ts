@@ -29,7 +29,17 @@
 import { Hono } from 'hono';
 import type { Env } from '../lib/supabase';
 
-const PROD = 'https://legacyodyssey.com';
+// Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
+//
+// Cutover-day footgun caught Apr 28: at cutover we'll point DNS for
+// legacyodyssey.com at this Worker. If the proxy still fetched from
+// legacyodyssey.com, it would loop back to itself → 524-style timeout.
+// Hitting Railway directly bypasses the loop and is also faster
+// (no Cloudflare round-trip on the upstream).
+//
+// The Railway URL is stable per-service (it's the Express deploy's own
+// hostname). Lives in CLAUDE.md if it ever needs updating.
+const PROD = 'https://legacy-odyssey-production.up.railway.app';
 
 const marketing = new Hono<{ Bindings: Env }>();
 
