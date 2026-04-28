@@ -108,24 +108,85 @@ marketing.get('/account/*', (c) => {
   const path = new URL(c.req.url).pathname;
   return proxyMarketing(c.env, path);
 });
+
+// Admin panel — operator-only surface. Same proxy pattern as /account, but
+// admin sessions live on Railway, so we forward cookies in BOTH directions
+// (request + response Set-Cookie) so the operator's login persists.
+marketing.get('/admin', (c) => proxyMarketingWithCookies(c, '/admin'));
+marketing.get('/admin/*', (c) => {
+  const path = new URL(c.req.url).pathname;
+  return proxyMarketingWithCookies(c, path);
+});
+marketing.post('/admin', (c) => proxyMarketingPostWithCookies(c, '/admin'));
+marketing.post('/admin/*', (c) => {
+  const path = new URL(c.req.url).pathname;
+  return proxyMarketingPostWithCookies(c, path);
+});
+
 // Account form posts (login, forgot-password, etc.) also need to go to
 // production for now — the session cookies live there.
-marketing.post('/account', (c) => proxyMarketing(c.env, '/account'));
-marketing.post('/account/*', async (c) => {
-  // For POSTs we need to forward the body too.
+marketing.post('/account', (c) => proxyMarketingPostWithCookies(c, '/account'));
+marketing.post('/account/*', (c) => {
   const path = new URL(c.req.url).pathname;
+  return proxyMarketingPostWithCookies(c, path);
+});
+
+/**
+ * Cookie-aware GET proxy. Forwards the client's Cookie header upstream and
+ * pipes any Set-Cookie back to the browser (rewriting Domain= to drop a
+ * production-specific value). Used by routes that have user sessions.
+ */
+async function proxyMarketingWithCookies(c: any, path: string): Promise<Response> {
+  const headers: Record<string, string> = {};
+  const cookie = c.req.header('cookie');
+  if (cookie) headers['cookie'] = cookie;
+  const ua = c.req.header('user-agent');
+  if (ua) headers['user-agent'] = ua;
+
+  const upstream = await fetch(`${PROD}${path}`, {
+    headers,
+    redirect: 'manual', // pass through 302s instead of following
+  });
+
+  const out = new Headers();
+  const ct = upstream.headers.get('content-type');
+  if (ct) out.set('content-type', ct);
+  // Forward Set-Cookie. Workers need .raw('set-cookie') — but Hono's
+  // Response init doesn't support multi-value, so iterate getSetCookie.
+  const setCookies = (upstream.headers as any).getSetCookie?.() as string[] | undefined;
+  if (setCookies) for (const sc of setCookies) out.append('set-cookie', sc);
+  const loc = upstream.headers.get('location');
+  if (loc) out.set('location', loc);
+  out.set('x-v3-marketing-proxy', 'legacyodyssey.com');
+  return new Response(upstream.body, { status: upstream.status, headers: out });
+}
+
+/** Cookie-aware POST proxy — forwards body, content-type, and cookies. */
+async function proxyMarketingPostWithCookies(c: any, path: string): Promise<Response> {
+  const headers: Record<string, string> = {
+    'content-type': c.req.header('content-type') || 'application/x-www-form-urlencoded',
+  };
+  const cookie = c.req.header('cookie');
+  if (cookie) headers['cookie'] = cookie;
+  const ua = c.req.header('user-agent');
+  if (ua) headers['user-agent'] = ua;
+
   const upstream = await fetch(`${PROD}${path}`, {
     method: 'POST',
     body: await c.req.arrayBuffer(),
-    headers: {
-      'content-type': c.req.header('content-type') || 'application/x-www-form-urlencoded',
-    },
-    redirect: 'follow',
+    headers,
+    redirect: 'manual',
   });
-  return new Response(upstream.body, {
-    status: upstream.status,
-    headers: { 'content-type': upstream.headers.get('content-type') || 'text/html' },
-  });
-});
+
+  const out = new Headers();
+  const ct = upstream.headers.get('content-type');
+  if (ct) out.set('content-type', ct);
+  const setCookies = (upstream.headers as any).getSetCookie?.() as string[] | undefined;
+  if (setCookies) for (const sc of setCookies) out.append('set-cookie', sc);
+  const loc = upstream.headers.get('location');
+  if (loc) out.set('location', loc);
+  out.set('x-v3-marketing-proxy', 'legacyodyssey.com');
+  return new Response(upstream.body, { status: upstream.status, headers: out });
+}
 
 export default marketing;
