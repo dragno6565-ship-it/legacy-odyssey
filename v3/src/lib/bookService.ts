@@ -337,6 +337,67 @@ export async function updateSectionCards(
 }
 
 /**
+ * Seed a brand-new book for a family with all the placeholder content the
+ * Welcome viewer ships with. Direct port of createBookWithDefaults from
+ * src/services/bookService.js.
+ *
+ * Seeds in parallel (one fan-out, eight INSERTs). If any fail mid-flight the
+ * book row will be created without that section's defaults — the customer
+ * can still add content from the mobile app, but worth surfacing in logs.
+ */
+export async function createBookWithDefaults(
+  supabase: SupabaseClient,
+  familyId: string,
+  seed: typeof import('./seedData')
+): Promise<Row> {
+  const { data: book, error: bookError } = await supabase
+    .from('books')
+    .insert({
+      family_id: familyId,
+      child_first_name: '',
+      child_middle_name: '',
+      child_last_name: '',
+      parent_quote:
+        'From the moment we first saw your face, our world was never the same. This is your story — every moment, every milestone, every memory — written just for you.',
+      parent_quote_attribution: 'Mom & Dad',
+    })
+    .select()
+    .single();
+  if (bookError) throw bookError;
+  const bookRow = book as Row;
+
+  await Promise.all([
+    supabase
+      .from('before_arrived_cards')
+      .insert(seed.defaultBeforeCards.map((c) => ({ book_id: bookRow.id, ...c }))),
+    supabase
+      .from('coming_home_cards')
+      .insert(seed.defaultComingHomeCards.map((c) => ({ book_id: bookRow.id, ...c }))),
+    supabase
+      .from('months')
+      .insert(seed.defaultMonths.map((m) => ({ book_id: bookRow.id, ...m }))),
+    supabase
+      .from('family_members')
+      .insert(seed.defaultFamilyMembers.map((fm) => ({ book_id: bookRow.id, ...fm }))),
+    supabase
+      .from('firsts')
+      .insert(seed.defaultFirsts.map((f) => ({ book_id: bookRow.id, ...f }))),
+    supabase
+      .from('celebrations')
+      .insert(seed.defaultCelebrations.map((c) => ({ book_id: bookRow.id, ...c }))),
+    supabase
+      .from('letters')
+      .insert(seed.defaultLetters.map((l) => ({ book_id: bookRow.id, ...l }))),
+    supabase
+      .from('recipes')
+      .insert(seed.defaultRecipes.map((r) => ({ book_id: bookRow.id, ...r }))),
+    supabase.from('birth_stories').insert({ book_id: bookRow.id, first_held_by: 'Mom / Dad' }),
+  ]);
+
+  return bookRow;
+}
+
+/**
  * Build the photoPos() helper that renders an inline `object-position` style
  * for a given photo path, given the book's photo_positions JSONB column.
  */

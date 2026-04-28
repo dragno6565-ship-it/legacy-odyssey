@@ -16,7 +16,9 @@
  */
 import { Hono } from 'hono';
 import { adminClient, anonClient, type Env } from '../../lib/supabase';
-import { findBySubdomain, findByAuthUserId } from '../../lib/familyService';
+import { findBySubdomain, findByAuthUserId, createFamily } from '../../lib/familyService';
+import { createBookWithDefaults } from '../../lib/bookService';
+import * as seedData from '../../lib/seedData';
 import { requireAuth } from '../../middleware/requireAuth';
 
 const auth = new Hono<{ Bindings: Env }>();
@@ -28,6 +30,77 @@ auth.get('/check-subdomain', async (c) => {
   const supabase = adminClient(c.env);
   const existing = await findBySubdomain(supabase, raw);
   return c.json({ available: !existing, subdomain: raw });
+});
+
+// POST /api/auth/signup — create auth user + family + seeded book + session.
+// Direct port of /api/auth/signup from src/routes/api/auth.js.
+auth.post('/signup', async (c) => {
+  const { email, password, subdomain, displayName } = await c.req.json<{
+    email?: string;
+    password?: string;
+    subdomain?: string;
+    displayName?: string;
+  }>();
+  if (!email || !password || !subdomain) {
+    return c.json({ error: 'email, password, and subdomain are required' }, 400);
+  }
+
+  const supabase = adminClient(c.env);
+
+  const existing = await findBySubdomain(supabase, subdomain);
+  if (existing) return c.json({ error: 'This subdomain is already taken' }, 409);
+
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: false,
+  });
+  if (authError || !authData.user) {
+    return c.json({ error: authError?.message || 'Failed to create user' }, 400);
+  }
+
+  const family = await createFamily(supabase, {
+    email,
+    authUserId: authData.user.id,
+    subdomain,
+    displayName: displayName || `The ${subdomain} Family`,
+  });
+
+  const book = await createBookWithDefaults(supabase, family.id, seedData);
+
+  // Sign in immediately so the mobile app gets tokens back.
+  const anon = anonClient(c.env);
+  const { data: session, error: sessionError } = await anon.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (sessionError || !session.session) {
+    return c.json(
+      {
+        error: 'Account created but login failed. Please try logging in.',
+        // Surface the actual Supabase reason so the mobile client can show
+        // a useful message (matches what Express does after the Apr 26
+        // pwned-password debugging session).
+        detail: sessionError?.message || 'no session returned',
+        code: (sessionError as any)?.code,
+        status: (sessionError as any)?.status,
+      },
+      500
+    );
+  }
+
+  return c.json(
+    {
+      family,
+      book,
+      session: {
+        access_token: session.session.access_token,
+        refresh_token: session.session.refresh_token,
+        expires_at: session.session.expires_at,
+      },
+    },
+    201
+  );
 });
 
 // POST /api/auth/login
