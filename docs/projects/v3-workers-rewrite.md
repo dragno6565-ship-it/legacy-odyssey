@@ -1,9 +1,52 @@
 # Project: v3 — Cloudflare Workers + Hono Rewrite
 
-**Status:** Phase 1 complete (Apr 28 2026 late evening). Phase 2 (mobile API) up next.
+**Status:** Phases 1–3 substantially complete (Apr 28 2026). Mobile API + Stripe + Webhooks + Resend all operational.
 **Goal:** replace the entire Express-on-Railway custom-domain layer with Cloudflare Workers + Hono, eliminating Approximated subscription and the Railway 20-domain cap permanently.
 **Estimated effort:** 4-6 weeks of focused engineering
 **Last touched:** 2026-04-28
+
+## Phase 2 — DONE (mobile API)
+
+Every endpoint the mobile app calls now lives on the v3 Worker against production Supabase + Stripe + Spaceship. The mobile app could re-point `BASE_URL` from `legacyodyssey.com` to `legacy-odyssey-v3.legacyodysseyapp.workers.dev` today and every screen would work.
+
+| Surface | Endpoints |
+|---|---|
+| `/api/auth` | check-subdomain, signup, login, logout, refresh, reset-password, update-password, **cancel**, account (410 deprecated) |
+| `/api/books` | 24 routes — full CRUD across every section (child info, before/birth/home/months/family/firsts/letters/recipes/holidays/vault, photo-position, settings) |
+| `/api/families` | GET /mine, POST / (new linked website with seeded book) |
+| `/api/upload` + `/api/photos/:path` | photo upload + delete |
+| `/api/domains/search` | live Spaceship lookup with 5-min edge cache |
+| `/api/stripe/portal` + `/api/stripe/create-additional-site-checkout` | mobile-callable Stripe routes |
+
+Verified end-to-end against the Apple Review demo account.
+
+## Phase 3 — substantially complete (paying-customer + webhook + email)
+
+| Surface | Status |
+|---|---|
+| `POST /stripe/webhook` (every event type Express handles) | ✅ — checkout.session.completed (default + gift + reactivation + additional_site), customer.subscription.updated/deleted, invoice.payment_succeeded/failed |
+| Marketing-site Stripe checkouts: create-checkout / create-founder-checkout / create-gift-checkout / redeem-gift | ✅ — verified live (real `cs_live_…` URLs returned) |
+| Resend transactional emails (welcome / cancel / reactivate / gift purchase / gift recipient) | ✅ — minimal templates, content-correct; faithful template polish deferred |
+| Domain registration (Spaceship register + poll + Approximated addVirtualHost + Spaceship setupDns) | ⏳ Phase 4 — needs Cloudflare Queue or Workflow to escape the Worker's request timeout (5-minute polling loop) |
+| Marketing-site UI (landing, pricing, gift, /redeem, /set-password, /account dashboard, /stripe/success, etc.) | ⏳ Phase 4 |
+| `/admin/*` panel | ⏳ Phase 4 |
+| `/api/contact`, `/api/waitlist` | ⏳ Phase 4 |
+
+**Worker secrets in place** (set via `wrangler secret put`):
+`SESSION_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `SPACESHIP_API_KEY`, `SPACESHIP_API_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`.
+
+## Cutover plan (when we're ready to flip)
+
+The mobile-app cutover and the marketing-site cutover are independent and can ship at different times. Recommended order:
+
+1. **Mobile app cutover (low risk).** Bump mobile `BASE_URL` to the workers.dev URL via app config. Existing customer JWTs still work (same Supabase project). Everything except cancel-subscription was unit-tested with the demo account; cancel was tested up to the destructive happy-path step (intentionally not exercised live to avoid breaking the demo).
+2. **Stripe webhook cutover.** In Stripe dashboard → Developers → Webhooks: add the v3 endpoint alongside the Express one. Both handlers are idempotent on the family-creation path (handleCheckoutComplete uses findByEmail + reinstate logic). Run both in parallel for a few days, then remove Express endpoint.
+3. **Marketing site cutover.** Phase 4 work — port UI then flip DNS for `legacyodyssey.com` to point at the Worker.
+4. **Domain registration migration.** Add a Cloudflare Queue + consumer Worker for the long-running Spaceship registration polling. Webhook handler enqueues a message; consumer does the 5-minute orchestration. Until this is built, the v3 webhook creates the family/book/email but logs a TODO instead of registering the domain — the customer can sign in and edit, but their custom .com isn't provisioned. (For a brief migration window we can point the webhook at Express only for handleCheckoutComplete.)
+
+## Phase 1 — DONE
+
+Live at https://legacy-odyssey-v3.legacyodysseyapp.workers.dev/book/eowynragno (password: `Hunter65!`).
 
 ## Phase 1 — DONE
 
