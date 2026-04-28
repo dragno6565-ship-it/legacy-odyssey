@@ -32,6 +32,7 @@ import { stripeClient } from '../lib/stripeClient';
 import { adminClient } from '../lib/supabase';
 import { findBySubdomain, findByStripeCustomerId } from '../lib/familyService';
 import { StripeSuccess } from '../views/marketing/StripeSuccess';
+import { SetPassword } from '../views/marketing/SetPassword';
 
 // Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
 //
@@ -86,12 +87,11 @@ marketing.get('/robots.txt', (c) => proxyMarketing(c.env, '/robots.txt'));
 marketing.get('/sitemap.xml', (c) => proxyMarketing(c.env, '/sitemap.xml'));
 
 // Marketing pages. Each maps to the same path on production.
-// /stripe/success is now native (see below); the rest are still proxied.
+// Native ports below replace specific entries from this list.
 const MARKETING_PAGES = [
   '/gift',
   '/gift/success',
   '/redeem',
-  '/set-password',
   '/signup',
   '/privacy',
   '/terms',
@@ -103,6 +103,17 @@ const MARKETING_PAGES = [
 for (const path of MARKETING_PAGES) {
   marketing.get(path, (c) => proxyMarketing(c.env, path));
 }
+
+/**
+ * GET /set-password — completes the Supabase recovery-link password set.
+ * Native port of marketing/set-password.ejs. Body of the page is mostly
+ * client-side JS that reads the recovery access_token out of the URL hash
+ * and PUTs to Supabase /auth/v1/user. Server only injects SUPABASE_URL +
+ * SUPABASE_ANON_KEY (both public values).
+ */
+marketing.get('/set-password', (c) =>
+  c.html(<SetPassword supabaseUrl={c.env.SUPABASE_URL} supabaseAnonKey={c.env.SUPABASE_ANON_KEY} />)
+);
 
 /**
  * GET /stripe/success — native port of stripe-success page from Express.

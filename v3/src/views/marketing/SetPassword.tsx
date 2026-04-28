@@ -1,0 +1,314 @@
+/**
+ * /set-password — completes the Supabase recovery flow.
+ *
+ * Customer arrives via the link in their welcome email (`type=recovery`).
+ * Supabase encodes the access_token in the URL hash; client-side JS picks
+ * it up, calls supabase auth /user with `Authorization: Bearer <token>`
+ * to update the password, then shows the success state with two paths
+ * (web account or mobile app).
+ *
+ * Direct port of src/views/marketing/set-password.ejs. Server only injects
+ * SUPABASE_URL + SUPABASE_ANON_KEY (both already public values, committable
+ * to wrangler.toml — no secret leakage).
+ */
+import type { FC } from 'hono/jsx';
+import { raw } from 'hono/html';
+
+type Props = {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+};
+
+const STYLE = `
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #faf7f2;
+    font-family: 'Jost', sans-serif;
+    color: #2c2416;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header { background: #1A1A2E; padding: 20px 24px; text-align: center; }
+  header h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #C9A96E;
+    letter-spacing: 1px;
+  }
+  header p {
+    font-size: 11px;
+    color: #A0A0B8;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e0d5c4;
+    border-radius: 14px;
+    padding: 44px 40px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .card h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #1A1A2E;
+    margin-bottom: 10px;
+  }
+  .card .subtitle { font-size: 14px; color: #8a7e6b; line-height: 1.6; margin-bottom: 32px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: #2c2416; margin-bottom: 6px; }
+  input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e0d5c4;
+    border-radius: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 15px;
+    color: #2c2416;
+    background: #faf7f2;
+    transition: border-color 0.2s;
+    margin-bottom: 18px;
+  }
+  input[type="password"]:focus { outline: none; border-color: #C9A96E; background: #fff; }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #C9A96E;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Jost', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #b08e4a; }
+  .btn:disabled { background: #d4bb8a; cursor: not-allowed; }
+  .error-box {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #c0392b;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .success-box { display: none; text-align: center; }
+  .success-box h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; color: #1A1A2E; margin-bottom: 12px; }
+  .success-box p { font-size: 15px; color: #8a7e6b; line-height: 1.6; margin-bottom: 28px; }
+  .store-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .store-btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .store-btn-ios { background: #1A1A2E; color: #fff; }
+  .store-btn-android { background: #C9A96E; color: #fff; }
+  .hint { font-size: 12px; color: #a0a0b8; text-align: center; margin-top: 18px; line-height: 1.5; }
+  .hint a { color: #C9A96E; text-decoration: none; }
+  .hint a:hover { text-decoration: underline; }
+  footer { background: #1A1A2E; padding: 20px 24px; text-align: center; }
+  footer p { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; color: #C9A96E; }
+  footer small { display: block; font-size: 11px; color: #6A6A8A; margin-top: 4px; font-family: 'Jost', sans-serif; }
+`;
+
+const clientScript = (supabaseUrl: string, supabaseAnonKey: string) => `
+  const SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
+  const SUPABASE_ANON_KEY = ${JSON.stringify(supabaseAnonKey)};
+
+  let accessToken = null;
+  (function parseHash() {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    accessToken = params.get('access_token');
+    const errorCode = params.get('error_code');
+    const errorDescription = params.get('error_description');
+    if (errorCode || errorDescription) {
+      showError(decodeURIComponent((errorDescription || errorCode).replace(/\\+/g, ' ')));
+    } else if (!accessToken) {
+      showError('This link appears to be invalid or has already been used. Please request a new password reset link.');
+    }
+  })();
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+  function hideError() {
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  async function handleSubmit() {
+    hideError();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm').value;
+    const btn = document.getElementById('submit-btn');
+    if (!password || password.length < 8) {
+      showError('Please choose a password with at least 8 characters.');
+      return;
+    }
+    if (password !== confirm) {
+      showError('Passwords do not match. Please try again.');
+      return;
+    }
+    if (!accessToken) {
+      showError('No valid session token found. Please use the link from your welcome email or request a new one.');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    try {
+      const response = await fetch(SUPABASE_URL + '/auth/v1/user', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + accessToken,
+          'apikey': SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ password }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || data.error_description || 'Failed to update password.');
+      }
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+      history.replaceState(null, '', window.location.pathname);
+    } catch (err) {
+      showError(err.message || 'Something went wrong. Please try again or contact support.');
+      btn.disabled = false;
+      btn.textContent = 'Set Password';
+    }
+  }
+  window.handleSubmit = handleSubmit;
+  document.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSubmit(); });
+`;
+
+export const SetPassword: FC<Props> = ({ supabaseUrl, supabaseAnonKey }) => (
+  <html lang="en">
+    <head>
+      <meta charSet="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Set Your Password — Legacy Odyssey</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+      />
+      <style>{STYLE}</style>
+    </head>
+    <body>
+      <header>
+        <a href="https://legacyodyssey.com" style="text-decoration:none;">
+          <h1>Legacy Odyssey</h1>
+          <p>A Baby Book as Unique as Your Family</p>
+        </a>
+      </header>
+
+      <main>
+        <div class="card">
+          <div id="form-view">
+            <h2>Set Your Password</h2>
+            <p class="subtitle">
+              Choose a password for your Legacy Odyssey account. You'll use it with your email
+              to sign in to the app.
+            </p>
+
+            <div class="error-box" id="error-box"></div>
+
+            <label for="password">New Password</label>
+            <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" />
+
+            <label for="confirm">Confirm Password</label>
+            <input type="password" id="confirm" placeholder="Re-enter your password" autocomplete="new-password" />
+
+            <button class="btn" id="submit-btn" onclick="handleSubmit()">
+              Set Password
+            </button>
+
+            <p class="hint">
+              Link expired? <a href="https://legacyodyssey.com/account">Request a new one</a>
+            </p>
+          </div>
+
+          <div class="success-box" id="success-view">
+            <h2>You're all set!</h2>
+            <p>
+              Your password has been saved. There are two ways to start building your family's
+              book — both sync to the same site.
+            </p>
+
+            <div style="text-align:left;background:#faf7f2;border:1px solid #e0d5c4;border-radius:10px;padding:18px 20px;margin-bottom:18px;">
+              <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:600;color:#1A1A2E;margin-bottom:6px;">
+                Edit in your web browser
+              </p>
+              <p style="font-size:13px;color:#8a7e6b;margin-bottom:14px;line-height:1.5;">
+                Best for typing longer entries from a computer. Use any browser, any time.
+              </p>
+              <a
+                href="/account"
+                class="store-btn"
+                style="background:#1A1A2E;color:#fff;display:inline-block;"
+              >
+                → Sign in on the web
+              </a>
+            </div>
+
+            <div style="text-align:left;background:#faf7f2;border:1px solid #e0d5c4;border-radius:10px;padding:18px 20px;margin-bottom:8px;">
+              <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:600;color:#1A1A2E;margin-bottom:6px;">
+                Use the mobile app
+              </p>
+              <p style="font-size:13px;color:#8a7e6b;margin-bottom:14px;line-height:1.5;">
+                Best for snapping photos and adding moments on the go.
+              </p>
+              <div class="store-buttons" style="justify-content:flex-start;">
+                <a
+                  href="https://apps.apple.com/app/id6760883565"
+                  class="store-btn store-btn-ios"
+                  target="_blank"
+                >
+                  🍎 App Store
+                </a>
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.legacyodyssey.app"
+                  class="store-btn store-btn-android"
+                  target="_blank"
+                >
+                  🤖 Google Play
+                </a>
+              </div>
+            </div>
+
+            <p class="hint" style="margin-top:24px;">
+              Sign in with your email and your new password.
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>Legacy Odyssey</p>
+        <small>Every family has a story worth telling.</small>
+      </footer>
+
+      <script>{raw(clientScript(supabaseUrl, supabaseAnonKey))}</script>
+    </body>
+  </html>
+);
