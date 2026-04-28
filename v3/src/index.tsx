@@ -35,6 +35,7 @@ import domainsApi from './routes/api/domains';
 import familiesApi from './routes/api/families';
 import stripeApi from './routes/api/stripe';
 import uploadApi from './routes/api/upload';
+import webhooksApi from './routes/webhooks';
 import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -61,6 +62,11 @@ const proxyAsset = (path: string, contentType: string) => async () => {
 };
 app.get('/js/book.js', proxyAsset('/js/book.js', 'text/javascript; charset=utf-8'));
 app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'));
+
+// Stripe webhook — mounted at root, BEFORE resolveFamily, because Stripe's
+// POST to /stripe/webhook does NOT carry a Host header that maps to a
+// customer family. Same reason /api/* is mounted ahead of resolveFamily.
+app.route('/', webhooksApi);
 
 // Mobile API. Mounted BEFORE resolveFamily because /api/* uses Bearer-token
 // auth via requireAuth, not Host-header family resolution. resolveFamily
