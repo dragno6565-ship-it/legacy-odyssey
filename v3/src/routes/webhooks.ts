@@ -49,6 +49,7 @@ import {
   sendGiftPurchaseEmail,
   sendWelcomeEmail,
 } from '../lib/email';
+import { createDomainOrder } from '../lib/domainService';
 
 const webhooks = new Hono<{ Bindings: Env }>();
 
@@ -171,9 +172,20 @@ webhooks.post('/stripe/webhook', async (c) => {
           await createBookWithDefaults(supabase, family.id, seedData);
 
           if (domain) {
-            console.warn(
-              `[webhook] additional_site: domain registration for ${domain} deferred (domainService port pending)`
-            );
+            try {
+              const order = await createDomainOrder(supabase, {
+                familyId: family.id,
+                domain,
+                stripeSessionId: session.id,
+              });
+              console.log(
+                `[webhook] additional_site domain order ${order.id} queued for ${domain} (cron will provision)`
+              );
+            } catch (err: any) {
+              console.error(
+                `[webhook] failed to enqueue domain order for ${domain}: ${err.message}`
+              );
+            }
           }
 
           console.log(`[webhook] additional site created: ${subdomain} for user ${authUserId}`);
@@ -305,9 +317,18 @@ async function handleCheckoutComplete(env: Env, session: Stripe.Checkout.Session
     });
 
     if (domain) {
-      console.warn(
-        `[webhook] reinstate ${existing.id}: domain registration for ${domain} deferred (domainService port pending)`
-      );
+      try {
+        const order = await createDomainOrder(supabase, {
+          familyId: existing.id,
+          domain,
+          stripeSessionId: session.id,
+        });
+        console.log(
+          `[webhook] reinstate domain order ${order.id} queued for ${domain} (cron will provision)`
+        );
+      } catch (err: any) {
+        console.error(`[webhook] failed to enqueue domain order for ${domain}: ${err.message}`);
+      }
     }
     console.log(`[webhook] reinstated existing family ${existing.id} for ${email}`);
     return;
@@ -378,9 +399,18 @@ async function handleCheckoutComplete(env: Env, session: Stripe.Checkout.Session
   });
 
   if (domain) {
-    console.warn(
-      `[webhook] domain registration for ${domain} (family ${family.id}) deferred (domainService port pending)`
-    );
+    try {
+      const order = await createDomainOrder(supabase, {
+        familyId: family.id,
+        domain,
+        stripeSessionId: session.id,
+      });
+      console.log(
+        `[webhook] new-signup domain order ${order.id} queued for ${domain} (cron will provision)`
+      );
+    } catch (err: any) {
+      console.error(`[webhook] failed to enqueue domain order for ${domain}: ${err.message}`);
+    }
   }
 
   console.log(`[webhook] new paid family ${family.id} created (${email}, slug=${subdomain})`);

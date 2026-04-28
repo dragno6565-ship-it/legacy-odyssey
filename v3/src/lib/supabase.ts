@@ -32,6 +32,11 @@ export type Env = {
   SPACESHIP_API_KEY?: string;
   SPACESHIP_API_SECRET?: string;
   RESEND_API_KEY?: string;
+  SPACESHIP_CONTACT_ID?: string;
+  APPROXIMATED_API_KEY?: string;
+  APPROXIMATED_CLUSTER_IP?: string;
+  APPROXIMATED_TARGET?: string;
+  APPROXIMATED_TARGET_PORT?: string;
 };
 
 export function adminClient(env: Env): SupabaseClient {

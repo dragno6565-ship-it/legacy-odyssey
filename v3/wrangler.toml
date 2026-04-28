@@ -29,3 +29,16 @@ STRIPE_PRICE_ANNUAL = "price_1TLojVJk2GIrL5uS0oQORYsr"
 STRIPE_PRICE_ANNUAL_INTRO = "price_1TLojVJk2GIrL5uS0oQORYsr"
 STRIPE_ANNUAL_INTRO_COUPON = "sX2lEPb6"
 STRIPE_PRICE_ADDITIONAL_DOMAIN = "price_1TDVIAQzzNThrLYKNnMljEkp"
+
+# Approximated.app — public config (cluster IP + target are not secrets).
+# APPROXIMATED_API_KEY is set via wrangler secret put separately.
+APPROXIMATED_CLUSTER_IP = "137.66.1.199"
+APPROXIMATED_TARGET = "legacy-odyssey-production.up.railway.app"
+APPROXIMATED_TARGET_PORT = "443"
+
+[triggers]
+# Domain order processor — once a minute, scan domain_orders rows in
+# pending/registering/registered/vhosts_added state and advance them one
+# step. This decouples Stripe-checkout webhook handling (must finish in
+# ~30s) from the multi-minute Spaceship + Approximated provisioning.
+crons = ["* * * * *"]

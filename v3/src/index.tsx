@@ -232,4 +232,34 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 }
 
-export default app;
+/**
+ * Cron handler — fires every minute (configured in wrangler.toml [triggers]).
+ *
+ * Walks the domain_orders table, picks up to 5 orders that are still in a
+ * non-terminal state (pending → registering → registered → vhosts_added),
+ * and advances each one step. This decouples Stripe webhook delivery (must
+ * ack within 30s) from the multi-minute Spaceship + Approximated provisioning
+ * pipeline. With Spaceship registrations typically completing in 30-90s, a
+ * fresh paid customer's domain reaches `active` in ~2-3 cron ticks.
+ */
+async function scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+  ctx.waitUntil(
+    (async () => {
+      try {
+        const { fetchPendingOrders, advanceDomainOrder } = await import('./lib/domainService');
+        const { adminClient } = await import('./lib/supabase');
+        const supabase = adminClient(env);
+        const orders = await fetchPendingOrders(supabase, 5);
+        if (orders.length === 0) return;
+        console.log(`[cron] advancing ${orders.length} domain order(s)`);
+        for (const order of orders) {
+          await advanceDomainOrder(env, order);
+        }
+      } catch (err: any) {
+        console.error('[cron] domain processor error:', err?.message || err);
+      }
+    })()
+  );
+}
+
+export default { fetch: app.fetch, scheduled };

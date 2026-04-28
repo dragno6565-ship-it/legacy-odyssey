@@ -20,6 +20,7 @@ import { createFamily } from './familyService';
 import { createBookWithDefaults, type FullBook } from './bookService';
 import { updateFamily } from './familyService';
 import { sendWelcomeEmail } from './email';
+import { createDomainOrder } from './domainService';
 import * as seedData from './seedData';
 import type { Family } from './types';
 
@@ -225,9 +226,20 @@ export async function redeemGiftCode(
     .eq('id', gift.id);
 
   if (args.domain) {
-    console.warn(
-      `[gift.redeem] domain registration for ${args.domain} (family ${family.id}) deferred (domainService port pending)`
-    );
+    try {
+      const order = await createDomainOrder(supabase, {
+        familyId: family.id,
+        domain: args.domain,
+        stripeSessionId: gift.stripe_session_id,
+      });
+      console.log(
+        `[gift.redeem] domain order ${order.id} queued for ${args.domain} (cron will provision)`
+      );
+    } catch (err: any) {
+      console.error(
+        `[gift.redeem] failed to enqueue domain order for ${args.domain}: ${err.message}`
+      );
+    }
   }
 
   // Welcome email — best-effort. Match Express: never throw out of redeem.
