@@ -4,6 +4,71 @@ A scrollable, dated log of long working sessions. Newest first. Append a new sec
 
 ---
 
+## April 27, 2026 (evening) — Pivot to Approximated.app; all 8 customers migrated
+
+**Outcome:** Cloudflare for SaaS hit a permission wall (custom-token UI doesn't expose Account-level Zone:Edit; Tenants API requires Enterprise). Pivoted to **Approximated.app** — a SaaS purpose-built for "custom domains for SaaS." One API key, one cluster IP (`137.66.1.199`), unlimited TLS-terminated virtual hosts via Caddy On-Demand TLS. All 8 active customers fully migrated and serving on Approximated by end of session. Cloudflare for SaaS dropped entirely from the customer-domain path.
+
+### Why we abandoned Cloudflare for SaaS mid-migration
+
+To create per-customer Cloudflare zones programmatically (which the architecture required because Spaceship's CNAME-at-apex flattening breaks Cloudflare's strict CNAME-to-zone validation), the API token needed account-level Zone:Edit. That permission **does not appear in Cloudflare's custom-token UI dropdown** — confirmed by dumping all 120 available account-scope permissions. The only paths to programmatic zone creation are: (a) Global API Key (full account access — undesirable), or (b) Tenants API (Enterprise sales call). Neither was acceptable.
+
+### Why Approximated is the right answer
+
+- **One API call per signup:** `POST /api/vhosts` creates a virtual host, returns the cluster IP for DNS.
+- **Caddy On-Demand TLS** under the hood — same tech we'd have built ourselves if self-hosting.
+- **No zones, no tokens-with-too-much-permission, no fallback origin acrobatics.**
+- **Pricing:** $20/mo plan = 250 hostnames. We're at 16 (8 customers × apex+www). Headroom for ~120 more customers before plan upgrade.
+- **Founder:** Tyler. Responsive, indie-friendly.
+
+### What we built
+
+| Step | Detail |
+|---|---|
+| Approximated account | $20/mo plan, "Legacy Odyssey" cluster, IP `137.66.1.199`, API key in env |
+| `src/services/approximatedService.js` | Wraps Virtual Hosts API: `addVirtualHost`, `findVirtualHost`, `deleteVirtualHost`, `getStatus`, `getClusterIp`. Idempotent on add. |
+| `src/services/spaceshipService.setupDns` | Now writes 2 A records (apex + www) → cluster IP. Apex pollution detector adapted to allow our own A. |
+| `src/services/domainService.purchaseAndSetupDomain` | Swapped from `cloudflareService.addCustomHostname` to `approximatedService.addVirtualHost`. Order: vhost create BEFORE DNS, so cert is ready when DNS propagates. |
+| `scripts/migrate-customer-to-approximated.js` | Idempotent migration: creates vhosts, deletes stale Spaceship records (Railway TXTs, Cloudflare TXTs, old A/CNAMEs), writes clean A records. |
+| Commit `c1aa039` | "Migrate domain pipeline from Cloudflare for SaaS to Approximated.app" — pushed to Railway. |
+
+### Customer migration results (all 8 fully serving)
+
+| Customer | apex | www | Notes |
+|---|---|---|---|
+| roypatrickthompson.com | ✅ | ✅ | First migrated end-to-end as proof; lives on Cloudflare nameservers (only customer that does) |
+| eowynhoperagno.com | ✅ | ✅ | |
+| emmacherry.com | ✅ | ✅ | |
+| reesetatler.com | ✅ | ✅ | |
+| lachlanstoneleister.com | ✅ | ✅ | |
+| jeffpresutti.com | ✅ | ✅ | |
+| kateragno.com | ⚠️ 404 | ✅ | Apex returns Railway "Application not found" — Railway custom-domain cap blocks add. www is canonical anyway. |
+| your-family-photo-album.com | ⚠️ 404 | ✅ | Same Railway cap issue. |
+
+### Pitfalls hit (and fixes)
+
+1. **First curl: marketing site instead of books.** Approximated's default rewrites Host header. Fix: `keep_host: true` on every vhost. CRITICAL setting — set explicitly, never rely on cluster default.
+2. **Second curl: 403 from Cloudflare.** Was proxying to `legacyodyssey.com` which is Cloudflare-fronted; CF 403'd unknown Hosts. Fix: change `target_address` to `legacy-odyssey-production.up.railway.app` (Railway directly).
+3. **`current_incoming_address` field name.** The update endpoint uses `current_incoming_address` (not `incoming_address`) — initial bulk update returned 400 across the board.
+4. **`redirect: true` is sticky.** Once set, can't be cleanly unset via update — vhost stays in 301 mode. Fix: delete and recreate the vhost.
+5. **Spaceship URL Redirect (group:product locked records).** Two customers (kateragno, your-family-photo-album) had locked apex A → 15.197.162.184 from Spaceship URL Redirect connections. Cannot remove via API — only Domain Manager → URL redirect → Remove connection (kateragno via "X" on the connection card; YFP via the trash icon on the redirect entry itself, which lives in a different UI).
+6. **Apex 404 for 2 customers.** Railway routes-by-Host, and `kateragno.com`/`your-family-photo-album.com` apex aren't in Railway's custom-domain list. Adding them is blocked by the 20-cap (still hit even after deleting `edge.legacyodyssey.com`). www works for both — canonical URL is www. Punted to next session.
+
+### Verification
+
+Built-in `/admin/health` after migration: **38 PASS / 2 WARN / 0 FAIL**, including the "All active customers' custom domains fully reachable (apex + www)" check. Marketing site, /admin login, /account, /gift, /redeem, domain search API, /stripe/webhook, /api/auth/login, /book/:subdomain — all confirmed serving.
+
+### Costs
+- Approximated $20/mo (paid; replaces $7/mo Cloudflare for SaaS that should now be cancelled)
+- Net: +$13/mo for vastly simpler architecture and unlimited apex routing for new customers
+
+### Open loops
+1. Apex 404 fix for kateragno + YFP (Railway slot cleanup or apex→www redirect)
+2. Free Railway slots by deleting per-customer entries (now redundant)
+3. Cancel Cloudflare for SaaS subscription
+4. Update Block 2 health check to verify Approximated vhost SSL state
+
+---
+
 ## April 27, 2026 — Cloudflare for SaaS migration (Roy first; architecture validated)
 
 **Outcome:** Architecture migrated from Railway custom domains to Cloudflare for SaaS. Root cause for the Railway cap is permanently solved — we can now scale to ~50 customers free, ~$0.10/mo per hostname after that. First customer (Roy) fully migrated and serving 200 on both apex + www. Other 7 customers ready to migrate the same way.

@@ -4,7 +4,7 @@
 > piece of how the business runs. The `/admin/health` page runs automated
 > checks against every block; this doc explains what each one *is*.
 
-Last updated: April 25, 2026
+Last updated: April 27, 2026 (evening — Approximated migration)
 
 ---
 
@@ -26,51 +26,61 @@ Last updated: April 25, 2026
 
 ---
 
-## Block 2 — Customer Domains (post Apr 27 2026 Cloudflare for SaaS migration)
+## Block 2 — Customer Domains (post Apr 27 2026 evening Approximated migration)
 
-**What it is:** every paying customer has their own .com domain (e.g. `kateragno.com`) serving their book at both www and apex. The domain is registered via Spaceship at checkout, then added as a Cloudflare zone (Free plan, unlimited zones); the customer's nameservers are switched from Spaceship to Cloudflare. Cloudflare for SaaS terminates TLS per customer hostname and proxies to a single Railway origin (`edge.legacyodyssey.com`).
+**What it is:** every paying customer has their own .com domain (e.g. `kateragno.com`) serving their book at both www and apex. The domain is registered via Spaceship at checkout, then registered as a virtual host on **Approximated.app**'s proxy cluster. Customer DNS (apex + www) points at Approximated's cluster IP `137.66.1.199`. Approximated terminates TLS per hostname (Caddy On-Demand TLS, Let's Encrypt) and Host-header-preserves the request to Railway directly.
 
 **Traffic flow:**
 ```
-Visitor → kateragno.com (DNS via Cloudflare nameservers for the per-customer zone)
-       → Cloudflare edge (TLS termination per customer)
-       → Cloudflare for SaaS Custom Hostname routing → fallback origin
-       → edge.legacyodyssey.com (1 Railway custom domain — serves ALL customers)
+Visitor → kateragno.com (Spaceship DNS — A record at customer's zone)
+       → 137.66.1.199 — Approximated proxy cluster ("Legacy Odyssey")
+       → Caddy On-Demand TLS terminates per-hostname cert
+       → legacy-odyssey-production.up.railway.app:443 (Railway directly, NOT through Cloudflare)
        → Railway service (Express reads Host header, routes to family/book)
 ```
 
 | Component | Owner | Notes |
 |---|---|---|
 | Domain registration | Spaceship API | $12.99/yr or whatever's in budget |
-| Domain DNS authority | Cloudflare nameservers (`khalid.ns.cloudflare.com` + `sima.ns.cloudflare.com`) | One free zone per customer |
-| Customer DNS records | Cloudflare zone for the customer's domain | CNAME `@` and CNAME `www`, both → `edge.legacyodyssey.com` (proxied) |
-| TLS certificates | Cloudflare (Let's Encrypt via HTTP-01) | Issued automatically once NS propagates |
-| Custom Hostname registration | Cloudflare for SaaS on `legacyodyssey.com` zone | apex + www added via API; status flips to `active` once CNAME-to-zone validation passes |
-| Fallback origin | `edge.legacyodyssey.com` | Single Railway custom domain that all customer traffic proxies to |
-| Cost | Cloudflare for SaaS Free | 100 hostnames included; $0.10/mo per additional past 100 |
+| Domain DNS authority | Spaceship nameservers (default) | Roy is the one exception — still on Cloudflare nameservers from earlier experiment |
+| Customer DNS records | Spaceship Advanced DNS | A `@` and A `www`, both → `137.66.1.199` |
+| TLS certificates | Approximated (Caddy On-Demand TLS, Let's Encrypt) | Issued automatically on first hit to a DNS-pointing domain |
+| Virtual host registration | Approximated cluster "Legacy Odyssey" | apex + www added via `POST /api/vhosts` with `keep_host=true`, `target_address=legacy-odyssey-production.up.railway.app`, `target_ports=443` |
+| Proxy target | `legacy-odyssey-production.up.railway.app:443` | Direct Railway hostname — NOT `legacyodyssey.com` (which is CF-fronted and 403s unknown Hosts) |
+| Cost | Approximated $20/mo plan | 250 hostnames included. We use 16 (8 customers × apex+www). Headroom for ~120 more before plan upgrade. |
 | Domain auto-renewal | Spaceship | Auto-renew=true for active customers, false for archived/cancelled |
-| `domain_orders` table | Supabase | Every purchase tracked here with status pending → registering → registered → dns_setup → active (or failed) |
+| `domain_orders` table | Supabase | Every purchase tracked: pending → registering → registered → dns_setup → active (or failed) |
 
-**Why each customer needs their own Cloudflare zone:** Cloudflare for SaaS rejects apex hostnames with "custom hostname does not CNAME to this zone" when the customer's DNS is on a registrar that flattens CNAME-at-apex without preserving CNAME visibility (which Spaceship does). Hosting the customer's domain as a Cloudflare zone makes Cloudflare authoritative; Cloudflare's flattening preserves CNAME visibility for the SaaS verifier. Discovered Apr 27 2026 via `roypatrickthompson.com`.
+**Critical Approximated config** (set on every vhost — never rely on cluster defaults):
+- `keep_host: true` — preserves the original `Host` header so Express can route by customer hostname. Default is `false`, which would make Express see `legacy-odyssey-production.up.railway.app` and serve the marketing site.
+- `target_address: legacy-odyssey-production.up.railway.app` — direct Railway hostname (NOT `legacyodyssey.com`). Going through CF returns 403 for unknown Hosts.
+- `target_ports: 443` — HTTPS to upstream.
 
-**What can break it:** `edge.legacyodyssey.com` Railway disruption (single point of failure for ALL customers — but Railway Pro uptime is excellent), Cloudflare API token revoked, Cloudflare zone deletion, customer's nameservers somehow reverting (Spaceship Domain Manager UI), past 100 hostnames + payment lapse.
+**Why we ditched Cloudflare for SaaS** (the previous architecture, abandoned the same day): To programmatically create per-customer Cloudflare zones, the API token needs Account-level Zone:Edit. That permission **is not exposed in Cloudflare's custom-token UI**. The only paths were: Global API Key (full account, unsafe) or Tenants API (Enterprise sales call). Approximated solved the same problem with one API key.
+
+**What can break it:**
+- Approximated cluster outage (single point of failure for ALL customers — Approximated runs Caddy on multiple nodes, but it's their infra). No SLA at $20/mo tier.
+- Approximated API key revoked or account suspended (payment lapse, billing failure)
+- Railway's custom-domain cap (20) — not directly in this block's traffic flow, BUT Railway routes by Host header, and apex hostnames must be in Railway's custom-domain list for Railway's edge to forward them to our service. (Currently this blocks `kateragno.com` and `your-family-photo-album.com` apex — known issue.)
+- Spaceship URL Redirect connection injecting locked `group:product` apex A records pointing at parking IPs — must remove via Domain Manager → URL redirect → Remove connection (no API).
+- `legacy-odyssey-production.up.railway.app` hostname change (unlikely; Railway-assigned)
 
 **Recovery runbooks:**
-- **Migrate a new customer (or repair an existing one):** Cloudflare → Connect a domain → `<customer.com>` → Free plan. Edit imported records: replace 2 apex A records with 1 CNAME `@` → `edge.legacyodyssey.com` (proxied). Verify CNAME `www` → `edge.legacyodyssey.com` is also proxied. Add Custom Hostnames for apex + www on the `legacyodyssey.com` SaaS zone (`scripts/migrate-customer-to-cf.js`). Spaceship → Domain Manager → `<customer.com>` → Nameservers & DNS → Change → Custom: `khalid.ns.cloudflare.com` + `sima.ns.cloudflare.com`. Wait 5–15 min for NS propagation + cert issuance. Verify with `curl -I https://<customer.com>` returning 200.
-- **Cloudflare API token expired/revoked:** create a new one at `dash.cloudflare.com/profile/api-tokens` → Custom token → Zone-scoped to `legacyodyssey.com` → Permissions: Zone DNS Edit + Zone SSL & Certificates Edit. Update `CLOUDFLARE_API_TOKEN` env on Railway.
-- **Cloudflare zone deleted (unlikely catastrophe):** re-create the zone, manually re-add `edge` CNAME, restore Custom Hostnames per customer (maintain a periodic export — `node scripts/cloudflare-test.js` lists current state). Restore Spaceship NS to the new Cloudflare nameservers.
-- **Old/legacy issues from the pre-CF era** (pre Apr 27): Spaceship URL Redirect injecting parking-IP A records — Domain Manager → URL redirect → Remove connection.
+- **Migrate a new customer (or repair an existing one):** `node scripts/migrate-customer-to-approximated.js <domain>` — idempotent. Script creates apex + www vhosts on Approximated, deletes stale records on Spaceship (old A, CNAME, Railway TXTs, Cloudflare TXTs), writes clean A records to cluster IP. If apex still has `group:product` records after script runs, manually remove the URL Redirect connection in Spaceship Domain Manager.
+- **Approximated API key compromised:** rotate at `cloud.approximated.app` → Proxy Clusters → API Keys → Rotate. Update `APPROXIMATED_API_KEY` env on Railway.
+- **Approximated outage:** point customer DNS A records back at `151.101.2.15` (legacy Fastly/Railway path) as emergency rollback. Will lose TLS until customer is re-added to Railway custom domains. Better long-term: add a second cluster with Approximated, or self-host Caddy.
+- **Railway custom-domain cap blocks apex:** delete unused Railway entries (after Approximated migration, the per-customer www/apex Railway entries are dead weight). Free up slots, then add the missing apex. Railway support can also bump the cap to 30 temporarily.
+- **Spaceship URL Redirect pollution:** Domain Manager → click domain → URL redirect → Remove connection (sometimes appears as "X" on the connection card; sometimes as a trash icon on the redirect entry itself).
 
-**What the health check verifies:** Every active customer's domain returns 200 over HTTPS at **both** apex and www (`isFullyServing` — strict; passes both URLs in parallel, fails the audit if either is broken), no domain orders failed in the last 24 hours, no domain orders stuck in transitional state >1 hour. The site-live-detect cron uses the looser `isSiteLive` (either side OK) so the welcome email fires as soon as www is up.
+**What the health check verifies:** Every active customer's domain returns 200 over HTTPS at **both** apex and www (`isFullyServing` — strict; both URLs in parallel, fails if either is broken), no domain orders failed in the last 24 hours, no domain orders stuck in transitional state >1 hour. The site-live-detect cron uses the looser `isSiteLive` (either side OK) so the welcome email fires as soon as www is up.
 
-**TODO add to health check:** verify each customer's Cloudflare zone is `active` and all Custom Hostnames have `ssl.status=active` (not just curl-OK). Catches state where Cloudflare deactivated something while the cached cert keeps serving.
+**TODO add to health check:** verify each Approximated vhost has `has_ssl=true` and `apx_hit=true` (catches state where DNS reverts but cached cert keeps serving briefly). Use `approximatedService.getStatus()` per active customer.
 
 **Related crons:** `siteLiveDetect` (every 5 min) — emails customer when their site first responds 200. `domainOrderAlerts` (daily 9:30 AM UTC) — emails admin if any orders in `failed` or stuck-mid-flow state.
 
-**Migration scripts:**
-- `scripts/cloudflare-test.js` — read-only verification of token, zone, fallback origin, and Custom Hostnames API
-- `scripts/migrate-customer-to-cf.js` — registers a customer's domain as Custom Hostnames on the SaaS zone, flips Spaceship DNS to point at fallback origin (apex stays on Spaceship — only www works under this model)
-- `scripts/migrate-customer-zone-to-cf.js` — full migration including making the customer's domain its own Cloudflare zone (preferred long-term; what we did for Roy)
+**Migration script:**
+- `scripts/migrate-customer-to-approximated.js` — idempotent migration for any existing customer. Creates Approximated vhosts (apex + www), deletes stale Spaceship records, writes clean A records to cluster IP, prints status.
+- `cloudflareService.js` and `scripts/cloudflare-test.js` / `scripts/migrate-customer-to-cf.js` / `scripts/migrate-customer-zone-to-cf.js` — DEAD CODE from the abandoned Cloudflare for SaaS path. Safe to delete.
 
 ---
 
