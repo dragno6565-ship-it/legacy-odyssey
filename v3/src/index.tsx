@@ -29,6 +29,7 @@ import { resolveFamily } from './middleware/resolveFamily';
 import { requireBookPassword } from './middleware/requireBookPassword';
 import { PasswordGate } from './views/PasswordGate';
 import { BookLayout } from './views/book/BookLayout';
+import booksApi from './routes/api/books';
 import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -55,6 +56,12 @@ const proxyAsset = (path: string, contentType: string) => async () => {
 };
 app.get('/js/book.js', proxyAsset('/js/book.js', 'text/javascript; charset=utf-8'));
 app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'));
+
+// Mobile API. Mounted BEFORE resolveFamily because /api/* uses Bearer-token
+// auth via requireAuth, not Host-header family resolution. resolveFamily
+// would 403 these requests on workers.dev because the host doesn't match
+// any customer domain.
+app.route('/api/books', booksApi);
 
 // Route order: resolveFamily first, then everything else can read c.var.family.
 app.use('*', resolveFamily);

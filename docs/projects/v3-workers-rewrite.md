@@ -1,9 +1,27 @@
 # Project: v3 — Cloudflare Workers + Hono Rewrite
 
-**Status:** Phase 0 complete (Apr 28 2026 evening), Phase 1 not yet started
+**Status:** Phase 1 complete (Apr 28 2026 late evening). Phase 2 (mobile API) up next.
 **Goal:** replace the entire Express-on-Railway custom-domain layer with Cloudflare Workers + Hono, eliminating Approximated subscription and the Railway 20-domain cap permanently.
 **Estimated effort:** 4-6 weeks of focused engineering
 **Last touched:** 2026-04-28
+
+## Phase 1 — DONE
+
+Live at https://legacy-odyssey-v3.legacyodysseyapp.workers.dev/book/eowynragno (password: `Hunter65!`).
+
+What's working end-to-end on the v3 Worker against production Supabase:
+- `resolveFamily` middleware (Host → families row, with subscription gating)
+- `requireBookPassword` middleware (HMAC-SHA256 cookie, byte-compatible with v2)
+- `GET /` and `GET /book/:slug` → password gate → BookLayout
+- `POST /verify-password` → cookie set + redirect
+- All 11 book sections rendered: Welcome, BeforeArrived, BirthStory, ComingHome, Months, Family, Firsts, Holidays, Letters, Recipes, Vault
+- Sidebar nav with `visibleSections` toggling
+- Existing `book.js` (months grid, modals, family detail, vault countdown, lightbox) reused unchanged via same-origin proxy at `/js/book.js` and `/css/book.css` (cross-origin script load from workers.dev was failing in browsers despite valid headers)
+
+Gotchas hit during Phase 1 (so we don't repeat them):
+1. Hono JSX HTML-escapes children of `<script>` — `&` in JSON breaks the inline payload. Fix: `<script>{raw(dataScript)}</script>` from `hono/html`. `dangerouslySetInnerHTML` does not work on `<script>` in Hono JSX (drops the content silently).
+2. Cross-origin `<script src="https://legacyodyssey.com/js/book.js">` from workers.dev fails (`error` event) even with no CSP/CORP. Fix: same-origin proxy route in the Worker that fetches it via `fetch()` with `cf.cacheTtl`.
+3. `index.ts` containing JSX must be `index.tsx` for esbuild-via-wrangler to compile it.
 
 ## Why we're doing this
 
