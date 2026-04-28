@@ -20,3 +20,12 @@ NODE_ENV = "development"
 SUPABASE_URL = "https://vesaydfwwdbbajydbzmq.supabase.co"
 # SUPABASE_ANON_KEY is the public key — safe to commit per Supabase docs
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlc2F5ZGZ3d2RiYmFqeWRiem1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDQzMTYsImV4cCI6MjA4NzI4MDMxNn0.KkyVjCwv1lYO1PE7k2-8C02tNC3rYw08vba-Oer0WxM"
+
+# Stripe — price IDs are PUBLIC and safe to commit. Source of truth: CLAUDE.md.
+# The actual STRIPE_SECRET_KEY (sk_live_...) is set as a Worker secret separately.
+STRIPE_PRICE_MONTHLY = "price_1T3PPGJk2GIrL5uS3EqkKOLO"
+STRIPE_PRICE_SETUP = "price_1T3PPxJk2GIrL5uSWnmW3eHQ"
+STRIPE_PRICE_ANNUAL = "price_1TLojVJk2GIrL5uS0oQORYsr"
+STRIPE_PRICE_ANNUAL_INTRO = "price_1TLojVJk2GIrL5uS0oQORYsr"
+STRIPE_ANNUAL_INTRO_COUPON = "sX2lEPb6"
+STRIPE_PRICE_ADDITIONAL_DOMAIN = "price_1TDVIAQzzNThrLYKNnMljEkp"

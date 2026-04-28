@@ -17,9 +17,17 @@ export type Env = {
   NODE_ENV: string;
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
+  // Stripe price IDs are PUBLIC — committable to wrangler.toml.
+  STRIPE_PRICE_MONTHLY?: string;
+  STRIPE_PRICE_SETUP?: string;
+  STRIPE_PRICE_ANNUAL?: string;
+  STRIPE_PRICE_ANNUAL_INTRO?: string;
+  STRIPE_ANNUAL_INTRO_COUPON?: string;
+  STRIPE_PRICE_ADDITIONAL_DOMAIN?: string;
   // Secrets (via wrangler secret put)
   SUPABASE_SERVICE_ROLE_KEY: string;
   SESSION_SECRET: string;
+  STRIPE_SECRET_KEY?: string;
 };
 
 export function adminClient(env: Env): SupabaseClient {
