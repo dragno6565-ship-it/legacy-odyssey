@@ -31,6 +31,7 @@ import { PasswordGate } from './views/PasswordGate';
 import { BookLayout } from './views/book/BookLayout';
 import authApi from './routes/api/auth';
 import booksApi from './routes/api/books';
+import familiesApi from './routes/api/families';
 import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -64,6 +65,7 @@ app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'))
 // any customer domain.
 app.route('/api/auth', authApi);
 app.route('/api/books', booksApi);
+app.route('/api/families', familiesApi);
 
 // Route order: resolveFamily first, then everything else can read c.var.family.
 app.use('*', resolveFamily);
