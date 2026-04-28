@@ -16,10 +16,22 @@
  */
 import { Hono } from 'hono';
 import { adminClient, anonClient, type Env } from '../../lib/supabase';
-import { findBySubdomain, findByAuthUserId, createFamily } from '../../lib/familyService';
+import {
+  findBySubdomain,
+  findByAuthUserId,
+  findAllByAuthUserId,
+  createFamily,
+} from '../../lib/familyService';
 import { createBookWithDefaults } from '../../lib/bookService';
 import * as seedData from '../../lib/seedData';
+import {
+  isPrimaryFamily,
+  promoteSecondaryToPrimary,
+  softCancelAllForUser,
+  softCancelFamily,
+} from '../../lib/subscriptionService';
 import { requireAuth } from '../../middleware/requireAuth';
+import type { Family } from '../../lib/types';
 
 const auth = new Hono<{ Bindings: Env }>();
 
@@ -187,6 +199,84 @@ auth.post('/update-password', async (c) => {
   );
   if (error) return c.json({ error: error.message }, 400);
   return c.json({ success: true, message: 'Password updated successfully.' });
+});
+
+// POST /api/auth/cancel — customer-initiated soft cancel.
+// Direct port of the Express cancel route. Body shapes:
+//   { all: true }                                → cancel every linked family
+//   { familyId: "..." }                          → cancel a non-primary family,
+//                                                  or the only family the user has
+//   { familyId: "...", promoteFamilyId: "..." }  → cancel the primary; promote a
+//                                                  secondary to primary at the
+//                                                  retiring primary's period_end
+auth.post('/cancel', requireAuth, async (c) => {
+  const supabase = adminClient(c.env);
+  const user = (c as any).var.user;
+  const linked = await findAllByAuthUserId(supabase, user.id);
+  if (!linked.length) return c.json({ error: 'No families found for this user' }, 404);
+
+  const body = await c.req.json<{ all?: boolean | string; familyId?: string; promoteFamilyId?: string }>();
+
+  // --- Cancel All path
+  if (body.all === true || body.all === 'true') {
+    const r = await softCancelAllForUser(c.env, user.id, { source: 'customer-mobile' });
+    return c.json({ ok: true, mode: 'all', cancelled: r.canceled, results: r.results });
+  }
+
+  if (!body.familyId) return c.json({ error: 'familyId or all=true required' }, 400);
+  const target = linked.find((f) => f.id === body.familyId);
+  if (!target) return c.json({ error: 'Family not found or not linked to your account' }, 404);
+
+  const isPrimary = await isPrimaryFamily(c.env, target);
+  const otherLinked = linked.filter((f) => f.id !== target.id && !f.archived_at);
+
+  // If target is the primary AND there are other active families, require
+  // promote or all (matches the Express multi-family invariant).
+  if (isPrimary && otherLinked.length > 0) {
+    const promoteId = body.promoteFamilyId;
+    if (!promoteId) {
+      return c.json(
+        {
+          error: 'PROMOTE_OR_CANCEL_ALL_REQUIRED',
+          message:
+            'You must always have one Primary site. To cancel your Primary, either promote another site to Primary or cancel all sites.',
+          otherFamilies: otherLinked.map((f: Family) => ({
+            id: f.id,
+            subdomain: f.subdomain,
+            custom_domain: f.custom_domain,
+            display_name: f.display_name,
+          })),
+        },
+        400
+      );
+    }
+    const promoteTarget = otherLinked.find((f) => f.id === promoteId);
+    if (!promoteTarget)
+      return c.json({ error: 'promoteFamilyId is not a valid linked family' }, 400);
+
+    const promoteResult = await promoteSecondaryToPrimary(c.env, promoteTarget, target, {
+      source: 'customer-mobile',
+    });
+    const cancelResult = await softCancelFamily(c.env, target, { source: 'customer-mobile' });
+    return c.json({
+      ok: true,
+      mode: 'promote-and-cancel',
+      promoted: {
+        familyId: promoteTarget.id,
+        switchAt: promoteResult.switchAt,
+        scheduleId: promoteResult.scheduleId,
+      },
+      cancelled: { familyId: target.id, summary: cancelResult.summary },
+    });
+  }
+
+  // Simple case: cancel a non-primary family OR the only family the user has
+  const result = await softCancelFamily(c.env, target, { source: 'customer-mobile' });
+  return c.json({
+    ok: true,
+    mode: 'single',
+    cancelled: { familyId: target.id, summary: result.summary },
+  });
 });
 
 // DELETE /api/auth/account — old hard-delete. Return 410 so old app builds get
