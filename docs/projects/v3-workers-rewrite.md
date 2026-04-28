@@ -122,5 +122,9 @@ Workers architecture:
 - **Mobile app compatibility** — API responses must match exactly. Byte-for-byte testing required.
 - **Cutover risk** — high but contained. Rollback is "flip DNS back at Approximated" — same minute.
 
+## Findings discovered during port
+
+- **Apr 28, Phase 1:** `families.book_password` is stored as **plaintext** in the database, not hashed. The Express code reads it raw and HMACs it on the fly during password verification. Not introduced by v3 — same pattern in `src/middleware/requireBookPassword.js`. Worth fixing before scaling: hash on write (bcrypt or argon2id), update the verify path. Track separately from v3.
+
 ## Sources for the architectural decision
 See SESSIONS.md (Apr 28 entry) for the research that led here, including comparison of Approximated, Cloudflare for SaaS, self-hosted Caddy, and Workers options at 100k+ scale.

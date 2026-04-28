@@ -1,5 +1,5 @@
 name = "legacy-odyssey-v3"
-main = "src/index.ts"
+main = "src/index.tsx"
 compatibility_date = "2026-04-28"
 compatibility_flags = ["nodejs_compat"]
 
@@ -12,8 +12,11 @@ workers_dev = true
 enabled = true
 
 # Environment variables that aren't secrets (committable).
-# Real secrets (Stripe key, Supabase service role, etc.) get set via:
-#   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+# Real secrets (service role, session secret, Stripe key) get set via:
+#   echo "$VALUE" | npx wrangler secret put NAME
 [vars]
 APP_DOMAIN = "legacyodyssey.com"
 NODE_ENV = "development"
+SUPABASE_URL = "https://vesaydfwwdbbajydbzmq.supabase.co"
+# SUPABASE_ANON_KEY is the public key — safe to commit per Supabase docs
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlc2F5ZGZ3d2RiYmFqeWRiem1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDQzMTYsImV4cCI6MjA4NzI4MDMxNn0.KkyVjCwv1lYO1PE7k2-8C02tNC3rYw08vba-Oer0WxM"
