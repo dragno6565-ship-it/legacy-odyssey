@@ -1,6 +1,6 @@
 # Project: v3 — Cloudflare Workers + Hono Rewrite
 
-**Status:** approved by user, not yet started (Apr 28 2026)
+**Status:** Phase 0 complete (Apr 28 2026 evening), Phase 1 not yet started
 **Goal:** replace the entire Express-on-Railway custom-domain layer with Cloudflare Workers + Hono, eliminating Approximated subscription and the Railway 20-domain cap permanently.
 **Estimated effort:** 4-6 weeks of focused engineering
 **Last touched:** 2026-04-28
@@ -26,12 +26,16 @@ Workers architecture:
 
 ## Phases
 
-### Phase 0 — Setup (1-2 days)
-- New git branch `v3-workers` on existing repo
-- Cloudflare Workers project (deploys to `legacy-odyssey-v3.dragno65.workers.dev` initially)
-- Wrangler CLI for local dev + deploys
-- Supabase database branch for staging (so v3 doesn't touch prod data during dev)
-- Stripe test mode for v3 dev
+### Phase 0 — Setup ✅ COMPLETE (Apr 28 2026 evening)
+- ✅ Git branch `v3-workers` on existing repo (commit `99aa475`)
+- ✅ `v3/` directory with Hono + Wrangler + TypeScript scaffolding
+- ✅ Wrangler authenticated to Cloudflare account `bc2ebc94444d987c7a78809a1d9449cb` via OAuth
+- ✅ Worker deployed and live at **https://legacy-odyssey-v3.legacyodysseyapp.workers.dev**
+- ✅ workers.dev subdomain `legacyodysseyapp.workers.dev` registered
+- ✅ Observability (Workers Logs) enabled
+- ✅ Preview URLs enabled (for future branch deploys)
+- ⏸ Supabase database branch — deferred to Phase 1 when we actually need it
+- ⏸ Stripe test mode — deferred to Phase 3 (Stripe integration phase)
 
 ### Phase 1 — Hono app skeleton + auth + book viewer (~5 days)
 - Hono app structure (similar shape to current `src/server.js`)
@@ -98,6 +102,10 @@ Workers architecture:
 ## Decisions made
 - ✅ Approach: parallel-track, v3 branch, separate Worker, cutover when ready
 - ✅ User approved building this alongside continuing production maintenance
+- ✅ Worker name: `legacy-odyssey-v3`
+- ✅ Branch name: `v3-workers`
+- ✅ Auth: OAuth via `wrangler login` (not API token — broader Workers scope needed)
+- ✅ Stack: Hono 4.6+, TypeScript, Wrangler 3.114+, nodejs_compat flag
 
 ## Related
 - `infrastructure/cloudflare.md` — already have account, just need Workers Paid plan
