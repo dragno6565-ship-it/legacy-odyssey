@@ -31,6 +31,7 @@ import { PasswordGate } from './views/PasswordGate';
 import { BookLayout } from './views/book/BookLayout';
 import authApi from './routes/api/auth';
 import booksApi from './routes/api/books';
+import domainsApi from './routes/api/domains';
 import familiesApi from './routes/api/families';
 import stripeApi from './routes/api/stripe';
 import uploadApi from './routes/api/upload';
@@ -67,6 +68,7 @@ app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'))
 // any customer domain.
 app.route('/api/auth', authApi);
 app.route('/api/books', booksApi);
+app.route('/api/domains', domainsApi);
 app.route('/api/families', familiesApi);
 app.route('/api/stripe', stripeApi);
 // upload mounts at /api so its inner POST /upload + DELETE /photos/:path

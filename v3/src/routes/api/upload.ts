@@ -29,10 +29,16 @@ const BUCKET = 'photos';
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB — same as multer config
 
 const upload = new Hono<{ Bindings: Env; Variables: Variables }>();
-upload.use('*', requireAuth);
+
+// Note: requireAuth is attached per-route below rather than via
+// `upload.use('*', requireAuth)`. The `use('*')` form runs the middleware
+// for EVERY request that reaches this sub-router instance — and because
+// the sub-router is mounted at `/api`, that includes other sibling routers
+// like /api/domains/search that should be public. Per-route registration
+// keeps the auth requirement tight to the two routes that actually need it.
 
 // POST /api/upload — single-photo upload from the mobile PhotoPicker.
-upload.post('/upload', async (c) => {
+upload.post('/upload', requireAuth, async (c) => {
   const body = await c.req.parseBody();
   const file = body['file'] as File | undefined;
   if (!file || typeof file === 'string') {
@@ -65,7 +71,7 @@ upload.post('/upload', async (c) => {
 });
 
 // DELETE /api/photos/:storagePath — encoded family/section/file.jpg
-upload.delete('/photos/:storagePath', async (c) => {
+upload.delete('/photos/:storagePath', requireAuth, async (c) => {
   const storagePath = decodeURIComponent(c.req.param('storagePath'));
   // Defense-in-depth: only allow deleting paths that start with this family's id.
   if (!storagePath.startsWith(c.var.family.id)) {

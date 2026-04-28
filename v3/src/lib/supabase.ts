@@ -28,6 +28,8 @@ export type Env = {
   SUPABASE_SERVICE_ROLE_KEY: string;
   SESSION_SECRET: string;
   STRIPE_SECRET_KEY?: string;
+  SPACESHIP_API_KEY?: string;
+  SPACESHIP_API_SECRET?: string;
 };
 
 export function adminClient(env: Env): SupabaseClient {
