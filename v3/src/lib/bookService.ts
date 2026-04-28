@@ -161,6 +161,181 @@ export function imageUrl(supabaseUrl: string, storagePath: string | null | undef
   return `${supabaseUrl}/storage/v1/object/public/photos/${storagePath}`;
 }
 
+// --- Mutating helpers (Phase 2 mobile API write endpoints) ---
+
+/**
+ * Find a book by family_id. Same shape as Express bookService.getBookByFamilyId.
+ */
+export async function getBookByFamilyId(supabase: SupabaseClient, familyId: string): Promise<Row | null> {
+  const { data } = await supabase
+    .from('books')
+    .select('*')
+    .eq('family_id', familyId)
+    .maybeSingle();
+  return (data as Row | null) ?? null;
+}
+
+export async function updateBook(supabase: SupabaseClient, bookId: string, fields: Row): Promise<Row> {
+  const { data, error } = await supabase
+    .from('books')
+    .update(fields)
+    .eq('id', bookId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data as Row;
+}
+
+const MONTH_ALLOWED = ['label', 'highlight', 'weight', 'length', 'photo_path', 'note'];
+
+export async function upsertMonth(
+  supabase: SupabaseClient,
+  bookId: string,
+  monthNumber: number,
+  fields: Row
+): Promise<Row> {
+  const safe: Row = {};
+  for (const k of MONTH_ALLOWED) if (fields[k] !== undefined) safe[k] = fields[k];
+
+  const { data: existing } = await supabase
+    .from('months')
+    .select('id')
+    .eq('book_id', bookId)
+    .eq('month_number', monthNumber)
+    .maybeSingle();
+
+  if (existing) {
+    const { data, error } = await supabase
+      .from('months')
+      .update(safe)
+      .eq('id', (existing as Row).id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as Row;
+  }
+  if (!safe.label) safe.label = `Month ${monthNumber}`;
+  const { data, error } = await supabase
+    .from('months')
+    .insert({ book_id: bookId, month_number: monthNumber, ...safe })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as Row;
+}
+
+export async function upsertFamilyMember(
+  supabase: SupabaseClient,
+  bookId: string,
+  memberKey: string,
+  fields: Row
+): Promise<Row> {
+  const { data, error } = await supabase
+    .from('family_members')
+    .upsert({ book_id: bookId, member_key: memberKey, ...fields }, { onConflict: 'book_id,member_key' })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as Row;
+}
+
+const BIRTH_ALLOWED = [
+  'first_held_by',
+  'mom_title',
+  'mom_narrative',
+  'dad_title',
+  'dad_narrative',
+  'mom_photo_1',
+  'mom_photo_2',
+  'dad_photo_1',
+  'dad_photo_2',
+];
+
+export async function upsertBirthStory(
+  supabase: SupabaseClient,
+  bookId: string,
+  fields: Row
+): Promise<Row> {
+  const safe: Row = {};
+  for (const k of BIRTH_ALLOWED) if (fields[k] !== undefined) safe[k] = fields[k];
+
+  const { data: existing } = await supabase
+    .from('birth_stories')
+    .select('id')
+    .eq('book_id', bookId)
+    .maybeSingle();
+
+  if (existing) {
+    const { data, error } = await supabase
+      .from('birth_stories')
+      .update(safe)
+      .eq('id', (existing as Row).id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as Row;
+  }
+  const { data, error } = await supabase
+    .from('birth_stories')
+    .insert({ book_id: bookId, ...safe })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as Row;
+}
+
+const NOT_NULL_DEFAULTS: Record<string, Row> = {
+  before_arrived_cards: { title: '(untitled)' },
+  coming_home_cards: { title: '(untitled)' },
+  firsts: { title: '(untitled)', emoji: '⭐' },
+  celebrations: { title: '(untitled)' },
+  letters: { from_label: '(anonymous)' },
+  recipes: { title: '(untitled)' },
+  before_arrived_checklist: { label: '(item)' },
+};
+
+/**
+ * "Replace all rows for this book in this table" pattern. Mirrors the Express
+ * helper exactly: filter empty cards out, apply NOT NULL defaults, delete then
+ * insert with sort_order.
+ */
+export async function updateSectionCards(
+  supabase: SupabaseClient,
+  table: string,
+  bookId: string,
+  cards: Row[]
+): Promise<Row[]> {
+  const defaults = NOT_NULL_DEFAULTS[table] || {};
+
+  const meaningful = (cards || []).filter((card) => {
+    const { photo_path: _p, sort_order: _s, book_id: _b, id: _i, created_at: _c, updated_at: _u, ...fields } = card;
+    return Object.values(fields).some((v) => v !== undefined && v !== null && v !== '' && v !== false);
+  });
+
+  const cleaned = meaningful.map((card) => {
+    const row: Row = { ...card };
+    for (const [key, defaultVal] of Object.entries(defaults)) {
+      if (row[key] === undefined || row[key] === null || (typeof row[key] === 'string' && !row[key].trim())) {
+        row[key] = defaultVal;
+      }
+    }
+    delete row.id;
+    delete row.created_at;
+    delete row.updated_at;
+    delete row.book_id;
+    return row;
+  });
+
+  await supabase.from(table).delete().eq('book_id', bookId);
+  if (cleaned.length > 0) {
+    const rows = cleaned.map((card, i) => ({ book_id: bookId, sort_order: i, ...card }));
+    const { data, error } = await supabase.from(table).insert(rows).select();
+    if (error) throw error;
+    return (data || []) as Row[];
+  }
+  return [];
+}
+
 /**
  * Build the photoPos() helper that renders an inline `object-position` style
  * for a given photo path, given the book's photo_positions JSONB column.

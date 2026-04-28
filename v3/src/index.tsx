@@ -29,6 +29,7 @@ import { resolveFamily } from './middleware/resolveFamily';
 import { requireBookPassword } from './middleware/requireBookPassword';
 import { PasswordGate } from './views/PasswordGate';
 import { BookLayout } from './views/book/BookLayout';
+import authApi from './routes/api/auth';
 import booksApi from './routes/api/books';
 import type { Family } from './lib/types';
 
@@ -61,6 +62,7 @@ app.get('/css/book.css', proxyAsset('/css/book.css', 'text/css; charset=utf-8'))
 // auth via requireAuth, not Host-header family resolution. resolveFamily
 // would 403 these requests on workers.dev because the host doesn't match
 // any customer domain.
+app.route('/api/auth', authApi);
 app.route('/api/books', booksApi);
 
 // Route order: resolveFamily first, then everything else can read c.var.family.

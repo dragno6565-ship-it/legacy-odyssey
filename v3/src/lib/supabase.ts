@@ -30,3 +30,17 @@ export function adminClient(env: Env): SupabaseClient {
     },
   });
 }
+
+/**
+ * Anon-keyed client. Used by the auth routes that hit signInWithPassword,
+ * refreshSession, resetPasswordForEmail, and updateUser — public Supabase
+ * Auth endpoints that should NOT use the service-role key.
+ */
+export function anonClient(env: Env): SupabaseClient {
+  return createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
