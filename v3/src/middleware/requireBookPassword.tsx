@@ -22,9 +22,10 @@ const DEMO_DOMAINS = ['your-childs-name.com', 'your-family-photo-album.com'];
 
 export const requireBookPassword: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
   const family = c.var.family;
-  if (!family) {
-    return c.html('<h1>404 — Book not found</h1>', 404);
-  }
+  // No family → not this middleware's problem. Let the route handler decide
+  // (e.g. for "/", the handler proxies the marketing landing page; for
+  // "/book/:slug" with an unknown slug it returns its own 404).
+  if (!family) return next();
 
   // 1. No password configured → wide open
   if (!family.book_password) {

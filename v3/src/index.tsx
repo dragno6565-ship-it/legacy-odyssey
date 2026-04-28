@@ -31,10 +31,12 @@ import { PasswordGate } from './views/PasswordGate';
 import { BookLayout } from './views/book/BookLayout';
 import authApi from './routes/api/auth';
 import booksApi from './routes/api/books';
+import { contactRouter, waitlistRouter } from './routes/api/contact';
 import domainsApi from './routes/api/domains';
 import familiesApi from './routes/api/families';
 import stripeApi from './routes/api/stripe';
 import uploadApi from './routes/api/upload';
+import marketingApi from './routes/marketing';
 import webhooksApi from './routes/webhooks';
 import type { Family } from './lib/types';
 
@@ -74,9 +76,16 @@ app.route('/', webhooksApi);
 // any customer domain.
 app.route('/api/auth', authApi);
 app.route('/api/books', booksApi);
+app.route('/api/contact', contactRouter);
 app.route('/api/domains', domainsApi);
 app.route('/api/families', familiesApi);
 app.route('/api/stripe', stripeApi);
+app.route('/api/waitlist', waitlistRouter);
+
+// Marketing pages — proxied from production until we port to native JSX.
+// Mounted BEFORE resolveFamily because they don't need Host-header → family
+// resolution. The proxy cache key is the path, not the Host header.
+app.route('/', marketingApi);
 // upload mounts at /api so its inner POST /upload + DELETE /photos/:path
 // resolve to /api/upload and /api/photos/:path — matches the Express layout.
 app.route('/api', uploadApi);
@@ -108,12 +117,24 @@ app.get('/health', (c) => {
   });
 });
 
-// Root path — password gate (via middleware) → real book viewer.
-// Marketing-site routes (no family resolved) ported in Phase 3.
+// Root path — three behaviors decided by Host:
+//   1. Family resolves     → password gate → BookLayout (Phase 1)
+//   2. workers.dev / unknown host → proxy production landing page (Phase 5)
+//   3. Marketing-site Host (legacyodyssey.com) → same proxy
 app.get('/', requireBookPassword, async (c) => {
   const family = c.var.family;
   if (!family) {
-    return c.html(marketingPlaceholder(c.req.header('host') || 'unknown'));
+    // Proxy the production landing page — same trick as /css/marketing.css
+    // and /js/book.js. Cached at the Cloudflare edge for 5 minutes.
+    const upstream = await fetch('https://legacyodyssey.com/', {
+      cf: { cacheTtl: 300, cacheEverything: true } as any,
+    });
+    const headers = new Headers();
+    const ct = upstream.headers.get('content-type');
+    if (ct) headers.set('content-type', ct);
+    headers.set('cache-control', 'public, max-age=300');
+    headers.set('x-v3-marketing-proxy', 'legacyodyssey.com');
+    return new Response(upstream.body, { status: upstream.status, headers });
   }
 
   const supabase = adminClient(c.env);
