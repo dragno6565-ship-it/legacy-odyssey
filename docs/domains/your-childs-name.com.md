@@ -19,23 +19,25 @@ This is one of TWO marketing demo domains; the sibling is `your-family-photo-alb
 - `ads/app_comparison.py`, `ads/generate_ads_v3.py`, `ads/generate_ads_v4.py` — ad copy generation references
 - `HANDOFF.md` — historical doc references
 
-## Current configuration (as of Apr 28 2026)
+## Current configuration (as of Apr 28 2026 evening)
 - **Registrar:** Spaceship (auto-renew ON)
 - **DNS authority:** Spaceship nameservers (launch1/2.spaceship.net)
-- **Currently serving from:** Railway → Express (DEMO_SITES middleware)
-- **Currently in Railway custom domains list:** `www.your-childs-name.com` (apex not registered)
-- **Spaceship hosting status:** Plan attached, custom website folder created Apr 28, **richer 386 KB index.html already uploaded to Spaceship** (more polished than local 42 KB version)
+- **Currently serving from:** **Spaceship Web Hosting** (LiteSpeed at 66.29.148.24)
+- **DNS records:**
+  - A `@` → 66.29.148.24 (locked product group)
+  - A `ftp`, `webdisk` → 66.29.148.24 (Spaceship infrastructure)
+  - CNAME `www` → `your-childs-name.com`
+  - TXT `@` (SPF), TXT `tbolt` (Spaceship verification)
+- **Railway custom domain:** REMOVED 2026-04-28 (was `www.your-childs-name.com`)
+- **Spaceship hosting:** custom website folder + 386 KB demo HTML serving as `index.html`
 
-## Migration in progress (Apr 28 2026)
-Moving FROM Railway/Express TO Spaceship Web Hosting (Essential plan). Reason: free a Railway custom-domain slot, simplify static-file serving.
-
-Steps remaining:
-1. ✅ Spaceship hosting plan exists (purchased earlier, attached to your-childs-name.com)
+## Migration COMPLETE (Apr 28 2026)
+1. ✅ Spaceship hosting plan attached
 2. ✅ Custom website folder created
-3. ✅ index.html exists (386 KB, dated Apr 15 2026 — uploaded directly to cPanel)
-4. ⏳ Switch DNS so requests go to Spaceship hosting (not Railway/Express)
-5. ⏳ Verify site serves correctly via Spaceship
-6. ⏳ Remove `www.your-childs-name.com` from Railway custom domains
+3. ✅ 386 KB index.html in place (uploaded earlier to cPanel)
+4. ✅ DNS auto-flipped to Spaceship hosting IP (66.29.148.24) when domain attached
+5. ✅ Verified: `Server: LiteSpeed`, title "Your Child's Name — A Legacy Odyssey Baby Book"
+6. ✅ Removed `www.your-childs-name.com` from Railway custom domains list
 
 ## Two versions of the demo HTML
 
