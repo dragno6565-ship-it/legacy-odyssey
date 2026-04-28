@@ -1,0 +1,19 @@
+name = "legacy-odyssey-v3"
+main = "src/index.ts"
+compatibility_date = "2026-04-28"
+compatibility_flags = ["nodejs_compat"]
+
+# Workers.dev subdomain (auto-issued by Cloudflare) for the dev URL.
+# Production cutover happens later by attaching custom domains under [routes].
+workers_dev = true
+
+# Observability — surface uncaught errors and console.log to the dashboard.
+[observability]
+enabled = true
+
+# Environment variables that aren't secrets (committable).
+# Real secrets (Stripe key, Supabase service role, etc.) get set via:
+#   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+[vars]
+APP_DOMAIN = "legacyodyssey.com"
+NODE_ENV = "development"

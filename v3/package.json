@@ -1,0 +1,22 @@
+{
+  "name": "legacy-odyssey-v3",
+  "version": "0.0.1",
+  "description": "Legacy Odyssey v3 — Cloudflare Workers + Hono rewrite",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240903.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.78.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
