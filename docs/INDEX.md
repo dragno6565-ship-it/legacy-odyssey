@@ -79,7 +79,8 @@ When you create/touch any entity not yet listed: write its file from the standar
 
 ## Active projects
 
-- [projects/v3-workers-rewrite.md](projects/v3-workers-rewrite.md) — Cloudflare Workers + Hono rewrite. 4-6 weeks. Replaces Approximated + Railway custom-domain layer. **Approved by user Apr 28 2026.**
+- [projects/v3-workers-rewrite.md](projects/v3-workers-rewrite.md) — Cloudflare Workers + Hono rewrite. 4-6 weeks. Replaces Approximated + Railway custom-domain layer. **Approved by user Apr 28 2026.** Phases 1–5 substantially complete.
+- [projects/v3-cutover-checklist.md](projects/v3-cutover-checklist.md) — Step-by-step operational guide for the actual mobile/webhook/DNS flips. Independent + reversible per step.
 
 ---
 
@@ -90,6 +91,7 @@ When you create/touch any entity not yet listed: write its file from the standar
 - "demo site" → both `domains/your-childs-name.com.md` and `domains/your-family-photo-album.com.md`
 - "the cap" or "Railway domain limit" → `infrastructure/railway.md`
 - "v3" or "the rewrite" → `projects/v3-workers-rewrite.md`
+- "cutover", "flip", "DNS day" → `projects/v3-cutover-checklist.md`
 - "the new TLS thing" → `infrastructure/approximated.md`
 - Any registrar question → `infrastructure/spaceship-registrar.md`
 - Any hosting-on-Spaceship question → `infrastructure/spaceship-hosting.md` (DIFFERENT product from registrar)
