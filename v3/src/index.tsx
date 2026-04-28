@@ -20,10 +20,14 @@
  * See docs/projects/v3-workers-rewrite.md for the full plan.
  */
 import { Hono } from 'hono';
+import { setCookie } from 'hono/cookie';
 import { adminClient, type Env } from './lib/supabase';
 import { computeSiteLabel } from './lib/siteLabel';
+import { hashPassword } from './lib/passwordHash';
 import { resolveFamily } from './middleware/resolveFamily';
+import { requireBookPassword } from './middleware/requireBookPassword';
 import { PasswordGate } from './views/PasswordGate';
+import type { Family } from './lib/types';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -54,25 +58,67 @@ app.get('/health', (c) => {
   });
 });
 
-// Root path — password gate, marketing placeholder, or (eventually) book viewer.
-app.get('/', async (c) => {
+// Root path — password gate (via middleware) → book viewer placeholder for now.
+// Marketing-site routes (no family resolved) ported in Phase 3.
+app.get('/', requireBookPassword, async (c) => {
   const family = c.var.family;
-
   if (!family) {
-    // Marketing site path — a real port comes in Phase 3. For now, a
-    // recognizable placeholder so we know the routing works.
     return c.html(marketingPlaceholder(c.req.header('host') || 'unknown'));
   }
+  // Past the password gate — Phase 1 next step ports the real book viewer
+  // (months, family, recipes, etc.). Placeholder until then.
+  return c.html(bookPlaceholder(family.custom_domain || family.subdomain || 'Book'));
+});
 
-  // No password set → continue to book (Phase 1 next step). For now, placeholder.
-  if (!family.book_password) {
-    return c.html(bookPlaceholder(family.custom_domain || family.subdomain || 'Book'));
+// POST /verify-password — set the HMAC cookie and redirect to /
+// Direct port of the route in src/routes/book.js. Falls back to slug-from-form
+// lookup so the password gate works on any domain (including Railway URLs).
+app.post('/verify-password', async (c) => {
+  const supabase = adminClient(c.env);
+  const form = await c.req.parseBody();
+  const password = String(form.password || '');
+  const slug = String(form.slug || '');
+
+  // Try the resolveFamily-set family first; fall back to slug lookup.
+  let family: Family | null = c.var.family;
+  if (!family && slug) {
+    const { data } = await supabase
+      .from('families')
+      .select('*')
+      .eq('subdomain', slug)
+      .eq('is_active', true)
+      .maybeSingle();
+    family = (data as Family | null) ?? null;
   }
 
-  // Password set → render the gate.
-  const supabase = adminClient(c.env);
+  if (!family) {
+    return c.html('<h1>404 — Book not found</h1>', 404);
+  }
+
+  if (
+    password &&
+    family.book_password &&
+    password.toLowerCase() === family.book_password.toLowerCase()
+  ) {
+    const hash = await hashPassword(family.book_password, family.id, c.env.SESSION_SECRET);
+    setCookie(c, `book_${family.id}`, hash, {
+      httpOnly: true,
+      secure: c.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60, // 30 days, in seconds
+      sameSite: 'Lax',
+      path: '/',
+    });
+    // Redirect to /book/:slug so it works on any domain (including Railway URL)
+    const target = slug || family.subdomain || '';
+    return c.redirect(target ? `/book/${target}` : '/');
+  }
+
+  // Wrong password — re-render the gate with error
   const siteLabel = await computeSiteLabel(supabase, family);
-  return c.html(<PasswordGate siteLabel={siteLabel} subdomain={family.subdomain} error={false} />);
+  return c.html(
+    <PasswordGate siteLabel={siteLabel} subdomain={family.subdomain} error={true} />,
+    401
+  );
 });
 
 // 404 catch-all so we know what's not ported yet.
