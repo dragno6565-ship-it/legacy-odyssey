@@ -21,9 +21,9 @@ NOT a paying customer. The "Your Family" record in the families table is a place
 - **Registrar:** Spaceship (auto-renew ON)
 - **Renewal:** Feb 22, 2027
 - **DNS authority:** Spaceship nameservers
-- **Currently serving from:** Railway → Express (DEMO_SITES middleware), apex hostname returns 404 because Railway apex not registered
-- **In Railway custom domains list:** `www.your-family-photo-album.com` (apex is NOT registered — this is why apex 404s)
-- **Approximated vhost:** exists (id 1297384), keep_host=true, target=legacy-odyssey-production.up.railway.app
+- **Currently serving from:** Spaceship Web Hosting (66.29.148.24) — DNS migrated 2026-04-28 morning. Folder empty so default placeholder serves; user accepted demo can stay down.
+- **In Railway custom domains list:** REMOVED 2026-04-28 (was `www.your-family-photo-album.com`; apex was never there). Demo no longer routes through Railway/Express.
+- **Approximated vhost:** vhost still exists in Approximated dashboard but DNS no longer points there (DNS now points to Spaceship hosting IP)
 
 ## Migration plan (Apr 28 2026)
 Moving FROM Railway/Express TO Spaceship Web Hosting (same plan as your-childs-name.com). User said:

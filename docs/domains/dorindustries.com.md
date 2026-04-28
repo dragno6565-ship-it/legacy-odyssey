@@ -32,7 +32,7 @@ Used for: business credibility, corporate identity, app store developer-account 
 - **Hosting plan:** Web Hosting Essential ($3.88/mo billing) — shared with `your-childs-name.com` and (inactive) `your-family-photo-album.com`
 - **cPanel website folder:** `/home/wnuazicufx/dorindustries.com/`
 - **index.html:** ~10 KB, contents of `src/views/dorindustries.html` (gold/cream design, hero, About, Products, Contact, footer with privacy/terms links)
-- **In Railway custom domains list:** `www.dorindustries.com` — **NOW REDUNDANT, can be deleted**
+- **In Railway custom domains list:** REMOVED 2026-04-28 (was `www.dorindustries.com`, now redundant after Spaceship hosting migration)
 - **Approximated:** never used.
 
 ## What can be cleaned up

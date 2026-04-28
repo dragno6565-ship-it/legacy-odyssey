@@ -24,7 +24,7 @@ Customer-purchased domain for the user's niece (Kate). Hosts her digital baby bo
 - **Connections:** 0 (URL Redirect was removed Apr 27)
 - **TLS:** Approximated (Caddy On-Demand TLS, Let's Encrypt)
 - **Approximated vhost:** id 1297383 (re-created Apr 27), keep_host=true, target=legacy-odyssey-production.up.railway.app
-- **Railway custom domain entries:** `kateragno.com` (apex, just re-added Apr 28 — Waiting for DNS update) and `www.kateragno.com`
+- **Railway custom domain entries:** REMOVED 2026-04-28 (apex + www both deleted to free slots while v3 is being built; user confirmed niece's site safe to be temporarily down). **Site currently 404s.** Re-add to Railway when niece's family is ready to start filling in the book.
 
 ## History
 - 2026-03-29 — Domain registered via Stripe checkout flow ($29 first year via founder modal)
@@ -35,6 +35,7 @@ Customer-purchased domain for the user's niece (Kate). Hosts her digital baby bo
 - 2026-04-28 — Apex 404'd through Railway (stuck "Waiting for DNS update" state)
 - 2026-04-28 — Deleted `kateragno.com` apex from Railway then re-added; status reset
 - 2026-04-28 — User confirmed: "we can safely remove kateragno.com... for now" — acceptable for site to be temporarily down while v3 is being built; not a high-traffic site
+- 2026-04-28 — Both `kateragno.com` (apex) and `www.kateragno.com` removed from Railway custom domain list to free 2 slots. Site now returns 404 from Railway edge. Approximated vhost still active. Spaceship DNS still pointing at Approximated cluster IP. Easy to restore: re-add to Railway, traffic resumes.
 
 ## Related
 - `customers/kate-ragno-niece.md` — family record details

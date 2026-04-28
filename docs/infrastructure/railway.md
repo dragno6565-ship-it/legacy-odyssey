@@ -26,14 +26,18 @@ Railway Pro — hosts the production Express server (Node 20). Auto-deploys from
 - **Region:** US-West (California)
 - **Dashboard:** https://railway.com/project/27622203-293e-4720-b019-9efe8eadfdf4
 
-## Custom-domain entries (19 of 20 used as of 2026-04-28 — see ./railway-custom-domains.md for live list)
+## Custom-domain entries (15 of 20 used as of 2026-04-28 evening — 5 free slots)
 - `legacyodyssey.com` (Cloudflare-fronted) — marketing site
 - `*.legacyodyssey.com` (Cloudflare-fronted) — wildcard for subdomain books
-- 7 customer apex (Kate, Roy, Eowyn, Emma, Reese, Lachlan, Jeff)
-- 8 customer www (the 7 above + your-family-photo-album.com)
-- `www.dorindustries.com` — corporate landing
-- `www.your-childs-name.com` — marketing demo site
-- 1 free slot
+- 6 paying-customer apex (Roy, Eowyn, Emma, Reese, Lachlan, Jeff)
+- 6 paying-customer www (same 6)
+- `www.your-childs-name.com` — marketing demo site (DNS still points at Railway/Approximated; not yet flipped to Spaceship)
+
+**Removed 2026-04-28** (frees 4 slots):
+- `www.dorindustries.com` — moved to Spaceship Web Hosting
+- `www.your-family-photo-album.com` — moved to Spaceship Web Hosting (folder empty, demo can stay down)
+- `kateragno.com` (apex) — niece's site, safe to be temporarily down
+- `www.kateragno.com` — niece's site, safe to be temporarily down
 
 Critical: Railway's edge **gates traffic by Host header**. Any Host not in this list returns 404 "Application not found" before Express even runs.
 
