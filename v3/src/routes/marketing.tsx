@@ -35,6 +35,9 @@ import { StripeSuccess } from '../views/marketing/StripeSuccess';
 import { SetPassword } from '../views/marketing/SetPassword';
 import { Redeem } from '../views/marketing/Redeem';
 import { Gift } from '../views/marketing/Gift';
+import { GiftSuccess } from '../views/marketing/GiftSuccess';
+import { AdditionalSiteSuccess } from '../views/marketing/AdditionalSiteSuccess';
+import { createGiftCode, findByCode } from '../lib/giftService';
 
 // Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
 //
@@ -91,14 +94,12 @@ marketing.get('/sitemap.xml', (c) => proxyMarketing(c.env, '/sitemap.xml'));
 // Marketing pages. Each maps to the same path on production.
 // Native ports below replace specific entries from this list.
 const MARKETING_PAGES = [
-  '/gift/success',
   '/signup',
   '/privacy',
   '/terms',
   '/blog',
   '/blog/getting-started-with-legacy-odyssey',
   '/blog/what-to-write-in-baby-book',
-  '/additional-site/success',
 ];
 for (const path of MARKETING_PAGES) {
   marketing.get(path, (c) => proxyMarketing(c.env, path));
@@ -127,6 +128,70 @@ marketing.get('/redeem', (c) => c.html(<Redeem code={c.req.query('code')} />));
  * (Phase 3). On success the API returns a Stripe Checkout URL; client navigates.
  */
 marketing.get('/gift', (c) => c.html(<Gift />));
+
+/**
+ * GET /gift/success — buyer confirmation after a gift Checkout completes.
+ * Race-tolerant with the webhook: if gift_codes row hasn't been written
+ * yet, we create it inline so the buyer never sees missing data.
+ */
+marketing.get('/gift/success', async (c) => {
+  const sessionId = c.req.query('session_id');
+  if (!sessionId) return c.redirect('/gift');
+
+  let stripe;
+  try {
+    stripe = stripeClient(c.env);
+  } catch {
+    return c.redirect('/gift');
+  }
+
+  let session;
+  try {
+    session = await stripe.checkout.sessions.retrieve(sessionId);
+  } catch {
+    return c.redirect('/gift');
+  }
+  if (session.payment_status !== 'paid') return c.redirect('/gift');
+
+  const supabase = adminClient(c.env);
+  const appDomain = c.env.APP_DOMAIN || 'legacyodyssey.com';
+  const md = (session.metadata || {}) as Record<string, string>;
+
+  // Find the gift code created by the webhook…
+  const { data: existing } = await supabase
+    .from('gift_codes')
+    .select('*')
+    .eq('stripe_session_id', sessionId)
+    .maybeSingle();
+
+  let gift = existing as any;
+  if (!gift) {
+    // …or create it on the fly if the webhook is slow.
+    gift = await createGiftCode(supabase, {
+      buyerEmail: session.customer_email || (session.customer_details as any)?.email || '',
+      buyerName: md.buyer_name || null,
+      recipientName: md.recipient_name || null,
+      recipientEmail: md.recipient_email || null,
+      recipientMessage: md.gift_message || null,
+      stripeSessionId: session.id,
+    });
+  }
+
+  return c.html(
+    <GiftSuccess
+      giftCode={gift.code}
+      redeemUrl={`https://${appDomain}/redeem?code=${gift.code}`}
+      buyerEmail={gift.buyer_email}
+    />
+  );
+});
+
+/**
+ * GET /additional-site/success — pure-static landing after add-a-website
+ * Checkout completes. The webhook does the family + book + domain order
+ * provisioning; the page just tells the customer to refresh their app.
+ */
+marketing.get('/additional-site/success', (c) => c.html(<AdditionalSiteSuccess />));
 
 /**
  * GET /stripe/success — native port of stripe-success page from Express.

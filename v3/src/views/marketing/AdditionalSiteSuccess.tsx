@@ -1,0 +1,51 @@
+/**
+ * /additional-site/success — landed on after a customer adds another website
+ * (purchase of an additional .com via the mobile NewWebsiteScreen flow).
+ * Direct port of additional-site-success.ejs.
+ *
+ * Pure static — no server-side variables. Just a "we're setting it up,
+ * pull-to-refresh in the app" confirmation.
+ */
+import type { FC } from 'hono/jsx';
+
+const PAGE_STYLE = `
+  .success-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--cream); padding: 2rem; }
+  .success-card { max-width: 500px; background: white; border-radius: 16px; padding: 3rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .success-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .success-card h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--ink); margin-bottom: 0.5rem; }
+  .success-card p { color: var(--ink-mid); line-height: 1.7; margin-bottom: 1.5rem; }
+  .success-card .btn-primary { display: inline-block; padding: 14px 32px; text-decoration: none; }
+  .setup-note { font-size: 0.85rem; color: var(--ink-light); background: var(--cream); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+`;
+
+export const AdditionalSiteSuccess: FC = () => (
+  <html lang="en">
+    <head>
+      <meta charSet="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1" />
+      <title>Site Created — Legacy Odyssey</title>
+      <link rel="stylesheet" href="/css/marketing.css" />
+      <style>{PAGE_STYLE}</style>
+    </head>
+    <body>
+      <div class="success-page">
+        <div class="success-card">
+          <div class="success-icon">🎉</div>
+          <h1>Your New Site Is Being Set Up!</h1>
+          <p>
+            Your additional Legacy Odyssey site is being created. This usually takes just a minute
+            or two.
+          </p>
+          <div class="setup-note">
+            Open the Legacy Odyssey app and pull down to refresh. Your new site will appear in the
+            site switcher.
+          </div>
+          <a href="/" class="btn-primary">
+            Back to Legacy Odyssey
+          </a>
+        </div>
+      </div>
+    </body>
+  </html>
+);
