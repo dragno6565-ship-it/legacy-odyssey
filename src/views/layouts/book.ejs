@@ -9,6 +9,8 @@
   <title><%= book.child_first_name %><%= book.child_middle_name ? ' ' + book.child_middle_name : '' %> <%= book.child_last_name %> — A Legacy Odyssey</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/book.css">
+  <!-- Lucide line-art icons (replaces emoji in sidebar nav per v1.0.7 brand-consistency pass) -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
   <script>
@@ -368,5 +370,10 @@
   <% } %>
 
   <script src="/js/book.js"></script>
+  <!-- Render Lucide icons placed by sidebar.ejs / book sections -->
+  <script>
+    if (window.lucide) lucide.createIcons();
+    else window.addEventListener('load', () => window.lucide && lucide.createIcons());
+  </script>
 </body>
 </html>

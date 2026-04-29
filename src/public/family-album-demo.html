@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Lucide line-art icons (replaces emoji in sidebar per v1.0.7 brand pass) -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <style>
 :root {
   --cream: #F8F2E6;
@@ -254,7 +256,9 @@ h1, h2, h3, h4, h5 {
   padding: 1rem 1.25rem 0.4rem;
 }
 .nav-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   padding: 0.55rem 1.25rem;
   color: var(--cream);
   text-decoration: none;
@@ -271,6 +275,20 @@ h1, h2, h3, h4, h5 {
   background: rgba(184,147,90,0.15);
   color: var(--gold);
   border-left-color: var(--gold);
+}
+/* Lucide icons inside sidebar nav (replaces emoji per v1.0.7 brand pass) */
+.nav-item svg,
+.nav-item i[data-lucide] {
+  width: 16px;
+  height: 16px;
+  stroke: var(--gold);
+  stroke-width: 1.5;
+  fill: none;
+  flex-shrink: 0;
+}
+.nav-item.active svg,
+.nav-item.active i[data-lucide] {
+  stroke: var(--gold-light);
 }
 .sidebar-footer {
   margin-top: auto;
@@ -936,21 +954,21 @@ h1, h2, h3, h4, h5 {
     </div>
 
     <div class="nav-group-label">The Album</div>
-    <a class="nav-item active" data-page="page-welcome">&#127775; Welcome</a>
-    <a class="nav-item" data-page="page-our-story">&#128145; Our Story</a>
-    <a class="nav-item" data-page="page-roots">&#127758; Where We Come From</a>
-    <a class="nav-item" data-page="page-home">&#127969; Our Home</a>
-    <a class="nav-item" data-page="page-years">&#128197; Year by Year</a>
+    <a class="nav-item active" data-page="page-welcome"><i data-lucide="sparkles"></i> Welcome</a>
+    <a class="nav-item" data-page="page-our-story"><i data-lucide="heart"></i> Our Story</a>
+    <a class="nav-item" data-page="page-roots"><i data-lucide="globe"></i> Where We Come From</a>
+    <a class="nav-item" data-page="page-home"><i data-lucide="home"></i> Our Home</a>
+    <a class="nav-item" data-page="page-years"><i data-lucide="calendar"></i> Year by Year</a>
 
     <div class="nav-group-label">Family &amp; Moments</div>
-    <a class="nav-item" data-page="page-family">&#128104;&#8205;&#128105;&#8205;&#128103;&#8205;&#128102; The Family</a>
-    <a class="nav-item" data-page="page-adventures">&#9992;&#65039; Adventures</a>
-    <a class="nav-item" data-page="page-traditions">&#127881; Traditions</a>
-    <a class="nav-item" data-page="page-letters">&#128140; Letters</a>
-    <a class="nav-item" data-page="page-recipes">&#127858; Family Recipes</a>
+    <a class="nav-item" data-page="page-family"><i data-lucide="users"></i> The Family</a>
+    <a class="nav-item" data-page="page-adventures"><i data-lucide="map-pin"></i> Adventures</a>
+    <a class="nav-item" data-page="page-traditions"><i data-lucide="gift"></i> Traditions</a>
+    <a class="nav-item" data-page="page-letters"><i data-lucide="mail"></i> Letters</a>
+    <a class="nav-item" data-page="page-recipes"><i data-lucide="utensils-crossed"></i> Family Recipes</a>
 
     <div class="nav-group-label">The Vault</div>
-    <a class="nav-item" data-page="page-vault">&#128274; Time Capsule</a>
+    <a class="nav-item" data-page="page-vault"><i data-lucide="lock"></i> Time Capsule</a>
 
     <div class="sidebar-footer">
       <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;margin-bottom:0.6rem;">You're viewing a demo.<br>Create your own family book.</p>
@@ -1619,6 +1637,11 @@ document.addEventListener('keydown', function(e){
     closeMobileNav();
   }
 });
+</script>
+<!-- Render Lucide icons placed in sidebar nav -->
+<script>
+  if (window.lucide) lucide.createIcons();
+  else window.addEventListener('load', () => window.lucide && lucide.createIcons());
 </script>
 </body>
 </html>

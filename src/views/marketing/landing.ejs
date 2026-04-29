@@ -41,6 +41,8 @@
   </script>
 
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Lucide line-art icons (replaces emoji in feature section per v1.0.7 brand pass) -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <link rel="stylesheet" href="/css/marketing.css">
   <style>
     .waitlist-section { margin: 2rem 0; max-width: 520px; }
@@ -220,32 +222,32 @@
     </p>
     <div class="features-grid">
       <div class="feature-card fade-up">
-        <div class="feature-icon gold">&#127760;</div>
+        <div class="feature-icon gold"><i data-lucide="globe"></i></div>
         <h3>Your Own Exclusive Domain</h3>
         <p>Every site lives at its own .com — see our demo at <a href="https://www.your-childs-name.com" target="_blank"><strong>Your-Childs-Name.com</strong></a>. Once a domain is yours, nobody else can have it.</p>
       </div>
       <div class="feature-card fade-up">
-        <div class="feature-icon sage">&#128248;</div>
+        <div class="feature-icon sage"><i data-lucide="camera"></i></div>
         <h3>Unlimited Photos</h3>
         <p>Upload your favorite photos — first steps, family vacations, holiday gatherings, and everything in between. No storage limits.</p>
       </div>
       <div class="feature-card fade-up">
-        <div class="feature-icon rose">&#128118;</div>
+        <div class="feature-icon rose"><i data-lucide="calendar"></i></div>
         <h3>Month-by-Month Milestones</h3>
         <p>Track milestones month by month, record firsts, and celebrate every stage of your child's first years with beautiful page layouts designed for the journey.</p>
       </div>
       <div class="feature-card fade-up">
-        <div class="feature-icon blush">&#9993;</div>
+        <div class="feature-icon blush"><i data-lucide="mail"></i></div>
         <h3>Letters &amp; Messages</h3>
         <p>Write letters to your child, or invite grandparents, aunts, and uncles to contribute. The most treasured pages of any baby book.</p>
       </div>
       <div class="feature-card fade-up">
-        <div class="feature-icon blue">&#128218;</div>
+        <div class="feature-icon blue"><i data-lucide="utensils-crossed"></i></div>
         <h3>Family Recipes &amp; Stories</h3>
         <p>Preserve birth stories, family recipes, and the everyday moments that matter most — all in one beautiful book.</p>
       </div>
       <div class="feature-card fade-up">
-        <div class="feature-icon ink">&#128274;</div>
+        <div class="feature-icon ink"><i data-lucide="lock"></i></div>
         <h3>Password Protected</h3>
         <p>Keep your family's memories private. Share the password only with the people you choose — and reveal the site whenever you're ready.</p>
       </div>
@@ -946,6 +948,12 @@
     document.getElementById('founderCheckoutBtn')?.addEventListener('click', function() {
       openFounderModal();
     });
+  </script>
+
+  <!-- Render Lucide icons placed in the features section -->
+  <script>
+    if (window.lucide) lucide.createIcons();
+    else window.addEventListener('load', () => window.lucide && lucide.createIcons());
   </script>
 
 </body>

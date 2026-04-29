@@ -122,6 +122,28 @@ body {
   width: 20px;
   text-align: center;
   opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Lucide line-art icons inside sidebar nav (replaces emoji per v1.0.7 brand pass).
+   Lucide injects an <svg> in place of <i data-lucide="..."> on lucide.createIcons(). */
+.nav-icon svg,
+.nav-icon i[data-lucide] {
+  width: 16px;
+  height: 16px;
+  stroke: var(--gold, #c8a96e);
+  stroke-width: 1.5;
+  fill: none;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.nav-item.active .nav-icon svg,
+.nav-item.active .nav-icon i[data-lucide] {
+  stroke: #e8d4a0;
 }
 
 .nav-label {

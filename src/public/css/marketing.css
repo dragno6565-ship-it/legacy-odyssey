@@ -352,6 +352,18 @@ h1, h2, h3, h4, h5 {
 .feature-icon.blush { background: rgba(237, 217, 208, 0.4); }
 .feature-icon.ink { background: rgba(30, 24, 18, 0.08); }
 
+/* Lucide line-art icons inside the colored feature bubbles
+   (replaces emoji per v1.0.7 brand-consistency pass).
+   The bubble keeps its tinted-pill background; the icon strokes in brand gold. */
+.feature-icon svg,
+.feature-icon i[data-lucide] {
+  width: 28px;
+  height: 28px;
+  stroke: #c8a96e;
+  stroke-width: 1.5;
+  fill: none;
+}
+
 .feature-card h3 {
   font-size: 1.3rem;
   margin-bottom: 0.6rem;

@@ -19,18 +19,18 @@
   <div class="sidebar-nav">
     <div class="nav-section-label">The Book</div>
     <a class="nav-item active" onclick="showPage('welcome')">
-      <span class="nav-icon">&#127775;</span>
+      <span class="nav-icon"><i data-lucide="sparkles"></i></span>
       <span class="nav-label">Welcome</span>
     </a>
     <% if (visibleSections.before) { %>
     <a class="nav-item" onclick="showPage('before')">
-      <span class="nav-icon">&#129328;</span>
+      <span class="nav-icon"><i data-lucide="heart"></i></span>
       <span class="nav-label">Before You Arrived</span>
     </a>
     <% } %>
     <% if (visibleSections.birth) { %>
     <a class="nav-item" onclick="showPage('birth')">
-      <span class="nav-icon">&#127800;</span>
+      <span class="nav-icon"><i data-lucide="book-open"></i></span>
       <span class="nav-label">Birth Story</span>
     </a>
     <% } %>
@@ -38,44 +38,44 @@
     <% if (isFree) { %>
     <!-- Locked sections shown in sidebar for free users -->
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Coming Home</span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Month by Month</span>
     </a>
     <div class="nav-section-label">Family &amp; Memories</div>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Our Family</span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Your Firsts</span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Celebrations</span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Letters To You</span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Family Recipes</span>
     </a>
     <% } else { %>
     <% if (visibleSections.home) { %>
     <a class="nav-item" onclick="showPage('home')">
-      <span class="nav-icon">&#127968;</span>
+      <span class="nav-icon"><i data-lucide="home"></i></span>
       <span class="nav-label">Coming Home</span>
     </a>
     <% } %>
     <% if (visibleSections.months) { %>
     <a class="nav-item" onclick="showPage('months')">
-      <span class="nav-icon">&#128197;</span>
+      <span class="nav-icon"><i data-lucide="calendar"></i></span>
       <span class="nav-label">Month by Month</span>
     </a>
     <% } %>
@@ -84,38 +84,38 @@
     <% } %>
     <% if (visibleSections.family) { %>
     <a class="nav-item" onclick="showPage('family')">
-      <span class="nav-icon">&#128106;</span>
+      <span class="nav-icon"><i data-lucide="users"></i></span>
       <span class="nav-label">Our Family</span>
     </a>
     <% } %>
     <% if (visibleSections.firsts) { %>
     <a class="nav-item" onclick="showPage('firsts')">
-      <span class="nav-icon">&#11088;</span>
+      <span class="nav-icon"><i data-lucide="star"></i></span>
       <span class="nav-label">Your Firsts</span>
     </a>
     <% } %>
     <% if (visibleSections.holidays) { %>
     <a class="nav-item" onclick="showPage('holidays')">
-      <span class="nav-icon">&#127881;</span>
+      <span class="nav-icon"><i data-lucide="gift"></i></span>
       <span class="nav-label">Celebrations</span>
     </a>
     <% } %>
     <% if (visibleSections.letters) { %>
     <a class="nav-item" onclick="showPage('letters')">
-      <span class="nav-icon">&#128140;</span>
+      <span class="nav-icon"><i data-lucide="mail"></i></span>
       <span class="nav-label">Letters To You</span>
     </a>
     <% } %>
     <% if (visibleSections.recipes) { %>
     <a class="nav-item" onclick="showPage('recipes')">
-      <span class="nav-icon">&#127858;</span>
+      <span class="nav-icon"><i data-lucide="utensils-crossed"></i></span>
       <span class="nav-label">Family Recipes</span>
     </a>
     <% } %>
     <% if (visibleSections.vault) { %>
     <div class="nav-section-label">The Vault</div>
     <a class="nav-item locked" onclick="showPage('vault')">
-      <span class="nav-icon">&#128274;</span>
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
       <span class="nav-label">Locked Until 18</span>
     </a>
     <% } %>
