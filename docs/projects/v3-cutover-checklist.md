@@ -8,6 +8,83 @@
 
 ---
 
+## Recommended sequence (Claude, late evening Apr 28)
+
+Each step is independently reversible. Order is **lowest-risk first**, with
+the longest-latency step (mobile store review) started early so it can
+overlap.
+
+### Day 0 (tonight / tomorrow) — validate, don't flip
+
+```bash
+bash v3/scripts/smoke-test.sh   # baseline 43/43
+curl https://legacy-odyssey-v3.legacyodysseyapp.workers.dev/v3-status | jq
+```
+
+**Canary** — point ONE demo domain you don't care about at v3 first. In
+Cloudflare Workers dashboard → `legacy-odyssey-v3` → Custom Domains, add
+`your-childs-name.com`. Visit it. Confirm marketing landing renders +
+`/book/<slug>` renders + Stripe portal works if you log in via mobile.
+If anything's wrong: remove the custom domain entry → back to the start.
+
+### Day 1 — Stripe webhook dual-fire
+
+Lowest-risk real flip. Both endpoints process events idempotently — Express
++ v3 in parallel breaks nothing.
+
+1. Stripe dashboard → Developers → Webhooks → **Add endpoint** (don't
+   replace): `https://legacy-odyssey-v3.legacyodysseyapp.workers.dev/stripe/webhook`
+2. Subscribe to the same 5 event types Express has.
+3. Stripe generates a new signing secret. EITHER sync it to v3 via
+   `wrangler secret put STRIPE_WEBHOOK_SECRET`, OR set the new endpoint to
+   use the existing webhook secret manually.
+4. Watch `npx wrangler tail --config v3/wrangler.toml` for `[webhook]`
+   lines on real customer events. Compare per-endpoint delivery counts
+   on the Stripe dashboard.
+5. If wrong: disable the v3 endpoint in Stripe. Express continues.
+
+### Day 2-3 — Mobile BASE_URL
+
+Only NEW installs are affected. Existing installs keep using Express until
+they update. Store review takes 24-48h so start the clock early.
+
+1. Edit `mobile/src/api/client.js`:
+   `'https://legacyodyssey.com'` → `'https://legacy-odyssey-v3.legacyodysseyapp.workers.dev'`
+2. Bump `mobile/app.json` version + `android.versionCode` (`ios.buildNumber`
+   is auto-managed via `appVersionSource: "remote"`).
+3. EAS build + submit to both stores.
+4. While stores review, watch `wrangler tail` — fresh paid signups should
+   show up in v3 logs.
+
+### Day 7-10 — DNS for `legacyodyssey.com`
+
+Highest visible impact, but easily reversible (DNS propagation <1min).
+Do this only after both prior steps are quiet for 7 days.
+
+1. **Triple-check proxy upstream** is Railway, not legacyodyssey.com — see
+   "Common pitfalls" #2 below. If wrong: self-proxy loop on cutover.
+2. Cloudflare Workers dashboard → `legacy-odyssey-v3` → Custom Domains
+   → add both `legacyodyssey.com` and `www.legacyodyssey.com`. Cloudflare
+   auto-issues certs.
+3. `curl -sI https://legacyodyssey.com/` → expect `x-v3-marketing-proxy`
+   header confirming Worker handled it.
+4. If wrong: remove the two custom-domain entries. DNS reverts.
+
+### Day 30 — clean up
+
+After 30 quiet days with no rollbacks:
+1. Disable the Express webhook endpoint in Stripe (keep entry, just disable —
+   30-day emergency rollback option).
+2. Delete the zombie Railway service (`legacy-odyssey-production-a9d1.up.railway.app`).
+3. Cancel the Cloudflare for SaaS subscription (~$7/mo savings — no longer
+   used; customer domains run through Approximated).
+4. Optional Phase 6 cleanup: native-port `/`, `/privacy`, `/terms`, `/blog/*`,
+   `/account/*`, `/admin/*` to fully remove the Express dependency. Until
+   then, the proxy in `routes/marketing.tsx` keeps Express alive as the
+   marketing-page upstream.
+
+---
+
 ## What "cutover" means here
 
 Three independent surfaces can be moved from Express → v3 separately:

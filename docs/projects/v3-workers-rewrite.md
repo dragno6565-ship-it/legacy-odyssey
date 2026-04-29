@@ -1,9 +1,43 @@
 # Project: v3 — Cloudflare Workers + Hono Rewrite
 
-**Status:** Phases 1–3 substantially complete (Apr 28 2026). Mobile API + Stripe + Webhooks + Resend all operational.
+**Status:** Phases 1–6 substantially complete (Apr 28 2026 late evening).
 **Goal:** replace the entire Express-on-Railway custom-domain layer with Cloudflare Workers + Hono, eliminating Approximated subscription and the Railway 20-domain cap permanently.
-**Estimated effort:** 4-6 weeks of focused engineering
+**Estimated effort:** 4-6 weeks of focused engineering — actual: ~one long day to feature-complete.
 **Last touched:** 2026-04-28
+**Last commit on `v3-workers`:** `46c5c3df` (native /signup port)
+**Live URL:** https://legacy-odyssey-v3.legacyodysseyapp.workers.dev
+**Smoke test:** `bash v3/scripts/smoke-test.sh` → 43/43 passing
+**Status dashboard:** https://legacy-odyssey-v3.legacyodysseyapp.workers.dev/v3-status
+
+## End-of-session snapshot (Apr 28 late evening)
+
+What's running on Workers right now:
+- **Phase 1:** book viewer (full sidebar + 11 sections + book.js cross-loaded via same-origin proxy)
+- **Phase 2:** entire mobile API surface (auth, books, families, upload, domains/search, stripe portal/additional-site)
+- **Phase 3:** Stripe webhook (every event type, signature-verified via Web Crypto), 4 marketing-site Stripe checkouts (create-checkout / founder / gift / redeem-gift), Resend transactional emails (welcome / cancel / reactivate / gift purchase / gift recipient — minimal templates, content-correct)
+- **Phase 4:** domain registration via Cron Trigger (state-machine on `domain_orders.status`, advances 1 step per minute)
+- **Phase 5:** marketing-page proxy bridge to Railway upstream + `/api/contact` + `/api/waitlist`
+- **Phase 6:** 7 native marketing page ports replacing proxy entries — `/stripe/success`, `/set-password`, `/redeem`, `/gift`, `/gift/success`, `/additional-site/success`, `/signup`
+
+Still proxied (deferred to Phase 7 polish — proxy works fine):
+- `/` (973-line landing — biggest remaining single port; do in fresh session)
+- `/privacy`, `/terms` (legal text, low traffic)
+- `/blog`, `/blog/*` (content, low traffic)
+- `/account`, `/account/*` (web mirror of mobile editor — low value)
+- `/admin`, `/admin/*` (operator-only)
+
+Worker secrets all set (9): SESSION_SECRET (synced to Railway value for cookie cross-compat), SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY, SPACESHIP_API_KEY, SPACESHIP_API_SECRET, SPACESHIP_CONTACT_ID, APPROXIMATED_API_KEY. Plus all public Stripe price IDs + Approximated cluster config in [vars].
+
+**Cutover sequence to follow:** see `docs/projects/v3-cutover-checklist.md` "Recommended sequence" section. TL;DR — Day 0 canary on a demo domain → Day 1 dual-fire Stripe webhook → Day 2-3 mobile BASE_URL → Day 7-10 DNS for legacyodyssey.com → Day 30 clean up Express + zombie Railway + Cloudflare for SaaS.
+
+**Key gotchas captured (don't re-discover):**
+1. Hono JSX silently drops `dangerouslySetInnerHTML` on `<script>` tags. Use `<script>{raw(text)}</script>` from `hono/html`.
+2. Cross-origin `<script src="https://legacyodyssey.com/js/book.js">` from the workers.dev hostname fails in browsers despite valid headers. Same-origin proxy at `/js/book.js` and `/css/book.css` is the fix.
+3. JSX in `.ts` files won't compile under wrangler — must be `.tsx`.
+4. SESSION_SECRET on v3 must match Railway's value or every existing customer's book-password cookie invalidates at cutover. Verify via `/v3-status` shows prefix=legacy, len=35.
+5. The marketing proxy upstream is `legacy-odyssey-production.up.railway.app` (NOT `legacyodyssey.com`). At DNS cutover, legacyodyssey.com points at the Worker — a self-proxy upstream would loop.
+6. Cron interval is 1 minute. A new paid customer with a custom .com reaches `domain_orders.status=active` in 2-4 cron ticks (~2-4 min).
+7. Stripe webhook double-billing risk during dual-fire — make sure each endpoint shows separate event delivery counts in the Stripe dashboard, not duplicates.
 
 ## Phase 2 — DONE (mobile API)
 
