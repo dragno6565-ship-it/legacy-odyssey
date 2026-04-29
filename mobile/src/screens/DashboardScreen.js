@@ -15,23 +15,41 @@ import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+// Lucide line-art icons replace emoji (v1.0.7 brand-consistency pass).
+// Each section's `icon` field is now a React component reference rendered
+// at size=22, color=#c8a96e, strokeWidth=1.5 — see card render below.
+import {
+  Sparkles,
+  Heart,
+  BookOpen,
+  Home,
+  Calendar,
+  Users,
+  Star,
+  Gift,
+  Mail,
+  UtensilsCrossed,
+  Lock,
+  Globe,
+  Settings as SettingsIcon,
+} from 'lucide-react-native';
 
 const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'manageSections', 'settings']);
 
 const SECTIONS = [
-  { key: 'childInfo', title: 'Welcome / Child Info', icon: '\u{1F476}', screen: 'ChildInfo' },
-  { key: 'before', title: 'Before You Arrived', icon: '\u{1F31F}', screen: 'BeforeArrived' },
-  { key: 'birth', title: 'Birth Story', icon: '\u{1F382}', screen: 'BirthStory' },
-  { key: 'comingHome', title: 'Coming Home', icon: '\u{1F3E0}', screen: 'ComingHome' },
-  { key: 'months', title: 'Month by Month', icon: '\u{1F4C5}', screen: 'Months' },
-  { key: 'family', title: 'Our Family', icon: '\u{1F46A}', screen: 'OurFamily' },
-  { key: 'firsts', title: 'Your Firsts', icon: '\u{2B50}', screen: 'YourFirsts' },
-  { key: 'celebrations', title: 'Celebrations', icon: '\u{1F389}', screen: 'Celebrations' },
-  { key: 'letters', title: 'Letters to You', icon: '\u{1F48C}', screen: 'Letters' },
-  { key: 'recipes', title: 'Family Recipes', icon: '\u{1F373}', screen: 'FamilyRecipes' },
-  { key: 'vault', title: 'The Vault', icon: '\u{1F512}', screen: 'TheVault' },
-  { key: 'manageSections', title: 'Website Sections', icon: '\u{1F310}', screen: 'ManageSections' },
-  { key: 'settings', title: 'Settings', icon: '\u{2699}\u{FE0F}', screen: 'Settings' },
+  { key: 'childInfo',      title: 'Welcome / Child Info', icon: Sparkles,        screen: 'ChildInfo' },
+  { key: 'before',         title: 'Before You Arrived',   icon: Heart,           screen: 'BeforeArrived' },
+  { key: 'birth',          title: 'Birth Story',          icon: BookOpen,        screen: 'BirthStory' },
+  { key: 'comingHome',     title: 'Coming Home',          icon: Home,            screen: 'ComingHome' },
+  { key: 'months',         title: 'Month by Month',       icon: Calendar,        screen: 'Months' },
+  { key: 'family',         title: 'Our Family',           icon: Users,           screen: 'OurFamily' },
+  { key: 'firsts',         title: 'Your Firsts',          icon: Star,            screen: 'YourFirsts' },
+  { key: 'celebrations',   title: 'Celebrations',         icon: Gift,            screen: 'Celebrations' },
+  { key: 'letters',        title: 'Letters to You',       icon: Mail,            screen: 'Letters' },
+  { key: 'recipes',        title: 'Family Recipes',       icon: UtensilsCrossed, screen: 'FamilyRecipes' },
+  { key: 'vault',          title: 'The Vault',            icon: Lock,            screen: 'TheVault' },
+  { key: 'manageSections', title: 'Website Sections',     icon: Globe,           screen: 'ManageSections' },
+  { key: 'settings',       title: 'Settings',             icon: SettingsIcon,    screen: 'Settings' },
 ];
 
 export default function DashboardScreen({ navigation }) {
@@ -139,7 +157,11 @@ export default function DashboardScreen({ navigation }) {
           }
         }}
       >
-        <Text style={styles.cardIcon}>{isLocked ? '🔒' : item.icon}</Text>
+        <View style={styles.cardIcon}>
+          {isLocked
+            ? <Lock size={22} color="#c8a96e" strokeWidth={1.5} />
+            : <item.icon size={22} color="#c8a96e" strokeWidth={1.5} />}
+        </View>
         <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{item.title}</Text>
         <Text style={[styles.cardAction, isLocked && styles.cardActionLocked]}>
           {isLocked ? 'Upgrade' : 'Edit'}
@@ -420,8 +442,13 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   cardIcon: {
-    fontSize: 36,
+    // Lucide line-art icon container (v1.0.7 — was a 36pt emoji <Text>).
+    // SVG is 22x22 brand-gold; container provides bottom margin to mirror
+    // the original visual cadence inside the dashboard cards.
+    height: 22,
     marginBottom: spacing.sm,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   cardTitle: {
     fontFamily: typography.fontFamily.serif,

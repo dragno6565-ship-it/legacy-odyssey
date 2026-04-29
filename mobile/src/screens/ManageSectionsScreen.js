@@ -11,18 +11,31 @@ import {
 } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { get, put } from '../api/client';
+// Lucide line-art icons (v1.0.7 brand-consistency pass — replaces emoji).
+import {
+  Heart,
+  BookOpen,
+  Home,
+  Calendar,
+  Users,
+  Star,
+  Gift,
+  Mail,
+  UtensilsCrossed,
+  Lock,
+} from 'lucide-react-native';
 
 const SECTION_TOGGLES = [
-  { key: 'before', label: 'Before You Arrived', icon: '\u{1F31F}' },
-  { key: 'birth', label: 'Birth Story', icon: '\u{1F338}' },
-  { key: 'home', label: 'Coming Home', icon: '\u{1F3E0}' },
-  { key: 'months', label: 'Month by Month', icon: '\u{1F4C5}' },
-  { key: 'family', label: 'Our Family', icon: '\u{1F46A}' },
-  { key: 'firsts', label: 'Your Firsts', icon: '\u{2B50}' },
-  { key: 'holidays', label: 'Celebrations', icon: '\u{1F389}' },
-  { key: 'letters', label: 'Letters to You', icon: '\u{1F48C}' },
-  { key: 'recipes', label: 'Family Recipes', icon: '\u{1F373}' },
-  { key: 'vault', label: 'The Vault', icon: '\u{1F512}' },
+  { key: 'before',   label: 'Before You Arrived', icon: Heart },
+  { key: 'birth',    label: 'Birth Story',         icon: BookOpen },
+  { key: 'home',     label: 'Coming Home',         icon: Home },
+  { key: 'months',   label: 'Month by Month',      icon: Calendar },
+  { key: 'family',   label: 'Our Family',          icon: Users },
+  { key: 'firsts',   label: 'Your Firsts',         icon: Star },
+  { key: 'holidays', label: 'Celebrations',        icon: Gift },
+  { key: 'letters',  label: 'Letters to You',      icon: Mail },
+  { key: 'recipes',  label: 'Family Recipes',      icon: UtensilsCrossed },
+  { key: 'vault',    label: 'The Vault',           icon: Lock },
 ];
 
 export default function ManageSectionsScreen() {
@@ -100,7 +113,9 @@ export default function ManageSectionsScreen() {
         {SECTION_TOGGLES.map((item) => (
           <View key={item.key} style={styles.sectionRow}>
             <View style={styles.sectionInfo}>
-              <Text style={styles.sectionIcon}>{item.icon}</Text>
+              <View style={styles.sectionIcon}>
+                <item.icon size={22} color="#c8a96e" strokeWidth={1.5} />
+              </View>
               <Text style={styles.sectionLabel}>{item.label}</Text>
             </View>
             <View style={styles.sectionControl}>
@@ -188,10 +203,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sectionIcon: {
-    fontSize: 22,
-    marginRight: spacing.md,
+    // v1.0.7 — Lucide SVG container (was a 22pt emoji <Text>).
     width: 30,
-    textAlign: 'center',
+    marginRight: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sectionLabel: {
     fontSize: typography.sizes.md,
