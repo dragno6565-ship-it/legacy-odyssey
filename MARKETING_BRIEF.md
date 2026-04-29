@@ -205,7 +205,6 @@ What the product can actually do — useful when writing benefit-driven copy:
 | `https://legacyodyssey.com/blog/what-to-write-in-baby-book` | SEO post |
 | `https://legacyodyssey.com/blog/getting-started-with-legacy-odyssey` | SEO post |
 | `https://your-childs-name.com` | Public demo of an empty fresh book |
-| `https://your-family-photo-album.com` | Public demo of a populated book |
 | `https://apps.apple.com/app/id6760883565` | iOS App Store listing |
 | `https://play.google.com/store/apps/details?id=com.legacyodyssey.app` | Android Play Store listing |
 
