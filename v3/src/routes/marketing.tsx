@@ -34,6 +34,7 @@ import { findBySubdomain, findByStripeCustomerId } from '../lib/familyService';
 import { StripeSuccess } from '../views/marketing/StripeSuccess';
 import { SetPassword } from '../views/marketing/SetPassword';
 import { Redeem } from '../views/marketing/Redeem';
+import { Gift } from '../views/marketing/Gift';
 
 // Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
 //
@@ -90,7 +91,6 @@ marketing.get('/sitemap.xml', (c) => proxyMarketing(c.env, '/sitemap.xml'));
 // Marketing pages. Each maps to the same path on production.
 // Native ports below replace specific entries from this list.
 const MARKETING_PAGES = [
-  '/gift',
   '/gift/success',
   '/signup',
   '/privacy',
@@ -121,6 +121,12 @@ marketing.get('/set-password', (c) =>
  * Form posts to /api/stripe/redeem-gift (Phase 3 — already on v3).
  */
 marketing.get('/redeem', (c) => c.html(<Redeem code={c.req.query('code')} />));
+
+/**
+ * GET /gift — gift purchase form. Form submits to /api/stripe/create-gift-checkout
+ * (Phase 3). On success the API returns a Stripe Checkout URL; client navigates.
+ */
+marketing.get('/gift', (c) => c.html(<Gift />));
 
 /**
  * GET /stripe/success — native port of stripe-success page from Express.

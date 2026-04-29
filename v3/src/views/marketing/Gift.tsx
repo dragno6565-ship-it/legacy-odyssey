@@ -1,0 +1,212 @@
+/**
+ * /gift — gift purchase form. Direct port of marketing/gift.ejs.
+ *
+ * Form posts to /api/stripe/create-gift-checkout (Phase 3 — already on v3).
+ * On success the server returns a Checkout Session URL; client redirects.
+ */
+import type { FC } from 'hono/jsx';
+import { raw } from 'hono/html';
+
+const PAGE_STYLE = `
+  .gift-page { padding-top: 100px; min-height: 100vh; }
+  .gift-container { max-width: 600px; margin: 0 auto; padding: 3rem 2rem 4rem; }
+  .gift-heading { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 400; color: var(--ink); text-align: center; line-height: 1.2; margin-bottom: 1rem; }
+  .gift-subtext { text-align: center; color: var(--ink-light); font-weight: 300; font-size: 1.1rem; max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.6; }
+  .gift-form { display: flex; flex-direction: column; gap: 1.25rem; }
+  .gift-form label { font-size: 0.85rem; font-weight: 500; color: var(--ink-mid); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 0.3rem; display: block; }
+  .gift-form input, .gift-form textarea { width: 100%; padding: 0.85rem 1rem; border: 1px solid rgba(184, 147, 90, 0.25); border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 1rem; background: var(--white); color: var(--ink); transition: border-color 0.2s ease; }
+  .gift-form input:focus, .gift-form textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184, 147, 90, 0.1); }
+  .gift-form textarea { resize: vertical; min-height: 100px; }
+  .gift-pricing { background: var(--cream); border-radius: 12px; padding: 1.5rem; margin-top: 0.5rem; }
+  .gift-price-line { display: flex; justify-content: space-between; padding: 0.4rem 0; color: var(--ink-mid); font-size: 0.95rem; }
+  .gift-price-total { display: flex; justify-content: space-between; padding-top: 0.75rem; margin-top: 0.5rem; border-top: 1px solid rgba(184, 147, 90, 0.2); font-weight: 600; font-size: 1.1rem; color: var(--ink); }
+  .gift-btn { display: block; width: 100%; padding: 1rem; margin-top: 0.5rem; background: var(--gold); color: var(--white); border: none; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 1.05rem; font-weight: 500; letter-spacing: 0.03em; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; }
+  .gift-btn:hover { background: var(--gold-dark); }
+  .gift-btn:active { transform: scale(0.98); }
+  .gift-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .gift-error { color: var(--rose); text-align: center; font-size: 0.9rem; margin-top: 0.5rem; display: none; }
+`;
+
+const ANALYTICS_HEAD = `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-LMJVX82M3Q');
+
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '839009299208301');
+  fbq('track', 'PageView');
+
+  !function(e){if(!window.pintrk){window.pintrk = function () {
+  window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+    n=window.pintrk;n.queue=[],n.version="3.0";var
+    t=document.createElement("script");t.async=!0,t.src=e;var
+    r=document.getElementsByTagName("script")[0];
+    r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+  pintrk('load', '2613467907928');
+  pintrk('page');
+`;
+
+const FORM_SCRIPT = `
+  document.getElementById('giftForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('giftBtn');
+    const errorEl = document.getElementById('giftError');
+    errorEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+    try {
+      const res = await fetch('/api/stripe/create-gift-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          buyerEmail: document.getElementById('buyerEmail').value,
+          buyerName: document.getElementById('buyerName').value,
+          recipientName: document.getElementById('recipientName').value,
+          recipientEmail: document.getElementById('recipientEmail').value,
+          giftMessage: document.getElementById('giftMessage').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+      if (data.url) window.location.href = data.url;
+      else throw new Error('No checkout session URL returned');
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Purchase Gift';
+    }
+  });
+`;
+
+export const Gift: FC = () => (
+  <html lang="en">
+    <head>
+      <meta charSet="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1" />
+      <title>Give the Gift of Legacy Odyssey</title>
+      <meta
+        name="description"
+        content="Gift a beautiful digital baby book or family photo album to someone you love. One year subscription with custom domain included."
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+      />
+      <link rel="stylesheet" href="/css/marketing.css" />
+      <style>{PAGE_STYLE}</style>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+      <script>{raw(ANALYTICS_HEAD)}</script>
+    </head>
+    <body>
+      <nav class="marketing-nav">
+        <div class="nav-inner">
+          <a href="https://legacyodyssey.com" class="nav-logo">
+            Legacy <span>Odyssey</span>
+          </a>
+        </div>
+      </nav>
+
+      <main class="gift-page">
+        <div class="gift-container">
+          <h1 class="gift-heading">Give the Gift of Legacy Odyssey</h1>
+          <p class="gift-subtext">
+            Give someone special a beautiful digital baby book — a place to capture photos,
+            milestones, letters, and memories on their very own custom domain.
+          </p>
+
+          <form id="giftForm" class="gift-form">
+            <div>
+              <label for="buyerEmail">
+                Your Email <span style="color: var(--rose);">*</span>
+              </label>
+              <input type="email" id="buyerEmail" name="buyerEmail" required placeholder="you@example.com" />
+            </div>
+            <div>
+              <label for="buyerName">Your Name</label>
+              <input type="text" id="buyerName" name="buyerName" placeholder="Optional" />
+            </div>
+            <div>
+              <label for="recipientName">
+                Recipient's Name <span style="color: var(--rose);">*</span>
+              </label>
+              <input type="text" id="recipientName" name="recipientName" required placeholder="e.g. Sarah Smith" />
+            </div>
+            <div>
+              <label for="recipientEmail">Recipient Email</label>
+              <input
+                type="email"
+                id="recipientEmail"
+                name="recipientEmail"
+                placeholder="Optional — we'll email them the gift code"
+              />
+            </div>
+            <div>
+              <label for="giftMessage">Gift Message</label>
+              <textarea
+                id="giftMessage"
+                name="giftMessage"
+                placeholder="Write a personal note to include with the gift..."
+              ></textarea>
+            </div>
+
+            <div class="gift-pricing">
+              <div class="gift-price-line">
+                <span>One Year Subscription</span>
+                <span>$29</span>
+              </div>
+              <div class="gift-price-total">
+                <span>Total</span>
+                <span>$29</span>
+              </div>
+              <p style="font-size:0.85rem;color:#999;margin-top:0.5rem;text-align:center;">
+                No setup fee for annual gifts. Recipient can choose their domain when they redeem.
+              </p>
+              <p style="font-size:0.78rem;color:#999;margin-top:0.5rem;text-align:center;line-height:1.5;">
+                After the gift year, the recipient's subscription will automatically renew at the
+                standard price of <strong>$49.99/year</strong> unless they cancel from their
+                account before then.
+              </p>
+            </div>
+
+            <button type="submit" class="gift-btn" id="giftBtn">
+              Purchase Gift
+            </button>
+            <p class="gift-error" id="giftError"></p>
+          </form>
+        </div>
+      </main>
+
+      <footer class="marketing-footer">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            Legacy <span>Odyssey</span>
+          </div>
+          <ul class="footer-links">
+            <li>
+              <a href="https://legacyodyssey.com">Home</a>
+            </li>
+            <li>
+              <a href="/terms">Terms</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy</a>
+            </li>
+          </ul>
+          <div class="footer-copy">© 2026 Legacy Odyssey. All rights reserved.</div>
+        </div>
+      </footer>
+
+      <script>{raw(FORM_SCRIPT)}</script>
+    </body>
+  </html>
+);
