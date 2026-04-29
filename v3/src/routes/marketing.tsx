@@ -37,6 +37,7 @@ import { Redeem } from '../views/marketing/Redeem';
 import { Gift } from '../views/marketing/Gift';
 import { GiftSuccess } from '../views/marketing/GiftSuccess';
 import { AdditionalSiteSuccess } from '../views/marketing/AdditionalSiteSuccess';
+import { Signup } from '../views/marketing/Signup';
 import { createGiftCode, findByCode } from '../lib/giftService';
 
 // Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
@@ -94,7 +95,6 @@ marketing.get('/sitemap.xml', (c) => proxyMarketing(c.env, '/sitemap.xml'));
 // Marketing pages. Each maps to the same path on production.
 // Native ports below replace specific entries from this list.
 const MARKETING_PAGES = [
-  '/signup',
   '/privacy',
   '/terms',
   '/blog',
@@ -192,6 +192,12 @@ marketing.get('/gift/success', async (c) => {
  * provisioning; the page just tells the customer to refresh their app.
  */
 marketing.get('/additional-site/success', (c) => c.html(<AdditionalSiteSuccess />));
+
+/**
+ * GET /signup — free account signup. Form posts to /api/auth/signup,
+ * subdomain availability via /api/auth/check-subdomain. Both already on v3.
+ */
+marketing.get('/signup', (c) => c.html(<Signup />));
 
 /**
  * GET /stripe/success — native port of stripe-success page from Express.

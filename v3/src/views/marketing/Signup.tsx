@@ -1,0 +1,248 @@
+/**
+ * /signup — free account signup page. Direct port of marketing/signup.ejs.
+ *
+ * Self-contained inline CSS, no marketing.css dep. Form posts client-side
+ * to /api/auth/signup (Phase 2 — already on v3). Subdomain availability
+ * is debounced + checked via /api/auth/check-subdomain.
+ */
+import type { FC } from 'hono/jsx';
+import { raw } from 'hono/html';
+
+const PAGE_STYLE = `
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  .wrap { width: 100%; max-width: 460px; }
+  .logo { text-align: center; margin-bottom: 2rem; }
+  .logo a { text-decoration: none; }
+  .logo h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: #2c2416; letter-spacing: 0.04em; }
+  .logo p { font-size: 0.85rem; color: #8a7e6b; margin-top: 0.25rem; }
+  .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); padding: 2rem; }
+  .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 0.4rem; color: #2c2416; }
+  .card .subtitle { font-size: 0.85rem; color: #8a7e6b; margin-bottom: 1.75rem; }
+  .field { margin-bottom: 1.25rem; }
+  label { display: block; font-size: 0.85rem; font-weight: 500; color: #6b5f4f; margin-bottom: 0.4rem; }
+  input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416; background: #faf7f2; outline: none; transition: border-color 0.15s; }
+  input:focus { border-color: #c8a96e; }
+  input.input-error { border-color: #e0b4b4; }
+  input.input-ok { border-color: #7cb87c; }
+  .subdomain-wrap { position: relative; }
+  .subdomain-wrap input { padding-right: 190px; }
+  .subdomain-suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #8a7e6b; pointer-events: none; white-space: nowrap; }
+  .field-hint { font-size: 0.78rem; margin-top: 0.35rem; min-height: 18px; }
+  .hint-ok { color: #4a9a4a; }
+  .hint-error { color: #c0392b; }
+  .hint-checking { color: #b0a090; }
+  .error-banner { background: #fdf2f2; border: 1px solid #e0b4b4; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.88rem; color: #c0392b; margin-bottom: 1.25rem; display: none; }
+  .btn { width: 100%; padding: 0.85rem; background: #c8a96e; color: #fff; border: none; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .btn:hover { background: #b08e4a; }
+  .btn:disabled { background: #d4bb8a; cursor: not-allowed; }
+  .free-badge { display: inline-block; background: #f0e8dc; color: #8a6a35; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 20px; margin-bottom: 1rem; }
+  .success-card { display: none; text-align: center; padding: 1rem 0; }
+  .success-card .checkmark { font-size: 3rem; margin-bottom: 1rem; }
+  .success-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: #2c2416; margin-bottom: 0.5rem; }
+  .success-card p { font-size: 0.9rem; color: #6b5f4f; line-height: 1.6; margin-bottom: 1rem; }
+  .book-url { background: #f0e8dc; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; color: #2c2416; word-break: break-all; margin: 0.75rem 0 1.25rem; }
+  .book-url a { color: #c8a96e; text-decoration: none; font-weight: 600; }
+  .app-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
+  .app-btn { display: inline-block; background: #2c2416; color: #faf7f2; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+  .app-btn:hover { background: #1a1510; }
+  .footer-links { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #8a7e6b; }
+  .footer-links a { color: #c8a96e; text-decoration: none; }
+  .footer-links a:hover { text-decoration: underline; }
+`;
+
+const SIGNUP_SCRIPT = `
+  const APP_DOMAIN = 'legacyodyssey.com';
+  let subdomainAvailable = false;
+  let checkTimeout = null;
+
+  const subdomainInput = document.getElementById('subdomain');
+  const subdomainHint = document.getElementById('subdomainHint');
+
+  subdomainInput.addEventListener('input', function () {
+    const raw = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    if (this.value !== raw) this.value = raw;
+    clearTimeout(checkTimeout);
+    subdomainAvailable = false;
+    if (!raw || raw.length < 3) {
+      subdomainHint.className = 'field-hint hint-checking';
+      subdomainHint.textContent = raw.length > 0 ? 'Must be at least 3 characters' : '';
+      this.className = '';
+      return;
+    }
+    subdomainHint.className = 'field-hint hint-checking';
+    subdomainHint.textContent = 'Checking availability\\u2026';
+    this.className = '';
+    checkTimeout = setTimeout(async function () {
+      try {
+        const res = await fetch('/api/auth/check-subdomain?s=' + encodeURIComponent(raw));
+        const data = await res.json();
+        if (data.available) {
+          subdomainAvailable = true;
+          subdomainHint.className = 'field-hint hint-ok';
+          subdomainHint.textContent = '\\u2713 ' + raw + '.legacyodyssey.com is available';
+          subdomainInput.className = 'input-ok';
+        } else {
+          subdomainAvailable = false;
+          subdomainHint.className = 'field-hint hint-error';
+          subdomainHint.textContent = raw + '.legacyodyssey.com is already taken \\u2014 try another name';
+          subdomainInput.className = 'input-error';
+        }
+      } catch (e) {
+        subdomainHint.className = 'field-hint hint-checking';
+        subdomainHint.textContent = 'Could not check availability right now';
+      }
+    }, 500);
+  });
+
+  async function handleSignup() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const subdomain = document.getElementById('subdomain').value.trim();
+    const submitBtn = document.getElementById('submitBtn');
+    showError('');
+    if (!email || !password || !subdomain) { showError('Please fill in all fields.'); return; }
+    if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+    if (subdomain.length < 3) { showError('Book address must be at least 3 characters.'); return; }
+    if (!subdomainAvailable) { showError('Please choose an available book address before continuing.'); return; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating your account\\u2026';
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, subdomain }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || 'Something went wrong. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Free Account \\u2192';
+        return;
+      }
+      const bookUrl = 'https://' + APP_DOMAIN + '/book/' + subdomain;
+      document.getElementById('bookLink').href = bookUrl;
+      document.getElementById('bookLink').textContent = bookUrl;
+      document.getElementById('signupCard').style.display = 'none';
+      document.getElementById('successCard').style.display = 'block';
+    } catch (e) {
+      showError('Network error. Please check your connection and try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Free Account \\u2192';
+    }
+  }
+  window.handleSignup = handleSignup;
+
+  function showError(msg) {
+    const banner = document.getElementById('errorBanner');
+    banner.textContent = msg;
+    banner.style.display = msg ? 'block' : 'none';
+  }
+`;
+
+export const Signup: FC = () => (
+  <html lang="en">
+    <head>
+      <meta charSet="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Create Your Free Account – Legacy Odyssey</title>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+      />
+      <style>{PAGE_STYLE}</style>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+      <script>
+        {raw(`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-LMJVX82M3Q');`)}
+      </script>
+    </head>
+    <body>
+      <div class="wrap">
+        <div class="logo">
+          <a href="/">
+            <h1>✦ Legacy Odyssey</h1>
+            <p>Your family's story, beautifully preserved.</p>
+          </a>
+        </div>
+
+        <div class="card" id="signupCard">
+          <div class="free-badge">FREE — NO CREDIT CARD REQUIRED</div>
+          <h2>Create your free account</h2>
+          <p class="subtitle">
+            Get started with Welcome, Before You Arrived, and Birth Story. Upgrade anytime to
+            unlock all sections and your own .com domain.
+          </p>
+
+          <div class="error-banner" id="errorBanner"></div>
+
+          <div class="field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" autocomplete="email" required placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" autocomplete="new-password" required placeholder="At least 6 characters" />
+          </div>
+          <div class="field">
+            <label for="subdomain">Your book's web address</label>
+            <div class="subdomain-wrap">
+              <input type="text" id="subdomain" autocomplete="off" placeholder="smithfamily" maxlength="40" />
+              <span class="subdomain-suffix">.legacyodyssey.com</span>
+            </div>
+            <div class="field-hint" id="subdomainHint"></div>
+          </div>
+
+          <button class="btn" id="submitBtn" onclick="handleSignup()">
+            Create Free Account →
+          </button>
+        </div>
+
+        <div class="card success-card" id="successCard">
+          <div class="checkmark">🎉</div>
+          <h2>Your book is ready!</h2>
+          <p>
+            Account created. Download the Legacy Odyssey app and sign in with your email and
+            password to start filling in your family's story.
+          </p>
+          <div class="book-url">
+            Your book address: <a id="bookLink" href="#" target="_blank"></a>
+          </div>
+          <div class="app-btns">
+            <a href="https://apps.apple.com/app/legacy-odyssey/id6760883565" target="_blank" class="app-btn">
+              📱 App Store
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.legacyodyssey.app" target="_blank" class="app-btn">
+              🤖 Google Play
+            </a>
+          </div>
+          <div
+            class="upgrade-note"
+            style="background:#fdf8f0;border:1px solid #e8d5a8;border-radius:10px;padding:1.25rem;margin-top:1.5rem;text-align:center;"
+          >
+            <p style="font-size:0.88rem;color:#2c2416;font-weight:600;margin-bottom:0.4rem;">
+              Want your own <strong>.com domain</strong> and all sections unlocked?
+            </p>
+            <p style="font-size:0.82rem;color:#8a7e6b;margin-bottom:1rem;">
+              Introductory pricing — <strong style="color:#c8a96e;">$29 your first year</strong>,
+              then $49.99/year. Cancel anytime.
+            </p>
+            <a
+              href="/"
+              style="display:inline-block;background:#c8a96e;color:#fff;padding:0.75rem 1.5rem;border-radius:8px;font-weight:700;font-size:0.9rem;text-decoration:none;"
+            >
+              Get Started — $29/year →
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          Already have an account? <a href="/account">Sign in</a>
+          &nbsp;•&nbsp;
+          <a href="/">← Back to Legacy Odyssey</a>
+        </div>
+      </div>
+
+      <script>{raw(SIGNUP_SCRIPT)}</script>
+    </body>
+  </html>
+);
