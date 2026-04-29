@@ -93,6 +93,25 @@ webhooks.post('/stripe/webhook', async (c) => {
             console.error('[webhook] gift checkout: no buyer email on session', session.id);
             break;
           }
+
+          // IDEMPOTENCY GUARD (added Apr 29 2026, dual-fire safety):
+          // If a gift_codes row already exists for this stripe_session_id,
+          // Express already processed this event — no-op so we don't issue
+          // a second gift code or send a second buyer email.
+          const { data: existingGift } = await supabase
+            .from('gift_codes')
+            .select('id, code, buyer_email')
+            .eq('stripe_session_id', session.id)
+            .maybeSingle();
+          if (existingGift) {
+            console.log(
+              `[webhook] gift checkout ${session.id} already processed (code=${
+                (existingGift as any).code
+              }, buyer=${(existingGift as any).buyer_email}) — skipping (idempotency guard)`
+            );
+            break;
+          }
+
           const gift = await createGiftCode(supabase, {
             buyerEmail,
             buyerName: md.buyer_name || null,
@@ -144,6 +163,24 @@ webhooks.post('/stripe/webhook', async (c) => {
           const subdomain = md.subdomain;
           const domain = md.domain || null;
           const bookName = md.book_name || '';
+
+          // IDEMPOTENCY GUARD (added Apr 29 2026, dual-fire safety):
+          // If Express already processed this event, the family for this
+          // subdomain already exists. No-op so we don't violate the unique
+          // constraint or duplicate the linked_family_ids entry.
+          const { data: existingSubFamily } = await supabase
+            .from('families')
+            .select('id, subdomain')
+            .eq('subdomain', subdomain)
+            .maybeSingle();
+          if (existingSubFamily) {
+            console.log(
+              `[webhook] additional_site subdomain="${subdomain}" already exists (family ${
+                (existingSubFamily as any).id
+              }) — skipping (idempotency guard)`
+            );
+            break;
+          }
 
           const { data: authUser } = await supabase.auth.admin.getUserById(authUserId);
           const baseEmail = authUser?.user?.email || '';
@@ -302,8 +339,19 @@ async function handleCheckoutComplete(env: Env, session: Stripe.Checkout.Session
 
   const supabase = adminClient(env);
 
-  // Path 1: existing free or cancelled family → reinstate.
+  // IDEMPOTENCY GUARD (added Apr 29 2026, dual-fire safety):
+  // If a family already exists for this email AND it's already paid+active,
+  // Express's webhook already processed this checkout event. No-op so we
+  // don't try to create a duplicate auth user / family / book / domain
+  // order, and so we don't send a second welcome email.
   const existing = await findByEmail(supabase, email);
+  if (existing && existing.plan === 'paid' && existing.subscription_status !== 'canceled') {
+    console.log(
+      `[webhook] checkout ${session.id} for ${email} already processed (family ${existing.id} is paid+active) — skipping (idempotency guard)`
+    );
+    return;
+  }
+  // Path 1: existing free or cancelled family → reinstate.
   if (existing && (existing.plan !== 'paid' || existing.subscription_status === 'canceled')) {
     await updateFamily(supabase, existing.id, {
       stripe_customer_id: stripeCustomerId,
