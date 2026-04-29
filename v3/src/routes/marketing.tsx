@@ -33,6 +33,7 @@ import { adminClient } from '../lib/supabase';
 import { findBySubdomain, findByStripeCustomerId } from '../lib/familyService';
 import { StripeSuccess } from '../views/marketing/StripeSuccess';
 import { SetPassword } from '../views/marketing/SetPassword';
+import { Redeem } from '../views/marketing/Redeem';
 
 // Proxy upstream: target Railway DIRECTLY, not legacyodyssey.com.
 //
@@ -91,7 +92,6 @@ marketing.get('/sitemap.xml', (c) => proxyMarketing(c.env, '/sitemap.xml'));
 const MARKETING_PAGES = [
   '/gift',
   '/gift/success',
-  '/redeem',
   '/signup',
   '/privacy',
   '/terms',
@@ -114,6 +114,13 @@ for (const path of MARKETING_PAGES) {
 marketing.get('/set-password', (c) =>
   c.html(<SetPassword supabaseUrl={c.env.SUPABASE_URL} supabaseAnonKey={c.env.SUPABASE_ANON_KEY} />)
 );
+
+/**
+ * GET /redeem — gift redemption page.
+ * Query string: ?code=GIFT-XXXX-XXXX-XXXX (pre-fills the form)
+ * Form posts to /api/stripe/redeem-gift (Phase 3 — already on v3).
+ */
+marketing.get('/redeem', (c) => c.html(<Redeem code={c.req.query('code')} />));
 
 /**
  * GET /stripe/success — native port of stripe-success page from Express.
