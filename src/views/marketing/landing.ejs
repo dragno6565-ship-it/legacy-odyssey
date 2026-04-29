@@ -361,6 +361,16 @@
 
   <!-- ====== PRICING ====== -->
   <section class="pricing" id="pricing">
+    <style>
+      /* Mobile (cards stacked): DOM order = Introductory first, then Monthly, then Gift.
+         Desktop (cards side-by-side ≥760px): reorder so Introductory sits in the MIDDLE
+         to draw the eye to it as the recommended option. */
+      @media (min-width: 760px) {
+        .pricing-cards .pricing-card-standard { order: 1; }
+        .pricing-cards .pricing-card-intro    { order: 2; }
+        .pricing-cards .pricing-card-gift     { order: 3; }
+      }
+    </style>
     <h2 class="section-title">Invest in Memories That Last</h2>
     <p class="section-subtitle">
       Everything included. Three ways to start.
@@ -368,8 +378,8 @@
 
     <div class="pricing-cards" style="display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:flex-start;">
 
-      <!-- Annual Intro Card -->
-      <div class="pricing-card featured" style="flex:1;min-width:280px;max-width:360px;position:relative;">
+      <!-- Annual Intro Card (DOM order #1 → mobile shows it first; CSS bumps to middle on desktop) -->
+      <div class="pricing-card featured pricing-card-intro" style="flex:1;min-width:280px;max-width:360px;position:relative;">
         <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#B8935A;color:#1E1812;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;padding:4px 16px;border-radius:20px;white-space:nowrap;">
           INTRODUCTORY OFFER
         </div>
@@ -400,28 +410,14 @@
       </div>
 
       <!-- Standard Card -->
-      <div class="pricing-card" style="flex:1;min-width:280px;max-width:360px;">
-        <div class="pricing-name">Legacy Odyssey</div>
-
-        <!-- Billing toggle inside card -->
-        <div class="billing-toggle" style="margin:0.5rem 0 1rem;">
-          <span class="toggle-label active" id="monthlyLabel">Monthly</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="billingToggle">
-            <span class="toggle-slider"></span>
-          </label>
-          <span class="toggle-label" id="annualLabel">Annual</span>
-          <span class="toggle-save" style="display:block;margin:0.25rem 0 0;">Save 17% + No Setup Fee!</span>
-        </div>
+      <div class="pricing-card pricing-card-standard" style="flex:1;min-width:280px;max-width:360px;">
+        <div class="pricing-name">Legacy Odyssey <span style="color:#B8935A;">Monthly</span></div>
 
         <div class="pricing-price">
-          <span class="pricing-amount monthly-price">$4.99</span>
-          <span class="pricing-amount annual-price" style="display:none;">$4.17</span>
-          <span class="pricing-period monthly-period">/ month</span>
-          <span class="pricing-period annual-period" style="display:none;">/ month</span>
+          <span class="pricing-amount">$4.99</span>
+          <span class="pricing-period">/ month</span>
         </div>
         <p class="monthly-setup-note">+ $5.99 one-time setup fee</p>
-        <p class="annual-note annual-savings" style="display:none;">Billed at $49.99/year &mdash; <span class="no-setup-badge">NO SETUP FEE</span></p>
         <p class="pricing-desc">Full flexibility. Cancel anytime.</p>
         <ul class="pricing-features">
           <li>Your own custom .com domain</li>
@@ -441,7 +437,7 @@
       </div>
 
       <!-- Gift Card -->
-      <div class="pricing-card" style="flex:1;min-width:280px;max-width:360px;">
+      <div class="pricing-card pricing-card-gift" style="flex:1;min-width:280px;max-width:360px;">
         <div class="pricing-name">Legacy Odyssey <span style="color:#B8935A;">Gift</span></div>
         <div class="pricing-price" style="flex-wrap:wrap;gap:0.5rem;">
           <span class="pricing-amount">$29</span>
@@ -665,25 +661,8 @@
       link.addEventListener('click', () => navLinks.classList.remove('open'));
     });
 
-    // Billing toggle (monthly vs annual)
-    const toggle = document.getElementById('billingToggle');
-    const monthlyLabel = document.getElementById('monthlyLabel');
-    const annualLabel = document.getElementById('annualLabel');
-
-    toggle.addEventListener('change', () => {
-      const isAnnual = toggle.checked;
-      document.querySelectorAll('.monthly-price').forEach(el => el.style.display = isAnnual ? 'none' : '');
-      document.querySelectorAll('.annual-price').forEach(el => el.style.display = isAnnual ? '' : 'none');
-      document.querySelectorAll('.monthly-period').forEach(el => el.style.display = isAnnual ? 'none' : '');
-      document.querySelectorAll('.annual-period').forEach(el => el.style.display = isAnnual ? '' : 'none');
-      document.querySelectorAll('.annual-note').forEach(el => el.style.display = isAnnual ? '' : 'none');
-      document.querySelectorAll('.monthly-setup-note').forEach(el => el.style.display = isAnnual ? 'none' : '');
-      monthlyLabel.classList.toggle('active', !isAnnual);
-      annualLabel.classList.toggle('active', isAnnual);
-    });
-
-    // Set initial state
-    monthlyLabel.classList.add('active');
+    // (Billing toggle removed Apr 29 2026 — annual option now lives in the
+    // separate Introductory card. Standard card is monthly-only.)
   </script>
   <script src="/js/domain-search.js"></script>
   <script>
