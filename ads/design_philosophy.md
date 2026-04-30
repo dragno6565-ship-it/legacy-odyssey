@@ -1,0 +1,15 @@
+# Heirloom Modern
+
+## A Visual Philosophy
+
+*Heirloom Modern* is the design language of things meant to be kept. It treats the image as the first sentence and the page as a long exhale — composition built from restraint, from the confidence to leave a field of cream untouched because the one detail placed within it has been chosen with painstaking intention. This is the quiet authority of a hardbound monograph, a couture lookbook, a small letterpress card tucked inside a family Bible. Every measure of the composition is labored over as though the piece were destined to outlive its maker.
+
+The aesthetic lives on the thin edge between photographic warmth and editorial austerity. Portraits breathe in soft, natural light — ivory, honey, hearth — color temperatures drawn from candlelight and linen rather than screens. Around them, space is never decorative; space *is* the decoration. A single photograph is permitted the weight of the page. A single hairline rule does the work of a border. A single word, set large in a serif carved for the 18th century, carries the meaning that lesser work would spend a paragraph chasing. This is the product of master-level restraint, refined over countless passes.
+
+Typography is the quiet instrument. A high-contrast serif — generous in its counters, elegant in its italics — performs the headline as a gesture, not a shout; beneath it, a slender humanist sans breathes in small, wide-tracked capitals and light roman settings. Leading is measured with the patience of a binder. Text and image are never in competition; text is a whispered annotation at the margin of the photograph, as though added later by hand. No element is louder than it needs to be. No element is quieter than its role demands.
+
+Color obeys a single covenant: warm, aged, honest. Cream the color of unbleached paper, near-black the color of printer's ink cooled on a stone, and a single temperate gold — not the metallic gold of commerce but the patinated gold of a locket, a leaf edge, a wedding band worn smooth. Nothing saturated. Nothing bright. The palette refuses to compete with the human face, because the human face is always the subject. Every chromatic decision is calibrated with the attention of a conservator.
+
+Composition follows the grid of a magazine editor who trusts the reader. Wide asymmetric margins. A strong photographic anchor, cropped with editorial confidence. A delicate vertical rule, a small line of metadata, a mark set in the corner like a maker's stamp. Call-to-action appears not as a button shouting for a click, but as an engraved nameplate — a slim pill of gold, lettered in small caps with generous tracking, placed where the eye already wants to rest. The craftsmanship should feel ambient: you do not notice it, you feel held by it.
+
+This is work meant to look as though it took countless hours — because it did. The product of deep expertise, painstaking attention, master-level execution. When a viewer glances at it, they should not think *advertisement*. They should think *heirloom*.

@@ -28,6 +28,12 @@
     }
   },
   "submit": {
+    "internal": {
+      "android": {
+        "serviceAccountKeyPath": "C:/Users/dragn/Downloads/warm-practice-349716-6414eeb91dbe.json",
+        "track": "internal"
+      }
+    },
     "testflight": {
       "ios": {
         "appleId": "dragno6565@gmail.com",

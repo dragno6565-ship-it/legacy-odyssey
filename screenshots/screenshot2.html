@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1242px; height: 2688px; background: #faf7f2; font-family: Georgia, serif; }
+.screen { width: 1242px; height: 2688px; background: #faf7f2; padding: 120px 60px 60px; }
+.header { text-align: center; padding: 40px 0 60px; }
+.header h1 { font-size: 52px; color: #c8a96e; letter-spacing: 3px; margin-bottom: 12px; }
+.header p { font-size: 32px; color: #8a7e6b; font-family: system-ui, sans-serif; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding: 0 20px; }
+.section-card { background: #fff; border-radius: 24px; padding: 48px 32px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e0d5c4; }
+.section-card .emoji { font-size: 72px; margin-bottom: 20px; display: block; }
+.section-card .title { font-size: 30px; color: #2c2416; font-weight: 600; font-family: system-ui, sans-serif; }
+.section-card .subtitle { font-size: 22px; color: #8a7e6b; margin-top: 8px; font-family: system-ui, sans-serif; }
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e0d5c4; padding: 24px 80px; display: flex; justify-content: space-around; }
+.bottom-bar .tab { text-align: center; font-size: 22px; color: #8a7e6b; font-family: system-ui, sans-serif; }
+.bottom-bar .tab.active { color: #c8a96e; }
+.bottom-bar .tab .icon { font-size: 40px; display: block; margin-bottom: 4px; }
+</style></head><body>
+<div class="screen">
+  <div class="header">
+    <h1>✦ Legacy Odyssey</h1>
+    <p>Welcome back, Sarah!</p>
+  </div>
+  <div class="grid">
+    <div class="section-card">
+      <span class="emoji">👶</span>
+      <div class="title">Child Info</div>
+      <div class="subtitle">Name & details</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">🌟</span>
+      <div class="title">Before You Arrived</div>
+      <div class="subtitle">The journey</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">🎂</span>
+      <div class="title">Birth Story</div>
+      <div class="subtitle">The big day</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">🏠</span>
+      <div class="title">Coming Home</div>
+      <div class="subtitle">First days</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">📅</span>
+      <div class="title">Month by Month</div>
+      <div class="subtitle">Growth & milestones</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">👨‍👩‍👧‍👦</span>
+      <div class="title">Our Family</div>
+      <div class="subtitle">Family members</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">⭐</span>
+      <div class="title">Your Firsts</div>
+      <div class="subtitle">First words & steps</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">🎉</span>
+      <div class="title">Celebrations</div>
+      <div class="subtitle">Birthdays & holidays</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">💌</span>
+      <div class="title">Letters to You</div>
+      <div class="subtitle">Messages of love</div>
+    </div>
+    <div class="section-card">
+      <span class="emoji">🍳</span>
+      <div class="title">Family Recipes</div>
+      <div class="subtitle">Treasured dishes</div>
+    </div>
+  </div>
+</div>
+</body></html>

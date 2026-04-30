@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 512px;
+  height: 512px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  font-family: 'Georgia', serif;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-content {
+  text-align: center;
+}
+.icon-symbol {
+  font-size: 120px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+.icon-letter {
+  font-family: 'Georgia', serif;
+  font-size: 180px;
+  font-weight: 400;
+  font-style: italic;
+  color: #c8a96e;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(200,169,110,0.3);
+}
+.icon-underline {
+  width: 120px;
+  height: 3px;
+  background: #c8a96e;
+  margin: 10px auto 0;
+  opacity: 0.6;
+  border-radius: 2px;
+}
+</style>
+</head>
+<body>
+  <div class="icon-content">
+    <div class="icon-letter">L</div>
+    <div class="icon-underline"></div>
+  </div>
+</body>
+</html>

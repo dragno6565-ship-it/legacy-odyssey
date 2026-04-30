@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "seed": "node scripts/seed-demo.js"
+    "seed": "node scripts/seed-demo.js",
+    "deploy": "npx expo export -p web && wrangler deploy",
+    "preview": "npx expo export -p web && wrangler dev"
   },
   "keywords": [],
   "author": "Legacy Odyssey",
@@ -33,6 +35,7 @@
     "stripe": "^20.3.1"
   },
   "devDependencies": {
-    "pg": "^8.18.0"
+    "pg": "^8.18.0",
+    "wrangler": "^4.86.0"
   }
 }

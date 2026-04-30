@@ -10,3 +10,9 @@ nul
 save_html.py
 screen-reference.html
 reference/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
