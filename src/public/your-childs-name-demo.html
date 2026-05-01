@@ -146,7 +146,8 @@ h1, h2, h3, h4, h5 {
   color: var(--gold);
   border-left-color: var(--gold);
 }
-.nav-icon { font-size: 1rem; }
+.nav-icon { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; flex-shrink:0; }
+.nav-icon svg { width:16px; height:16px; stroke-width:1.5; }
 .sidebar-footer {
   margin-top: auto;
   padding: 1.25rem 1.25rem 0.5rem;
@@ -521,6 +522,7 @@ h1, h2, h3, h4, h5 {
   #demo-banner span { display: none; }
 }
 </style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
@@ -705,15 +707,15 @@ function dismissPopup() {
 
     <div style="padding: 0 0;">
       <div class="nav-section-label">The Book</div>
-      <a class="nav-item active" data-page="page-welcome"><span class="nav-icon">&#127775;</span> Welcome</a>
-      <a class="nav-item" data-page="page-before"><span class="nav-icon">&#129328;</span> Before You Arrived</a>
-      <a class="nav-item" data-page="page-birth"><span class="nav-icon">&#127800;</span> Birth Story</a>
-      <a class="nav-item" data-page="page-home"><span class="nav-icon">&#127968;</span> Coming Home</a>
-      <a class="nav-item" data-page="page-months"><span class="nav-icon">&#128197;</span> Month by Month</a>
+      <a class="nav-item active" data-page="page-welcome"><span class="nav-icon"><i data-lucide="sparkles"></i></span> Welcome</a>
+      <a class="nav-item" data-page="page-before"><span class="nav-icon"><i data-lucide="heart"></i></span> Before You Arrived</a>
+      <a class="nav-item" data-page="page-birth"><span class="nav-icon"><i data-lucide="book-open"></i></span> Birth Story</a>
+      <a class="nav-item" data-page="page-home"><span class="nav-icon"><i data-lucide="home"></i></span> Coming Home</a>
+      <a class="nav-item" data-page="page-months"><span class="nav-icon"><i data-lucide="calendar"></i></span> Month by Month</a>
       <div class="nav-section-label">Family &amp; Memories</div>
-      <a class="nav-item" data-page="page-firsts"><span class="nav-icon">&#11088;</span> Your Firsts</a>
-      <a class="nav-item" data-page="page-letters"><span class="nav-icon">&#128140;</span> Letters To You</a>
-      <a class="nav-item" data-page="page-recipes"><span class="nav-icon">&#127858;</span> Family Recipes</a>
+      <a class="nav-item" data-page="page-firsts"><span class="nav-icon"><i data-lucide="star"></i></span> Your Firsts</a>
+      <a class="nav-item" data-page="page-letters"><span class="nav-icon"><i data-lucide="mail"></i></span> Letters To You</a>
+      <a class="nav-item" data-page="page-recipes"><span class="nav-icon"><i data-lucide="utensils-crossed"></i></span> Family Recipes</a>
     </div>
 
     <div class="sidebar-footer">
@@ -1054,6 +1056,10 @@ function closeMobileNav(){
   sidebar.classList.remove('open');
   navOverlay.classList.remove('show');
 }
+
+// ── LUCIDE ICONS ──
+if (window.lucide) { lucide.createIcons(); }
+else { window.addEventListener('load', function(){ if(window.lucide) lucide.createIcons(); }); }
 </script>
 </body>
 </html>
