@@ -1,212 +1,65 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
+  Linking,
+  SafeAreaView,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
-import { useAuth } from './AuthContext';
 
 export default function SignupScreen({ navigation }) {
-  const { signup } = useAuth();
-  const [displayName, setDisplayName] = useState('');
-  const [subdomain, setSubdomain] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Auto-generate subdomain suggestion from display name
-  function handleDisplayNameChange(text) {
-    setDisplayName(text);
-    if (!subdomain || subdomain === generateSubdomain(displayName)) {
-      setSubdomain(generateSubdomain(text));
-    }
-  }
-
-  function generateSubdomain(name) {
-    return name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 30);
-  }
-
-  async function handleSignup() {
-    setError('');
-
-    if (!displayName.trim()) {
-      setError('Please enter your display name.');
-      return;
-    }
-    const cleanSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-    if (!cleanSubdomain || cleanSubdomain.length < 3) {
-      setError('Please enter a site name (at least 3 characters, letters and numbers only).');
-      return;
-    }
-    if (!email.trim()) {
-      setError('Please enter your email address.');
-      return;
-    }
-    if (!password) {
-      setError('Please enter a password.');
-      return;
-    }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signup(email.trim(), password, cleanSubdomain, displayName.trim());
-    } catch (err) {
-      setError(err.message || 'Signup failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  function handleGetStarted() {
+    Linking.openURL('https://legacyodyssey.com');
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header */}
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Create Your Account</Text>
-          <Text style={styles.headerSubtitle}>
-            Start preserving your family's legacy
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        {/* Branding */}
+        <View style={styles.brandingContainer}>
+          <Text style={styles.brandIcon}>📖</Text>
+          <Text style={styles.brandTitle}>Legacy Odyssey</Text>
+          <Text style={styles.brandSubtitle}>Your family's story, beautifully told</Text>
+        </View>
+
+        {/* Pitch */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Get Your Own Family Book</Text>
+          <Text style={styles.cardBody}>
+            Every Legacy Odyssey subscription includes your own personal{' '}
+            <Text style={styles.cardHighlight}>.com domain</Text> — so your family's
+            book lives at a real address like{' '}
+            <Text style={styles.cardHighlight}>your-childs-name.com</Text>.
+          </Text>
+          <Text style={styles.cardBody}>
+            Plans start at just <Text style={styles.cardHighlight}>$29 for your first year</Text>.
+            Sign up takes 2 minutes on our website.
           </Text>
         </View>
 
-        {/* Signup Form */}
-        <View style={styles.formCard}>
-          {error ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : null}
+        {/* CTA */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleGetStarted}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.buttonText}>Get Started at legacyodyssey.com</Text>
+        </TouchableOpacity>
 
-          <Text style={styles.label}>Display Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Your name or family name"
-            placeholderTextColor={colors.placeholder}
-            value={displayName}
-            onChangeText={handleDisplayNameChange}
-            autoCapitalize="words"
-            editable={!loading}
-          />
-
-          <Text style={styles.label}>Site Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. smithfamily"
-            placeholderTextColor={colors.placeholder}
-            value={subdomain}
-            onChangeText={(text) => setSubdomain(text.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!loading}
-          />
-          <Text style={styles.subdomainHint}>
-            Your book will be at {subdomain || 'yourname'}.legacyodyssey.com
-          </Text>
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="your@email.com"
-            placeholderTextColor={colors.placeholder}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!loading}
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="At least 6 characters"
-              placeholderTextColor={colors.placeholder}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.eyeIcon}>{showPassword ? 'Hide' : 'Show'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.label}>Confirm Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Re-enter your password"
-              placeholderTextColor={colors.placeholder}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.eyeIcon}>{showConfirmPassword ? 'Hide' : 'Show'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignup}
-            disabled={loading}
-            activeOpacity={0.8}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.white} />
-            ) : (
-              <Text style={styles.buttonText}>Create Account</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Sign In Link */}
+        {/* Already have account */}
         <TouchableOpacity
           style={styles.linkContainer}
           onPress={() => navigation.goBack()}
-          disabled={loading}
         >
           <Text style={styles.linkText}>
             Already have an account?{' '}
             <Text style={styles.linkBold}>Sign In</Text>
           </Text>
         </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -215,90 +68,57 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    flex: 1,
     justifyContent: 'center',
     padding: spacing.lg,
   },
-  headerContainer: {
+  brandingContainer: {
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  headerTitle: {
+  brandIcon: {
+    fontSize: 56,
+    marginBottom: spacing.sm,
+  },
+  brandTitle: {
     fontFamily: typography.fontFamily.serif,
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes.title,
     fontWeight: typography.weights.bold,
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
-  headerSubtitle: {
+  brandSubtitle: {
     fontFamily: typography.fontFamily.serif,
     fontSize: typography.sizes.md,
     color: colors.textSecondary,
     fontStyle: 'italic',
   },
-  formCard: {
+  card: {
     backgroundColor: colors.white,
     borderRadius: borderRadius.lg,
     padding: spacing.lg,
+    marginBottom: spacing.xl,
     ...shadows.card,
   },
-  errorContainer: {
-    backgroundColor: colors.errorLight,
-    borderRadius: borderRadius.sm,
-    padding: spacing.md,
+  cardTitle: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.textPrimary,
+    textAlign: 'center',
     marginBottom: spacing.md,
   },
-  errorText: {
-    color: colors.error,
-    fontSize: typography.sizes.sm,
+  cardBody: {
+    fontSize: typography.sizes.md,
+    color: colors.textSecondary,
+    lineHeight: 24,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
-  label: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-    marginTop: spacing.sm,
-  },
-  input: {
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    fontSize: typography.sizes.md,
-    color: colors.textPrimary,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: spacing.md,
-    fontSize: typography.sizes.md,
-    color: colors.textPrimary,
-  },
-  eyeButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    justifyContent: 'center',
-  },
-  eyeIcon: {
-    fontSize: typography.sizes.sm,
+  cardHighlight: {
     color: colors.gold,
     fontWeight: typography.weights.semibold,
-  },
-  subdomainHint: {
-    fontSize: typography.sizes.xs,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-    marginTop: spacing.xs,
   },
   button: {
     backgroundColor: colors.gold,
@@ -306,12 +126,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: spacing.lg,
-    minHeight: 50,
+    minHeight: 54,
     ...shadows.button,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
   },
   buttonText: {
     color: colors.white,
