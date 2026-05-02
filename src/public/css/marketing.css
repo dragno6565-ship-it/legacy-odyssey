@@ -38,14 +38,14 @@ h1, h2, h3, h4, h5 {
 
 .section-title {
   font-size: 2.5rem;
-  color: var(--ink);
+  color: #f0e8d8;
   text-align: center;
   margin-bottom: 0.5rem;
 }
 
 .section-subtitle {
   font-size: 1.1rem;
-  color: var(--ink-light);
+  color: #b8a898;
   text-align: center;
   max-width: 600px;
   margin: 0 auto 3rem;
@@ -141,7 +141,7 @@ h1, h2, h3, h4, h5 {
   display: block;
   width: 24px;
   height: 2px;
-  background: var(--ink);
+  background: #f0e8d8;
   transition: 0.3s;
 }
 
@@ -310,7 +310,7 @@ h1, h2, h3, h4, h5 {
 /* ===================== FEATURES ===================== */
 .features {
   padding: 6rem 2rem;
-  background: var(--white);
+  background: #161210;
 }
 
 .features-grid {
@@ -325,14 +325,14 @@ h1, h2, h3, h4, h5 {
   text-align: center;
   padding: 2.5rem 2rem;
   border-radius: 16px;
-  background: var(--ivory);
-  border: 1px solid rgba(184, 147, 90, 0.1);
+  background: rgba(255, 252, 245, 0.04);
+  border: 1px solid rgba(184, 147, 90, 0.15);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(30, 24, 18, 0.06);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
 .feature-icon {
@@ -368,19 +368,19 @@ h1, h2, h3, h4, h5 {
 .feature-card h3 {
   font-size: 1.3rem;
   margin-bottom: 0.6rem;
-  color: var(--ink);
+  color: #f0e8d8;
 }
 
 .feature-card p {
   font-size: 0.95rem;
-  color: var(--ink-light);
+  color: #9c8b78;
   line-height: 1.6;
 }
 
 /* ===================== HOW IT WORKS ===================== */
 .how-it-works {
   padding: 6rem 2rem;
-  background: var(--cream);
+  background: #1e1a14;
 }
 
 .steps {
@@ -430,12 +430,12 @@ h1, h2, h3, h4, h5 {
 .step-content h3 {
   font-size: 1.3rem;
   margin-bottom: 0.4rem;
-  color: var(--ink);
+  color: #f0e8d8;
 }
 
 .step-content p {
   font-size: 0.95rem;
-  color: var(--ink-light);
+  color: #9c8b78;
   line-height: 1.6;
 }
 
@@ -784,7 +784,7 @@ h1, h2, h3, h4, h5 {
 /* ===================== PRICING ===================== */
 .pricing {
   padding: 6rem 2rem;
-  background: var(--white);
+  background: #161210;
 }
 
 /* Billing toggle */
@@ -798,13 +798,13 @@ h1, h2, h3, h4, h5 {
 
 .toggle-label {
   font-size: 0.9rem;
-  color: var(--ink-light);
+  color: #9c8b78;
   font-weight: 400;
   transition: color 0.2s;
 }
 
 .toggle-label.active {
-  color: var(--ink);
+  color: #f0e8d8;
   font-weight: 500;
 }
 
@@ -871,7 +871,7 @@ h1, h2, h3, h4, h5 {
 
 .monthly-setup-note {
   font-size: 0.8rem;
-  color: var(--ink-light);
+  color: #9c8b78;
   margin-bottom: 0.8rem;
 }
 
@@ -898,14 +898,14 @@ h1, h2, h3, h4, h5 {
   text-align: center;
   margin-top: 2rem;
   font-size: 1rem;
-  color: var(--ink-mid);
+  color: #b8a898;
 }
 
 .pricing-note {
   text-align: center;
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: var(--ink-light);
+  color: #9c8b78;
 }
 
 .domain-refund-notice {
@@ -913,11 +913,11 @@ h1, h2, h3, h4, h5 {
   max-width: 600px;
   margin: 1.5rem auto 0;
   padding: 1rem 1.5rem;
-  background: #FFF8F0;
-  border: 1px solid var(--gold-light);
+  background: rgba(200, 169, 110, 0.06);
+  border: 1px solid rgba(200, 169, 110, 0.25);
   border-radius: 8px;
   font-size: 0.85rem;
-  color: var(--ink-mid);
+  color: #b8a898;
   line-height: 1.5;
 }
 
@@ -951,22 +951,22 @@ h1, h2, h3, h4, h5 {
 }
 
 .pricing-card {
-  background: var(--ivory);
+  background: #231f18;
   border-radius: 20px;
   padding: 2.5rem;
-  border: 1.5px solid rgba(184, 147, 90, 0.12);
+  border: 1.5px solid rgba(184, 147, 90, 0.15);
   position: relative;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .pricing-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(30, 24, 18, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 .pricing-card.featured {
   border-color: var(--gold);
-  background: var(--cream);
+  background: #2a2318;
 }
 
 .pricing-badge {
@@ -988,7 +988,7 @@ h1, h2, h3, h4, h5 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: var(--ink);
+  color: #f0e8d8;
 }
 
 .pricing-price {
@@ -1002,7 +1002,7 @@ h1, h2, h3, h4, h5 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 3rem;
   font-weight: 600;
-  color: var(--ink);
+  color: #f0e8d8;
 }
 
 .pricing-period {
@@ -1025,7 +1025,7 @@ h1, h2, h3, h4, h5 {
 .pricing-features li {
   padding: 0.5rem 0;
   font-size: 0.92rem;
-  color: var(--ink-mid);
+  color: #c4b49e;
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
@@ -1051,7 +1051,7 @@ h1, h2, h3, h4, h5 {
 /* ===================== TESTIMONIALS ===================== */
 .testimonials {
   padding: 6rem 2rem;
-  background: var(--cream);
+  background: #1a1510;
 }
 
 .testimonial-grid {
@@ -1063,17 +1063,17 @@ h1, h2, h3, h4, h5 {
 }
 
 .testimonial-card {
-  background: var(--white);
+  background: #231f18;
   border-radius: 16px;
   padding: 2rem;
-  border: 1px solid rgba(184, 147, 90, 0.08);
+  border: 1px solid rgba(184, 147, 90, 0.12);
 }
 
 .testimonial-quote {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.15rem;
   font-style: italic;
-  color: var(--ink-mid);
+  color: #d4c8b4;
   line-height: 1.7;
   margin-bottom: 1.2rem;
 }
@@ -1097,7 +1097,7 @@ h1, h2, h3, h4, h5 {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--blush);
+  background: rgba(200, 169, 110, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1107,7 +1107,7 @@ h1, h2, h3, h4, h5 {
 .testimonial-name {
   font-weight: 500;
   font-size: 0.9rem;
-  color: var(--ink);
+  color: #f0e8d8;
 }
 
 .testimonial-role {
@@ -1147,16 +1147,16 @@ h1, h2, h3, h4, h5 {
 .help-section {
   padding: 5rem 2rem;
   text-align: center;
-  background: var(--cream);
+  background: #1a1510;
 }
 
 .help-contact {
   max-width: 540px;
   margin: 2.5rem auto 0;
   padding: 2.5rem;
-  background: var(--white);
+  background: #231f18;
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 
 .contact-form .form-row {
@@ -1170,12 +1170,12 @@ h1, h2, h3, h4, h5 {
 .contact-form textarea {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(200, 169, 110, 0.25);
   border-radius: 8px;
   font-family: inherit;
   font-size: 0.95rem;
-  color: var(--ink);
-  background: var(--cream);
+  color: #f0e8d8;
+  background: #1a1510;
   transition: border-color 0.2s;
 }
 
@@ -1209,7 +1209,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .help-or {
-  color: var(--ink-light);
+  color: #9c8b78;
   font-size: 0.9rem;
   margin: 1.5rem 0 0.5rem;
 }
@@ -1433,7 +1433,7 @@ h1, h2, h3, h4, h5 {
     top: 100%;
     left: 0;
     right: 0;
-    background: var(--ivory);
+    background: #1e1a14;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid rgba(184, 147, 90, 0.15);
     gap: 1rem;
