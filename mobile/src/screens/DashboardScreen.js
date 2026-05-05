@@ -295,18 +295,6 @@ export default function DashboardScreen({ navigation }) {
             })}
 
             <TouchableOpacity
-              style={styles.newWebsiteBtn}
-              onPress={() => {
-                setShowSwitcher(false);
-                navigation.navigate('NewWebsite');
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.newWebsiteIcon}>{'\u2795'}</Text>
-              <Text style={styles.newWebsiteText}>New Website</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
               style={styles.modalCloseBtn}
               onPress={() => setShowSwitcher(false)}
               activeOpacity={0.8}

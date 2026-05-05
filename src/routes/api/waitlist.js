@@ -44,7 +44,6 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
                     <p style="margin:0 0 12px;font-size:15px;color:#1E1812;font-weight:bold;">Introductory pricing:</p>
                     <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;$29 first year &mdash; your family's site + first .com domain</p>
                     <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Renews at $49.99/year &mdash; cancel anytime</p>
-                    <p style="margin:0 0 6px;font-size:15px;color:#4A3F32;">&#10003; &nbsp;Additional domains available at $12.99/year each</p>
                   </td>
                 </tr>
               </table>

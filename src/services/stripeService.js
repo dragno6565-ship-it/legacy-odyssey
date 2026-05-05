@@ -8,7 +8,9 @@ const bookService = require('./bookService');
  * Subscription: $4.99/month or $49.99/year
  * Custom domain: $5.99 one-time setup fee
  * Setup fee: $5.99 one-time (monthly subscribers only)
- * Additional domains: $12.99/year
+ * Additional domains: charged at the regular annual-intro rate
+ *   ($29 first year → $49.99/year). The legacy STRIPE_PRICE_ADDITIONAL_DOMAIN
+ *   ($12.99/yr) is no longer used for new checkouts.
  */
 const PRICES = {
   subscription: {
@@ -298,31 +300,47 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
 }
 
 /**
- * Create a Stripe Checkout session for purchasing an additional site ($12.99/yr).
- * Used by existing authenticated customers who want another book/domain.
+ * Create a Stripe Checkout session for purchasing an additional site.
+ *
+ * As of May 2026 we no longer offer the discounted $12.99/yr add-on. Each
+ * additional domain is now a full subscription at the standard annual-intro
+ * rate: $29 first year, then $49.99/year (same coupon as a fresh signup).
+ *
+ * Kept around for any deeplinks / older mobile installs that still hit the
+ * `/api/stripe/create-additional-site-checkout` route.
  */
 async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subdomain, domain, bookName, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
+  const priceId = PRICES.subscription.annualIntro;
+  if (!priceId) throw new Error('Annual intro price not configured');
+
   const metadata = {
     type: 'additional_site',
+    plan: 'annual_intro',
     auth_user_id: authUserId,
     subdomain,
     book_name: bookName || '',
   };
   if (domain) metadata.domain = domain;
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionParams = {
     mode: 'subscription',
     customer: stripeCustomerId,
-    line_items: [
-      { price: PRICES.additionalDomain, quantity: 1 },
-    ],
+    line_items: [{ price: priceId, quantity: 1 }],
     metadata,
     success_url: successUrl,
     cancel_url: cancelUrl,
-  });
+  };
 
+  // Apply first-year intro coupon if configured ($20.99 off → $29 first year, $49.99 after)
+  if (PRICES.annualIntroCoupon) {
+    sessionParams.discounts = [{ coupon: PRICES.annualIntroCoupon }];
+  } else {
+    sessionParams.allow_promotion_codes = true;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
   return session;
 }
 
