@@ -394,6 +394,18 @@
       order_quantity: 1,
       currency: 'USD'
     });
+    // GA4 purchase event
+    gtag('event', 'purchase', {
+      transaction_id: purchaseEventId,
+      value: <%= planValue %>,
+      currency: 'USD',
+      items: [{
+        item_id: '<%= plan %>',
+        item_name: 'Legacy Odyssey <%= plan.charAt(0).toUpperCase() + plan.slice(1) %>',
+        price: <%= planValue %>,
+        quantity: 1
+      }]
+    });
   </script>
 </body>
 </html>

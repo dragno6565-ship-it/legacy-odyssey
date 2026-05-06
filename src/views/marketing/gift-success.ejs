@@ -246,6 +246,18 @@
         setTimeout(() => { btn.textContent = 'Copy Code'; }, 2000);
       });
     }
+    // GA4 purchase event
+    gtag('event', 'purchase', {
+      transaction_id: '<%= giftCode %>',
+      value: 29,
+      currency: 'USD',
+      items: [{
+        item_id: 'gift',
+        item_name: 'Legacy Odyssey Gift',
+        price: 29,
+        quantity: 1
+      }]
+    });
   </script>
 
 </body>
