@@ -27,11 +27,51 @@ function makePhotoPos(photoPositions) {
 
 const router = Router();
 
-// Preview route for the v2 landing redesign — NOT live.
-// Bypasses resolveFamily so it renders regardless of host. Remove or
-// promote to "/" once approved.
+// ===== Landing-page A/B split =====
+// Cookie-based 50/50 split between v1 (legacy) and v2 (redesign) at /.
+// Sticky for 30 days so the same visitor always sees the same version.
+// Bots see v1 for SEO/canonical stability.
+const BOT_UA_RE = /bot\b|crawl|spider|slurp|googlebot|bingbot|yandex|baiduspider|duckduckbot|facebookexternalhit|twitterbot|linkedinbot|applebot|petalbot|ia_archiver|semrushbot|ahrefsbot/i;
+const LANDING_COOKIE = 'lo_landing';
+const LANDING_COOKIE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+function pickLandingVariant(req, res) {
+  // Manual override via ?lov=v1|v2 — sets cookie too so it sticks.
+  const override = (req.query && req.query.lov || '').toLowerCase();
+  if (override === 'v1' || override === 'v2') {
+    res.cookie(LANDING_COOKIE, override, {
+      maxAge: LANDING_COOKIE_MAX_AGE_MS,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+    return override;
+  }
+
+  const existing = req.cookies && req.cookies[LANDING_COOKIE];
+  if (existing === 'v1' || existing === 'v2') return existing;
+
+  // Bots & crawlers always see v1 — keeps canonical content stable for SEO.
+  const ua = req.get('user-agent') || '';
+  if (BOT_UA_RE.test(ua)) return 'v1';
+
+  const assigned = Math.random() < 0.5 ? 'v1' : 'v2';
+  res.cookie(LANDING_COOKIE, assigned, {
+    maxAge: LANDING_COOKIE_MAX_AGE_MS,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+  return assigned;
+}
+
+// Preview route for the v2 landing redesign — direct access, bypasses A/B.
+// Bypasses resolveFamily so it renders regardless of host.
 router.get('/preview/landing-v2', (req, res) => {
-  res.render('marketing/landing-v2');
+  res.render('marketing/landing-v2', { landingVariant: 'v2' });
+});
+
+// Preview route for v1 too, in case Dan wants to compare side-by-side.
+router.get('/preview/landing-v1', (req, res) => {
+  res.render('marketing/landing', { landingVariant: 'v1' });
 });
 
 // Set password page — linked from welcome email recovery link
@@ -434,9 +474,11 @@ router.get('/redeem', (req, res) => {
 
 // GET / — Main book route (or marketing landing page)
 router.get('/', resolveFamily, (req, res, next) => {
-  // If no family found, show the marketing landing page
+  // If no family found, show the marketing landing page (A/B split)
   if (req.isMarketingSite) {
-    return res.render('marketing/landing');
+    const variant = pickLandingVariant(req, res);
+    const template = variant === 'v2' ? 'marketing/landing-v2' : 'marketing/landing';
+    return res.render(template, { landingVariant: variant });
   }
   next();
 }, requireBookPassword, async (req, res, next) => {

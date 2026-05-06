@@ -341,6 +341,9 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+    // landing_variant is a custom dimension for the v1/v2 A/B test.
+    // Register it in GA4 admin (event-scoped) before reports show it.
+    gtag('set', { 'landing_variant': '<%= typeof landingVariant !== "undefined" ? landingVariant : "v2" %>' });
     gtag('config', 'G-LMJVX82M3Q');
   </script>
   <!-- End Google Analytics 4 -->
