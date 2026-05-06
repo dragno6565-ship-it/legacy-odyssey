@@ -27,6 +27,13 @@ function makePhotoPos(photoPositions) {
 
 const router = Router();
 
+// Preview route for the v2 landing redesign — NOT live.
+// Bypasses resolveFamily so it renders regardless of host. Remove or
+// promote to "/" once approved.
+router.get('/preview/landing-v2', (req, res) => {
+  res.render('marketing/landing-v2');
+});
+
 // Set password page — linked from welcome email recovery link
 router.get('/set-password', (req, res) => {
   res.render('marketing/set-password', {

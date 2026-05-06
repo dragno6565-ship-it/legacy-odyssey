@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Pinterest Domain Verification -->
+  <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1"/>
+  <title>Legacy Odyssey — Claim Your Child's .com Before Someone Else Does</title>
+  <meta name="description" content="Claim your child's name as a real .com domain. A private, beautifully designed digital baby book that lives on its own website. Plans from $29 your first year.">
+  <link rel="canonical" href="https://legacyodyssey.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://legacyodyssey.com/">
+  <meta property="og:title" content="Legacy Odyssey — Claim Your Child's .com Before Someone Else Does">
+  <meta property="og:description" content="Claim your child's name as a real .com domain. A private, beautifully designed digital baby book that lives on its own website.">
+  <meta property="og:site_name" content="Legacy Odyssey">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Legacy Odyssey — Claim Your Child's .com Before Someone Else Does">
+  <meta name="twitter:description" content="Claim your child's name as a real .com domain. A private digital baby book on its own website.">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Legacy Odyssey",
+    "applicationCategory": "LifestyleApplication",
+    "description": "A digital baby book on your child's own .com domain.",
+    "url": "https://legacyodyssey.com",
+    "operatingSystem": "iOS, Android, Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "4.99",
+      "priceCurrency": "USD",
+      "priceValidUntil": "2027-12-31"
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Existing marketing.css stays loaded for the founder-modal styles + safety net -->
+  <link rel="stylesheet" href="/css/marketing.css">
+
+  <style>
+    /* ============================================================
+       LANDING V2 — .lo- prefixed styles (isolated from marketing.css)
+       ============================================================ */
+    .lo-page *, .lo-page *::before, .lo-page *::after { box-sizing: border-box; }
+    .lo-page { font-family: 'Jost', system-ui, sans-serif; background: #faf7f2; color: #2c2416; overflow-x: hidden; line-height: 1.5; }
+    .lo-page a { text-decoration: none; }
+
+    /* NAV */
+    .lo-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: rgba(26, 21, 16, 0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200, 169, 110, 0.15);
+    }
+    .lo-nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #faf7f2; letter-spacing: 0.5px; }
+    .lo-nav-logo span { color: #c8a96e; }
+    .lo-nav-links { display: flex; align-items: center; gap: 32px; list-style: none; margin: 0; padding: 0; }
+    .lo-nav-links a { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: rgba(250, 247, 242, 0.7); transition: color 0.2s; }
+    .lo-nav-links a:hover { color: #c8a96e; }
+    .lo-nav-cta {
+      background: #c8a96e; color: #1a1510 !important; font-weight: 600 !important;
+      padding: 10px 24px; border-radius: 4px; font-size: 13px !important; letter-spacing: 1px;
+      text-transform: uppercase; transition: background 0.2s !important; border: none; cursor: pointer; font-family: inherit;
+    }
+    .lo-nav-cta:hover { background: #d4bb8a !important; }
+    @media (max-width: 720px) {
+      .lo-nav { padding: 0 20px; }
+      .lo-nav-links { gap: 16px; }
+      .lo-nav-links li.lo-nav-only-md { display: none; }
+    }
+
+    /* HERO */
+    .lo-hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 120px 48px 80px; text-align: center; overflow: hidden;
+    }
+    .lo-hero-photo {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1470116945706-e6bf5d5a53ca?w=1600&h=1000&fit=crop&crop=faces,center&auto=format&q=85');
+      background-size: cover; background-position: center 40%;
+    }
+    .lo-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(15,11,7,0.72) 0%, rgba(15,11,7,0.60) 40%, rgba(15,11,7,0.82) 80%, rgba(15,11,7,0.95) 100%);
+    }
+    .lo-hero-content { position: relative; z-index: 2; max-width: 820px; }
+    .lo-hero-eyebrow { display: inline-block; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #c8a96e; margin-bottom: 28px; font-weight: 500; }
+    .lo-hero-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 6vw, 80px); font-weight: 400; line-height: 1.1; color: #faf7f2; margin: 0 0 24px; }
+    .lo-hero-headline em { font-style: italic; color: #c8a96e; }
+    .lo-hero-sub { font-size: 18px; font-weight: 300; color: rgba(250,247,242,0.82); line-height: 1.6; margin: 0 auto 48px; max-width: 620px; }
+
+    /* Hero domain search */
+    .lo-hero-search {
+      background: rgba(250,247,242,0.97); border-radius: 12px;
+      padding: 8px 8px 8px 24px;
+      display: flex; align-items: center; gap: 12px;
+      max-width: 600px; margin: 0 auto 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .lo-hero-search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: 'Jost', sans-serif; font-size: 20px; font-weight: 400;
+      color: #2c2416; min-width: 0;
+    }
+    .lo-hero-search-input::placeholder { color: #b5a990; }
+    .lo-hero-search-ext { font-family: 'Jost', sans-serif; font-size: 20px; font-weight: 600; color: #c8a96e; flex-shrink: 0; margin-right: 4px; }
+    .lo-hero-search-btn {
+      background: #c8a96e; color: #1a1510; border: none; padding: 14px 28px; border-radius: 8px;
+      font-family: 'Jost', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.5px;
+      cursor: pointer; flex-shrink: 0; transition: background 0.2s; white-space: nowrap;
+    }
+    .lo-hero-search-btn:hover { background: #b5963e; }
+    .lo-hero-search-btn:disabled { opacity: 0.6; cursor: wait; }
+    .lo-hero-search-note { font-size: 13px; color: rgba(250,247,242,0.55); letter-spacing: 0.3px; margin: 0 0 8px; }
+    .lo-hero-search-result { min-height: 28px; font-size: 14px; margin-top: 6px; color: rgba(250,247,242,0.85); }
+    .lo-hero-search-result.taken { color: #f4a59a; }
+    .lo-hero-search-result.available { color: #88d28a; font-weight: 600; }
+    .lo-hero-social-proof { margin-top: 48px; display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap; }
+    .lo-hero-proof-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: rgba(250,247,242,0.65); }
+    .lo-hero-proof-item svg { width: 16px; height: 16px; color: #c8a96e; flex-shrink: 0; }
+    .lo-hero-proof-divider { width: 1px; height: 20px; background: rgba(200,169,110,0.3); }
+    .lo-hero-scroll {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: rgba(250,247,242,0.4); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      animation: loScrollBob 2s ease-in-out infinite;
+    }
+    @keyframes loScrollBob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+    .lo-hero-scroll svg { width: 18px; height: 18px; }
+    @media (max-width: 600px) {
+      .lo-hero { padding: 100px 20px 60px; }
+      .lo-hero-search { padding: 6px 6px 6px 16px; gap: 8px; }
+      .lo-hero-search-input, .lo-hero-search-ext { font-size: 16px; }
+      .lo-hero-search-btn { padding: 12px 18px; font-size: 13px; }
+      .lo-hero-social-proof { gap: 16px; }
+      .lo-hero-proof-divider { display: none; }
+    }
+
+    /* TRUST BAR */
+    .lo-trust-bar {
+      background: #1a1510;
+      border-top: 1px solid rgba(200,169,110,0.2);
+      border-bottom: 1px solid rgba(200,169,110,0.2);
+      padding: 18px 48px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 48px; flex-wrap: wrap;
+    }
+    .lo-trust-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(250,247,242,0.65); font-weight: 400; letter-spacing: 0.2px; }
+    .lo-trust-item svg { width: 18px; height: 18px; color: #c8a96e; flex-shrink: 0; }
+    .lo-trust-divider { width: 1px; height: 28px; background: rgba(200,169,110,0.2); }
+    @media (max-width: 720px) { .lo-trust-bar { gap: 20px; padding: 16px 20px; } .lo-trust-divider { display: none; } }
+
+    /* SHARED SECTION TYPE */
+    .lo-section-eyebrow { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #c8a96e; margin: 0 0 16px; font-weight: 500; }
+    .lo-section-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 56px); font-weight: 400; line-height: 1.15; color: #1a1510; margin: 0 0 20px; }
+    .lo-section-headline em { font-style: italic; color: #c8a96e; }
+    .lo-section-sub { font-size: 17px; font-weight: 300; color: #8a7e6b; line-height: 1.7; max-width: 560px; margin: 0; }
+
+    /* FEATURES (preview-section) */
+    .lo-preview { background: #faf7f2; padding: 100px 48px; }
+    .lo-preview-inner { max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    @media (max-width: 920px) { .lo-preview-inner { grid-template-columns: 1fr; gap: 48px; } }
+    .lo-preview-text .lo-section-sub { max-width: 100%; margin-bottom: 32px; }
+    .lo-preview-features { list-style: none; display: flex; flex-direction: column; gap: 16px; margin: 0 0 40px; padding: 0; }
+    .lo-preview-features li { display: flex; align-items: flex-start; gap: 14px; font-size: 15px; color: #2c2416; line-height: 1.5; }
+    .lo-feature-check { width: 22px; height: 22px; background: rgba(200,169,110,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .lo-feature-check svg { width: 12px; height: 12px; color: #c8a96e; }
+    .lo-preview-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #1a1510; color: #c8a96e; padding: 14px 28px;
+      border-radius: 6px; font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
+      text-transform: uppercase; transition: background 0.2s;
+    }
+    .lo-preview-cta:hover { background: #2e2218; }
+    .lo-browser { background: #fff; border-radius: 12px; box-shadow: 0 24px 80px rgba(26,21,16,0.18), 0 4px 16px rgba(26,21,16,0.08); overflow: hidden; border: 1px solid #e0d5c4; }
+    .lo-browser-bar { background: #f0e8dc; padding: 12px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e0d5c4; }
+    .lo-browser-dots { display: flex; gap: 6px; }
+    .lo-browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .lo-browser-dot-r { background: #ff5f57; }
+    .lo-browser-dot-y { background: #febc2e; }
+    .lo-browser-dot-g { background: #28c840; }
+    .lo-browser-url { flex: 1; background: #fff; border: 1px solid #e0d5c4; border-radius: 4px; padding: 5px 12px; font-size: 12px; color: #8a7e6b; letter-spacing: 0.3px; }
+    .lo-browser-url span { color: #c8a96e; font-weight: 600; }
+    .lo-book-preview { background: linear-gradient(135deg, #1a1510 0%, #2e2218 100%); padding: 32px 28px; min-height: 340px; }
+    .lo-book-name { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #c8a96e; margin: 0 0 8px; }
+    .lo-book-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: #faf7f2; margin: 0 0 24px; line-height: 1.2; }
+    .lo-book-rule { width: 48px; height: 1px; background: #c8a96e; opacity: 0.5; margin: 0 0 20px; }
+    .lo-book-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .lo-book-photo { border-radius: 6px; overflow: hidden; aspect-ratio: 1; background: #2e2218; }
+    .lo-book-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lo-book-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .lo-book-pill { background: rgba(200,169,110,0.15); border: 1px solid rgba(200,169,110,0.25); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: #c8a96e; font-family: 'Jost', sans-serif; letter-spacing: 0.3px; }
+
+    /* SCARCITY */
+    .lo-scarcity { background: #1a1510; padding: 80px 48px; text-align: center; position: relative; overflow: hidden; }
+    .lo-scarcity::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(ellipse, rgba(200,169,110,0.08) 0%, transparent 70%); pointer-events: none; }
+    .lo-scarcity-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .lo-scarcity-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 52px); font-weight: 400; color: #faf7f2; line-height: 1.2; margin: 0 0 20px; }
+    .lo-scarcity-headline em { color: #c8a96e; font-style: italic; }
+    .lo-scarcity-sub { font-size: 17px; font-weight: 300; color: rgba(250,247,242,0.65); line-height: 1.7; margin: 0 0 48px; }
+    .lo-scarcity-stats { display: flex; justify-content: center; gap: 64px; margin-bottom: 48px; flex-wrap: wrap; }
+    .lo-scarcity-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; color: #c8a96e; line-height: 1; margin-bottom: 6px; }
+    .lo-scarcity-stat-label { font-size: 13px; color: rgba(250,247,242,0.5); letter-spacing: 0.5px; }
+    .lo-scarcity-cta { display: inline-flex; align-items: center; gap: 10px; background: #c8a96e; color: #1a1510; padding: 16px 36px; border-radius: 6px; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; transition: background 0.2s; border: none; cursor: pointer; font-family: inherit; }
+    .lo-scarcity-cta:hover { background: #d4bb8a; }
+
+    /* HOW IT WORKS */
+    .lo-how { background: #f0e8dc; padding: 100px 48px; text-align: center; }
+    .lo-how-inner { max-width: 960px; margin: 0 auto; }
+    .lo-how-header { margin-bottom: 64px; }
+    .lo-how-steps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; position: relative; }
+    @media (max-width: 720px) { .lo-how-steps { grid-template-columns: 1fr; gap: 40px; } .lo-how-steps::before { display: none; } }
+    .lo-how-steps::before { content: ''; position: absolute; top: 32px; left: calc(16.67% + 32px); right: calc(16.67% + 32px); height: 1px; background: linear-gradient(to right, #c8a96e, rgba(200,169,110,0.3), #c8a96e); z-index: 0; }
+    .lo-how-step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: 0 24px; }
+    .lo-how-num { width: 64px; height: 64px; border-radius: 50%; background: #1a1510; border: 2px solid #c8a96e; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #c8a96e; margin-bottom: 24px; flex-shrink: 0; }
+    .lo-how-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #1a1510; margin: 0 0 12px; }
+    .lo-how-desc { font-size: 15px; color: #8a7e6b; line-height: 1.7; font-weight: 300; margin: 0; }
+
+    /* TESTIMONIALS */
+    .lo-testimonials { background: #faf7f2; padding: 100px 48px; }
+    .lo-testimonials-inner { max-width: 1100px; margin: 0 auto; }
+    .lo-testimonials-header { text-align: center; margin-bottom: 64px; }
+    .lo-testimonials-header .lo-section-sub { margin: 0 auto; }
+    .lo-testimonials-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    @media (max-width: 920px) { .lo-testimonials-grid { grid-template-columns: 1fr; } .lo-testimonial-card.featured { grid-column: span 1 !important; flex-direction: column !important; } }
+    .lo-testimonial-card { background: #fff; border: 1px solid #e0d5c4; border-radius: 12px; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+    .lo-testimonial-stars { display: flex; gap: 3px; }
+    .lo-testimonial-stars span { color: #c8a96e; font-size: 16px; }
+    .lo-testimonial-quote { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; font-style: italic; color: #2c2416; line-height: 1.6; flex: 1; margin: 0; }
+    .lo-testimonial-author { display: flex; align-items: center; gap: 14px; padding-top: 16px; border-top: 1px solid #f0e8dc; }
+    .lo-testimonial-avatar { width: 44px; height: 44px; border-radius: 50%; background: #f0e8dc; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .lo-testimonial-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .lo-testimonial-name { font-weight: 600; font-size: 14px; color: #2c2416; margin-bottom: 2px; }
+    .lo-testimonial-meta { font-size: 13px; color: #8a7e6b; }
+    .lo-testimonial-card.featured { grid-column: span 2; background: #1a1510; border-color: rgba(200,169,110,0.25); flex-direction: row; gap: 40px; align-items: center; }
+    .lo-testimonial-card.featured .lo-testimonial-quote { font-size: 24px; color: #faf7f2; }
+    .lo-testimonial-card.featured .lo-testimonial-author { border-color: rgba(200,169,110,0.2); }
+    .lo-testimonial-card.featured .lo-testimonial-name { color: #faf7f2; }
+    .lo-testimonial-card.featured .lo-testimonial-meta { color: rgba(250,247,242,0.5); }
+    .lo-testimonial-feat-left { flex: 2; }
+    .lo-testimonial-feat-photo { flex: 1; height: 220px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .lo-testimonial-feat-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* PRICING */
+    .lo-pricing { background: #1a1510; padding: 100px 48px; }
+    .lo-pricing-inner { max-width: 960px; margin: 0 auto; }
+    .lo-pricing-header { text-align: center; margin-bottom: 64px; }
+    .lo-pricing-header .lo-section-headline { color: #faf7f2; }
+    .lo-pricing-header .lo-section-sub { color: rgba(250,247,242,0.6); margin: 0 auto; }
+    .lo-pricing-cards { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 20px; align-items: stretch; }
+    @media (max-width: 920px) { .lo-pricing-cards { grid-template-columns: 1fr; } }
+    .lo-pricing-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(200,169,110,0.2); border-radius: 12px; padding: 36px 28px; display: flex; flex-direction: column; }
+    .lo-pricing-card.highlighted { background: rgba(200,169,110,0.1); border-color: #c8a96e; position: relative; }
+    .lo-pricing-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #c8a96e; color: #1a1510; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 16px; border-radius: 20px; white-space: nowrap; }
+    .lo-pricing-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #faf7f2; margin: 0 0 6px; }
+    .lo-pricing-name span { color: #c8a96e; }
+    .lo-pricing-tag { font-size: 13px; color: rgba(250,247,242,0.45); margin: 0 0 28px; line-height: 1.5; }
+    .lo-pricing-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 8px; }
+    .lo-pricing-dollar { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; color: #faf7f2; line-height: 1; }
+    .lo-pricing-dollar small { font-size: 28px; }
+    .lo-pricing-period { font-size: 15px; color: rgba(250,247,242,0.5); }
+    .lo-pricing-renewal { font-size: 12px; color: rgba(250,247,242,0.35); margin: 0 0 28px; line-height: 1.5; }
+    .lo-pricing-renewal strong { color: rgba(250,247,242,0.5); }
+    .lo-pricing-features { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; margin: 0 0 32px; padding: 0; }
+    .lo-pricing-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(250,247,242,0.7); }
+    .lo-pricing-features li svg { width: 14px; height: 14px; color: #c8a96e; flex-shrink: 0; }
+    .lo-pricing-btn { display: block; text-align: center; padding: 14px; border-radius: 6px; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.2s; margin-top: auto; cursor: pointer; border: none; font-family: inherit; }
+    .lo-pricing-btn-primary { background: #c8a96e; color: #1a1510; }
+    .lo-pricing-btn-primary:hover { background: #d4bb8a; }
+    .lo-pricing-btn-secondary { background: transparent; color: rgba(250,247,242,0.6); border: 1px solid rgba(200,169,110,0.3); }
+    .lo-pricing-btn-secondary:hover { border-color: #c8a96e; color: #c8a96e; }
+    .lo-pricing-cancel-note { text-align: center; margin-top: 32px; font-size: 13px; color: rgba(250,247,242,0.3); line-height: 1.6; }
+
+    /* FAQ */
+    .lo-faq { background: #f0e8dc; padding: 100px 48px; }
+    .lo-faq-inner { max-width: 760px; margin: 0 auto; }
+    .lo-faq-header { text-align: center; margin-bottom: 56px; }
+    .lo-faq-header .lo-section-headline { display: inline-block; }
+    .lo-faq-item { border-bottom: 1px solid rgba(26,21,16,0.1); padding: 0; }
+    .lo-faq-item summary { list-style: none; cursor: pointer; padding: 24px 0 12px; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: #1a1510; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .lo-faq-item summary::-webkit-details-marker { display: none; }
+    .lo-faq-item summary::after { content: '+'; color: #c8a96e; font-size: 24px; font-weight: 300; line-height: 1; flex-shrink: 0; transition: transform 0.2s; }
+    .lo-faq-item[open] summary::after { content: '−'; }
+    .lo-faq-answer { font-size: 15px; color: #4a3f32; line-height: 1.8; font-weight: 400; padding: 0 0 24px; margin: 0; }
+
+    /* FINAL CTA */
+    .lo-final { position: relative; overflow: hidden; padding: 120px 48px; text-align: center; background: #1a1510; }
+    .lo-final-photo { position: absolute; inset: 0; background-image: url('https://images.unsplash.com/photo-1510154221590-ff63e90a136f?w=1600&h=800&fit=crop&crop=center&auto=format&q=80'); background-size: cover; background-position: center; opacity: 0.25; }
+    .lo-final-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+    .lo-final-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 5vw, 68px); font-weight: 400; line-height: 1.15; color: #faf7f2; margin: 0 0 24px; }
+    .lo-final-headline em { color: #c8a96e; font-style: italic; }
+    .lo-final-sub { font-size: 18px; font-weight: 300; color: rgba(250,247,242,0.7); line-height: 1.7; margin: 0 0 48px; }
+    .lo-final-btn { display: inline-flex; align-items: center; gap: 10px; background: #c8a96e; color: #1a1510; padding: 18px 44px; border-radius: 6px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; transition: background 0.2s; margin-bottom: 16px; border: none; cursor: pointer; font-family: inherit; }
+    .lo-final-btn:hover { background: #d4bb8a; }
+    .lo-final-note { font-size: 13px; color: rgba(250,247,242,0.35); }
+
+    /* HELP / CONTACT */
+    .lo-help { background: #1a1510; padding: 100px 48px; }
+    .lo-help-inner { max-width: 720px; margin: 0 auto; text-align: center; }
+    .lo-help-inner .lo-section-headline { color: #faf7f2; }
+    .lo-help-inner .lo-section-sub { color: rgba(250,247,242,0.6); margin: 0 auto 40px; }
+    .lo-contact-form { display: flex; flex-direction: column; gap: 14px; max-width: 520px; margin: 0 auto; text-align: left; }
+    .lo-contact-form input, .lo-contact-form textarea {
+      width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,169,110,0.25); border-radius: 6px;
+      color: #faf7f2; font-family: 'Jost', sans-serif; font-size: 15px;
+    }
+    .lo-contact-form input::placeholder, .lo-contact-form textarea::placeholder { color: rgba(250,247,242,0.35); }
+    .lo-contact-form input:focus, .lo-contact-form textarea:focus { outline: none; border-color: #c8a96e; background: rgba(255,255,255,0.07); }
+    .lo-contact-form textarea { min-height: 140px; resize: vertical; font-family: inherit; }
+    .lo-contact-form button { padding: 14px 28px; background: #c8a96e; color: #1a1510; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    .lo-contact-form button:hover { background: #d4bb8a; }
+    .lo-contact-status { font-size: 14px; color: #c8a96e; text-align: center; margin-top: 8px; min-height: 20px; }
+
+    /* FOOTER */
+    .lo-footer { background: #0f0b07; padding: 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; border-top: 1px solid rgba(200,169,110,0.1); }
+    .lo-footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: #faf7f2; }
+    .lo-footer-logo span { color: #c8a96e; }
+    .lo-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .lo-footer-links a { font-size: 13px; color: rgba(250,247,242,0.35); letter-spacing: 0.3px; transition: color 0.2s; }
+    .lo-footer-links a:hover { color: #c8a96e; }
+    .lo-footer-copy { font-size: 12px; color: rgba(250,247,242,0.2); }
+    @media (max-width: 600px) { .lo-footer { flex-direction: column; text-align: center; } }
+  </style>
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LMJVX82M3Q');
+  </script>
+  <!-- End Google Analytics 4 -->
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '839009299208301');
+  fbq('track', 'PageView');
+  </script>
+  <noscript>
+  <img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=839009299208301&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- Hotjar / Contentsquare Tracking -->
+  <script src="https://t.contentsquare.net/uxa/38cdf4e1f1a56.js"></script>
+
+  <!-- Pinterest Tag -->
+  <script>
+  !function(e){if(!window.pintrk){window.pintrk = function () {
+  window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+    n=window.pintrk;n.queue=[],n.version="3.0";var
+    t=document.createElement("script");t.async=!0,t.src=e;var
+    r=document.getElementsByTagName("script")[0];
+    r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+  pintrk('load', '2613467907928');
+  pintrk('page');
+  </script>
+  <noscript>
+  <img height="1" width="1" style="display:none;" alt=""
+    src="https://ct.pinterest.com/v3/?event=init&tid=2613467907928&noscript=1" />
+  </noscript>
+  <!-- end Pinterest Tag -->
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1341319558382851"
+       crossorigin="anonymous"></script>
+  <!-- End Google AdSense -->
+</head>
+<body class="lo-page">
+
+  <!-- ====== NAV ====== -->
+  <nav class="lo-nav">
+    <a href="/" class="lo-nav-logo">Legacy <span>Odyssey</span></a>
+    <ul class="lo-nav-links">
+      <li><a href="#features">Features</a></li>
+      <li class="lo-nav-only-md"><a href="#how-it-works">How It Works</a></li>
+      <li class="lo-nav-only-md"><a href="/blog">Blog</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li class="lo-nav-only-md"><a href="#help">Help</a></li>
+      <li class="lo-nav-only-md"><a href="/account">Sign In</a></li>
+      <li><button type="button" class="lo-nav-cta" onclick="openFounderModal('annual')">Get Started</button></li>
+    </ul>
+  </nav>
+
+  <!-- ====== HERO ====== -->
+  <section class="lo-hero">
+    <div class="lo-hero-photo"></div>
+    <div class="lo-hero-overlay"></div>
+    <div class="lo-hero-content">
+      <div class="lo-hero-eyebrow">Legacy Odyssey</div>
+      <h1 class="lo-hero-headline">Is your child's name<br>still available as a <em>.com?</em></h1>
+      <p class="lo-hero-sub">
+        Every day, thousands of domain names are registered by strangers.
+        Check your child's name now — then claim it before someone else does.
+      </p>
+
+      <form class="lo-hero-search" onsubmit="loHeroSearch(event)">
+        <input class="lo-hero-search-input" type="text" placeholder="your-childs-name" id="loHeroInput" autocomplete="off" spellcheck="false">
+        <div class="lo-hero-search-ext">.com</div>
+        <button type="submit" class="lo-hero-search-btn" id="loHeroBtn">Check Now</button>
+      </form>
+      <p class="lo-hero-search-note">$29 your first year — cancel anytime</p>
+      <div class="lo-hero-search-result" id="loHeroResult" aria-live="polite"></div>
+
+      <div class="lo-hero-social-proof">
+        <div class="lo-hero-proof-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          iOS &amp; Android app included
+        </div>
+        <div class="lo-hero-proof-divider"></div>
+        <div class="lo-hero-proof-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Real .com domain — yours exclusively
+        </div>
+        <div class="lo-hero-proof-divider"></div>
+        <div class="lo-hero-proof-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Beautiful password-protected book
+        </div>
+      </div>
+    </div>
+    <a href="#features" class="lo-hero-scroll">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+      See what they get
+    </a>
+  </section>
+
+  <!-- ====== TRUST BAR ====== -->
+  <div class="lo-trust-bar">
+    <div class="lo-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Password-protected &amp; private
+    </div>
+    <div class="lo-trust-divider"></div>
+    <div class="lo-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Domains registered in minutes
+    </div>
+    <div class="lo-trust-divider"></div>
+    <div class="lo-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      iOS &amp; Android app
+    </div>
+    <div class="lo-trust-divider"></div>
+    <div class="lo-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Cancel anytime — no lock-in
+    </div>
+  </div>
+
+  <!-- ====== FEATURES ====== -->
+  <section class="lo-preview" id="features">
+    <div class="lo-preview-inner">
+      <div class="lo-browser">
+        <div class="lo-browser-bar">
+          <div class="lo-browser-dots">
+            <div class="lo-browser-dot lo-browser-dot-r"></div>
+            <div class="lo-browser-dot lo-browser-dot-y"></div>
+            <div class="lo-browser-dot lo-browser-dot-g"></div>
+          </div>
+          <div class="lo-browser-url">www.<span>your-childs-name</span>.com</div>
+        </div>
+        <div class="lo-book-preview">
+          <div class="lo-book-name">The Story of</div>
+          <div class="lo-book-title">Your Child's<br>Beautiful Book</div>
+          <div class="lo-book-rule"></div>
+          <div class="lo-book-grid">
+            <div class="lo-book-photo"><img src="https://images.unsplash.com/photo-1604917621956-10dfa7cce2e7?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
+            <div class="lo-book-photo"><img src="https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
+            <div class="lo-book-photo"><img src="https://images.unsplash.com/photo-1533483595632-c5f0e57a1936?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
+          </div>
+          <div class="lo-book-pills">
+            <div class="lo-book-pill">Birth Story</div>
+            <div class="lo-book-pill">Month by Month</div>
+            <div class="lo-book-pill">Letters</div>
+            <div class="lo-book-pill">Family Recipes</div>
+            <div class="lo-book-pill">Time Vault</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lo-preview-text">
+        <div class="lo-section-eyebrow">What they'll have</div>
+        <h2 class="lo-section-headline">Their own corner<br>of the <em>internet.</em></h2>
+        <p class="lo-section-sub">
+          A beautiful, private website — at their own .com domain — where your
+          child's full story lives. Not a social media profile. Not a shared album.
+          Their own website, yours to build over time.
+        </p>
+        <ul class="lo-preview-features">
+          <li><div class="lo-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Their own exclusive .com domain</strong> — registered in their name, one-of-a-kind</span></li>
+          <li><div class="lo-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>A beautifully designed digital baby book</strong> — birth story, month-by-month milestones, family photos</span></li>
+          <li><div class="lo-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Letters &amp; sealed messages</strong> — write to them now, unlock when they're older</span></li>
+          <li><div class="lo-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Unlimited photos</strong> — no storage caps, no compression</span></li>
+          <li><div class="lo-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Password protected</strong> — share only with family and friends you choose</span></li>
+          <li><div class="lo-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Family recipes, traditions &amp; stories</strong> — the everyday moments worth keeping</span></li>
+        </ul>
+        <a href="https://www.your-childs-name.com" target="_blank" rel="noopener" class="lo-preview-cta">See a Live Demo Book →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== SCARCITY ====== -->
+  <section class="lo-scarcity">
+    <div class="lo-scarcity-inner">
+      <div class="lo-section-eyebrow" style="color: rgba(200,169,110,0.7);">Think about this</div>
+      <h2 class="lo-scarcity-headline">There will only ever be<br>one <em>your-childs-name.com</em></h2>
+      <p class="lo-scarcity-sub">
+        Domain names are unique. Once someone registers your child's name,
+        it's gone — potentially for their entire life. The good news: most parents
+        haven't thought of this yet. But they will.
+      </p>
+      <div class="lo-scarcity-stats">
+        <div>
+          <div class="lo-scarcity-stat-num">3.6M</div>
+          <div class="lo-scarcity-stat-label">domains registered every month</div>
+        </div>
+        <div>
+          <div class="lo-scarcity-stat-num">$29</div>
+          <div class="lo-scarcity-stat-label">to claim your child's name today</div>
+        </div>
+        <div>
+          <div class="lo-scarcity-stat-num">1</div>
+          <div class="lo-scarcity-stat-label">chance to own it first</div>
+        </div>
+      </div>
+      <button type="button" class="lo-scarcity-cta" onclick="document.getElementById('loHeroInput').focus(); window.scrollTo({top:0,behavior:'smooth'});">Check If It's Still Available →</button>
+    </div>
+  </section>
+
+  <!-- ====== HOW IT WORKS ====== -->
+  <section class="lo-how" id="how-it-works">
+    <div class="lo-how-inner">
+      <div class="lo-how-header">
+        <div class="lo-section-eyebrow">Simple by design</div>
+        <h2 class="lo-section-headline">Up and running<br>in three steps</h2>
+      </div>
+      <div class="lo-how-steps">
+        <div class="lo-how-step">
+          <div class="lo-how-num">1</div>
+          <div class="lo-how-title">Claim the Domain</div>
+          <p class="lo-how-desc">Search for your child's name, find it available, and secure it for $29. The domain is registered instantly in your account.</p>
+        </div>
+        <div class="lo-how-step">
+          <div class="lo-how-num">2</div>
+          <div class="lo-how-title">Build the Book</div>
+          <p class="lo-how-desc">Download the app on your phone and start filling in the story — photos, milestones, letters, recipes. At your own pace, whenever you want.</p>
+        </div>
+        <div class="lo-how-step">
+          <div class="lo-how-num">3</div>
+          <div class="lo-how-title">Share with Family</div>
+          <p class="lo-how-desc">Their beautiful book is live at their .com — share the password with grandparents, aunts, uncles, and anyone who loves them.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--
+    NOTE FOR DAN: testimonial copy below is placeholder — quotes are illustrative,
+    attributions deliberately anonymized ("Verified Parent / Verified Purchaser") to
+    comply with the no-real-names rule. Before going live, swap in real customer
+    quotes you have permission to use, OR remove this section entirely. FTC §255
+    requires endorsements be substantiated; "Verified" wording works only if you
+    actually verified them.
+  -->
+  <!-- ====== TESTIMONIALS ====== -->
+  <section class="lo-testimonials" id="testimonials">
+    <div class="lo-testimonials-inner">
+      <div class="lo-testimonials-header">
+        <div class="lo-section-eyebrow">Real families</div>
+        <h2 class="lo-section-headline">Already <em>loved</em> by parents</h2>
+      </div>
+      <div class="lo-testimonials-grid">
+
+        <div class="lo-testimonial-card featured">
+          <div class="lo-testimonial-feat-left">
+            <div class="lo-testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+            <p class="lo-testimonial-quote" style="margin: 20px 0;">
+              "I signed up the day my daughter was born. She's almost two now and has over 80 pages of memories. I can't wait to sit down with her someday and scroll through her whole story — it's better than any baby book I've ever seen."
+            </p>
+            <div class="lo-testimonial-author">
+              <div class="lo-testimonial-avatar">👶</div>
+              <div>
+                <div class="lo-testimonial-name">Verified Parent</div>
+                <div class="lo-testimonial-meta">Annual plan — started at birth</div>
+              </div>
+            </div>
+          </div>
+          <div class="lo-testimonial-feat-photo">
+            <img src="https://images.unsplash.com/photo-1604917621956-10dfa7cce2e7?w=400&h=300&fit=crop&crop=faces,center&auto=format&q=80" alt="">
+          </div>
+        </div>
+
+        <div class="lo-testimonial-card">
+          <div class="lo-testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="lo-testimonial-quote">
+            "We got this as a baby shower gift. Honestly the most thoughtful and original thing anyone gave us. The domain alone was worth it."
+          </p>
+          <div class="lo-testimonial-author">
+            <div class="lo-testimonial-avatar">💛</div>
+            <div>
+              <div class="lo-testimonial-name">Verified Parent</div>
+              <div class="lo-testimonial-meta">Received as a gift</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lo-testimonial-card">
+          <div class="lo-testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="lo-testimonial-quote">
+            "I thought it was just a digital baby book. But the .com domain is the thing. Cheaper than a month of streaming, and my child has a piece of the internet in their name."
+          </p>
+          <div class="lo-testimonial-author">
+            <div class="lo-testimonial-avatar">🌐</div>
+            <div>
+              <div class="lo-testimonial-name">Verified Parent</div>
+              <div class="lo-testimonial-meta">Annual plan</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lo-testimonial-card">
+          <div class="lo-testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="lo-testimonial-quote">
+            "I bought this for my niece before she was born. Her name was still available. Best $29 I've ever spent — the family loves it."
+          </p>
+          <div class="lo-testimonial-author">
+            <div class="lo-testimonial-avatar">🎁</div>
+            <div>
+              <div class="lo-testimonial-name">Verified Purchaser</div>
+              <div class="lo-testimonial-meta">Gave as a gift</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PRICING ====== -->
+  <section class="lo-pricing" id="pricing">
+    <div class="lo-pricing-inner">
+      <div class="lo-pricing-header">
+        <div class="lo-section-eyebrow" style="color: rgba(200,169,110,0.7);">Pricing</div>
+        <h2 class="lo-section-headline">Simple, honest <em>pricing</em></h2>
+        <p class="lo-section-sub">Every plan includes everything. Cancel anytime. No hidden fees.</p>
+      </div>
+      <div class="lo-pricing-cards">
+
+        <!-- Monthly -->
+        <div class="lo-pricing-card">
+          <div class="lo-pricing-name">Monthly <span>Plan</span></div>
+          <div class="lo-pricing-tag">Full flexibility, no commitment.</div>
+          <div class="lo-pricing-price">
+            <div class="lo-pricing-dollar">$4<small>.99</small></div>
+            <div class="lo-pricing-period">/ month</div>
+          </div>
+          <div class="lo-pricing-renewal">+ $5.99 one-time setup fee. <strong>Cancel anytime.</strong></div>
+          <ul class="lo-pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Your own .com domain</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full digital baby book</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Unlimited photos</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> iOS &amp; Android app</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> All features included</li>
+          </ul>
+          <button type="button" class="lo-pricing-btn lo-pricing-btn-secondary" onclick="openFounderModal('monthly')">Get Started</button>
+        </div>
+
+        <!-- Annual — HIGHLIGHTED -->
+        <div class="lo-pricing-card highlighted">
+          <div class="lo-pricing-badge">Best Value</div>
+          <div class="lo-pricing-name">Annual <span>Plan</span></div>
+          <div class="lo-pricing-tag">Introductory offer — save vs. monthly.</div>
+          <div class="lo-pricing-price">
+            <div class="lo-pricing-dollar">$29</div>
+            <div class="lo-pricing-period">/ first year</div>
+          </div>
+          <div class="lo-pricing-renewal">Cancel anytime. <strong>Renews at $49.99/yr</strong> — that's about $4.17/month.</div>
+          <ul class="lo-pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Your own .com domain</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full digital baby book</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Unlimited photos</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> iOS &amp; Android app</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> All features included</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> No setup fee</li>
+          </ul>
+          <button type="button" class="lo-pricing-btn lo-pricing-btn-primary" onclick="openFounderModal('annual')">Get Started — $29/year</button>
+        </div>
+
+        <!-- Gift -->
+        <div class="lo-pricing-card">
+          <div class="lo-pricing-name">Gift <span>a Book</span></div>
+          <div class="lo-pricing-tag">The baby shower gift no one else will think of.</div>
+          <div class="lo-pricing-price">
+            <div class="lo-pricing-dollar">$29</div>
+            <div class="lo-pricing-period">/ one-time</div>
+          </div>
+          <div class="lo-pricing-renewal">Recipient picks their own domain &amp; activates. <strong>No auto-charge to you.</strong></div>
+          <ul class="lo-pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> They choose their .com</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full digital baby book</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> One full year included</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Gift code delivered instantly</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> All features included</li>
+          </ul>
+          <a href="/gift" class="lo-pricing-btn lo-pricing-btn-secondary">Give as a Gift</a>
+        </div>
+
+      </div>
+      <div class="lo-pricing-cancel-note">
+        Cancel anytime from your account — no questions asked. Domain registrations are non-refundable (registry policy) — double-check the spelling before you confirm.
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FAQ ====== -->
+  <section class="lo-faq" id="help">
+    <div class="lo-faq-inner">
+      <div class="lo-faq-header">
+        <div class="lo-section-eyebrow">Questions</div>
+        <h2 class="lo-section-headline">Things parents <em>ask us</em></h2>
+      </div>
+      <details class="lo-faq-item">
+        <summary>What exactly is a .com domain, and why does my child need one?</summary>
+        <p class="lo-faq-answer">A .com domain is a unique address on the internet — like "your-childs-name.com." Only one person can own each address. When you claim your child's name as a .com, nobody else in the world can ever use that exact address. As they grow up, it becomes their homepage, their portfolio, their identity on the internet. And you'll have started it for them before they could even walk.</p>
+      </details>
+      <details class="lo-faq-item">
+        <summary>What if my child's exact name isn't available?</summary>
+        <p class="lo-faq-answer">You can get creative — add a middle name, a family name, or a nickname. Search variations right here on the site. Many parents use formats like firstnamelastname.com, babyfirstname.com, or even a family surname. There's almost always a great option available.</p>
+      </details>
+      <details class="lo-faq-item">
+        <summary>What does the book actually look like?</summary>
+        <p class="lo-faq-answer">It's a beautiful, private website at their .com — like a personal magazine for your family. It has sections for birth story, month-by-month milestones, unlimited photos, letters to your child, family recipes, and a sealed Time Vault for messages to open when they're older. You can see a real example using the "Live Demo" link in the features section.</p>
+      </details>
+      <details class="lo-faq-item">
+        <summary>Is the book private? Who can see it?</summary>
+        <p class="lo-faq-answer">Yes — the site is password protected. Only people you share the password with can view it. You control who sees your family's story.</p>
+      </details>
+      <details class="lo-faq-item">
+        <summary>What happens after the first year?</summary>
+        <p class="lo-faq-answer">After your introductory year at $29, the plan renews at $49.99/year (about $4.17/month). You can cancel anytime from your account — if you cancel, your book goes private but your domain stays registered until it expires. You can always re-activate later.</p>
+      </details>
+      <details class="lo-faq-item">
+        <summary>Can I give this as a baby shower gift?</summary>
+        <p class="lo-faq-answer">Absolutely — it's one of the most popular ways people use Legacy Odyssey. You buy a gift code for $29, and the recipient redeems it to pick their own domain and set up their book. It arrives as a digital gift code you can print or email.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ====== FINAL CTA ====== -->
+  <section class="lo-final">
+    <div class="lo-final-photo"></div>
+    <div class="lo-final-content">
+      <div class="lo-section-eyebrow" style="color: rgba(200,169,110,0.7);">Don't wait</div>
+      <h2 class="lo-final-headline">Every day you wait,<br>the name gets <em>closer</em><br>to being taken.</h2>
+      <p class="lo-final-sub">
+        Check if your child's name is still available. It takes ten seconds.
+        If it is — claim it now for $29.
+      </p>
+      <button type="button" class="lo-final-btn" onclick="document.getElementById('loHeroInput').focus(); window.scrollTo({top:0,behavior:'smooth'});">Check the Name Now →</button>
+      <div class="lo-final-note">$29 your first year · Cancel anytime · No technical skills needed</div>
+    </div>
+  </section>
+
+  <!-- ====== HELP / CONTACT FORM ====== -->
+  <section class="lo-help">
+    <div class="lo-help-inner">
+      <div class="lo-section-eyebrow" style="color: rgba(200,169,110,0.7);">Get in touch</div>
+      <h2 class="lo-section-headline">Questions? <em>We're here.</em></h2>
+      <p class="lo-section-sub">Email us at <a href="mailto:hello@legacyodyssey.com" style="color:#c8a96e;">hello@legacyodyssey.com</a> or send a note below.</p>
+      <form class="lo-contact-form" id="loContactForm">
+        <input type="text" name="name" placeholder="Your name" required>
+        <input type="email" name="email" placeholder="Your email" required>
+        <textarea name="message" placeholder="Your question or message" required></textarea>
+        <button type="submit">Send Message</button>
+        <div class="lo-contact-status" id="loContactStatus"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="lo-footer">
+    <a href="/" class="lo-footer-logo">Legacy <span>Odyssey</span></a>
+    <div class="lo-footer-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#help">Help</a>
+      <a href="/blog">Blog</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+    <div class="lo-footer-copy">© 2026 Legacy Odyssey. All rights reserved.</div>
+  </footer>
+
+  <!-- ====== FOUNDER CHECKOUT MODAL — preserved verbatim from v1 landing.ejs ====== -->
+  <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;">
+      <button onclick="document.getElementById('founderModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#B8935A;font-size:1.4rem;cursor:pointer;">&times;</button>
+      <h3 style="font-family:Georgia,serif;color:#F8F2E6;margin:0 0 0.2rem;font-size:1.4rem;" id="founderModalTitle">Start Your Family's Book</h3>
+      <p style="color:#B8935A;font-size:0.85rem;margin:0 0 1.5rem;" id="founderModalSubtitle">$29 your first year &mdash; renews at $49.99/year. Cancel anytime.</p>
+
+      <div id="founderModalForm">
+        <div id="founderStep1">
+          <div style="background:#2C2416;border:1px solid rgba(184,147,90,0.3);border-radius:6px;padding:0.5rem 0.85rem;margin-bottom:1rem;display:inline-block;">
+            <span style="color:rgba(248,242,230,0.5);font-size:0.78rem;">Creating: </span>
+            <span style="color:#B8935A;font-weight:700;font-size:0.78rem;">👶 Baby Book</span>
+          </div>
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.5rem;letter-spacing:0.05em;">STEP 1 — CHOOSE YOUR DOMAIN</label>
+          <p style="font-size:0.8rem;color:rgba(248,242,230,0.55);margin:0 0 0.75rem;">This is the .com address your baby book will live at. It's permanent — check spelling carefully.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;align-items:stretch;">
+            <input type="text" id="founderDomainSearch" placeholder="your-childs-name" autocomplete="off" spellcheck="false"
+              style="flex:1 1 140px;min-width:0;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;">
+            <span style="display:flex;align-items:center;color:rgba(248,242,230,0.4);font-size:0.9rem;white-space:nowrap;">.com</span>
+            <button type="button" id="founderDomainSearchBtn" style="flex:0 0 auto;padding:0.8rem 1.25rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;cursor:pointer;white-space:nowrap;">Check</button>
+          </div>
+          <div id="founderDomainResult" style="min-height:36px;font-size:0.88rem;margin-bottom:0.75rem;"></div>
+          <div id="founderDomainConfirmed" style="display:none;background:#1a2e1a;border:1px solid #4a8a4a;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <span style="color:#7cb87c;font-weight:700;">&#10003; </span>
+            <span id="founderDomainConfirmedName" style="color:#F8F2E6;font-weight:600;"></span>
+            <button type="button" id="founderDomainChangeBtn" style="margin-left:0.75rem;background:none;border:none;color:#B8935A;font-size:0.8rem;cursor:pointer;text-decoration:underline;">Change</button>
+          </div>
+          <button type="button" id="founderNextBtn" disabled style="width:100%;padding:0.9rem;background:#4a3f2f;color:#8a7a5a;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:not-allowed;transition:all 0.2s;">
+            Next: Enter Your Email &rarr;
+          </button>
+        </div>
+
+        <div id="founderStep2" style="display:none;">
+          <button type="button" onclick="founderGoBack()" style="background:none;border:none;color:#B8935A;font-size:0.85rem;cursor:pointer;padding:0;margin-bottom:1rem;">&#8592; Back</button>
+          <div style="background:#2C2416;border:1px solid rgba(184,147,90,0.3);border-radius:6px;padding:0.75rem 1rem;margin-bottom:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;">
+            <span><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Type: </span><span id="founderStep2TypeLabel" style="color:#B8935A;font-weight:700;font-size:0.8rem;"></span></span>
+            <span><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Domain: </span><span id="founderStep2Domain" style="color:#B8935A;font-weight:700;font-size:0.8rem;"></span></span>
+          </div>
+          <div id="founderStep2Summary" style="background:#1a2e1a;border:1px solid #4a8a4a;border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+            <div style="color:#7cb87c;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;margin-bottom:0.6rem;">✓ YOUR ORDER</div>
+            <div style="display:flex;flex-direction:column;gap:0.35rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span id="step3TypeSummary" style="color:#F8F2E6;font-size:0.85rem;">Baby Book</span>
+                <span id="step3PriceSummary" style="color:#B8935A;font-weight:700;font-size:0.85rem;">$29 first year</span>
+              </div>
+              <div style="color:#B8935A;font-size:0.82rem;">🌐 <span id="step3DomainSummary" style="font-weight:600;"></span></div>
+              <div style="color:rgba(248,242,230,0.45);font-size:0.74rem;margin-top:0.2rem;">Unlimited photos · milestones · letters · recipes · SSL hosting</div>
+              <div style="color:rgba(248,242,230,0.35);font-size:0.72rem;">Renews at $49.99/yr after first year — cancel anytime</div>
+            </div>
+          </div>
+          <label style="display:block;color:#B8935A;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.05em;">STEP 2 — YOUR EMAIL</label>
+          <input type="email" id="founderEmail" placeholder="you@example.com"
+            style="width:100%;padding:0.8rem 1rem;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:6px;color:#F8F2E6;font-size:0.95rem;box-sizing:border-box;margin-bottom:1.25rem;">
+          <button id="founderSubmitBtn" style="width:100%;padding:1rem;background:#B8935A;color:#1E1812;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">
+            Continue to Payment &rarr;
+          </button>
+          <p style="font-size:0.72rem;color:rgba(248,242,230,0.28);text-align:center;margin:0.75rem 0 0;">ℹ️ Please verify domain spelling above before completing purchase.</p>
+        </div>
+
+        <p id="founderModalError" style="display:none;color:#c0392b;font-size:0.85rem;margin:0.75rem 0 0;text-align:center;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== JS — checkout modal preserved verbatim ====== -->
+  <script>
+    let _founderSelectedDomain = null;
+    let _checkoutPlan = 'annual';
+    const _bookType = 'baby_book';
+    let _founderPrefillDomain = null;
+
+    function openFounderModal(plan, prefillDomain) {
+      _checkoutPlan = plan || 'annual';
+      _founderSelectedDomain = null;
+      _founderPrefillDomain = prefillDomain || null;
+      document.getElementById('founderStep1').style.display = '';
+      document.getElementById('founderStep2').style.display = 'none';
+      document.getElementById('founderDomainSearch').value = '';
+      document.getElementById('founderDomainResult').innerHTML = '';
+      document.getElementById('founderDomainConfirmed').style.display = 'none';
+      document.getElementById('founderNextBtn').disabled = true;
+      document.getElementById('founderNextBtn').style.background = '#4a3f2f';
+      document.getElementById('founderNextBtn').style.color = '#8a7a5a';
+      document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
+      document.getElementById('founderModalError').style.display = 'none';
+      if (_checkoutPlan === 'monthly') {
+        document.getElementById('founderModalSubtitle').textContent = '$4.99/month + $5.99 one-time setup fee. Cancel anytime.';
+      } else {
+        document.getElementById('founderModalSubtitle').textContent = '$29 your first year — renews at $49.99/year. Cancel anytime.';
+      }
+      document.getElementById('founderModal').style.display = 'flex';
+
+      if (_founderPrefillDomain) {
+        const domainInput = document.getElementById('founderDomainSearch');
+        const resultEl = document.getElementById('founderDomainResult');
+        domainInput.value = _founderPrefillDomain.replace('.com', '');
+        resultEl.innerHTML = '<span style="color:#7cb87c;font-weight:600;">&#10003; ' + _founderPrefillDomain + ' is available!</span>';
+        founderConfirmDomain(_founderPrefillDomain);
+        _founderPrefillDomain = null;
+      } else {
+        setTimeout(() => document.getElementById('founderDomainSearch').focus(), 100);
+      }
+    }
+
+    function founderGoBack() {
+      document.getElementById('founderStep2').style.display = 'none';
+      document.getElementById('founderStep1').style.display = '';
+    }
+
+    async function founderSearchDomain() {
+      const raw = document.getElementById('founderDomainSearch').value.trim().replace(/[^a-zA-Z0-9-]/g, '');
+      const resultEl = document.getElementById('founderDomainResult');
+      if (!raw || raw.length < 2) {
+        resultEl.innerHTML = '<span style="color:#c0392b;">Please enter at least 2 characters.</span>';
+        return;
+      }
+      const domain = raw.toLowerCase() + '.com';
+      resultEl.innerHTML = '<span style="color:rgba(248,242,230,0.4);">Checking availability…</span>';
+      document.getElementById('founderDomainSearchBtn').disabled = true;
+      try {
+        const res = await fetch('/api/domains/search?name=' + encodeURIComponent(raw));
+        const data = await res.json();
+        const primary = (data.results || []).find(r => r.domain === domain);
+        if (primary && primary.available && primary.underBudget) {
+          resultEl.innerHTML = '<span style="color:#7cb87c;font-weight:600;">&#10003; ' + domain + ' is available!</span>';
+          founderConfirmDomain(domain);
+        } else if (primary) {
+          resultEl.innerHTML = '<span style="color:#c0392b;">&#10007; ' + domain + ' is taken.</span>' +
+            (data.alternatives && data.alternatives.length ? '<br><span style="color:rgba(248,242,230,0.5);font-size:0.8rem;">Try one of these:</span>' : '');
+          if (data.alternatives && data.alternatives.length) {
+            data.alternatives.slice(0, 3).forEach(function(alt) {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.style = 'display:inline-block;margin:4px 4px 0 0;padding:4px 10px;background:#2C2416;border:1px solid rgba(184,147,90,0.4);border-radius:4px;color:#B8935A;font-size:0.8rem;cursor:pointer;';
+              btn.textContent = alt.domain;
+              btn.onclick = function() {
+                document.getElementById('founderDomainSearch').value = alt.domain.replace('.com','');
+                founderConfirmDomain(alt.domain);
+                resultEl.innerHTML = '<span style="color:#7cb87c;font-weight:600;">&#10003; ' + alt.domain + ' is available!</span>';
+              };
+              resultEl.appendChild(btn);
+            });
+          }
+          _founderSelectedDomain = null;
+          document.getElementById('founderNextBtn').disabled = true;
+          document.getElementById('founderNextBtn').style.background = '#4a3f2f';
+          document.getElementById('founderNextBtn').style.color = '#8a7a5a';
+          document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
+          document.getElementById('founderDomainConfirmed').style.display = 'none';
+        } else {
+          resultEl.innerHTML = '<span style="color:#c0392b;">Could not check availability. Try again.</span>';
+        }
+      } catch(e) {
+        resultEl.innerHTML = '<span style="color:#c0392b;">Connection error. Please try again.</span>';
+      }
+      document.getElementById('founderDomainSearchBtn').disabled = false;
+    }
+
+    function founderConfirmDomain(domain) {
+      _founderSelectedDomain = domain;
+      document.getElementById('founderDomainConfirmedName').textContent = 'www.' + domain;
+      document.getElementById('founderDomainConfirmed').style.display = 'block';
+      const nextBtn = document.getElementById('founderNextBtn');
+      nextBtn.disabled = false;
+      nextBtn.style.background = '#B8935A';
+      nextBtn.style.color = '#1E1812';
+      nextBtn.style.cursor = 'pointer';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('founderDomainSearchBtn').addEventListener('click', founderSearchDomain);
+      document.getElementById('founderDomainSearch').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); founderSearchDomain(); }
+      });
+
+      document.getElementById('founderDomainChangeBtn').addEventListener('click', function() {
+        _founderSelectedDomain = null;
+        document.getElementById('founderDomainConfirmed').style.display = 'none';
+        document.getElementById('founderDomainResult').innerHTML = '';
+        document.getElementById('founderDomainSearch').value = '';
+        document.getElementById('founderNextBtn').disabled = true;
+        document.getElementById('founderNextBtn').style.background = '#4a3f2f';
+        document.getElementById('founderNextBtn').style.color = '#8a7a5a';
+        document.getElementById('founderNextBtn').style.cursor = 'not-allowed';
+        document.getElementById('founderDomainSearch').focus();
+      });
+
+      document.getElementById('founderNextBtn').addEventListener('click', function() {
+        if (!_founderSelectedDomain) return;
+        const typeLabel = '👶 Baby Book';
+        document.getElementById('founderStep2TypeLabel').textContent = typeLabel;
+        document.getElementById('founderStep2Domain').textContent = 'www.' + _founderSelectedDomain;
+        document.getElementById('step3TypeSummary').textContent = typeLabel;
+        document.getElementById('step3DomainSummary').textContent = 'www.' + _founderSelectedDomain;
+        document.getElementById('step3PriceSummary').textContent = _checkoutPlan === 'monthly' ? '$4.99/mo' : '$29 first year';
+        document.getElementById('founderStep1').style.display = 'none';
+        document.getElementById('founderStep2').style.display = '';
+        setTimeout(() => document.getElementById('founderEmail').focus(), 100);
+      });
+
+      document.getElementById('founderSubmitBtn').addEventListener('click', async function() {
+        const email = document.getElementById('founderEmail').value.trim();
+        const errEl = document.getElementById('founderModalError');
+        errEl.style.display = 'none';
+        if (!email || !email.includes('@')) {
+          errEl.textContent = 'Please enter a valid email address.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (!_founderSelectedDomain) {
+          errEl.textContent = 'Please go back and select a domain first.';
+          errEl.style.display = 'block';
+          return;
+        }
+        const btn = document.getElementById('founderSubmitBtn');
+        btn.textContent = 'Redirecting to payment…';
+        btn.disabled = true;
+        try {
+          let endpoint, body, trackValue;
+          if (_checkoutPlan === 'monthly') {
+            endpoint = '/api/stripe/create-checkout';
+            body = { email, domain: _founderSelectedDomain, period: 'monthly', book_type: _bookType || 'baby_book' };
+            trackValue = 4.99;
+          } else {
+            endpoint = '/api/stripe/create-founder-checkout';
+            body = { email, domain: _founderSelectedDomain, book_type: _bookType || 'baby_book' };
+            trackValue = 29;
+          }
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (data.url) {
+            if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: trackValue, currency: 'USD' });
+            if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: trackValue, currency: 'USD' });
+            window.location.href = data.url;
+          } else {
+            throw new Error(data.error || 'Something went wrong');
+          }
+        } catch (err) {
+          errEl.textContent = err.message || 'Something went wrong. Please try again.';
+          errEl.style.display = 'block';
+          btn.textContent = 'Continue to Payment →';
+          btn.disabled = false;
+        }
+      });
+
+      document.getElementById('founderModal').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+      });
+
+      // Auto-open checkout modal if URL has ?open=checkout
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('open') === 'checkout') {
+        setTimeout(() => openFounderModal('annual'), 600);
+      }
+    });
+  </script>
+
+  <!-- ====== Hero domain search → pre-fills founder modal ====== -->
+  <script>
+    async function loHeroSearch(ev) {
+      if (ev) ev.preventDefault();
+      const inputEl = document.getElementById('loHeroInput');
+      const resultEl = document.getElementById('loHeroResult');
+      const btn = document.getElementById('loHeroBtn');
+      const raw = inputEl.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/\.com$/i, '');
+      if (!raw || raw.length < 2) {
+        resultEl.textContent = 'Type a name first (at least 2 characters).';
+        resultEl.className = 'lo-hero-search-result';
+        return;
+      }
+      resultEl.textContent = 'Checking availability…';
+      resultEl.className = 'lo-hero-search-result';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/domains/search?name=' + encodeURIComponent(raw));
+        const data = await res.json();
+        const domain = raw + '.com';
+        const primary = (data.results || []).find(r => r.domain === domain);
+        if (primary && primary.available && primary.underBudget) {
+          resultEl.textContent = '✓ ' + domain + ' is available — opening checkout…';
+          resultEl.className = 'lo-hero-search-result available';
+          // Pre-fill the founder modal with the available domain
+          openFounderModal('annual', domain);
+        } else if (primary) {
+          let msg = '✗ ' + domain + ' is taken.';
+          if (data.alternatives && data.alternatives.length) {
+            msg += ' Try: ' + data.alternatives.slice(0, 3).map(a => a.domain).join(' · ');
+          }
+          resultEl.textContent = msg;
+          resultEl.className = 'lo-hero-search-result taken';
+        } else {
+          resultEl.textContent = 'Could not check that name. Please try again.';
+          resultEl.className = 'lo-hero-search-result taken';
+        }
+      } catch (err) {
+        resultEl.textContent = 'Connection error. Please try again.';
+        resultEl.className = 'lo-hero-search-result taken';
+      }
+      btn.disabled = false;
+    }
+
+    // Contact form
+    document.getElementById('loContactForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const status = document.getElementById('loContactStatus');
+      const data = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        message: form.message.value.trim(),
+      };
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          status.textContent = "Thanks — we'll get back to you within a day.";
+          if (typeof fbq !== 'undefined') fbq('track', 'Lead');
+          if (typeof pintrk !== 'undefined') pintrk('track', 'lead');
+          form.reset();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          status.textContent = err.error || 'Something went wrong. Please email hello@legacyodyssey.com.';
+        }
+      } catch (err) {
+        status.textContent = 'Network error. Please email hello@legacyodyssey.com.';
+      }
+    });
+  </script>
+
+</body>
+</html>
