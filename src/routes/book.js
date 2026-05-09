@@ -74,6 +74,13 @@ router.get('/preview/landing-v1', (req, res) => {
   res.render('marketing/landing', { landingVariant: 'v1' });
 });
 
+// Preview route for the gift-giver landing — NOT live until promoted.
+// Same architecture: bypasses resolveFamily so it renders for legacyodyssey.com
+// regardless of which family record the host resolves to.
+router.get('/preview/gift-landing', (req, res) => {
+  res.render('marketing/gift-landing');
+});
+
 // Set password page — linked from welcome email recovery link
 router.get('/set-password', (req, res) => {
   res.render('marketing/set-password', {

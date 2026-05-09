@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Pinterest Domain Verification -->
+  <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1"/>
+
+  <title>The Baby Shower Gift No One Else Will Think Of — Legacy Odyssey</title>
+  <meta name="description" content="Give them their own .com — and a beautifully designed digital baby book to fill it with. The most thoughtful baby shower gift, $29 one-time.">
+  <link rel="canonical" href="https://legacyodyssey.com/preview/gift-landing">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://legacyodyssey.com/preview/gift-landing">
+  <meta property="og:title" content="The Baby Shower Gift No One Else Will Think Of">
+  <meta property="og:description" content="Give them their own .com — and a beautifully designed digital baby book to fill it with. The most thoughtful baby shower gift, $29 one-time.">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Baby Shower Gift No One Else Will Think Of">
+  <meta name="twitter:description" content="Give them their own .com — and a beautifully designed digital baby book. $29 one-time.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/marketing.css">
+
+  <style>
+    /* ---------- BASE (lg- = "landing gift") ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    .lg-page { font-family: 'Jost', system-ui, sans-serif; background: #faf7f2; color: #2c2416; overflow-x: hidden; line-height: 1.5; margin: 0; }
+    .lg-page p { margin: 0 0 16px; }
+
+    /* ---------- NAV ---------- */
+    .lg-nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 100;
+      background: rgba(26, 21, 16, 0.85); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .lg-nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #faf7f2; letter-spacing: 0.5px; text-decoration: none; }
+    .lg-nav-logo span { color: #c8a96e; }
+    .lg-nav-links { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; gap: 22px; }
+    .lg-nav-links a, .lg-nav-cta {
+      color: rgba(250,247,242,0.85); text-decoration: none; font-size: 14px; font-weight: 500; letter-spacing: 0.3px;
+      background: none; border: none; cursor: pointer; padding: 0; font-family: inherit;
+    }
+    .lg-nav-links a:hover, .lg-nav-cta:hover { color: #c8a96e; }
+    .lg-nav-cta {
+      background: #c8a96e !important; color: #1a1510 !important; padding: 9px 20px !important;
+      border-radius: 4px; font-size: 13px !important; font-weight: 600 !important;
+      letter-spacing: 0.5px; text-transform: uppercase; transition: background 0.2s !important;
+    }
+    .lg-nav-cta:hover { background: #d4bb8a !important; color: #1a1510 !important; }
+    @media (max-width: 700px) {
+      .lg-nav-only-md { display: none; }
+    }
+
+    /* ---------- HERO ---------- */
+    .lg-hero {
+      position: relative; min-height: 92vh; padding: 100px 24px 80px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .lg-hero-photo {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?w=1600&auto=format&q=70');
+      background-size: cover; background-position: center;
+      filter: brightness(0.45);
+    }
+    .lg-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(26,21,16,0.35) 0%, rgba(26,21,16,0.6) 60%, rgba(26,21,16,0.85) 100%);
+    }
+    .lg-hero-content { position: relative; z-index: 2; max-width: 880px; text-align: center; color: #faf7f2; }
+    .lg-hero-eyebrow {
+      font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500;
+      letter-spacing: 4px; text-transform: uppercase; color: #c8a96e;
+      margin-bottom: 24px;
+    }
+    .lg-hero-headline {
+      font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 6vw, 78px);
+      font-weight: 400; line-height: 1.1; color: #faf7f2; margin: 0 0 24px;
+    }
+    .lg-hero-headline em { font-style: italic; color: #c8a96e; font-weight: 400; }
+    .lg-hero-sub { font-size: 19px; line-height: 1.6; color: rgba(250,247,242,0.85); max-width: 620px; margin: 0 auto 36px; }
+    .lg-hero-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #c8a96e; color: #1a1510; padding: 18px 40px; border-radius: 6px;
+      font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      text-decoration: none; transition: background 0.2s; border: none; cursor: pointer; font-family: inherit;
+    }
+    .lg-hero-cta:hover { background: #d4bb8a; }
+    .lg-hero-cta-note { font-size: 13px; color: rgba(250,247,242,0.55); margin-top: 14px; }
+
+    .lg-hero-proof { display: flex; gap: 24px; justify-content: center; margin-top: 48px; flex-wrap: wrap; }
+    .lg-hero-proof-item {
+      display: flex; align-items: center; gap: 8px;
+      color: rgba(250,247,242,0.85); font-size: 13px; font-weight: 500;
+    }
+    .lg-hero-proof-item svg { width: 16px; height: 16px; color: #c8a96e; }
+    .lg-hero-proof-divider { width: 1px; height: 16px; background: rgba(250,247,242,0.2); }
+    @media (max-width: 700px) { .lg-hero-proof-divider { display: none; } }
+
+    /* ---------- TRUST BAR ---------- */
+    .lg-trust-bar {
+      background: #1a1510; color: #faf7f2; padding: 24px;
+      display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap;
+      font-size: 13px; font-weight: 500; letter-spacing: 0.3px;
+    }
+    .lg-trust-item { display: flex; align-items: center; gap: 8px; color: rgba(250,247,242,0.85); }
+    .lg-trust-item svg { width: 18px; height: 18px; color: #c8a96e; }
+    .lg-trust-divider { width: 1px; height: 18px; background: rgba(250,247,242,0.18); }
+    @media (max-width: 900px) { .lg-trust-divider { display: none; } }
+
+    /* ---------- SECTION GENERICS ---------- */
+    .lg-section { padding: 96px 24px; }
+    .lg-section-eyebrow {
+      font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500;
+      letter-spacing: 4px; text-transform: uppercase; color: #c8a96e;
+      margin-bottom: 16px;
+    }
+    .lg-section-headline {
+      font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 4.5vw, 60px);
+      font-weight: 400; line-height: 1.15; color: #1a1510; margin: 0 0 20px;
+    }
+    .lg-section-headline em { font-style: italic; color: #b08e4a; font-weight: 400; }
+    .lg-section-sub { font-size: 17px; line-height: 1.65; color: #5e564a; max-width: 620px; }
+
+    /* ---------- PREVIEW (browser mockup) ---------- */
+    .lg-preview-inner {
+      max-width: 1180px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center;
+    }
+    @media (max-width: 900px) { .lg-preview-inner { grid-template-columns: 1fr; gap: 48px; } }
+    .lg-browser {
+      background: #1a1510; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 30px 60px rgba(26,21,16,0.25);
+    }
+    .lg-browser-bar { background: #0f0d0a; padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
+    .lg-browser-dots { display: flex; gap: 6px; }
+    .lg-browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .lg-browser-dot-r { background: #ff5f57; }
+    .lg-browser-dot-y { background: #ffbd2e; }
+    .lg-browser-dot-g { background: #28c840; }
+    .lg-browser-url { flex: 1; text-align: center; font-size: 12px; color: rgba(250,247,242,0.6); font-family: 'Jost', sans-serif; }
+    .lg-browser-url span { color: #c8a96e; font-weight: 600; }
+    .lg-book-preview { padding: 48px 32px; text-align: center; }
+    .lg-book-name { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #c8a96e; margin: 0 0 8px; }
+    .lg-book-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: #faf7f2; margin: 0 0 24px; line-height: 1.2; }
+    .lg-book-rule { width: 60px; height: 1px; background: #c8a96e; margin: 0 auto 24px; }
+    .lg-book-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+    .lg-book-photo { aspect-ratio: 1; border-radius: 4px; overflow: hidden; }
+    .lg-book-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lg-book-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .lg-book-pill { background: rgba(200,169,110,0.15); border: 1px solid rgba(200,169,110,0.25); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: #c8a96e; font-family: 'Jost', sans-serif; letter-spacing: 0.3px; }
+
+    .lg-preview-features { list-style: none; padding: 0; margin: 28px 0 0; }
+    .lg-preview-features li { display: flex; gap: 14px; padding: 10px 0; font-size: 16px; color: #2c2416; line-height: 1.55; }
+    .lg-feature-check {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: #c8a96e; color: #1a1510; display: flex; align-items: center; justify-content: center;
+      margin-top: 2px;
+    }
+    .lg-feature-check svg { width: 12px; height: 12px; }
+
+    /* ---------- COMPARISON ---------- */
+    .lg-compare {
+      background: #1a1510; color: #faf7f2;
+    }
+    .lg-compare-inner { max-width: 1080px; margin: 0 auto; }
+    .lg-compare-header { text-align: center; margin-bottom: 56px; }
+    .lg-compare-header .lg-section-headline { color: #faf7f2; }
+    .lg-compare-header .lg-section-headline em { color: #c8a96e; }
+    .lg-compare-header .lg-section-eyebrow { color: rgba(200,169,110,0.7); }
+    .lg-compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      border: 1px solid rgba(200,169,110,0.25); border-radius: 12px; overflow: hidden;
+    }
+    @media (max-width: 700px) { .lg-compare-grid { grid-template-columns: 1fr; } }
+    .lg-compare-col {
+      padding: 32px 28px;
+    }
+    .lg-compare-col-other { background: rgba(250,247,242,0.04); }
+    .lg-compare-col-us { background: linear-gradient(180deg, rgba(200,169,110,0.12), rgba(200,169,110,0.03)); border-left: 1px solid rgba(200,169,110,0.25); }
+    @media (max-width: 700px) { .lg-compare-col-us { border-left: none; border-top: 1px solid rgba(200,169,110,0.25); } }
+    .lg-compare-tag { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(250,247,242,0.55); margin-bottom: 12px; }
+    .lg-compare-col-us .lg-compare-tag { color: #c8a96e; }
+    .lg-compare-h { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #faf7f2; margin: 0 0 18px; }
+    .lg-compare-list { list-style: none; padding: 0; margin: 0; }
+    .lg-compare-list li {
+      padding: 9px 0; font-size: 15px; color: rgba(250,247,242,0.78); line-height: 1.55;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .lg-compare-icon { flex-shrink: 0; width: 16px; height: 16px; margin-top: 4px; }
+    .lg-compare-col-other .lg-compare-icon { color: rgba(250,247,242,0.35); }
+    .lg-compare-col-us .lg-compare-icon { color: #c8a96e; }
+
+    /* ---------- HOW IT WORKS ---------- */
+    .lg-how-inner { max-width: 1080px; margin: 0 auto; }
+    .lg-how-header { text-align: center; margin-bottom: 56px; }
+    .lg-how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+    @media (max-width: 800px) { .lg-how-steps { grid-template-columns: 1fr; } }
+    .lg-how-step {
+      background: #f0e8dc; border-radius: 12px; padding: 32px 28px;
+      border: 1px solid rgba(184,142,74,0.15);
+    }
+    .lg-how-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #1a1510; border: 2px solid #c8a96e;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #c8a96e;
+      margin-bottom: 22px;
+    }
+    .lg-how-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #1a1510; margin: 0 0 12px; }
+    .lg-how-desc { font-size: 15px; color: #5e564a; line-height: 1.6; margin: 0; }
+
+    /* ---------- DELIVERY OPTIONS (highlight schedule + certificate) ---------- */
+    .lg-delivery {
+      background: #faf7f2;
+    }
+    .lg-delivery-inner { max-width: 1080px; margin: 0 auto; text-align: center; }
+    .lg-delivery-header { margin-bottom: 48px; }
+    .lg-delivery-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: left; }
+    @media (max-width: 800px) { .lg-delivery-cards { grid-template-columns: 1fr; } }
+    .lg-delivery-card {
+      padding: 32px 28px; background: #fff;
+      border: 1px solid rgba(184,142,74,0.18); border-radius: 12px;
+    }
+    .lg-delivery-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(200,169,110,0.15); color: #b08e4a;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+    }
+    .lg-delivery-icon svg { width: 22px; height: 22px; }
+    .lg-delivery-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #1a1510; margin: 0 0 8px; }
+    .lg-delivery-card p { font-size: 15px; color: #5e564a; line-height: 1.6; margin: 0; }
+
+    /* ---------- PRICING + FORM ---------- */
+    .lg-buy {
+      background: linear-gradient(180deg, #1a1510 0%, #2c2416 100%);
+      color: #faf7f2;
+    }
+    .lg-buy-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
+    }
+    @media (max-width: 900px) { .lg-buy-inner { grid-template-columns: 1fr; gap: 40px; } }
+    .lg-buy-left .lg-section-headline { color: #faf7f2; }
+    .lg-buy-left .lg-section-headline em { color: #c8a96e; }
+    .lg-buy-left .lg-section-eyebrow { color: rgba(200,169,110,0.7); }
+    .lg-buy-left .lg-section-sub { color: rgba(250,247,242,0.75); }
+    .lg-buy-points { list-style: none; padding: 0; margin: 28px 0 0; }
+    .lg-buy-points li { display: flex; gap: 12px; padding: 8px 0; color: rgba(250,247,242,0.85); font-size: 15px; }
+    .lg-buy-points li svg { flex-shrink: 0; width: 18px; height: 18px; color: #c8a96e; margin-top: 3px; }
+
+    .lg-buy-card {
+      background: rgba(250,247,242,0.04); border: 1px solid rgba(200,169,110,0.3);
+      border-radius: 12px; padding: 32px 28px;
+      backdrop-filter: blur(8px);
+    }
+    .lg-buy-card-tag { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #c8a96e; margin-bottom: 12px; font-weight: 600; }
+    .lg-buy-card-price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+    .lg-buy-card-price-num { font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 300; color: #faf7f2; line-height: 1; }
+    .lg-buy-card-price-period { font-size: 15px; color: rgba(250,247,242,0.6); }
+    .lg-buy-card-renewal { font-size: 13px; color: rgba(250,247,242,0.55); margin-bottom: 24px; line-height: 1.55; }
+
+    .lg-form { display: flex; flex-direction: column; gap: 14px; }
+    .lg-form label {
+      display: block; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;
+      color: rgba(250,247,242,0.65); font-weight: 500; margin-bottom: 6px;
+    }
+    .lg-form input, .lg-form textarea {
+      width: 100%; padding: 12px 14px;
+      background: rgba(250,247,242,0.06); border: 1px solid rgba(250,247,242,0.18); border-radius: 6px;
+      color: #faf7f2; font-family: 'Jost', sans-serif; font-size: 14px;
+    }
+    .lg-form input::placeholder, .lg-form textarea::placeholder { color: rgba(250,247,242,0.35); }
+    .lg-form input:focus, .lg-form textarea:focus { outline: none; border-color: #c8a96e; background: rgba(255,255,255,0.07); }
+    .lg-form textarea { min-height: 90px; resize: vertical; font-family: inherit; }
+    .lg-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .lg-form-row { grid-template-columns: 1fr; } }
+    .lg-form-radios { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .lg-form-radio {
+      display: flex; gap: 12px; padding: 12px 14px; border: 1px solid rgba(250,247,242,0.15); border-radius: 6px;
+      cursor: pointer; transition: all 0.15s; align-items: flex-start;
+    }
+    .lg-form-radio:hover { border-color: rgba(200,169,110,0.5); background: rgba(255,255,255,0.03); }
+    .lg-form-radio input[type="radio"] { width: 16px; height: 16px; margin-top: 3px; accent-color: #c8a96e; }
+    .lg-form-radio.checked { border-color: #c8a96e; background: rgba(200,169,110,0.07); }
+    .lg-form-radio-label { font-size: 14px; color: #faf7f2; font-weight: 500; }
+    .lg-form-radio-hint { font-size: 12px; color: rgba(250,247,242,0.55); margin-top: 2px; }
+
+    .lg-form-submit {
+      padding: 16px 28px; background: #c8a96e; color: #1a1510;
+      border: none; border-radius: 6px; font-size: 14px; font-weight: 700;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s; margin-top: 6px;
+    }
+    .lg-form-submit:hover { background: #d4bb8a; }
+    .lg-form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .lg-form-error { color: #e89696; font-size: 13px; min-height: 16px; margin: 4px 0 0; }
+    #lgScheduledDateRow { display: none; }
+    #lgScheduledDateRow.show { display: block; }
+
+    /* ---------- FAQ ---------- */
+    .lg-faq-inner { max-width: 760px; margin: 0 auto; }
+    .lg-faq-header { text-align: center; margin-bottom: 40px; }
+    .lg-faq-item {
+      border-bottom: 1px solid rgba(184,142,74,0.18);
+    }
+    .lg-faq-item summary {
+      list-style: none; cursor: pointer; padding: 22px 0 12px;
+      font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500;
+      color: #1a1510; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+    }
+    .lg-faq-item summary::-webkit-details-marker { display: none; }
+    .lg-faq-item summary::after { content: '+'; color: #c8a96e; font-size: 22px; flex-shrink: 0; transition: transform 0.2s; }
+    .lg-faq-item[open] summary::after { content: '–'; }
+    .lg-faq-answer { padding: 0 0 22px; font-size: 15px; line-height: 1.65; color: #5e564a; margin: 0; }
+
+    /* ---------- FOOTER ---------- */
+    .lg-footer {
+      padding: 48px 24px; text-align: center;
+      background: #1a1510; color: rgba(250,247,242,0.6);
+    }
+    .lg-footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: #faf7f2; text-decoration: none; }
+    .lg-footer-logo span { color: #c8a96e; }
+    .lg-footer-links { display: flex; gap: 22px; justify-content: center; margin: 22px 0; flex-wrap: wrap; }
+    .lg-footer-links a { color: rgba(250,247,242,0.65); text-decoration: none; font-size: 13px; }
+    .lg-footer-links a:hover { color: #c8a96e; }
+    .lg-footer-copy { font-size: 12px; color: rgba(250,247,242,0.4); }
+  </style>
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    // Tag this landing as the gift-giver variant (separate from v1/v2 of the main landing).
+    gtag('set', { 'landing_variant': 'gift' });
+    gtag('config', 'G-LMJVX82M3Q');
+  </script>
+  <!-- End Google Analytics 4 -->
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '839009299208301');
+  fbq('track', 'PageView');
+  </script>
+  <noscript>
+  <img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=839009299208301&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- Hotjar / Contentsquare Tracking -->
+  <script src="https://t.contentsquare.net/uxa/38cdf4e1f1a56.js"></script>
+
+  <!-- Pinterest Tag -->
+  <script>
+  !function(e){if(!window.pintrk){window.pintrk = function () {
+  window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+    n=window.pintrk;n.queue=[],n.version="3.0";var
+    t=document.createElement("script");t.async=!0,t.src=e;var
+    r=document.getElementsByTagName("script")[0];
+    r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+  pintrk('load', '2613467907928');
+  pintrk('page');
+  </script>
+  <noscript>
+  <img height="1" width="1" style="display:none;" alt=""
+    src="https://ct.pinterest.com/v3/?event=init&tid=2613467907928&noscript=1" />
+  </noscript>
+  <!-- end Pinterest Tag -->
+</head>
+<body class="lg-page">
+
+  <!-- ====== NAV ====== -->
+  <nav class="lg-nav">
+    <a href="/" class="lg-nav-logo">Legacy <span>Odyssey</span></a>
+    <ul class="lg-nav-links">
+      <li class="lg-nav-only-md"><a href="#what-they-get">The Gift</a></li>
+      <li class="lg-nav-only-md"><a href="#how">How It Works</a></li>
+      <li class="lg-nav-only-md"><a href="#faq">FAQ</a></li>
+      <li><a href="#buy" class="lg-nav-cta">Give the Gift</a></li>
+    </ul>
+  </nav>
+
+  <!-- ====== HERO ====== -->
+  <section class="lg-hero">
+    <div class="lg-hero-photo"></div>
+    <div class="lg-hero-overlay"></div>
+    <div class="lg-hero-content">
+      <div class="lg-hero-eyebrow">For Someone Special</div>
+      <h1 class="lg-hero-headline">The baby shower gift<br>no one else will <em>think of.</em></h1>
+      <p class="lg-hero-sub">
+        Give the baby a real <strong>.com</strong> domain — and a beautifully
+        designed digital book where their first year unfolds. Lasting,
+        personal, and entirely theirs.
+      </p>
+      <a href="#buy" class="lg-hero-cta">Give the Gift — $29 →</a>
+      <div class="lg-hero-cta-note">One-time. No subscription on you. They redeem when they're ready.</div>
+
+      <div class="lg-hero-proof">
+        <div class="lg-hero-proof-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Instant gift code in your inbox
+        </div>
+        <div class="lg-hero-proof-divider"></div>
+        <div class="lg-hero-proof-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          They pick their own .com
+        </div>
+        <div class="lg-hero-proof-divider"></div>
+        <div class="lg-hero-proof-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          One full year included
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== TRUST BAR ====== -->
+  <div class="lg-trust-bar">
+    <div class="lg-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+      Email arrives the moment you check out
+    </div>
+    <div class="lg-trust-divider"></div>
+    <div class="lg-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Schedule delivery for the shower or due date
+    </div>
+    <div class="lg-trust-divider"></div>
+    <div class="lg-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Print a beautiful certificate to hand over
+    </div>
+    <div class="lg-trust-divider"></div>
+    <div class="lg-trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      No auto-charges to you, ever
+    </div>
+  </div>
+
+  <!-- ====== WHAT THEY GET ====== -->
+  <section class="lg-section" id="what-they-get">
+    <div class="lg-preview-inner">
+      <div class="lg-browser">
+        <div class="lg-browser-bar">
+          <div class="lg-browser-dots">
+            <div class="lg-browser-dot lg-browser-dot-r"></div>
+            <div class="lg-browser-dot lg-browser-dot-y"></div>
+            <div class="lg-browser-dot lg-browser-dot-g"></div>
+          </div>
+          <div class="lg-browser-url">www.<span>your-childs-name</span>.com</div>
+        </div>
+        <div class="lg-book-preview">
+          <div class="lg-book-name">The Story of</div>
+          <div class="lg-book-title">Sophia's<br>First Year</div>
+          <div class="lg-book-rule"></div>
+          <div class="lg-book-grid">
+            <div class="lg-book-photo"><img src="https://images.unsplash.com/photo-1604917621956-10dfa7cce2e7?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
+            <div class="lg-book-photo"><img src="https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
+            <div class="lg-book-photo"><img src="https://images.unsplash.com/photo-1533483595632-c5f0e57a1936?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
+          </div>
+          <div class="lg-book-pills">
+            <div class="lg-book-pill">Birth Story</div>
+            <div class="lg-book-pill">Month by Month</div>
+            <div class="lg-book-pill">Letters</div>
+            <div class="lg-book-pill">Family Recipes</div>
+            <div class="lg-book-pill">Time Vault</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="lg-section-eyebrow">What your gift becomes</div>
+        <h2 class="lg-section-headline">Their own corner<br>of the <em>internet.</em></h2>
+        <p class="lg-section-sub">
+          The recipient picks their child's name as a real .com domain,
+          and your gift unlocks a beautifully designed baby book that
+          lives there — private, password-protected, and theirs forever.
+        </p>
+        <ul class="lg-preview-features">
+          <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Their own real .com domain</strong> — registered in the child's name, one-of-a-kind</span></li>
+          <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>A beautifully designed digital baby book</strong> — birth story, month-by-month milestones, family recipes</span></li>
+          <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Letters & sealed messages</strong> — write to them now, unlock when they're older</span></li>
+          <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Unlimited photos</strong> — no storage caps, no compression</span></li>
+          <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>iOS & Android apps</strong> included for the parents</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== COMPARISON ====== -->
+  <section class="lg-section lg-compare">
+    <div class="lg-compare-inner">
+      <div class="lg-compare-header">
+        <div class="lg-section-eyebrow">Stand out</div>
+        <h2 class="lg-section-headline">Outlasts every other<br>shower <em>gift.</em></h2>
+      </div>
+      <div class="lg-compare-grid">
+        <div class="lg-compare-col lg-compare-col-other">
+          <div class="lg-compare-tag">Other baby gifts</div>
+          <h3 class="lg-compare-h">The usual stuff</h3>
+          <ul class="lg-compare-list">
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Outgrown in a few months</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>One of a dozen onesies on the table</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Forgotten in a drawer by year two</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Generic — could be for any kid</li>
+          </ul>
+        </div>
+        <div class="lg-compare-col lg-compare-col-us">
+          <div class="lg-compare-tag">Legacy Odyssey</div>
+          <h3 class="lg-compare-h">A gift they keep forever</h3>
+          <ul class="lg-compare-list">
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Lives on as long as they keep it</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>One-of-a-kind — only one .com per child</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Active part of the child's first year</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Personal in their child's name</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== HOW IT WORKS ====== -->
+  <section class="lg-section" id="how">
+    <div class="lg-how-inner">
+      <div class="lg-how-header">
+        <div class="lg-section-eyebrow">Three steps</div>
+        <h2 class="lg-section-headline">Easy to give.<br><em>Beautiful</em> to receive.</h2>
+      </div>
+      <div class="lg-how-steps">
+        <div class="lg-how-step">
+          <div class="lg-how-num">1</div>
+          <div class="lg-how-title">Buy the gift</div>
+          <p class="lg-how-desc">$29, one-time. Your gift code arrives in your inbox the moment you check out — no subscription on your card, no surprise renewals later.</p>
+        </div>
+        <div class="lg-how-step">
+          <div class="lg-how-num">2</div>
+          <div class="lg-how-title">Give it your way</div>
+          <p class="lg-how-desc">Have us email the recipient now, schedule the email for their baby shower or due date, or print a beautiful certificate to hand them in person.</p>
+        </div>
+        <div class="lg-how-step">
+          <div class="lg-how-num">3</div>
+          <div class="lg-how-title">They redeem when ready</div>
+          <p class="lg-how-desc">They pick their own .com (no need to know the baby's name yet) and start filling in the book on the iOS or Android app at their pace.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== DELIVERY OPTIONS ====== -->
+  <section class="lg-section lg-delivery">
+    <div class="lg-delivery-inner">
+      <div class="lg-delivery-header">
+        <div class="lg-section-eyebrow">Your timing</div>
+        <h2 class="lg-section-headline">Three ways to <em>give it.</em></h2>
+        <p class="lg-section-sub" style="margin-left:auto;margin-right:auto;">Pick whichever fits the moment — switch later if you change your mind.</p>
+      </div>
+      <div class="lg-delivery-cards">
+        <div class="lg-delivery-card">
+          <div class="lg-delivery-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+          </div>
+          <h3>Email it now</h3>
+          <p>The recipient gets a beautifully designed gift email with the redemption link the moment your purchase clears.</p>
+        </div>
+        <div class="lg-delivery-card">
+          <div class="lg-delivery-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>Schedule the email</h3>
+          <p>Pick any date — the morning of the baby shower, the due date, the day they bring the baby home. We send it then.</p>
+        </div>
+        <div class="lg-delivery-card">
+          <div class="lg-delivery-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h3>Print a certificate</h3>
+          <p>Download a beautifully designed PDF certificate with the gift code on it — perfect to hand over wrapped at the shower.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== BUY ====== -->
+  <section class="lg-section lg-buy" id="buy">
+    <div class="lg-buy-inner">
+      <div class="lg-buy-left">
+        <div class="lg-section-eyebrow">Give the gift</div>
+        <h2 class="lg-section-headline">A gift they'll<br><em>never</em> throw out.</h2>
+        <p class="lg-section-sub">
+          $29 one-time. One full year for them. No surprises for you.
+        </p>
+        <ul class="lg-buy-points">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>The recipient picks their own .com when they're ready</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Choose: email now, scheduled email, or printable certificate</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>No card on you after this — they manage their own renewal next year</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>If they don't redeem, no one is charged anything more</span></li>
+        </ul>
+      </div>
+
+      <div class="lg-buy-card">
+        <div class="lg-buy-card-tag">One-time gift</div>
+        <div class="lg-buy-card-price">
+          <div class="lg-buy-card-price-num">$29</div>
+          <div class="lg-buy-card-price-period">one-time</div>
+        </div>
+        <div class="lg-buy-card-renewal">Includes one full year. After that, the recipient adds their own card to keep going at $49.99/year — or lets it lapse with no charges to anyone.</div>
+
+        <form class="lg-form" id="lgGiftForm" novalidate>
+          <div class="lg-form-row">
+            <div>
+              <label for="lgBuyerEmail">Your email</label>
+              <input type="email" id="lgBuyerEmail" name="buyerEmail" placeholder="you@example.com" required>
+            </div>
+            <div>
+              <label for="lgBuyerName">Your name</label>
+              <input type="text" id="lgBuyerName" name="buyerName" placeholder="Optional">
+            </div>
+          </div>
+          <div>
+            <label for="lgRecipientName">Recipient's name</label>
+            <input type="text" id="lgRecipientName" name="recipientName" placeholder="e.g. Sarah Smith" required>
+          </div>
+          <div>
+            <label>How should we deliver it?</label>
+            <div class="lg-form-radios">
+              <label class="lg-form-radio checked">
+                <input type="radio" name="deliveryMethod" value="email_now" checked>
+                <div>
+                  <div class="lg-form-radio-label">Email it now</div>
+                  <div class="lg-form-radio-hint">The recipient gets the gift email the moment your payment clears.</div>
+                </div>
+              </label>
+              <label class="lg-form-radio">
+                <input type="radio" name="deliveryMethod" value="email_scheduled">
+                <div>
+                  <div class="lg-form-radio-label">Schedule the email</div>
+                  <div class="lg-form-radio-hint">Pick a date — perfect for a shower or due date.</div>
+                </div>
+              </label>
+              <label class="lg-form-radio">
+                <input type="radio" name="deliveryMethod" value="certificate">
+                <div>
+                  <div class="lg-form-radio-label">Just give me a printable certificate</div>
+                  <div class="lg-form-radio-hint">No email sent — you'll get a beautiful PDF to hand them in person.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div id="lgScheduledDateRow">
+            <label for="lgScheduledDate">Send on this date</label>
+            <input type="date" id="lgScheduledDate" name="scheduledDate">
+          </div>
+          <div id="lgRecipientEmailRow">
+            <label for="lgRecipientEmail">Recipient's email <span style="text-transform:none;color:rgba(250,247,242,0.4);">(needed for email delivery)</span></label>
+            <input type="email" id="lgRecipientEmail" name="recipientEmail" placeholder="them@example.com">
+          </div>
+          <div>
+            <label for="lgGiftMessage">Personal note <span style="text-transform:none;color:rgba(250,247,242,0.4);">(optional)</span></label>
+            <textarea id="lgGiftMessage" name="giftMessage" placeholder="Write something they'll see when they redeem…"></textarea>
+          </div>
+          <button type="submit" class="lg-form-submit" id="lgGiftBtn">Give the Gift — $29</button>
+          <p class="lg-form-error" id="lgGiftError"></p>
+          <p style="font-size:12px;color:rgba(250,247,242,0.4);margin:6px 0 0;text-align:center;">You'll be sent to Stripe to complete payment. We never store your card on our side.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FAQ ====== -->
+  <section class="lg-section" id="faq" style="background:#fbf6ee;">
+    <div class="lg-faq-inner">
+      <div class="lg-faq-header">
+        <div class="lg-section-eyebrow">Common questions</div>
+        <h2 class="lg-section-headline">Things gift-givers <em>ask us.</em></h2>
+      </div>
+
+      <details class="lg-faq-item">
+        <summary>What if I don't know the baby's name yet?</summary>
+        <p class="lg-faq-answer">No problem at all — the recipient picks their own .com when they redeem the code. You don't need to know the name, the spelling, or whether they've decided yet. Many gifts are bought before the shower, sometimes before the parents have settled on a name.</p>
+      </details>
+
+      <details class="lg-faq-item">
+        <summary>Can I make sure they get this on the day of the shower?</summary>
+        <p class="lg-faq-answer">Yes. When you check out, choose "Schedule the email" and pick the date. We hold the gift email and send it on the morning you choose — so it arrives right when the moment matters.</p>
+      </details>
+
+      <details class="lg-faq-item">
+        <summary>Can I print something to hand them?</summary>
+        <p class="lg-faq-answer">Yes. Choose "Just give me a printable certificate" at checkout and we'll generate a beautifully designed PDF with the gift code on it — perfect to wrap, fold into a card, or hand over at the shower. No email is sent automatically; you give them the certificate in person.</p>
+      </details>
+
+      <details class="lg-faq-item">
+        <summary>What if they don't want it / don't redeem?</summary>
+        <p class="lg-faq-answer">Nothing bad happens. The gift code stays valid as long as you'd like — gift codes don't expire. And nobody is charged anything more, ever, unless the recipient personally redeems and adds their own card after the gift year. There's no awkward auto-renewal landing on you.</p>
+      </details>
+
+      <details class="lg-faq-item">
+        <summary>Is it weird to give a website as a gift?</summary>
+        <p class="lg-faq-answer">It's a digital baby book at their .com — closer to giving a leather-bound journal than giving them a Substack. People treat it like an heirloom: they share the password with grandparents, write letters into it for the kid's 18th birthday, and hand it down. It's the opposite of "another app."</p>
+      </details>
+
+      <details class="lg-faq-item">
+        <summary>What happens after the first year?</summary>
+        <p class="lg-faq-answer">After the gift year, the recipient adds their own card to continue at $49.99/year (about $4.17/month). If they choose not to, no one is charged — the book goes private and the domain stays registered through its registration year. They can re-activate any time later.</p>
+      </details>
+
+      <details class="lg-faq-item">
+        <summary>Can I give more than one?</summary>
+        <p class="lg-faq-answer">Of course — many people gift one to each new baby in their family. Each gift is its own code, redeemable for one .com and one book.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ====== FINAL CTA ====== -->
+  <section class="lg-section" style="background:#1a1510;color:#faf7f2;text-align:center;">
+    <div style="max-width:720px;margin:0 auto;">
+      <div class="lg-section-eyebrow" style="color:rgba(200,169,110,0.7);">Last call</div>
+      <h2 class="lg-section-headline" style="color:#faf7f2;">Give a gift they'll<br>never <em>throw out.</em></h2>
+      <p class="lg-section-sub" style="color:rgba(250,247,242,0.75);margin:0 auto 32px;">$29. One-time. The most thoughtful thing you'll bring to the shower.</p>
+      <a href="#buy" class="lg-hero-cta">Give the Gift — $29 →</a>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="lg-footer">
+    <a href="/" class="lg-footer-logo">Legacy <span>Odyssey</span></a>
+    <div class="lg-footer-links">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+      <a href="#faq">FAQ</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+    <div class="lg-footer-copy">&copy; 2026 Legacy Odyssey · DOR Industries · A digital baby book at their own .com</div>
+  </footer>
+
+  <script>
+    // Toggle scheduled-date row + recipient-email row based on selected delivery method.
+    const radios = document.querySelectorAll('input[name="deliveryMethod"]');
+    const scheduledRow = document.getElementById('lgScheduledDateRow');
+    const recipientEmailRow = document.getElementById('lgRecipientEmailRow');
+    const recipientEmailInput = document.getElementById('lgRecipientEmail');
+
+    function syncDeliveryUI() {
+      const selected = document.querySelector('input[name="deliveryMethod"]:checked').value;
+      // Visual selected state on radio cards
+      document.querySelectorAll('.lg-form-radio').forEach(el => el.classList.remove('checked'));
+      document.querySelector('input[name="deliveryMethod"]:checked').closest('.lg-form-radio').classList.add('checked');
+      // Show schedule date only when scheduled
+      if (selected === 'email_scheduled') {
+        scheduledRow.classList.add('show');
+      } else {
+        scheduledRow.classList.remove('show');
+      }
+      // Hide recipient-email field for certificate-only
+      if (selected === 'certificate') {
+        recipientEmailRow.style.display = 'none';
+        recipientEmailInput.required = false;
+      } else {
+        recipientEmailRow.style.display = '';
+        recipientEmailInput.required = true;
+      }
+    }
+    radios.forEach(r => r.addEventListener('change', syncDeliveryUI));
+    syncDeliveryUI();
+
+    // Form submit
+    document.getElementById('lgGiftForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('lgGiftBtn');
+      const errorEl = document.getElementById('lgGiftError');
+      errorEl.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Processing…';
+
+      const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+      const payload = {
+        buyerEmail: document.getElementById('lgBuyerEmail').value,
+        buyerName: document.getElementById('lgBuyerName').value,
+        recipientName: document.getElementById('lgRecipientName').value,
+        recipientEmail: document.getElementById('lgRecipientEmail').value,
+        giftMessage: document.getElementById('lgGiftMessage').value,
+        deliveryMethod: deliveryMethod,
+        scheduledDate: deliveryMethod === 'email_scheduled' ? document.getElementById('lgScheduledDate').value : null,
+      };
+
+      try {
+        const res = await fetch('/api/stripe/create-gift-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout session URL returned');
+        }
+      } catch (err) {
+        errorEl.textContent = err.message;
+        btn.disabled = false;
+        btn.textContent = 'Give the Gift — $29';
+      }
+    });
+  </script>
+
+</body>
+</html>
