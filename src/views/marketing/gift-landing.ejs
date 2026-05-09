@@ -6,20 +6,20 @@
   <!-- Pinterest Domain Verification -->
   <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1"/>
 
-  <title>The Baby Shower Gift No One Else Will Think Of — Legacy Odyssey</title>
-  <meta name="description" content="Give them their own .com — and a beautifully designed digital baby book to fill it with. The most thoughtful baby shower gift, $29 one-time.">
+  <title>Give the Baby Their Own .com — A Digital Baby Book Gift · Legacy Odyssey</title>
+  <meta name="description" content="A unique baby shower gift: we register the baby's name as a real .com and unlock a beautifully designed digital baby book. $29 introductory price, one-time.">
   <link rel="canonical" href="https://legacyodyssey.com/preview/gift-landing">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://legacyodyssey.com/preview/gift-landing">
-  <meta property="og:title" content="The Baby Shower Gift No One Else Will Think Of">
-  <meta property="og:description" content="Give them their own .com — and a beautifully designed digital baby book to fill it with. The most thoughtful baby shower gift, $29 one-time.">
+  <meta property="og:title" content="Give the Baby Their Own .com — A Digital Baby Book Gift">
+  <meta property="og:description" content="A unique baby shower gift: we register the baby's name as a real .com and unlock a beautifully designed digital baby book. $29 introductory price, one-time.">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="The Baby Shower Gift No One Else Will Think Of">
-  <meta name="twitter:description" content="Give them their own .com — and a beautifully designed digital baby book. $29 one-time.">
+  <meta name="twitter:title" content="Give the Baby Their Own .com — A Digital Baby Book Gift">
+  <meta name="twitter:description" content="A unique baby shower gift: a real .com domain and a beautifully designed digital baby book. $29 introductory.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,7 +67,7 @@
     }
     .lg-hero-photo {
       position: absolute; inset: 0;
-      background-image: url('https://images.unsplash.com/photo-1492725764893-90b379c2b6e7?w=1600&h=1000&fit=crop&crop=center&auto=format&q=85');
+      background-image: url('https://images.unsplash.com/photo-1470116945706-e6bf5d5a53ca?w=1600&h=1000&fit=crop&crop=faces,center&auto=format&q=85');
       background-size: cover; background-position: center;
       filter: brightness(0.45);
     }
@@ -199,6 +199,21 @@
     .lg-compare-col-other .lg-compare-icon { color: rgba(250,247,242,0.35); }
     .lg-compare-col-us .lg-compare-icon { color: #c8a96e; }
 
+    /* ---------- WHY PARENTS LOVE IT ---------- */
+    .lg-why { background: #1a1510; color: #faf7f2; }
+    .lg-why-inner { max-width: 1080px; margin: 0 auto; }
+    .lg-why-header { text-align: center; margin-bottom: 56px; }
+    .lg-why-header .lg-section-headline { color: #faf7f2; }
+    .lg-why-header .lg-section-headline em { color: #c8a96e; }
+    .lg-why-header .lg-section-eyebrow { color: rgba(200,169,110,0.7); }
+    .lg-why-header .lg-section-sub { color: rgba(250,247,242,0.78); }
+    .lg-why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    @media (max-width: 800px) { .lg-why-grid { grid-template-columns: 1fr; gap: 24px; } }
+    .lg-why-item { padding: 28px 26px; background: rgba(250,247,242,0.04); border: 1px solid rgba(200,169,110,0.18); border-radius: 12px; }
+    .lg-why-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 500; color: #c8a96e; margin: 0 0 10px; }
+    .lg-why-desc { font-size: 15px; color: rgba(250,247,242,0.82); line-height: 1.65; margin: 0; }
+    .lg-why-desc em { color: #faf7f2; font-style: italic; font-weight: 500; }
+
     /* ---------- HOW IT WORKS ---------- */
     .lg-how-inner { max-width: 1080px; margin: 0 auto; }
     .lg-how-header { text-align: center; margin-bottom: 56px; }
@@ -225,7 +240,18 @@
     .lg-delivery-inner { max-width: 1080px; margin: 0 auto; text-align: center; }
     .lg-delivery-header { margin-bottom: 48px; }
     .lg-delivery-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: left; }
-    @media (max-width: 800px) { .lg-delivery-cards { grid-template-columns: 1fr; } }
+    .lg-delivery-cards-2 { grid-template-columns: repeat(2, 1fr); max-width: 760px; margin: 0 auto; }
+    @media (max-width: 800px) { .lg-delivery-cards, .lg-delivery-cards-2 { grid-template-columns: 1fr; } }
+    .lg-delivery-cert-note {
+      max-width: 760px; margin: 32px auto 0;
+      display: flex; gap: 18px; align-items: flex-start;
+      background: rgba(200,169,110,0.10); border: 1px solid rgba(200,169,110,0.3); border-radius: 12px;
+      padding: 22px 26px; text-align: left;
+    }
+    .lg-delivery-cert-note svg { width: 28px; height: 28px; color: #b08e4a; flex-shrink: 0; margin-top: 2px; }
+    .lg-delivery-cert-note strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: #1a1510; margin-bottom: 4px; }
+    .lg-delivery-cert-note div { font-size: 14px; line-height: 1.65; color: #5e564a; }
+    .lg-delivery-cert-note em { font-style: italic; color: #1a1510; font-weight: 600; }
     .lg-delivery-card {
       padding: 32px 28px; background: #fff;
       border: 1px solid rgba(184,142,74,0.18); border-radius: 12px;
@@ -261,7 +287,13 @@
     .lg-buy-card {
       background: rgba(250,247,242,0.04); border: 1px solid rgba(200,169,110,0.3);
       border-radius: 12px; padding: 32px 28px;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px); position: relative;
+    }
+    .lg-buy-card-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: #c8a96e; color: #1a1510;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 5px 18px; border-radius: 20px; white-space: nowrap;
     }
     .lg-buy-card-tag { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #c8a96e; margin-bottom: 12px; font-weight: 600; }
     .lg-buy-card-price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
@@ -406,14 +438,15 @@
     <div class="lg-hero-overlay"></div>
     <div class="lg-hero-content">
       <div class="lg-hero-eyebrow">For Someone Special</div>
-      <h1 class="lg-hero-headline">The baby shower gift<br>no one else will <em>think of.</em></h1>
+      <h1 class="lg-hero-headline">Give the baby<br>their own <em>.com.</em></h1>
       <p class="lg-hero-sub">
-        Give the baby a real <strong>.com</strong> domain — and a beautifully
-        designed digital book where their first year unfolds. Lasting,
-        personal, and entirely theirs.
+        A unique gift the parents will treasure. We register the
+        baby's name as a real <strong>.com</strong> — and unlock a
+        beautifully designed digital book where they'll capture every
+        photo, milestone, and letter from the first year.
       </p>
       <a href="#buy" class="lg-hero-cta">Give the Gift — $29 →</a>
-      <div class="lg-hero-cta-note">One-time. No subscription on you. They redeem when they're ready.</div>
+      <div class="lg-hero-cta-note">$29 introductory price · One-time · No subscription on you</div>
 
       <div class="lg-hero-proof">
         <div class="lg-hero-proof-item">
@@ -448,7 +481,7 @@
     <div class="lg-trust-divider"></div>
     <div class="lg-trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Print a beautiful certificate to hand over
+      Plus a printable certificate for you
     </div>
     <div class="lg-trust-divider"></div>
     <div class="lg-trust-item">
@@ -507,33 +540,26 @@
     </div>
   </section>
 
-  <!-- ====== COMPARISON ====== -->
-  <section class="lg-section lg-compare">
-    <div class="lg-compare-inner">
-      <div class="lg-compare-header">
-        <div class="lg-section-eyebrow">Stand out</div>
-        <h2 class="lg-section-headline">Outlasts every other<br>shower <em>gift.</em></h2>
+  <!-- ====== WHY PARENTS LOVE IT ====== -->
+  <section class="lg-section lg-why">
+    <div class="lg-why-inner">
+      <div class="lg-why-header">
+        <div class="lg-section-eyebrow">Why parents love it</div>
+        <h2 class="lg-section-headline">A gift unlike anything they'll<br>receive at the <em>shower.</em></h2>
+        <p class="lg-section-sub" style="margin-left:auto;margin-right:auto;text-align:center;">Most baby gifts are sweet for a few months. This one is part of the child's first year — and stays with them after.</p>
       </div>
-      <div class="lg-compare-grid">
-        <div class="lg-compare-col lg-compare-col-other">
-          <div class="lg-compare-tag">Other baby gifts</div>
-          <h3 class="lg-compare-h">The usual stuff</h3>
-          <ul class="lg-compare-list">
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Outgrown in a few months</li>
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>One of a dozen onesies on the table</li>
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Forgotten in a drawer by year two</li>
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Generic — could be for any kid</li>
-          </ul>
+      <div class="lg-why-grid">
+        <div class="lg-why-item">
+          <h3 class="lg-why-title">It's unique</h3>
+          <p class="lg-why-desc">There can only ever be one <em>your-childs-name</em>.com on the entire internet. The gift secures it before anyone else can — registered in the child's name, theirs alone.</p>
         </div>
-        <div class="lg-compare-col lg-compare-col-us">
-          <div class="lg-compare-tag">Legacy Odyssey</div>
-          <h3 class="lg-compare-h">A gift they keep forever</h3>
-          <ul class="lg-compare-list">
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Lives on as long as they keep it</li>
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>One-of-a-kind — only one .com per child</li>
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Active part of the child's first year</li>
-            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Personal in their child's name</li>
-          </ul>
+        <div class="lg-why-item">
+          <h3 class="lg-why-title">It's lasting</h3>
+          <p class="lg-why-desc">The parents capture every photo, milestone, and letter from the first year on a single private website that grows alongside the baby. It doesn't get outgrown — it gets fuller.</p>
+        </div>
+        <div class="lg-why-item">
+          <h3 class="lg-why-title">It's easy</h3>
+          <p class="lg-why-desc">The recipient downloads the iOS or Android app, signs in, and adds memories at their own pace. Nothing to set up, nothing to host, nothing to learn.</p>
         </div>
       </div>
     </div>
@@ -544,18 +570,18 @@
     <div class="lg-how-inner">
       <div class="lg-how-header">
         <div class="lg-section-eyebrow">Three steps</div>
-        <h2 class="lg-section-headline">Easy to give.<br><em>Beautiful</em> to receive.</h2>
+        <h2 class="lg-section-headline">Here's how<br>the <em>gift works.</em></h2>
       </div>
       <div class="lg-how-steps">
         <div class="lg-how-step">
           <div class="lg-how-num">1</div>
           <div class="lg-how-title">Buy the gift</div>
-          <p class="lg-how-desc">$29, one-time. Your gift code arrives in your inbox the moment you check out — no subscription on your card, no surprise renewals later.</p>
+          <p class="lg-how-desc">$29 introductory price, one-time. Your confirmation email arrives the moment you check out — including a beautifully designed printable certificate you can hand the recipient in person if you'd like.</p>
         </div>
         <div class="lg-how-step">
           <div class="lg-how-num">2</div>
-          <div class="lg-how-title">Give it your way</div>
-          <p class="lg-how-desc">Have us email the recipient now, schedule the email for their baby shower or due date, or print a beautiful certificate to hand them in person.</p>
+          <div class="lg-how-title">Choose when they hear from us</div>
+          <p class="lg-how-desc">Have us email the recipient right away, or schedule the email for the morning of the baby shower or the due date. Either way, the printable certificate is yours to keep.</p>
         </div>
         <div class="lg-how-step">
           <div class="lg-how-num">3</div>
@@ -571,10 +597,10 @@
     <div class="lg-delivery-inner">
       <div class="lg-delivery-header">
         <div class="lg-section-eyebrow">Your timing</div>
-        <h2 class="lg-section-headline">Three ways to <em>give it.</em></h2>
-        <p class="lg-section-sub" style="margin-left:auto;margin-right:auto;">Pick whichever fits the moment — switch later if you change your mind.</p>
+        <h2 class="lg-section-headline">When should they <em>hear from us?</em></h2>
+        <p class="lg-section-sub" style="margin-left:auto;margin-right:auto;">Two ways to time the gift email — and a printable certificate either way.</p>
       </div>
-      <div class="lg-delivery-cards">
+      <div class="lg-delivery-cards lg-delivery-cards-2">
         <div class="lg-delivery-card">
           <div class="lg-delivery-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
@@ -589,12 +615,12 @@
           <h3>Schedule the email</h3>
           <p>Pick any date — the morning of the baby shower, the due date, the day they bring the baby home. We send it then.</p>
         </div>
-        <div class="lg-delivery-card">
-          <div class="lg-delivery-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <h3>Print a certificate</h3>
-          <p>Download a beautifully designed PDF certificate with the gift code on it — perfect to hand over wrapped at the shower.</p>
+      </div>
+      <div class="lg-delivery-cert-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div>
+          <strong>Plus: a printable certificate, every time.</strong>
+          Every gift purchase comes with a beautifully designed printable PDF certificate emailed to <em>you</em> — fold it into a card, wrap it, or hand it over in person at the shower. It's yours regardless of how you have us deliver to the recipient.
         </div>
       </div>
     </div>
@@ -605,25 +631,26 @@
     <div class="lg-buy-inner">
       <div class="lg-buy-left">
         <div class="lg-section-eyebrow">Give the gift</div>
-        <h2 class="lg-section-headline">A gift they'll<br><em>never</em> throw out.</h2>
+        <h2 class="lg-section-headline"><em>$29</em> introductory price.<br>One full year for them.</h2>
         <p class="lg-section-sub">
-          $29 one-time. One full year for them. No surprises for you.
+          One-time. No subscription on you. The recipient redeems whenever they're ready.
         </p>
         <ul class="lg-buy-points">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>The recipient picks their own .com when they're ready</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Choose: email now, scheduled email, or printable certificate</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Choose to email them now or schedule for a date you pick</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>You also get a printable certificate to hand them in person</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>No card on you after this — they manage their own renewal next year</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>If they don't redeem, no one is charged anything more</span></li>
         </ul>
       </div>
 
       <div class="lg-buy-card">
+        <div class="lg-buy-card-badge">Introductory Offer</div>
         <div class="lg-buy-card-tag">One-time gift</div>
         <div class="lg-buy-card-price">
           <div class="lg-buy-card-price-num">$29</div>
           <div class="lg-buy-card-price-period">one-time</div>
         </div>
-        <div class="lg-buy-card-renewal">Includes one full year. After that, the recipient adds their own card to keep going at $49.99/year — or lets it lapse with no charges to anyone.</div>
+        <div class="lg-buy-card-renewal">Introductory price · Includes one full year. After that, the recipient adds their own card to keep going at $49.99/year — or lets it lapse with no charges to anyone.</div>
 
         <form class="lg-form" id="lgGiftForm" novalidate>
           <div class="lg-form-row">
@@ -641,13 +668,13 @@
             <input type="text" id="lgRecipientName" name="recipientName" placeholder="e.g. Sarah Smith" required>
           </div>
           <div>
-            <label>How should we deliver it?</label>
+            <label>When should we email the recipient?</label>
             <div class="lg-form-radios">
               <label class="lg-form-radio checked">
                 <input type="radio" name="deliveryMethod" value="email_now" checked>
                 <div>
                   <div class="lg-form-radio-label">Email it now</div>
-                  <div class="lg-form-radio-hint">The recipient gets the gift email the moment your payment clears.</div>
+                  <div class="lg-form-radio-hint">They get the gift email the moment your payment clears.</div>
                 </div>
               </label>
               <label class="lg-form-radio">
@@ -657,22 +684,16 @@
                   <div class="lg-form-radio-hint">Pick a date — perfect for a shower or due date.</div>
                 </div>
               </label>
-              <label class="lg-form-radio">
-                <input type="radio" name="deliveryMethod" value="certificate">
-                <div>
-                  <div class="lg-form-radio-label">Just give me a printable certificate</div>
-                  <div class="lg-form-radio-hint">No email sent — you'll get a beautiful PDF to hand them in person.</div>
-                </div>
-              </label>
             </div>
+            <p style="font-size:12px;color:rgba(250,247,242,0.45);margin:10px 0 0;">Either way, you'll receive a printable PDF certificate by email — yours to hand them in person if you'd like.</p>
           </div>
           <div id="lgScheduledDateRow">
             <label for="lgScheduledDate">Send on this date</label>
             <input type="date" id="lgScheduledDate" name="scheduledDate">
           </div>
           <div id="lgRecipientEmailRow">
-            <label for="lgRecipientEmail">Recipient's email <span style="text-transform:none;color:rgba(250,247,242,0.4);">(needed for email delivery)</span></label>
-            <input type="email" id="lgRecipientEmail" name="recipientEmail" placeholder="them@example.com">
+            <label for="lgRecipientEmail">Recipient's email</label>
+            <input type="email" id="lgRecipientEmail" name="recipientEmail" placeholder="them@example.com" required>
           </div>
           <div>
             <label for="lgGiftMessage">Personal note <span style="text-transform:none;color:rgba(250,247,242,0.4);">(optional)</span></label>
@@ -706,17 +727,12 @@
 
       <details class="lg-faq-item">
         <summary>Can I print something to hand them?</summary>
-        <p class="lg-faq-answer">Yes. Choose "Just give me a printable certificate" at checkout and we'll generate a beautifully designed PDF with the gift code on it — perfect to wrap, fold into a card, or hand over at the shower. No email is sent automatically; you give them the certificate in person.</p>
+        <p class="lg-faq-answer">Yes — every gift purchase comes with a beautifully designed printable PDF certificate, emailed to <em>you</em> the moment your purchase clears. You can fold it into a card, wrap it, or hand it over in person at the shower — regardless of when (or whether) we email the recipient.</p>
       </details>
 
       <details class="lg-faq-item">
         <summary>What if they don't want it / don't redeem?</summary>
         <p class="lg-faq-answer">Nothing bad happens. The gift code stays valid as long as you'd like — gift codes don't expire. And nobody is charged anything more, ever, unless the recipient personally redeems and adds their own card after the gift year. There's no awkward auto-renewal landing on you.</p>
-      </details>
-
-      <details class="lg-faq-item">
-        <summary>Is it weird to give a website as a gift?</summary>
-        <p class="lg-faq-answer">It's a digital baby book at their .com — closer to giving a leather-bound journal than giving them a Substack. People treat it like an heirloom: they share the password with grandparents, write letters into it for the kid's 18th birthday, and hand it down. It's the opposite of "another app."</p>
       </details>
 
       <details class="lg-faq-item">
@@ -734,9 +750,9 @@
   <!-- ====== FINAL CTA ====== -->
   <section class="lg-section" style="background:#1a1510;color:#faf7f2;text-align:center;">
     <div style="max-width:720px;margin:0 auto;">
-      <div class="lg-section-eyebrow" style="color:rgba(200,169,110,0.7);">Last call</div>
-      <h2 class="lg-section-headline" style="color:#faf7f2;">Give a gift they'll<br>never <em>throw out.</em></h2>
-      <p class="lg-section-sub" style="color:rgba(250,247,242,0.75);margin:0 auto 32px;">$29. One-time. The most thoughtful thing you'll bring to the shower.</p>
+      <div class="lg-section-eyebrow" style="color:rgba(200,169,110,0.7);">Ready?</div>
+      <h2 class="lg-section-headline" style="color:#faf7f2;">Give the baby their<br>own <em>.com.</em></h2>
+      <p class="lg-section-sub" style="color:rgba(250,247,242,0.75);margin:0 auto 32px;">$29 introductory price. One-time. One full year for them, a printable certificate for you.</p>
       <a href="#buy" class="lg-hero-cta">Give the Gift — $29 →</a>
     </div>
   </section>
@@ -755,11 +771,9 @@
   </footer>
 
   <script>
-    // Toggle scheduled-date row + recipient-email row based on selected delivery method.
+    // Toggle scheduled-date row based on selected delivery method.
     const radios = document.querySelectorAll('input[name="deliveryMethod"]');
     const scheduledRow = document.getElementById('lgScheduledDateRow');
-    const recipientEmailRow = document.getElementById('lgRecipientEmailRow');
-    const recipientEmailInput = document.getElementById('lgRecipientEmail');
 
     function syncDeliveryUI() {
       const selected = document.querySelector('input[name="deliveryMethod"]:checked').value;
@@ -771,14 +785,6 @@
         scheduledRow.classList.add('show');
       } else {
         scheduledRow.classList.remove('show');
-      }
-      // Hide recipient-email field for certificate-only
-      if (selected === 'certificate') {
-        recipientEmailRow.style.display = 'none';
-        recipientEmailInput.required = false;
-      } else {
-        recipientEmailRow.style.display = '';
-        recipientEmailInput.required = true;
       }
     }
     radios.forEach(r => r.addEventListener('change', syncDeliveryUI));
