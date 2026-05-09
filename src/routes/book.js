@@ -447,8 +447,11 @@ router.get('/stripe/success', async (req, res) => {
 });
 
 // Gift purchase page
+// /gift is the live gift-purchase landing page (promoted from /preview/gift-landing
+// on May 9 2026). The previous minimal form-only template (marketing/gift.ejs) is
+// preserved on disk for reference but no longer rendered by any route.
 router.get('/gift', (req, res) => {
-  res.render('marketing/gift');
+  res.render('marketing/gift-landing');
 });
 
 // Gift success page — shown right after Stripe payment clears.
