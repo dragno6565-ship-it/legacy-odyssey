@@ -451,7 +451,11 @@ router.get('/gift', (req, res) => {
   res.render('marketing/gift');
 });
 
-// Gift success page
+// Gift success page — shown right after Stripe payment clears.
+// We try to read the gift_codes row created by the webhook first; if the
+// webhook hasn't fired yet (race), we create the row inline. Either way,
+// the buyer sees their gift code, the redeem URL, the printable certificate
+// link, and timing-aware messaging based on the delivery method they chose.
 router.get('/gift/success', async (req, res) => {
   const { stripe } = require('../config/stripe');
   const giftService = require('../services/giftService');
@@ -464,26 +468,25 @@ router.get('/gift/success', async (req, res) => {
 
     // Find the gift code created by the webhook
     const { supabaseAdmin } = require('../config/supabase');
-    const { data: gift } = await supabaseAdmin
+    let { data: gift } = await supabaseAdmin
       .from('gift_codes')
       .select('*')
       .eq('stripe_session_id', sessionId)
       .single();
 
     if (!gift) {
-      // Webhook hasn't fired yet — create the gift code now
-      const newGift = await giftService.createGiftCode({
+      // Webhook hasn't fired yet — create the gift code now, passing all
+      // the metadata fields so the deliver_at + certificate_token + delivery
+      // method are populated correctly.
+      gift = await giftService.createGiftCode({
         buyerEmail: session.customer_email || session.customer_details?.email,
         buyerName: session.metadata?.buyer_name,
+        recipientName: session.metadata?.recipient_name || null,
         recipientEmail: session.metadata?.recipient_email,
         recipientMessage: session.metadata?.gift_message,
         stripeSessionId: session.id,
-      });
-      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
-      return res.render('marketing/gift-success', {
-        giftCode: newGift.code,
-        redeemUrl: `https://${appDomain}/redeem?code=${newGift.code}`,
-        buyerEmail: newGift.buyer_email,
+        deliveryMethod: session.metadata?.delivery_method,
+        scheduledDate: session.metadata?.scheduled_date,
       });
     }
 
@@ -491,7 +494,13 @@ router.get('/gift/success', async (req, res) => {
     res.render('marketing/gift-success', {
       giftCode: gift.code,
       redeemUrl: `https://${appDomain}/redeem?code=${gift.code}`,
+      certificateUrl: gift.certificate_token ? `https://${appDomain}/gift/certificate/${gift.certificate_token}` : null,
       buyerEmail: gift.buyer_email,
+      recipientName: gift.recipient_name,
+      recipientEmail: gift.recipient_email,
+      deliveryMethod: gift.delivery_method || 'email_now',
+      deliverAt: gift.deliver_at,
+      recipientEmailSentAt: gift.recipient_email_sent_at,
     });
   } catch (err) {
     console.error('Gift success handler error:', err);

@@ -199,10 +199,32 @@
   <main class="success-page">
     <div class="success-container">
       <div class="success-icon">&#10024;</div>
-      <h1 class="success-heading">Your Gift is Ready!</h1>
-      <p class="success-subtext">
-        Share the code or link below with the recipient so they can set up their very own Legacy Odyssey site.
-      </p>
+      <h1 class="success-heading">Your gift is ready!</h1>
+      <%
+        // Friendly, timing-aware message right under the heading.
+        let timingMsg = '';
+        const recipName = (typeof recipientName !== 'undefined' && recipientName) ? recipientName : 'them';
+        if (deliveryMethod === 'email_scheduled' && deliverAt) {
+          const d = new Date(deliverAt);
+          const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+          timingMsg = `We'll email <strong>${recipName}</strong> the gift on <strong>${dateStr}</strong>. Until then, the certificate below is yours to print, fold into a card, or hand over in person.`;
+        } else if (recipientEmail) {
+          timingMsg = `We've already emailed <strong>${recipName}</strong> the gift — it should be in their inbox shortly. The certificate below is yours to print and hand over too, if you'd like.`;
+        } else {
+          timingMsg = `Your gift is ready to give. Print the certificate below to hand it over in person.`;
+        }
+      %>
+      <p class="success-subtext"><%- timingMsg %></p>
+
+      <% if (certificateUrl) { %>
+      <div style="background:#1a1510;color:#faf7f2;border-radius:12px;padding:28px 26px;margin:24px 0;text-align:center;">
+        <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;color:#c8a96e;margin-bottom:6px;">Your printable certificate</div>
+        <div style="font-size:14px;color:rgba(250,247,242,0.78);line-height:1.55;margin-bottom:18px;">
+          A beautifully designed gift certificate, ready to print or save as PDF — perfect to hand over wrapped at the shower.
+        </div>
+        <a href="<%= certificateUrl %>" target="_blank" style="display:inline-block;background:#c8a96e;color:#1a1510;padding:13px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">View &amp; Print Certificate →</a>
+      </div>
+      <% } %>
 
       <div class="gift-code-box">
         <div class="gift-code-label">Gift Code</div>
@@ -217,8 +239,7 @@
         </div>
       </div>
 
-      <p class="success-instructions">Share this code or link with the recipient.</p>
-      <p class="success-note">This code is valid for 1 year and includes a custom domain setup.</p>
+      <p class="success-note">$29 introductory price · One-year subscription · Recipient picks their own custom .com when they redeem · Code valid for 1 year.</p>
 
       <p class="buyer-email-note">A confirmation has been sent to <strong><%= buyerEmail %></strong>.</p>
     </div>

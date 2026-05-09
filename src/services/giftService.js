@@ -120,6 +120,9 @@ async function redeemGiftCode({ code, email, domain }) {
   // 1. Find and validate the gift code
   const gift = await findByCode(code);
   if (!gift) throw new Error('Invalid gift code.');
+  if (gift.status === 'refunded') {
+    throw new Error('This gift code has been refunded and is no longer valid. Please contact the person who sent it to you.');
+  }
   if (gift.status !== 'purchased') throw new Error('This gift code has already been redeemed.');
   if (new Date(gift.expires_at) < new Date()) throw new Error('This gift code has expired.');
 

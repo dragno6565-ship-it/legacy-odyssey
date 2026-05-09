@@ -215,6 +215,52 @@ router.post('/stripe/webhook', async (req, res) => {
         await stripeService.syncSubscriptionStatus(invoice.customer, 'past_due');
         break;
       }
+      case 'charge.refunded': {
+        // When a gift purchase is refunded in Stripe, mark the gift_code
+        // as refunded so the recipient can no longer redeem it. (For
+        // subscription refunds, this is a no-op — we only act when the
+        // charge maps to a gift_code row.)
+        const charge = event.data.object;
+        if (!charge.payment_intent) break;
+
+        // Find the original Checkout session for this payment_intent.
+        // For gifts we used mode='payment', so 1:1 with the session.
+        const sessions = await stripe.checkout.sessions.list({
+          payment_intent: charge.payment_intent,
+          limit: 1,
+        });
+        const session = sessions.data[0];
+        if (!session) {
+          console.log(`[webhook] charge.refunded ${charge.id}: no checkout session found for pi ${charge.payment_intent} — skipping`);
+          break;
+        }
+
+        const { supabaseAdmin } = require('../config/supabase');
+        const { data: gift } = await supabaseAdmin
+          .from('gift_codes')
+          .select('id, code, status, redeemed_at, family_id')
+          .eq('stripe_session_id', session.id)
+          .single();
+        if (!gift) {
+          console.log(`[webhook] charge.refunded ${charge.id}: no gift_code for session ${session.id} — likely a non-gift refund`);
+          break;
+        }
+
+        if (gift.status === 'redeemed' || gift.redeemed_at || gift.family_id) {
+          // The gift has already been redeemed — invalidating now would
+          // strand the recipient's account. Log loudly; manual handling
+          // (cancel the subscription, talk to the buyer) is required.
+          console.error(`[webhook] charge.refunded but gift ${gift.code} is already REDEEMED to family ${gift.family_id} — NOT invalidating; manual action required`);
+          break;
+        }
+
+        await supabaseAdmin
+          .from('gift_codes')
+          .update({ status: 'refunded', updated_at: new Date().toISOString() })
+          .eq('id', gift.id);
+        console.log(`[webhook] gift ${gift.code} marked refunded after charge.refunded ${charge.id}`);
+        break;
+      }
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
