@@ -153,6 +153,10 @@ const server = app.listen(PORT, () => {
   // Daily system health check; emails admin on any FAIL
   const { startHealthCheckScheduler } = require('./jobs/healthCheckCron');
   startHealthCheckScheduler();
+
+  // Hourly: send scheduled gift emails whose deliver_at has come due.
+  const { startGiftDeliveriesScheduler } = require('./jobs/giftDeliveries');
+  startGiftDeliveriesScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).

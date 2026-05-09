@@ -42,12 +42,26 @@ router.post('/create-checkout', async (req, res, next) => {
 // POST /api/stripe/create-gift-checkout
 router.post('/create-gift-checkout', async (req, res, next) => {
   try {
-    const { buyerEmail, buyerName, recipientName, recipientEmail, message, giftMessage } = req.body;
+    const {
+      buyerEmail,
+      buyerName,
+      recipientName,
+      recipientEmail,
+      message,
+      giftMessage,
+      deliveryMethod,
+      scheduledDate,
+    } = req.body;
+
     if (!buyerEmail) {
       return res.status(400).json({ error: 'buyerEmail is required' });
     }
     if (!recipientName) {
       return res.status(400).json({ error: 'recipientName is required' });
+    }
+    // Recipient email is required for both email-delivery options.
+    if (!recipientEmail) {
+      return res.status(400).json({ error: 'recipientEmail is required' });
     }
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
@@ -57,6 +71,8 @@ router.post('/create-gift-checkout', async (req, res, next) => {
       recipientName,
       recipientEmail,
       message: message || giftMessage,
+      deliveryMethod,
+      scheduledDate,
       successUrl: `https://${appDomain}/gift/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}/gift`,
     });

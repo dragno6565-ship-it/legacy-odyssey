@@ -264,8 +264,30 @@ async function createFounderCheckoutSession({ email, subdomain, domain, bookType
   return session;
 }
 
-async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName, recipientEmail, message, successUrl, cancelUrl }) {
+async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
+
+  // Validate deliveryMethod. Default to email_now if missing/invalid.
+  const validMethods = ['email_now', 'email_scheduled'];
+  const resolvedMethod = validMethods.includes(deliveryMethod) ? deliveryMethod : 'email_now';
+
+  // Validate scheduledDate when method is email_scheduled.
+  // Expect YYYY-MM-DD from <input type="date">. Fall back to immediate-send if
+  // missing or in the past — we don't want a paid gift to silently never send.
+  let resolvedScheduledDate = '';
+  let resolvedMethodFinal = resolvedMethod;
+  if (resolvedMethod === 'email_scheduled') {
+    if (scheduledDate) {
+      const parsed = new Date(scheduledDate + 'T09:00:00Z'); // 9am UTC on the chosen date
+      if (!isNaN(parsed.getTime()) && parsed.getTime() > Date.now()) {
+        resolvedScheduledDate = parsed.toISOString();
+      } else {
+        resolvedMethodFinal = 'email_now';
+      }
+    } else {
+      resolvedMethodFinal = 'email_now';
+    }
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -280,7 +302,7 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
             description: 'One-year gift subscription. Recipient redeems a gift code to create their own account and choose their custom domain.',
             images: ['https://legacyodyssey.com/images/og-image.png'],
           },
-          unit_amount: 2900, // $29.00
+          unit_amount: 2900, // $29.00 introductory
         },
         quantity: 1,
       },
@@ -291,6 +313,8 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
       recipient_name: recipientName || '',
       recipient_email: recipientEmail || '',
       gift_message: message || '',
+      delivery_method: resolvedMethodFinal,
+      scheduled_date: resolvedScheduledDate,
     },
     success_url: successUrl,
     cancel_url: cancelUrl,

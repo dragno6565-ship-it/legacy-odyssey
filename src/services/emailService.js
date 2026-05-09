@@ -505,21 +505,54 @@ async function sendDay13Email({ to, displayName, subdomain, customDomain, family
 
 /**
  * Send gift purchase confirmation email to the buyer.
+ *
+ * Always sent immediately after Stripe payment clears. Includes:
+ *   - the gift code
+ *   - the redeem URL the recipient will use
+ *   - a link to a printable PDF certificate (the buyer can hand it over
+ *     in person, fold it into a card, etc.)
+ *   - delivery-timing context so the buyer knows when the recipient will
+ *     hear from us (now / on a scheduled date)
  */
-async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl }) {
+async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certificateUrl, recipientName, deliveryMethod, deliverAt }) {
   const firstName = getFirstName(buyerName, to);
+  const recipient = recipientName ? recipientName : 'your recipient';
+
+  // Friendly delivery-timing line for the body.
+  let deliveryLine = '';
+  if (deliveryMethod === 'email_scheduled' && deliverAt) {
+    const d = new Date(deliverAt);
+    const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    deliveryLine = `We'll send <strong>${recipient}</strong> the gift email on <strong>${dateStr}</strong> — right when the moment matters.`;
+  } else {
+    deliveryLine = recipientName
+      ? `We've already sent <strong>${recipient}</strong> the gift email — it should be in their inbox shortly.`
+      : `Your gift is ready to give.`;
+  }
+
+  const certificateBlock = certificateUrl ? `
+    <br><br>
+    <div style="background:#1a1a2e;border-radius:10px;padding:22px 22px;text-align:center;color:#faf7f2;">
+      <div style="font-family:Georgia,serif;font-size:18px;color:#c8a96e;margin-bottom:6px;">Want something to hand them in person?</div>
+      <div style="font-size:14px;color:rgba(250,247,242,0.8);margin-bottom:14px;line-height:1.5;">
+        We made you a beautifully designed printable certificate with the gift code on it. Print it, fold it into a card, or just hand it over wrapped at the shower.
+      </div>
+      <a href="${certificateUrl}" style="display:inline-block;background:#c8a96e;color:#1a1a2e;padding:12px 26px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:0.5px;">View &amp; Print Certificate</a>
+    </div>` : '';
+
   return sendOnboardingEmail({
     to,
     subject: 'Your Legacy Odyssey gift is ready!',
-    preheader: `Gift code: ${giftCode} — share it with someone special.`,
+    preheader: `Gift code: ${giftCode} — your printable certificate is inside.`,
     heading: `Hey ${firstName}, your gift is ready!`,
-    body: `Thank you for purchasing a Legacy Odyssey gift! Here's the gift code to share:<br><br>
+    body: `Thank you for purchasing a Legacy Odyssey gift! ${deliveryLine}<br><br>
+      Here's the gift code so you have it for your records:<br><br>
       <div style="background:#f5f0eb;border:2px dashed #c8a96e;border-radius:8px;padding:16px;text-align:center;font-size:20px;font-weight:bold;letter-spacing:2px;color:#1a1a2e;margin:8px 0;">${giftCode}</div><br>
-      The recipient can redeem this at:<br>
+      The recipient redeems at:<br>
       <a href="${redeemUrl}" style="color:#c8a96e;">${redeemUrl}</a><br><br>
-      This gift includes one year of Legacy Odyssey plus a custom domain setup (one-time, non-recurring). The code is valid for one year from today.`,
-    ctaText: 'Copy Redemption Link',
-    ctaUrl: redeemUrl,
+      This is a one-time, non-recurring gift — there are no future charges to your card. The code is valid for one year from today.${certificateBlock}`,
+    ctaText: certificateUrl ? 'View &amp; Print Certificate' : 'Copy Redemption Link',
+    ctaUrl: certificateUrl || redeemUrl,
   });
 }
 

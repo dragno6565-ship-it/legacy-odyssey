@@ -81,6 +81,37 @@ router.get('/preview/gift-landing', (req, res) => {
   res.render('marketing/gift-landing');
 });
 
+// Printable gift certificate.
+// Public route — the certificate_token is the only auth. Anyone with the
+// link can view + print, but only the buyer ever receives the link
+// (in their gift-purchase confirmation email). Renders a print-optimized
+// page that says nicely when "Print to PDF" is used in the browser.
+router.get('/gift/certificate/:token', async (req, res, next) => {
+  try {
+    const { supabaseAdmin } = require('../config/supabase');
+    const token = (req.params.token || '').trim();
+    if (!token || token.length < 8) {
+      return res.status(404).render('book/not-found');
+    }
+    const { data: gift, error } = await supabaseAdmin
+      .from('gift_codes')
+      .select('code, buyer_name, recipient_name, recipient_message, expires_at, deliver_at, delivery_method, created_at')
+      .eq('certificate_token', token)
+      .single();
+    if (error || !gift) {
+      return res.status(404).render('book/not-found');
+    }
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    res.render('marketing/gift-certificate', {
+      gift,
+      redeemUrl: `https://${appDomain}/redeem?code=${gift.code}`,
+      bareRedeemUrl: `${appDomain}/redeem`,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Set password page — linked from welcome email recovery link
 router.get('/set-password', (req, res) => {
   res.render('marketing/set-password', {

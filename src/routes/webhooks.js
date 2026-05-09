@@ -29,7 +29,12 @@ router.post('/stripe/webhook', async (req, res) => {
         const session = event.data.object;
         if (session.metadata?.type === 'gift') {
           const giftService = require('../services/giftService');
+          const { supabaseAdmin } = require('../config/supabase');
           const { sendGiftPurchaseEmail, sendGiftNotificationEmail } = require('../services/emailService');
+
+          const deliveryMethod = session.metadata.delivery_method || 'email_now';
+          const scheduledDate = session.metadata.scheduled_date || null;
+
           const gift = await giftService.createGiftCode({
             buyerEmail: session.customer_email || session.customer_details?.email,
             buyerName: session.metadata.buyer_name,
@@ -37,22 +42,42 @@ router.post('/stripe/webhook', async (req, res) => {
             recipientEmail: session.metadata.recipient_email,
             recipientMessage: session.metadata.gift_message,
             stripeSessionId: session.id,
+            deliveryMethod,
+            scheduledDate,
           });
+
           const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
           const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+          const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;
+
+          // Buyer always gets the confirmation email immediately, with the
+          // printable certificate link inside.
           await sendGiftPurchaseEmail({
             to: gift.buyer_email,
             buyerName: gift.buyer_name,
             giftCode: gift.code,
             redeemUrl,
+            certificateUrl,
+            recipientName: gift.recipient_name,
+            deliveryMethod: gift.delivery_method,
+            deliverAt: gift.deliver_at,
           });
-          if (gift.recipient_email) {
+
+          // Recipient email: only send NOW if delivery_method=email_now AND we
+          // have an email. For 'email_scheduled' the giftDeliveries cron picks
+          // it up on/after deliver_at.
+          if (gift.recipient_email && gift.delivery_method === 'email_now') {
             await sendGiftNotificationEmail({
               to: gift.recipient_email,
               buyerName: gift.buyer_name,
               message: gift.recipient_message,
               redeemUrl,
             });
+            // Mark sent so the cron doesn't re-send.
+            await supabaseAdmin
+              .from('gift_codes')
+              .update({ recipient_email_sent_at: new Date().toISOString() })
+              .eq('id', gift.id);
           }
         } else if (session.metadata?.type === 'reactivation') {
           // Customer-initiated reactivation: a previously-archived family

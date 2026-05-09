@@ -23,12 +23,57 @@ function generateGiftCode() {
 }
 
 /**
- * Create a gift code record after successful Stripe payment.
+ * Generate a URL-safe random token for the printable certificate page.
+ * 24 hex chars (~96 bits of entropy) is plenty — anyone with this token
+ * can view the certificate, but only the buyer ever sees the link.
  */
-async function createGiftCode({ buyerEmail, buyerName, recipientName, recipientEmail, recipientMessage, stripeSessionId }) {
+function generateCertificateToken() {
+  return crypto.randomBytes(12).toString('hex');
+}
+
+/**
+ * Create a gift code record after successful Stripe payment.
+ *
+ * deliveryMethod:
+ *   'email_now'        — recipient gets the gift email immediately (default)
+ *   'email_scheduled'  — recipient gets the gift email on `scheduledDate`
+ *
+ * scheduledDate: ISO timestamp (used only when deliveryMethod = email_scheduled)
+ *
+ * Either way, the BUYER gets a confirmation email immediately with a link to
+ * a printable PDF certificate (rendered from the certificate_token).
+ */
+async function createGiftCode({
+  buyerEmail,
+  buyerName,
+  recipientName,
+  recipientEmail,
+  recipientMessage,
+  stripeSessionId,
+  deliveryMethod,
+  scheduledDate,
+}) {
   const code = generateGiftCode();
+  const certificateToken = generateCertificateToken();
   const expiresAt = new Date();
   expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year to redeem
+
+  const resolvedMethod = ['email_now', 'email_scheduled'].includes(deliveryMethod)
+    ? deliveryMethod
+    : 'email_now';
+
+  // deliver_at = when the recipient should hear from us.
+  //   email_now       → now (cron will skip; webhook sends inline)
+  //   email_scheduled → the timestamp the buyer chose
+  let deliverAt;
+  if (resolvedMethod === 'email_scheduled' && scheduledDate) {
+    const parsed = new Date(scheduledDate);
+    deliverAt = !isNaN(parsed.getTime()) && parsed.getTime() > Date.now()
+      ? parsed.toISOString()
+      : new Date().toISOString();
+  } else {
+    deliverAt = new Date().toISOString();
+  }
 
   const { data, error } = await supabaseAdmin
     .from('gift_codes')
@@ -43,6 +88,9 @@ async function createGiftCode({ buyerEmail, buyerName, recipientName, recipientE
       months_prepaid: 12,
       status: 'purchased',
       expires_at: expiresAt.toISOString(),
+      delivery_method: resolvedMethod,
+      deliver_at: deliverAt,
+      certificate_token: certificateToken,
     })
     .select()
     .single();
