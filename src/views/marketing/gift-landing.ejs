@@ -167,6 +167,68 @@
     }
     .lg-feature-check svg { width: 12px; height: 12px; }
 
+    /* ---------- DEMO CTA ---------- */
+    .lg-demo-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #1a1510; color: #faf7f2;
+      padding: 14px 28px; border-radius: 6px;
+      font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 700;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      text-decoration: none; transition: background 0.2s;
+      margin-top: 24px;
+    }
+    .lg-demo-cta:hover { background: #2c2416; color: #c8a96e; }
+    .lg-demo-cta-note { font-size: 13px; color: #5e564a; margin: 10px 0 0; }
+    .lg-demo-cta-note code { background: rgba(184,142,74,0.12); padding: 2px 6px; border-radius: 3px; font-family: 'Jost', monospace; font-size: 12px; color: #1a1510; }
+
+    /* ---------- SCREENSHOT GALLERY ---------- */
+    .lg-screenshot-stack { display: flex; flex-direction: column; gap: 18px; }
+    .lg-screenshot-frame {
+      display: block; position: relative;
+      background: #1a1510; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 30px 60px rgba(26,21,16,0.25);
+      text-decoration: none; color: inherit;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .lg-screenshot-frame:hover { transform: translateY(-3px); box-shadow: 0 40px 80px rgba(26,21,16,0.35); }
+    .lg-screenshot-frame img { display: block; width: 100%; height: auto; }
+    .lg-screenshot-overlay {
+      position: absolute; inset: auto 0 0 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(26,21,16,0.78) 100%);
+      padding: 60px 16px 16px;
+      display: flex; justify-content: flex-end; align-items: flex-end;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+    }
+    .lg-screenshot-frame:hover .lg-screenshot-overlay { opacity: 1; }
+    .lg-screenshot-overlay span {
+      background: #c8a96e; color: #1a1510; padding: 8px 16px; border-radius: 4px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .lg-screenshot-thumbs {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    }
+    .lg-screenshot-thumb {
+      display: block; position: relative;
+      background: #1a1510; border-radius: 8px; overflow: hidden;
+      text-decoration: none;
+      box-shadow: 0 8px 18px rgba(26,21,16,0.18);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .lg-screenshot-thumb:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(26,21,16,0.28); }
+    .lg-screenshot-thumb img { display: block; width: 100%; height: auto; }
+    .lg-screenshot-thumb span {
+      position: absolute; inset: auto 0 0 0;
+      background: linear-gradient(180deg, transparent, rgba(26,21,16,0.8));
+      color: #faf7f2;
+      padding: 28px 10px 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .lg-screenshot-thumbs { grid-template-columns: 1fr 1fr; }
+      .lg-screenshot-thumbs .lg-screenshot-thumb:last-child { grid-column: 1 / -1; }
+    }
+
     /* ---------- COMPARISON ---------- */
     .lg-compare {
       background: #1a1510; color: #faf7f2;
@@ -493,31 +555,33 @@
   <!-- ====== WHAT THEY GET ====== -->
   <section class="lg-section" id="what-they-get">
     <div class="lg-preview-inner">
-      <div class="lg-browser">
-        <div class="lg-browser-bar">
-          <div class="lg-browser-dots">
-            <div class="lg-browser-dot lg-browser-dot-r"></div>
-            <div class="lg-browser-dot lg-browser-dot-y"></div>
-            <div class="lg-browser-dot lg-browser-dot-g"></div>
+      <!-- Real screenshots from the live demo book at your-childs-name.com -->
+      <div class="lg-screenshot-stack">
+        <a class="lg-screenshot-frame lg-screenshot-frame-main" href="https://www.your-childs-name.com" target="_blank" rel="noopener" aria-label="Open the live demo book at your-childs-name.com">
+          <div class="lg-browser-bar">
+            <div class="lg-browser-dots">
+              <div class="lg-browser-dot lg-browser-dot-r"></div>
+              <div class="lg-browser-dot lg-browser-dot-y"></div>
+              <div class="lg-browser-dot lg-browser-dot-g"></div>
+            </div>
+            <div class="lg-browser-url">www.<span>your-childs-name</span>.com</div>
           </div>
-          <div class="lg-browser-url">www.<span>your-childs-name</span>.com</div>
-        </div>
-        <div class="lg-book-preview">
-          <div class="lg-book-name">The Story of</div>
-          <div class="lg-book-title">Sophia's<br>First Year</div>
-          <div class="lg-book-rule"></div>
-          <div class="lg-book-grid">
-            <div class="lg-book-photo"><img src="https://images.unsplash.com/photo-1604917621956-10dfa7cce2e7?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
-            <div class="lg-book-photo"><img src="https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
-            <div class="lg-book-photo"><img src="https://images.unsplash.com/photo-1533483595632-c5f0e57a1936?w=200&h=200&fit=crop&crop=faces,center&auto=format&q=80" alt=""></div>
-          </div>
-          <div class="lg-book-pills">
-            <div class="lg-book-pill">Birth Story</div>
-            <div class="lg-book-pill">Month by Month</div>
-            <div class="lg-book-pill">Letters</div>
-            <div class="lg-book-pill">Family Recipes</div>
-            <div class="lg-book-pill">Time Vault</div>
-          </div>
+          <img src="/images/gift-demo/01-welcome.jpg" alt="The welcome page of a Legacy Odyssey baby book — child's name, birth details, and a quote from mom and dad" loading="eager">
+          <div class="lg-screenshot-overlay"><span>See it live →</span></div>
+        </a>
+        <div class="lg-screenshot-thumbs">
+          <a class="lg-screenshot-thumb" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+            <img src="/images/gift-demo/02-birth-story.jpg" alt="The Birth Story section of the demo baby book" loading="lazy">
+            <span>Birth Story</span>
+          </a>
+          <a class="lg-screenshot-thumb" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+            <img src="/images/gift-demo/03-month-by-month.jpg" alt="The Month by Month milestones section, with photos of the baby through their first year" loading="lazy">
+            <span>Month by Month</span>
+          </a>
+          <a class="lg-screenshot-thumb" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+            <img src="/images/gift-demo/04-letters.jpg" alt="The Letters To You section, where parents write messages to the child" loading="lazy">
+            <span>Letters To You</span>
+          </a>
         </div>
       </div>
 
@@ -536,6 +600,10 @@
           <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>Unlimited photos</strong> — no storage caps, no compression</span></li>
           <li><div class="lg-feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span><strong>iOS & Android apps</strong> included for the parents</span></li>
         </ul>
+        <a href="https://www.your-childs-name.com" target="_blank" rel="noopener" class="lg-demo-cta">
+          See the Live Demo Book →
+        </a>
+        <p class="lg-demo-cta-note">Opens in a new tab · Demo password: <code>legacy</code></p>
       </div>
     </div>
   </section>
