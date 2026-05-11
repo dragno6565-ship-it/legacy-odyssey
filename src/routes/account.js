@@ -1024,39 +1024,250 @@ router.post('/book/letters', requireAccountSession, async (req, res, next) => {
 
 // ─── Family Recipes ───────────────────────────────────────────────────────────
 
+function recipeSlugify(title, sortOrder) {
+  const base = (title || ('recipe-' + (sortOrder || 0))).toString();
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('recipe-' + (sortOrder || 0));
+}
+
+// List page — shows every recipe with photo thumb + meta. Click to edit.
 router.get('/book/recipes', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
     const { data: recipes } = await supabaseAdmin
       .from('recipes').select('*').eq('book_id', book.id).order('sort_order');
-    const recipesWithUrls = (recipes || []).map(r => ({
-      ...r, photoUrl: r.photo_path ? getPublicUrl(r.photo_path) : null,
+
+    // Photo counts per recipe for the index summary
+    let photoCounts = {};
+    if (recipes && recipes.length > 0) {
+      try {
+        const { data: photos } = await supabaseAdmin
+          .from('recipe_photos').select('recipe_id').in('recipe_id', recipes.map(r => r.id));
+        for (const p of (photos || [])) photoCounts[p.recipe_id] = (photoCounts[p.recipe_id] || 0) + 1;
+      } catch (_) { /* pre-migration: silent */ }
+    }
+
+    const recipesWithMeta = (recipes || []).map(r => ({
+      ...r,
+      photoUrl: r.photo_path ? getPublicUrl(r.photo_path) : null,
+      photo_count: (photoCounts[r.id] || 0) + (r.photo_path && !photoCounts[r.id] ? 1 : 0),
+      stepCount: Array.isArray(r.directions) ? r.directions.length : 0,
+      ingredientCount: Array.isArray(r.ingredients) ? r.ingredients.length : 0,
     }));
+
     res.render('marketing/account-book-recipes', {
-      family: req.family, book: book || {}, recipes: recipesWithUrls,
-      success: req.query.success || null, error: req.query.error || null,
+      family: req.family,
+      book: book || {},
+      recipes: recipesWithMeta,
+      success: req.query.success || null,
+      error: req.query.error || null,
     });
   } catch (err) { next(err); }
 });
 
-router.post('/book/recipes', requireAccountSession, async (req, res, next) => {
+// Create a new recipe (from the "Add recipe" form on the list page)
+router.post('/book/recipes/new', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
-    let recipes = [];
-    try { recipes = JSON.parse(req.body.recipes_json || '[]'); } catch (e) {}
-    const cleaned = recipes.map(r => ({
-      origin_label: r.origin_label || null,
-      title: r.title || null,
-      description: r.description || null,
-      photo_path: r.photo_path || null,
-      ingredients: Array.isArray(r.ingredients) ? r.ingredients.filter(i => i && i.trim()) : [],
-    }));
-    await bookService.updateSectionCards('recipes', book.id, cleaned);
-    res.redirect('/account/book/recipes?success=1');
+    if (!book) return res.redirect('/account/book');
+    const title = (req.body.title || '').toString().trim() || 'New Recipe';
+
+    const { data: existing } = await supabaseAdmin
+      .from('recipes').select('sort_order').eq('book_id', book.id)
+      .order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const row = {
+      book_id: book.id,
+      sort_order: nextSort,
+      title,
+    };
+    try { row.slug = recipeSlugify(title, nextSort); } catch (_) {}
+
+    const { data, error } = await supabaseAdmin.from('recipes').insert(row).select().single();
+    if (error) throw error;
+    res.redirect('/account/book/recipes/edit/' + data.id);
   } catch (err) {
-    console.error('Recipes save error:', err.message);
-    res.redirect('/account/book/recipes?error=1');
+    console.error('Create recipe failed:', err.message);
+    res.redirect('/account/book/recipes?error=create_failed');
   }
+});
+
+// Detail editor — GET
+router.get('/book/recipes/edit/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: r } = await supabaseAdmin
+      .from('recipes').select('*').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.redirect('/account/book/recipes?error=not_found');
+
+    // Gallery photos
+    let photos = [];
+    try {
+      const { data } = await supabaseAdmin.from('recipe_photos')
+        .select('*').eq('recipe_id', r.id).order('sort_order');
+      photos = data || [];
+    } catch (_) { /* pre-migration */ }
+    if ((!photos || photos.length === 0) && r.photo_path) {
+      photos = [{ id: null, photo_path: r.photo_path, caption: '', sort_order: 0 }];
+    }
+    const photosWithUrls = photos.map(p => ({ ...p, url: getPublicUrl(p.photo_path) }));
+
+    // Normalize ingredients + directions into the editor's expected shape
+    const ingredients = (Array.isArray(r.ingredients) ? r.ingredients : []).map((ing) => {
+      if (typeof ing === 'string') return { amount: '', item: ing };
+      return { amount: ing.amount || '', item: ing.item || ing.name || ing.text || '' };
+    });
+    const directions = (Array.isArray(r.directions) ? r.directions : []).map((step) => {
+      if (typeof step === 'string') return { text: step };
+      return { text: step.text || step.body || '' };
+    });
+
+    res.render('marketing/account-book-recipe-detail', {
+      family: req.family,
+      book: book || {},
+      recipe: r,
+      ingredients,
+      directions,
+      photos: photosWithUrls,
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+// Detail editor — POST save
+router.post('/book/recipes/edit/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    // Parse ingredients/directions from parallel form arrays. Express's
+    // body-parser with qs (extended: true) strips the [] suffix, so name="foo[]"
+    // arrives as req.body.foo (an array, or a single value if only one row).
+    const toArray = (v) => Array.isArray(v) ? v : (v == null || v === '' ? [] : [v]);
+    const amounts = toArray(req.body.ingredient_amount);
+    const items   = toArray(req.body.ingredient_item);
+    const ingredients = items.map((it, i) => ({
+      amount: (amounts[i] || '').toString().trim(),
+      item: (it || '').toString().trim(),
+    })).filter((ing) => ing.amount || ing.item);
+
+    const steps = toArray(req.body.direction_text);
+    const directions = steps.map((s) => ({ text: (s || '').toString().trim() })).filter((d) => d.text);
+
+    const patch = {
+      title: (req.body.title || '').toString().trim() || 'Untitled',
+      origin_label: (req.body.origin_label || '').toString().trim() || null,
+      description: (req.body.description || '').toString().trim() || null,
+      story: (req.body.story || '').toString().trim() || null,
+      prep_time: (req.body.prep_time || '').toString().trim() || null,
+      cook_time: (req.body.cook_time || '').toString().trim() || null,
+      servings: (req.body.servings || '').toString().trim() || null,
+      difficulty: (req.body.difficulty || '').toString().trim() || null,
+      notes: (req.body.notes || '').toString().trim() || null,
+      ingredients,
+      directions,
+      updated_at: new Date().toISOString(),
+    };
+    try { patch.slug = recipeSlugify(patch.title, 0); } catch (_) {}
+
+    // Defensive: strip unknown columns if a column doesn't exist (pre-migration)
+    let { error } = await supabaseAdmin.from('recipes').update(patch).eq('id', req.params.id).eq('book_id', book.id);
+    if (error && /column .* does not exist/i.test(error.message)) {
+      const fallback = {
+        title: patch.title, origin_label: patch.origin_label, description: patch.description,
+        ingredients: patch.ingredients, updated_at: patch.updated_at,
+      };
+      ({ error } = await supabaseAdmin.from('recipes').update(fallback).eq('id', req.params.id).eq('book_id', book.id));
+    }
+    if (error) throw error;
+    res.redirect('/account/book/recipes/edit/' + req.params.id + '?success=1');
+  } catch (err) {
+    console.error('Save recipe failed:', err.message);
+    res.redirect('/account/book/recipes/edit/' + req.params.id + '?error=save_failed');
+  }
+});
+
+// Delete a recipe (FK cascades recipe_photos)
+router.post('/book/recipes/delete/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    await supabaseAdmin.from('recipes').delete().eq('id', req.params.id).eq('book_id', book.id);
+    res.redirect('/account/book/recipes?success=recipe_deleted');
+  } catch (err) { next(err); }
+});
+
+// Upload a photo to a recipe gallery
+router.post('/book/recipes/:id/photo', requireAccountSession, upload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.redirect('/account/book/recipes/edit/' + req.params.id + '?error=no_file');
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: r } = await supabaseAdmin.from('recipes').select('id')
+      .eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.redirect('/account/book/recipes?error=not_found');
+
+    const ident = r.id + '-' + Date.now();
+    const result = await photoService.upload(req.family.id, 'recipes', ident, req.file.buffer, req.file.mimetype);
+
+    const { data: existing } = await supabaseAdmin.from('recipe_photos')
+      .select('sort_order').eq('recipe_id', r.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { error } = await supabaseAdmin.from('recipe_photos').insert({
+      recipe_id: r.id,
+      photo_path: result.path,
+      caption: null,
+      sort_order: nextSort,
+    });
+    if (error) throw error;
+
+    res.redirect('/account/book/recipes/edit/' + req.params.id + '?success=photo_added');
+  } catch (err) {
+    console.error('Recipe photo upload failed:', err.message);
+    res.redirect('/account/book/recipes/edit/' + req.params.id + '?error=photo_upload_failed');
+  }
+});
+
+// Update a recipe photo caption
+router.post('/book/recipes/photo/:photoId/edit', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: photo } = await supabaseAdmin.from('recipe_photos').select('id, recipe_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/recipes?error=photo_not_found');
+    const { data: r } = await supabaseAdmin.from('recipes').select('id').eq('id', photo.recipe_id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.redirect('/account/book/recipes?error=not_authorized');
+
+    const patch = {};
+    if (req.body.caption !== undefined) patch.caption = (req.body.caption || '').toString().trim() || null;
+    if (req.body.sort_order !== undefined) patch.sort_order = parseInt(req.body.sort_order, 10) || 0;
+    await supabaseAdmin.from('recipe_photos').update(patch).eq('id', req.params.photoId);
+
+    res.redirect('/account/book/recipes/edit/' + r.id + '?success=photo_updated');
+  } catch (err) { next(err); }
+});
+
+// Delete a recipe photo
+router.post('/book/recipes/photo/:photoId/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('recipe_photos').select('id, recipe_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/recipes?error=photo_not_found');
+    const { data: r } = await supabaseAdmin.from('recipes').select('id').eq('id', photo.recipe_id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.redirect('/account/book/recipes?error=not_authorized');
+
+    await supabaseAdmin.from('recipe_photos').delete().eq('id', req.params.photoId);
+    res.redirect('/account/book/recipes/edit/' + r.id + '?success=photo_deleted');
+  } catch (err) { next(err); }
 });
 
 // ─── The Vault ────────────────────────────────────────────────────────────────

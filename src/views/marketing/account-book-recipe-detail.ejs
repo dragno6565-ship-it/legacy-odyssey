@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Recipe · <%= recipe.title %> — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 820px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+
+    .card { background: #fff; border-radius: 12px; border: 1px solid #f0ebe3; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: #2c2416; margin-bottom: 0.25rem; }
+    .card-sub { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1rem; font-style: italic; }
+
+    label { font-size: 0.78rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.3rem; }
+    .field { margin-bottom: 1rem; }
+    .field-help { font-size: 0.75rem; color: #b8a898; margin-top: 0.25rem; }
+
+    input[type="text"], input[type="number"], select, textarea {
+      padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px;
+      font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416;
+      background: #fff; width: 100%; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12);
+    }
+    textarea { min-height: 90px; resize: vertical; line-height: 1.6; font-family: 'Jost', sans-serif; }
+    textarea.story-textarea { min-height: 160px; }
+    textarea.notes-textarea { min-height: 110px; }
+
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
+    @media (max-width: 700px) {
+      .form-row-2 { grid-template-columns: 1fr; }
+      .form-row-4 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Ingredient + direction rows */
+    .row-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .ingredient-row { display: grid; grid-template-columns: 160px 1fr 36px; gap: 0.55rem; align-items: center; }
+    .direction-row { display: grid; grid-template-columns: 36px 1fr 36px; gap: 0.55rem; align-items: start; }
+    .step-num { background: #c8a96e; color: #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1rem; margin-top: 0.4rem; }
+    .row-remove { background: #fff; color: #c0392b; border: 1px solid #e0b4b4; padding: 0.4rem 0; border-radius: 6px; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 0.9rem; }
+    .row-remove:hover { background: #fdf2f2; }
+    .direction-row textarea { min-height: 60px; }
+    @media (max-width: 700px) {
+      .ingredient-row { grid-template-columns: 100px 1fr 32px; }
+    }
+
+    .btn-add-row { background: #f3eddf; color: #c8a96e; border: 1.5px dashed #c8a96e; padding: 0.55rem 1rem; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 0.65rem; width: 100%; }
+    .btn-add-row:hover { background: #ebe1cc; }
+
+    /* Photo gallery editor */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .photo-card { background: #faf7f2; border: 1px solid #e0d5c4; border-radius: 8px; overflow: hidden; padding: 0.65rem; }
+    .photo-card-img { aspect-ratio: 4/5; border-radius: 4px; overflow: hidden; background: #ece4d6; margin-bottom: 0.5rem; }
+    .photo-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-caption-form { display: flex; flex-direction: column; gap: 0.4rem; }
+    .photo-caption-form input { font-size: 0.85rem; padding: 0.4rem 0.55rem; }
+    .photo-card-actions { display: flex; gap: 0.4rem; margin-top: 0.3rem; }
+    .btn-photo-save { flex: 1; background: #c8a96e; color: #fff; border: none; padding: 0.4rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-save:hover { background: #b08e4a; }
+    .btn-photo-delete { background: #fff; color: #c0392b; border: 1px solid #e0b4b4; padding: 0.4rem 0.65rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-delete:hover { background: #fdf2f2; }
+
+    .photo-add { border: 2px dashed #c8a96e; border-radius: 8px; padding: 1rem; aspect-ratio: 4/5; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: background 0.15s; }
+    .photo-add:hover { background: #fdf9f3; }
+    .photo-add input[type="file"] { display: none; }
+    .photo-add-label { color: #c8a96e; font-weight: 600; font-size: 0.95rem; text-align: center; }
+    .photo-add-hint { color: #b8a898; font-size: 0.72rem; margin-top: 0.35rem; text-align: center; }
+
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.75rem 1.75rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-cancel { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-cancel:hover { color: #2c2416; }
+    .btn-delete-recipe { background: none; border: 1px solid #e0b4b4; color: #c0392b; padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; font-family: 'Jost', sans-serif; margin-left: auto; }
+    .btn-delete-recipe:hover { background: #fdf2f2; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      <a href="/account/book/recipes">Family Recipes</a> &nbsp;/&nbsp;
+      <%= recipe.title %>
+    </div>
+
+    <h1><%= recipe.title %></h1>
+    <p class="section-desc">All fields below are optional. Anything you leave blank simply won't show on your published book.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong (<%= error %>).</div><% } %>
+
+    <!-- Details form -->
+    <form method="POST" action="/account/book/recipes/edit/<%= recipe.id %>">
+      <div class="card">
+        <div class="card-title">The basics</div>
+        <div class="card-sub">Title, who passed it down, and a quick description.</div>
+
+        <div class="form-row-2">
+          <div class="field">
+            <label for="title">Recipe name</label>
+            <input type="text" id="title" name="title" value="<%= recipe.title || '' %>" placeholder="e.g. Grandma's Pancakes" required>
+          </div>
+          <div class="field">
+            <label for="origin_label">From whom</label>
+            <input type="text" id="origin_label" name="origin_label" value="<%= recipe.origin_label || '' %>" placeholder="e.g. Grandma Sarah">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="description">Short description</label>
+          <textarea id="description" name="description" placeholder="A short tagline that shows under the title on the published page."><%= recipe.description || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">The story</div>
+        <div class="card-sub">Where the recipe came from, why it matters, what you'll remember.</div>
+
+        <div class="field">
+          <textarea id="story" name="story" class="story-textarea" placeholder="Tell the story of this recipe — where it came from, who used to make it, what makes it special."><%= recipe.story || '' %></textarea>
+          <div class="field-help">Press Enter twice between paragraphs. Leave blank to hide this section on the published page.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Cooking details</div>
+        <div class="card-sub">Optional. Use whatever you know — leave blanks blank.</div>
+
+        <div class="form-row-4">
+          <div class="field">
+            <label for="prep_time">Prep time</label>
+            <input type="text" id="prep_time" name="prep_time" value="<%= recipe.prep_time || '' %>" placeholder="e.g. 15 min">
+          </div>
+          <div class="field">
+            <label for="cook_time">Cook time</label>
+            <input type="text" id="cook_time" name="cook_time" value="<%= recipe.cook_time || '' %>" placeholder="e.g. 45 min">
+          </div>
+          <div class="field">
+            <label for="servings">Serves</label>
+            <input type="text" id="servings" name="servings" value="<%= recipe.servings || '' %>" placeholder="e.g. 4–6">
+          </div>
+          <div class="field">
+            <label for="difficulty">Difficulty</label>
+            <select id="difficulty" name="difficulty">
+              <option value="" <%= !recipe.difficulty ? 'selected' : '' %>>—</option>
+              <option value="Easy" <%= recipe.difficulty === 'Easy' ? 'selected' : '' %>>Easy</option>
+              <option value="Medium" <%= recipe.difficulty === 'Medium' ? 'selected' : '' %>>Medium</option>
+              <option value="Hard" <%= recipe.difficulty === 'Hard' ? 'selected' : '' %>>Hard</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ingredients</div>
+        <div class="card-sub">Add one row per ingredient. Amount on the left, item on the right.</div>
+
+        <div class="row-list" id="ingredients-list">
+          <% if ((ingredients || []).length === 0) { %>
+            <div class="ingredient-row">
+              <input type="text" name="ingredient_amount[]" placeholder="2 cups">
+              <input type="text" name="ingredient_item[]" placeholder="all-purpose flour">
+              <button type="button" class="row-remove" onclick="this.parentElement.remove()">×</button>
+            </div>
+          <% } else { %>
+            <% ingredients.forEach(function(ing) { %>
+              <div class="ingredient-row">
+                <input type="text" name="ingredient_amount[]" value="<%= ing.amount || '' %>" placeholder="2 cups">
+                <input type="text" name="ingredient_item[]" value="<%= ing.item || '' %>" placeholder="all-purpose flour">
+                <button type="button" class="row-remove" onclick="this.parentElement.remove()">×</button>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+        <button type="button" class="btn-add-row" onclick="addIngredient()">+ Add ingredient</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Directions</div>
+        <div class="card-sub">Step-by-step. They'll be numbered automatically on the published page.</div>
+
+        <div class="row-list" id="directions-list">
+          <% if ((directions || []).length === 0) { %>
+            <div class="direction-row">
+              <div class="step-num">1</div>
+              <textarea name="direction_text[]" placeholder="Whisk the dry ingredients in a large bowl."></textarea>
+              <button type="button" class="row-remove" onclick="removeDirection(this)">×</button>
+            </div>
+          <% } else { %>
+            <% directions.forEach(function(step, i) { %>
+              <div class="direction-row">
+                <div class="step-num"><%= i + 1 %></div>
+                <textarea name="direction_text[]" placeholder="Step <%= i + 1 %>"><%= step.text || '' %></textarea>
+                <button type="button" class="row-remove" onclick="removeDirection(this)">×</button>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+        <button type="button" class="btn-add-row" onclick="addDirection()">+ Add step</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Notes &amp; memories</div>
+        <div class="card-sub">Tips, variations, little memories. Shows as a pull-quote on the published page.</div>
+
+        <div class="field">
+          <textarea id="notes" name="notes" class="notes-textarea" placeholder="e.g. Grandma always used real maple syrup, never the fake stuff."><%= recipe.notes || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save changes</button>
+        <a class="btn-cancel" href="/account/book/recipes">Back to all recipes</a>
+        <button type="button" class="btn-delete-recipe"
+                onclick="if (confirm('Delete this recipe and all its photos? This cannot be undone.')) { document.getElementById('deleteForm').submit(); }">
+          Delete recipe
+        </button>
+      </div>
+    </form>
+
+    <!-- Photo gallery (separate forms for each photo) -->
+    <div class="card" style="margin-top: 1.25rem;">
+      <div class="card-title">Photo gallery</div>
+      <div class="card-sub">The first photo becomes the cover image. Each can have its own caption.</div>
+
+      <div class="photo-grid">
+        <% photos.forEach(function(p) { %>
+          <div class="photo-card">
+            <div class="photo-card-img"><img src="<%= p.url %>" alt=""></div>
+            <% if (p.id) { %>
+              <form method="POST" action="/account/book/recipes/photo/<%= p.id %>/edit" class="photo-caption-form">
+                <input type="text" name="caption" value="<%= p.caption || '' %>" placeholder="Caption (optional)">
+                <div class="photo-card-actions">
+                  <button type="submit" class="btn-photo-save">Save</button>
+                  <button type="button" class="btn-photo-delete"
+                          onclick="if(confirm('Remove this photo?')) { this.closest('.photo-card').querySelector('.delete-form').submit(); }">×</button>
+                </div>
+              </form>
+              <form method="POST" action="/account/book/recipes/photo/<%= p.id %>/delete" class="delete-form" style="display:none;"></form>
+            <% } else { %>
+              <div class="card-sub" style="font-size:0.75rem;">Legacy photo (re-upload to caption)</div>
+            <% } %>
+          </div>
+        <% }); %>
+
+        <label class="photo-add">
+          <form method="POST" action="/account/book/recipes/<%= recipe.id %>/photo" enctype="multipart/form-data" style="display:contents;">
+            <input type="file" name="file" accept="image/*" onchange="this.form.submit()">
+            <span class="photo-add-label">+ Add photo</span>
+            <span class="photo-add-hint">JPG or PNG. Click to upload.</span>
+          </form>
+        </label>
+      </div>
+    </div>
+
+    <!-- Hidden delete-recipe form -->
+    <form method="POST" action="/account/book/recipes/delete/<%= recipe.id %>" id="deleteForm" style="display:none;"></form>
+  </div>
+
+  <script>
+    function addIngredient() {
+      const list = document.getElementById('ingredients-list');
+      const row = document.createElement('div');
+      row.className = 'ingredient-row';
+      row.innerHTML = `
+        <input type="text" name="ingredient_amount[]" placeholder="2 cups">
+        <input type="text" name="ingredient_item[]" placeholder="all-purpose flour">
+        <button type="button" class="row-remove" onclick="this.parentElement.remove()">×</button>
+      `;
+      list.appendChild(row);
+      row.querySelector('input[name="ingredient_amount[]"]').focus();
+    }
+
+    function renumberDirections() {
+      const list = document.getElementById('directions-list');
+      const rows = list.querySelectorAll('.direction-row');
+      rows.forEach((r, i) => {
+        const num = r.querySelector('.step-num');
+        if (num) num.textContent = String(i + 1);
+        const ta = r.querySelector('textarea');
+        if (ta) ta.setAttribute('placeholder', 'Step ' + (i + 1));
+      });
+    }
+    function addDirection() {
+      const list = document.getElementById('directions-list');
+      const row = document.createElement('div');
+      row.className = 'direction-row';
+      row.innerHTML = `
+        <div class="step-num">_</div>
+        <textarea name="direction_text[]"></textarea>
+        <button type="button" class="row-remove" onclick="removeDirection(this)">×</button>
+      `;
+      list.appendChild(row);
+      renumberDirections();
+      row.querySelector('textarea').focus();
+    }
+    function removeDirection(btn) {
+      btn.parentElement.remove();
+      renumberDirections();
+    }
+  </script>
+</body>
+</html>
