@@ -93,7 +93,7 @@ router.get('/preview/founder', (req, res) => {
 // feature is built. Three variants render the same template with different
 // sample data so Dan can see how conditional sections (only render if
 // filled in) behave from "all fields populated" to "title only".
-router.get('/preview/celebration-mockup/:variant?', (req, res) => {
+function celebrationMockupHandler(req, res) {
   const v = (req.params.variant || 'full').toLowerCase();
 
   const fullCelebration = {
@@ -168,7 +168,11 @@ router.get('/preview/celebration-mockup/:variant?', (req, res) => {
     fullCelebration;
 
   res.render('marketing/preview-celebration-mockup', { celebration });
-});
+}
+// Two routes: with and without :variant. (Express 5's path-to-regexp dropped
+// the `:variant?` optional-param syntax which previously combined these.)
+router.get('/preview/celebration-mockup', celebrationMockupHandler);
+router.get('/preview/celebration-mockup/:variant', celebrationMockupHandler);
 
 // Printable gift certificate.
 // Public route — the certificate_token is the only auth. Anyone with the
