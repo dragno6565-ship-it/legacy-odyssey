@@ -89,6 +89,87 @@ router.get('/preview/founder', (req, res) => {
   res.render('marketing/founder');
 });
 
+// Celebration detail-page DESIGN MOCKUP routes — shown to Dan before the
+// feature is built. Three variants render the same template with different
+// sample data so Dan can see how conditional sections (only render if
+// filled in) behave from "all fields populated" to "title only".
+router.get('/preview/celebration-mockup/:variant?', (req, res) => {
+  const v = (req.params.variant || 'full').toLowerCase();
+
+  const fullCelebration = {
+    yearLabel: 'Year 1 (2025)',
+    title: 'First <em>Christmas</em>',
+    eyebrow: 'Christmas Day · December 25, 2025',
+    date: 'December 25, 2025',
+    location: 'Grandma & Grandpa\'s House, Vermont',
+    coverPhoto: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1600&h=800&fit=crop&crop=center&auto=format&q=85',
+    story: [
+      'Sophia\'s first Christmas was a quiet one — her first time meeting her great-grandparents, her first time near a tree taller than the ceiling she\'s used to, and the first time she fell asleep with a wrapped present held tightly in both hands.',
+      'We woke up at 7:00. By 7:15 the house was full of cousins. Mom carried her downstairs in the red pajamas Grandma sent up last week, and the first thing Sophia did when she saw the tree was point and say "oooooh." She has never said "oooooh" before. We are choosing to believe she made it up just for the moment.',
+      'The afternoon was leftover ham, the puzzle Aunt Sarah brought, and Sophia falling asleep in Grandpa\'s arms while he hummed something we didn\'t recognize. She has made this house — for the first time — into a place where memories are being made about her, instead of for her.',
+    ].join('\n\n'),
+    attendees: ['Mom', 'Dad', 'Grandma Pat', 'Grandpa Joe', 'Great-Grandma Ruth', 'Aunt Sarah', 'Uncle Mike', 'Cousin Ben', 'Cousin Lily'],
+    gifts: [
+      'A handmade quilt from Grandma — yellow stars on cream',
+      'Wooden alphabet blocks from Grandpa',
+      'Her first cloth book ("Where Is Spot?")',
+      'Reindeer pajamas (which she\'s currently wearing)',
+      'A silver baby spoon engraved with the date',
+      'A tiny stocking with her name embroidered on it',
+    ],
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=600&h=750&fit=crop&crop=center&auto=format&q=80', caption: 'The first ornament she picked up off the tree — and refused to give back.' },
+      { url: 'https://images.unsplash.com/photo-1604917621956-10dfa7cce2e7?w=600&h=750&fit=crop&crop=faces,center&auto=format&q=80', caption: 'Right before she tore into the wrapping paper.' },
+      { url: 'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=600&h=750&fit=crop&crop=center&auto=format&q=80', caption: 'Grandma\'s quilt. She wouldn\'t let go.' },
+      { url: 'https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=600&h=750&fit=crop&crop=faces,center&auto=format&q=80', caption: '' },
+      { url: 'https://images.unsplash.com/photo-1533483595632-c5f0e57a1936?w=600&h=750&fit=crop&crop=faces,center&auto=format&q=80', caption: 'Asleep in Grandpa\'s arms, post-ham.' },
+      { url: 'https://images.unsplash.com/photo-1518689745945-cf04ab1d8d52?w=600&h=750&fit=crop&crop=center&auto=format&q=80', caption: '' },
+    ],
+    prev: null,
+    next: 'Easter Sunday',
+  };
+
+  const sparseCelebration = {
+    yearLabel: 'Year 1 (2025)',
+    title: 'Easter Sunday',
+    eyebrow: '',
+    date: 'April 20, 2025',
+    location: '',
+    coverPhoto: 'https://images.unsplash.com/photo-1517232115160-ff93364542dd?w=1600&h=800&fit=crop&crop=center&auto=format&q=85',
+    story: '',
+    attendees: [],
+    gifts: [],
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1517232115160-ff93364542dd?w=600&h=750&fit=crop&crop=center&auto=format&q=80', caption: 'Her first Easter dress.' },
+      { url: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=600&h=750&fit=crop&crop=center&auto=format&q=80', caption: '' },
+    ],
+    prev: 'First Christmas',
+    next: 'Fourth of July',
+  };
+
+  const emptyCelebration = {
+    yearLabel: 'Year 1 (2025)',
+    title: 'Halloween',
+    eyebrow: '',
+    date: '',
+    location: '',
+    coverPhoto: '',
+    story: '',
+    attendees: [],
+    gifts: [],
+    photos: [],
+    prev: 'Fourth of July',
+    next: 'First Birthday',
+  };
+
+  const celebration =
+    v === 'sparse' ? sparseCelebration :
+    v === 'empty'  ? emptyCelebration  :
+    fullCelebration;
+
+  res.render('marketing/preview-celebration-mockup', { celebration });
+});
+
 // Printable gift certificate.
 // Public route — the certificate_token is the only auth. Anyone with the
 // link can view + print, but only the buyer ever receives the link
