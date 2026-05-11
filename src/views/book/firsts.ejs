@@ -4,10 +4,51 @@
     <h2 class="page-header-title">Your <em>Firsts</em></h2>
     <p class="page-header-sub">Every milestone is a door opening. Here are the ones we never want to forget.</p>
   </div>
+  <%
+    // Map emoji + title keywords to Lucide icons so the page uses the same
+    // line-icon language as the rest of the book instead of mixed-style emoji.
+    function firstIcon(f) {
+      const e = (f && f.emoji) || '';
+      const t = ((f && f.title) || '').toLowerCase();
+      const EMOJI_MAP = {
+        '😊': 'smile', '🙂': 'smile', '😀': 'smile', '😄': 'smile',
+        '😂': 'laugh', '🤣': 'laugh',
+        '🍼': 'milk', '🍴': 'utensils', '🥣': 'utensils',
+        '🦷': 'sparkles',
+        '👣': 'footprints', '🚶': 'footprints',
+        '💬': 'message-circle', '🗣️': 'message-circle', '🗣': 'message-circle',
+        '🛁': 'droplets', '🚿': 'droplets', '💧': 'droplets',
+        '🌙': 'moon', '😴': 'moon', '💤': 'moon',
+        '✈️': 'plane', '✈': 'plane', '🛫': 'plane',
+        '🎂': 'cake', '🎉': 'party-popper', '🎈': 'party-popper',
+        '⭐': 'star', '🌟': 'star',
+        '❤️': 'heart', '❤': 'heart', '💖': 'heart',
+        '📷': 'camera', '📸': 'camera',
+        '🎵': 'music', '🎶': 'music',
+        '🐶': 'paw-print', '🐾': 'paw-print',
+        '📚': 'book-open', '📖': 'book-open',
+      };
+      if (EMOJI_MAP[e]) return EMOJI_MAP[e];
+      // Title-keyword fallback for custom firsts the parent typed in
+      if (/smile/.test(t)) return 'smile';
+      if (/laugh/.test(t)) return 'laugh';
+      if (/tooth/.test(t)) return 'sparkles';
+      if (/step|walk|crawl/.test(t)) return 'footprints';
+      if (/word|talk|said/.test(t)) return 'message-circle';
+      if (/bath|swim/.test(t)) return 'droplets';
+      if (/sleep|night/.test(t)) return 'moon';
+      if (/trip|travel|flight|plane/.test(t)) return 'plane';
+      if (/food|eat|solid|bottle|milk/.test(t)) return 'milk';
+      if (/birthday|cake/.test(t)) return 'cake';
+      if (/song|music/.test(t)) return 'music';
+      if (/book|read/.test(t)) return 'book-open';
+      return 'star';
+    }
+  %>
   <div class="firsts-grid">
     <% (firsts || []).forEach(f => { %>
       <div class="first-card">
-        <div class="first-emoji"><%= f.emoji %></div>
+        <div class="first-icon"><i data-lucide="<%= firstIcon(f) %>"></i></div>
         <div class="first-title"><%= f.title %></div>
         <div class="first-date"><%= f.date_text || '' %></div>
         <p class="first-note"><%- (f.note || '').replace(/\n/g, '<br>') %></p>

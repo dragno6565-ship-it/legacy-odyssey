@@ -969,6 +969,8 @@ body {
 }
 
 .first-emoji { font-size: 1.8rem; margin-bottom: 0.75rem; }
+.first-icon { margin-bottom: 0.85rem; color: var(--gold); display: flex; align-items: center; justify-content: flex-start; }
+.first-icon svg { width: 1.75rem; height: 1.75rem; stroke-width: 1.5; }
 
 .first-title {
   font-family: 'Cormorant Garamond', serif;
