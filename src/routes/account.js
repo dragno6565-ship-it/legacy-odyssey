@@ -706,38 +706,286 @@ router.post('/book/family/:key', requireAccountSession, async (req, res, next) =
 
 // ─── Celebrations ────────────────────────────────────────────────────────────
 
+// Slugify helper — same algorithm used by migration 014 and bookService.
+function celebrationSlug(title, sortOrder) {
+  const base = (title || ('celebration-' + (sortOrder || 0))).toString();
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('celebration-' + (sortOrder || 0));
+}
+
+// ─── Celebrations: index (year + celebration tree) ───────────────────────
 router.get('/book/celebrations', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    // Load all celebrations for the book.
     const { data: cards } = await supabaseAdmin
       .from('celebrations').select('*').eq('book_id', book.id).order('sort_order');
-    const cardsWithUrls = (cards || []).map(c => ({
-      ...c, photoUrl: c.photo_path ? getPublicUrl(c.photo_path) : null,
+
+    // Load photo counts per celebration for the index summary.
+    let photoCounts = {};
+    if (cards && cards.length > 0) {
+      try {
+        const { data: photos } = await supabaseAdmin
+          .from('celebration_photos').select('celebration_id').in('celebration_id', cards.map(c => c.id));
+        for (const p of (photos || [])) photoCounts[p.celebration_id] = (photoCounts[p.celebration_id] || 0) + 1;
+      } catch (_) { /* pre-migration: silent */ }
+    }
+
+    const cardsWithMeta = (cards || []).map(c => ({
+      ...c,
+      photoUrl: c.photo_path ? getPublicUrl(c.photo_path) : null,
+      photo_count: (photoCounts[c.id] || 0) + (c.photo_path && !photoCounts[c.id] ? 1 : 0),
     }));
+
+    // Group by year_label, preserving book.celebration_years order
+    const yearLabels = book.celebration_years || ['Your First Year'];
+    const grouped = yearLabels.map((label) => ({
+      label,
+      celebrations: cardsWithMeta.filter(c => (c.year_label || 'Your First Year') === label),
+    }));
+    // Orphan years (rows whose year_label isn't in book.celebration_years)
+    const seen = new Set(yearLabels);
+    for (const c of cardsWithMeta) {
+      const y = c.year_label || 'Your First Year';
+      if (!seen.has(y)) {
+        seen.add(y);
+        grouped.push({ label: y, celebrations: cardsWithMeta.filter(x => (x.year_label || 'Your First Year') === y) });
+      }
+    }
+
     res.render('marketing/account-book-celebrations', {
-      family: req.family, book: book || {}, cards: cardsWithUrls,
-      success: req.query.success || null, error: req.query.error || null,
+      family: req.family,
+      book: book || {},
+      years: grouped,
+      success: req.query.success || null,
+      error: req.query.error || null,
     });
   } catch (err) { next(err); }
 });
 
-router.post('/book/celebrations', requireAccountSession, async (req, res, next) => {
+// ─── Celebration years: add ──────────────────────────────────────────────
+router.post('/book/celebrations/year/add', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
-    let cards = [];
-    try { cards = JSON.parse(req.body.cards_json || '[]'); } catch (e) {}
-    const cleaned = cards.map(c => ({
-      eyebrow: c.eyebrow || null,
-      title: c.title || null,
-      body: c.body || null,
-      photo_path: c.photo_path || null,
-    }));
-    await bookService.updateSectionCards('celebrations', book.id, cleaned);
-    res.redirect('/account/book/celebrations?success=1');
+    if (!book) return res.redirect('/account/book');
+    const label = (req.body.label || '').toString().trim();
+    if (!label) return res.redirect('/account/book/celebrations?error=year_label_required');
+    const years = book.celebration_years || ['Your First Year'];
+    if (years.includes(label)) return res.redirect('/account/book/celebrations?error=year_exists');
+    const updated = [...years, label];
+    await bookService.updateBook(book.id, { celebration_years: updated });
+    res.redirect('/account/book/celebrations?success=year_added');
+  } catch (err) { next(err); }
+});
+
+// ─── Celebration years: delete (also deletes all celebrations in that year) ──
+router.post('/book/celebrations/year/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const label = (req.body.label || '').toString().trim();
+    if (!label) return res.redirect('/account/book/celebrations?error=year_label_required');
+    // Don't allow deleting the only remaining year.
+    const years = book.celebration_years || ['Your First Year'];
+    if (years.length <= 1) return res.redirect('/account/book/celebrations?error=cannot_delete_last_year');
+    const updated = years.filter((y) => y !== label);
+    // Cascade-delete celebrations in this year (celebration_photos cascades via FK)
+    await supabaseAdmin.from('celebrations').delete().eq('book_id', book.id).eq('year_label', label);
+    await bookService.updateBook(book.id, { celebration_years: updated });
+    res.redirect('/account/book/celebrations?success=year_deleted');
+  } catch (err) { next(err); }
+});
+
+// ─── Celebrations: create one and redirect to its editor ─────────────────
+router.post('/book/celebrations/new', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const yearLabel = (req.body.year_label || 'Your First Year').toString();
+    const title = (req.body.title || '').toString().trim() || 'New Celebration';
+
+    // Next sort_order within the year
+    const { data: existing } = await supabaseAdmin
+      .from('celebrations').select('sort_order').eq('book_id', book.id).eq('year_label', yearLabel)
+      .order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const row = {
+      book_id: book.id,
+      year_label: yearLabel,
+      sort_order: nextSort,
+      title,
+    };
+    // slug column may not exist yet pre-migration; insert defensively.
+    try { row.slug = celebrationSlug(title, nextSort); } catch (_) {}
+
+    const { data, error } = await supabaseAdmin.from('celebrations').insert(row).select().single();
+    if (error) throw error;
+    res.redirect('/account/book/celebrations/edit/' + data.id);
   } catch (err) {
-    console.error('Celebrations save error:', err.message);
-    res.redirect('/account/book/celebrations?error=1');
+    console.error('Create celebration failed:', err.message);
+    res.redirect('/account/book/celebrations?error=create_failed');
   }
+});
+
+// ─── Celebration detail editor: GET ──────────────────────────────────────
+router.get('/book/celebrations/edit/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: c } = await supabaseAdmin
+      .from('celebrations').select('*')
+      .eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.redirect('/account/book/celebrations?error=not_found');
+
+    // Load gallery photos
+    let photos = [];
+    try {
+      const { data } = await supabaseAdmin.from('celebration_photos')
+        .select('*').eq('celebration_id', c.id).order('sort_order');
+      photos = data || [];
+    } catch (_) { /* pre-migration */ }
+    // If pre-migration and the row has a legacy photo_path, surface it as the only photo
+    if ((!photos || photos.length === 0) && c.photo_path) {
+      photos = [{ id: null, photo_path: c.photo_path, caption: '', sort_order: 0 }];
+    }
+    const photosWithUrls = photos.map(p => ({ ...p, url: getPublicUrl(p.photo_path) }));
+
+    // Available years for the year-picker dropdown
+    const years = book.celebration_years || ['Your First Year'];
+
+    res.render('marketing/account-book-celebration-detail', {
+      family: req.family,
+      book: book || {},
+      celebration: c,
+      photos: photosWithUrls,
+      years,
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+// ─── Celebration detail editor: POST save ────────────────────────────────
+router.post('/book/celebrations/edit/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const patch = {
+      title: (req.body.title || '').toString().trim() || 'Untitled',
+      eyebrow: (req.body.eyebrow || '').toString().trim() || null,
+      body: (req.body.body || '').toString().trim() || null,
+      location: (req.body.location || '').toString().trim() || null,
+      attendees: (req.body.attendees || '').toString().trim() || null,
+      gifts: (req.body.gifts || '').toString().trim() || null,
+      celebration_date: req.body.celebration_date || null,
+      year_label: (req.body.year_label || 'Your First Year').toString(),
+      updated_at: new Date().toISOString(),
+    };
+    // Regenerate slug from title (defensive — column may not exist pre-migration)
+    try { patch.slug = celebrationSlug(patch.title, 0); } catch (_) {}
+
+    // Try a defensive update — if a column doesn't exist (pre-migration), strip the unknown fields and retry.
+    let { error } = await supabaseAdmin.from('celebrations').update(patch).eq('id', req.params.id).eq('book_id', book.id);
+    if (error && /column .* does not exist/i.test(error.message)) {
+      // Fallback for pre-migration DBs: only update the columns that definitely exist.
+      const fallback = {
+        title: patch.title, eyebrow: patch.eyebrow, body: patch.body,
+        year_label: patch.year_label, updated_at: patch.updated_at,
+      };
+      ({ error } = await supabaseAdmin.from('celebrations').update(fallback).eq('id', req.params.id).eq('book_id', book.id));
+    }
+    if (error) throw error;
+    res.redirect('/account/book/celebrations/edit/' + req.params.id + '?success=1');
+  } catch (err) {
+    console.error('Save celebration failed:', err.message);
+    res.redirect('/account/book/celebrations/edit/' + req.params.id + '?error=save_failed');
+  }
+});
+
+// ─── Celebration: delete ─────────────────────────────────────────────────
+router.post('/book/celebrations/delete/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    await supabaseAdmin.from('celebrations').delete().eq('id', req.params.id).eq('book_id', book.id);
+    res.redirect('/account/book/celebrations?success=celebration_deleted');
+  } catch (err) { next(err); }
+});
+
+// ─── Celebration photo: upload (uses multer; uploads to Supabase Storage, then creates celebration_photos row) ──
+router.post('/book/celebrations/:id/photo', requireAccountSession, upload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.redirect('/account/book/celebrations/edit/' + req.params.id + '?error=no_file');
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    // Verify ownership
+    const { data: c } = await supabaseAdmin.from('celebrations').select('id')
+      .eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.redirect('/account/book/celebrations?error=not_found');
+
+    // Upload to storage under <familyId>/celebrations/<id>/<filename>
+    const ident = c.id + '-' + Date.now();
+    const result = await photoService.upload(req.family.id, 'celebrations', ident, req.file.buffer, req.file.mimetype);
+
+    // Find next sort_order for this celebration
+    const { data: existing } = await supabaseAdmin.from('celebration_photos')
+      .select('sort_order').eq('celebration_id', c.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { error } = await supabaseAdmin.from('celebration_photos').insert({
+      celebration_id: c.id,
+      photo_path: result.path,
+      caption: null,
+      sort_order: nextSort,
+    });
+    if (error) throw error;
+
+    res.redirect('/account/book/celebrations/edit/' + req.params.id + '?success=photo_added');
+  } catch (err) {
+    console.error('Photo upload failed:', err.message);
+    res.redirect('/account/book/celebrations/edit/' + req.params.id + '?error=photo_upload_failed');
+  }
+});
+
+// ─── Celebration photo: update caption / sort_order ──────────────────────
+router.post('/book/celebrations/photo/:photoId/edit', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    // Verify ownership via the join to celebrations
+    const { data: photo } = await supabaseAdmin.from('celebration_photos').select('id, celebration_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/celebrations?error=photo_not_found');
+    const { data: c } = await supabaseAdmin.from('celebrations').select('id').eq('id', photo.celebration_id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.redirect('/account/book/celebrations?error=not_authorized');
+
+    const patch = { updated_at: new Date().toISOString() };
+    if (req.body.caption !== undefined) patch.caption = (req.body.caption || '').toString().trim() || null;
+    if (req.body.sort_order !== undefined) patch.sort_order = parseInt(req.body.sort_order, 10) || 0;
+    await supabaseAdmin.from('celebration_photos').update(patch).eq('id', req.params.photoId);
+
+    res.redirect('/account/book/celebrations/edit/' + c.id + '?success=photo_updated');
+  } catch (err) { next(err); }
+});
+
+// ─── Celebration photo: delete ───────────────────────────────────────────
+router.post('/book/celebrations/photo/:photoId/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('celebration_photos').select('id, celebration_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/celebrations?error=photo_not_found');
+    const { data: c } = await supabaseAdmin.from('celebrations').select('id').eq('id', photo.celebration_id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.redirect('/account/book/celebrations?error=not_authorized');
+
+    await supabaseAdmin.from('celebration_photos').delete().eq('id', req.params.photoId);
+    res.redirect('/account/book/celebrations/edit/' + c.id + '?success=photo_deleted');
+  } catch (err) { next(err); }
 });
 
 // ─── Letters ──────────────────────────────────────────────────────────────────

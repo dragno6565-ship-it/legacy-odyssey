@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Celebration · <%= celebration.title %> — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+
+    .card { background: #fff; border-radius: 12px; border: 1px solid #f0ebe3; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: #2c2416; margin-bottom: 0.25rem; }
+    .card-sub { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1rem; font-style: italic; }
+
+    label { font-size: 0.78rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.3rem; }
+    .field { margin-bottom: 1rem; }
+    .field-help { font-size: 0.75rem; color: #b8a898; margin-top: 0.25rem; }
+
+    input[type="text"], input[type="date"], select, textarea {
+      padding: 0.65rem 0.85rem; border: 1.5px solid #e0d5c4; border-radius: 8px;
+      font-family: 'Jost', sans-serif; font-size: 0.95rem; color: #2c2416;
+      background: #fff; width: 100%; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12);
+    }
+    textarea { min-height: 90px; resize: vertical; line-height: 1.6; font-family: 'Jost', sans-serif; }
+    textarea.story-textarea { min-height: 180px; }
+
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+    /* Photo gallery editor */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .photo-card { background: #faf7f2; border: 1px solid #e0d5c4; border-radius: 8px; overflow: hidden; padding: 0.65rem; }
+    .photo-card-img { aspect-ratio: 4/5; border-radius: 4px; overflow: hidden; background: #ece4d6; margin-bottom: 0.5rem; }
+    .photo-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-caption-form { display: flex; flex-direction: column; gap: 0.4rem; }
+    .photo-caption-form input { font-size: 0.85rem; padding: 0.4rem 0.55rem; }
+    .photo-card-actions { display: flex; gap: 0.4rem; margin-top: 0.3rem; }
+    .btn-photo-save { flex: 1; background: #c8a96e; color: #fff; border: none; padding: 0.4rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-save:hover { background: #b08e4a; }
+    .btn-photo-delete { background: #fff; color: #c0392b; border: 1px solid #e0b4b4; padding: 0.4rem 0.65rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-delete:hover { background: #fdf2f2; }
+
+    .photo-add { border: 2px dashed #c8a96e; border-radius: 8px; padding: 1rem; aspect-ratio: 4/5; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: background 0.15s; }
+    .photo-add:hover { background: #fdf9f3; }
+    .photo-add input[type="file"] { display: none; }
+    .photo-add-label { color: #c8a96e; font-weight: 600; font-size: 0.95rem; text-align: center; }
+    .photo-add-hint { color: #b8a898; font-size: 0.72rem; margin-top: 0.35rem; text-align: center; }
+
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.75rem 1.75rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-cancel { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-cancel:hover { color: #2c2416; }
+    .btn-delete-celeb { background: none; border: 1px solid #e0b4b4; color: #c0392b; padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.88rem; cursor: pointer; font-family: 'Jost', sans-serif; margin-left: auto; }
+    .btn-delete-celeb:hover { background: #fdf2f2; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      <a href="/account/book/celebrations">Celebrations</a> &nbsp;/&nbsp;
+      <%= celebration.title %>
+    </div>
+
+    <h1><%= celebration.title %></h1>
+    <p class="section-desc">All fields below are optional. Anything you leave blank simply won't show on your published book.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong (<%= error %>).</div><% } %>
+
+    <!-- Details form -->
+    <form method="POST" action="/account/book/celebrations/edit/<%= celebration.id %>">
+      <div class="card">
+        <div class="card-title">Details</div>
+        <div class="card-sub">The basics for this celebration.</div>
+
+        <div class="form-row-2">
+          <div class="field">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="<%= celebration.title || '' %>" placeholder="e.g. First Christmas" required>
+          </div>
+          <div class="field">
+            <label for="year_label">Year</label>
+            <select id="year_label" name="year_label">
+              <% years.forEach(function(y) { %>
+                <option value="<%= y %>" <%= (celebration.year_label === y) ? 'selected' : '' %>><%= y %></option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="field">
+            <label for="eyebrow">Eyebrow / Sub-label</label>
+            <input type="text" id="eyebrow" name="eyebrow" value="<%= celebration.eyebrow || '' %>" placeholder="e.g. Christmas Day · December 25, 2025">
+            <div class="field-help">Small text above the title on the published page (optional).</div>
+          </div>
+          <div class="field">
+            <label for="celebration_date">Date</label>
+            <input type="date" id="celebration_date" name="celebration_date" value="<%= celebration.celebration_date ? new Date(celebration.celebration_date).toISOString().slice(0,10) : '' %>">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="location">Where it was</label>
+          <input type="text" id="location" name="location" value="<%= celebration.location || '' %>" placeholder="e.g. Grandma & Grandpa's house">
+        </div>
+
+        <div class="field">
+          <label for="attendees">Who was there</label>
+          <input type="text" id="attendees" name="attendees" value="<%= celebration.attendees || '' %>" placeholder="e.g. Mom, Dad, Grandma Pat, Aunt Sarah">
+          <div class="field-help">Comma-separated names. Each shows as its own little tag on the published page.</div>
+        </div>
+
+        <div class="field">
+          <label for="body">The story</label>
+          <textarea id="body" name="body" class="story-textarea" placeholder="Tell the story of the day — what happened, what was special, what you'll want to remember years from now."><%= celebration.body || '' %></textarea>
+          <div class="field-help">Press Enter twice between paragraphs.</div>
+        </div>
+
+        <div class="field">
+          <label for="gifts">Presents</label>
+          <textarea id="gifts" name="gifts" placeholder="One gift per line.&#10;e.g. A handmade quilt from Grandma&#10;Wooden alphabet blocks"><%= celebration.gifts || '' %></textarea>
+          <div class="field-help">One per line. Each shows as a bulleted item on the published page.</div>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save changes</button>
+        <a class="btn-cancel" href="/account/book/celebrations">Back to all celebrations</a>
+        <button type="button" class="btn-delete-celeb"
+                onclick="if (confirm('Delete this celebration and all its photos? This cannot be undone.')) { document.getElementById('deleteForm').submit(); }">
+          Delete celebration
+        </button>
+      </div>
+    </form>
+
+    <!-- Photo gallery (separate forms for each photo) -->
+    <div class="card" style="margin-top: 1.25rem;">
+      <div class="card-title">Photo gallery</div>
+      <div class="card-sub">Add as many photos as you like. Each can have its own caption.</div>
+
+      <div class="photo-grid">
+        <% photos.forEach(function(p) { %>
+          <div class="photo-card">
+            <div class="photo-card-img"><img src="<%= p.url %>" alt=""></div>
+            <% if (p.id) { %>
+              <form method="POST" action="/account/book/celebrations/photo/<%= p.id %>/edit" class="photo-caption-form">
+                <input type="text" name="caption" value="<%= p.caption || '' %>" placeholder="Caption (optional)">
+                <div class="photo-card-actions">
+                  <button type="submit" class="btn-photo-save">Save</button>
+                  <button type="button" class="btn-photo-delete"
+                          onclick="if(confirm('Remove this photo?')) { this.closest('.photo-card').querySelector('.delete-form').submit(); }">×</button>
+                </div>
+              </form>
+              <form method="POST" action="/account/book/celebrations/photo/<%= p.id %>/delete" class="delete-form" style="display:none;"></form>
+            <% } else { %>
+              <div class="card-sub" style="font-size:0.75rem;">Legacy photo (re-upload to caption)</div>
+            <% } %>
+          </div>
+        <% }); %>
+
+        <label class="photo-add">
+          <form method="POST" action="/account/book/celebrations/<%= celebration.id %>/photo" enctype="multipart/form-data" style="display:contents;">
+            <input type="file" name="file" accept="image/*" onchange="this.form.submit()">
+            <span class="photo-add-label">+ Add photo</span>
+            <span class="photo-add-hint">JPG or PNG. Click to upload.</span>
+          </form>
+        </label>
+      </div>
+    </div>
+
+    <!-- Hidden delete-celebration form -->
+    <form method="POST" action="/account/book/celebrations/delete/<%= celebration.id %>" id="deleteForm" style="display:none;"></form>
+  </div>
+</body>
+</html>
