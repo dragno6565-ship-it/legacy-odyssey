@@ -650,6 +650,74 @@ router.get('/', resolveFamily, (req, res, next) => {
   }
 });
 
+// GET /celebrations/:yearSlug/:celebrationSlug — Detail page for a single celebration
+// Resolves the customer book by host (resolveFamily), enforces book password,
+// then looks up the celebration by slug within (book_id, year_label). Falls
+// back to title-derived slug if the celebrations.slug column doesn't exist
+// yet (pre-migration-014).
+router.get('/celebrations/:yearSlug/:celebrationSlug', resolveFamily, requireBookPassword, async (req, res, next) => {
+  try {
+    if (!req.family) return res.status(404).render('book/not-found');
+    if (req.family.subscription_status === 'canceled') {
+      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+      return res.render('book/suspended', { family: req.family, appDomain });
+    }
+
+    const data = await bookService.getFullBook(req.family.id);
+    if (!data) return res.status(404).render('book/not-found');
+
+    const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
+    // Free users can't see celebrations
+    if (isFree) {
+      return res.redirect('/');
+    }
+
+    const { yearSlug, celebrationSlug } = req.params;
+    const allCelebrations = data.celebrations || [];
+
+    // Find which year_label matches the yearSlug
+    const matchedYear = (data.celebrationsByYear || []).find((y) =>
+      bookService.slugifyYear(y.label) === yearSlug
+    );
+    if (!matchedYear) return res.status(404).render('book/not-found');
+
+    const yearItems = matchedYear.items || [];
+    // Match by slug — celebrations from bookService have .slug already resolved
+    const celebration = yearItems.find((c) => c.slug === celebrationSlug);
+    if (!celebration) return res.status(404).render('book/not-found');
+
+    // Determine prev/next within the year (filtered to meaningful celebrations)
+    const meaningful = (c) => c && (
+      (c.title && c.title.trim() && c.title !== '(untitled)') ||
+      (c.body && c.body.trim()) ||
+      c.location || c.attendees || c.gifts ||
+      (c.photos && c.photos.length > 0) || c.photo_path
+    );
+    const list = yearItems.filter(meaningful);
+    const idx = list.findIndex((c) => c.id === celebration.id);
+    const prevCelebration = idx > 0 ? list[idx - 1] : null;
+    const nextCelebration = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
+
+    res.render('layouts/celebration-detail', {
+      book: data.book,
+      family: req.family,
+      visibleSections: data.visibleSections,
+      celebrations: data.celebrations,
+      celebrationsByYear: data.celebrationsByYear,
+      celebration,
+      yearLabel: matchedYear.label,
+      prevCelebration,
+      nextCelebration,
+      isFree,
+      isDemoDomain: isDemoBookDomain(req.hostname),
+      imageUrl: getPublicUrl,
+      photoPos: makePhotoPos(data.book && data.book.photo_positions),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Catch /book/:slug for path-based access
 router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, next) => {
   try {

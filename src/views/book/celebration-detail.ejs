@@ -1,0 +1,160 @@
+<%
+  // Inputs:
+  //   celebration  — single celebration row, augmented with .photos / .slug / .coverPhoto by bookService.withResolvedCelebration
+  //   yearLabel    — year label this celebration belongs to (already-resolved)
+  //   prevCelebration / nextCelebration — siblings within same year (each may be null)
+  //   imageUrl(path)  / photoPos(path) — helpers
+  //
+  // Conditional rendering: every optional section (location, attendees, gifts,
+  // story, photos) only renders if it has actual content. Empty rows / placeholders
+  // never produce empty sections.
+
+  const c = celebration;
+  // Normalize attendees + gifts into arrays for safe iteration.
+  // attendees: stored as newline- or comma-separated string in DB
+  // gifts: stored as newline-separated string in DB
+  const attendeesList = (c.attendees || '')
+    .split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  const giftsList = (c.gifts || '')
+    .split(/\n+/).map(s => s.trim()).filter(Boolean);
+  const photos = c.photos || [];
+  const hasPhotos = photos.length > 0;
+  const hasStory = !!(c.body && c.body.trim());
+  const hasLocation = !!(c.location && c.location.trim());
+  const hasAttendees = attendeesList.length > 0;
+  const hasGifts = giftsList.length > 0;
+  const hasMeta = hasLocation || c.celebration_date;
+  function slugifyYearLabel(label) {
+    if (!label) return 'year';
+    const s = String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return s || 'year';
+  }
+  function celebSlug(x) {
+    if (x && x.slug) return x.slug;
+    const base = (x && x.title) ? x.title : 'celebration';
+    return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'celebration';
+  }
+%>
+<section class="celebration-detail-page">
+  <!-- Breadcrumb -->
+  <div class="celebration-breadcrumb">
+    <a href="/#" onclick="document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));document.getElementById('page-holidays').classList.add('active');window.scrollTo(0,0);return false;" style="display:none;">Celebrations</a>
+    <a href="/" class="bc-link">Book</a>
+    <span class="bc-sep">›</span>
+    <a href="/#celebrations" class="bc-link">Celebrations</a>
+    <span class="bc-sep">›</span>
+    <a href="/#celebrations" class="bc-link"><%= yearLabel %></a>
+    <span class="bc-sep">›</span>
+    <span class="bc-current"><%= c.title %></span>
+  </div>
+
+  <!-- Hero -->
+  <div class="celebration-hero">
+    <% if (c.eyebrow) { %>
+      <div class="celebration-eyebrow"><%= c.eyebrow %></div>
+    <% } %>
+    <h1 class="celebration-title"><%= c.title %></h1>
+
+    <% if (hasMeta) { %>
+      <div class="celebration-meta">
+        <% if (c.celebration_date) { %>
+          <div class="celebration-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <%= new Date(c.celebration_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+          </div>
+        <% } %>
+        <% if (hasLocation) { %>
+          <div class="celebration-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <%= c.location %>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <% if (c.coverPhoto) { %>
+      <div class="celebration-hero-photo">
+        <img src="<%= imageUrl(c.coverPhoto) %>" alt="<%= c.title %>" style="<%= photoPos(c.coverPhoto) %>">
+      </div>
+    <% } %>
+  </div>
+
+  <!-- The Story -->
+  <% if (hasStory) { %>
+    <div class="celebration-section">
+      <div class="celebration-section-label"><span class="cs-rule"></span>The Story</div>
+      <div class="celebration-story">
+        <% c.body.split(/\n\n+/).forEach(function(para) { %>
+          <p><%- para.trim().replace(/\n/g, '<br>') %></p>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Who Was There -->
+  <% if (hasAttendees) { %>
+    <div class="celebration-section">
+      <div class="celebration-section-label"><span class="cs-rule"></span>Who Was There</div>
+      <div class="celebration-attendees">
+        <% attendeesList.forEach(function(name) { %>
+          <span class="celebration-pill"><%= name %></span>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Presents -->
+  <% if (hasGifts) { %>
+    <div class="celebration-section">
+      <div class="celebration-section-label"><span class="cs-rule"></span>Presents</div>
+      <ul class="celebration-gifts">
+        <% giftsList.forEach(function(g) { %>
+          <li><%= g %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+  <!-- Album -->
+  <% if (hasPhotos) { %>
+    <div class="celebration-section">
+      <div class="celebration-section-label">
+        <span class="cs-rule"></span>The Album <span class="cs-meta">· <%= photos.length %> photo<%= photos.length === 1 ? '' : 's' %></span>
+      </div>
+      <div class="celebration-album">
+        <% photos.forEach(function(p) { %>
+          <figure class="celebration-photo-card">
+            <div class="cpc-img"><img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || '' %>" loading="lazy" style="<%= photoPos(p.photo_path) %>"></div>
+            <% if (p.caption) { %>
+              <figcaption class="cpc-caption">"<%= p.caption %>"</figcaption>
+            <% } %>
+          </figure>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Prev / Next pager -->
+  <% if (prevCelebration || nextCelebration) { %>
+    <div class="celebration-pager">
+      <% if (prevCelebration) { %>
+        <a class="cp-link cp-prev" href="/celebrations/<%= slugifyYearLabel(yearLabel) %>/<%= celebSlug(prevCelebration) %>">
+          <span class="cp-arrow">‹</span>
+          <span>
+            <div class="cp-label">Previous</div>
+            <div class="cp-title"><%= prevCelebration.title %></div>
+          </span>
+        </a>
+      <% } else { %><span></span><% } %>
+      <% if (nextCelebration) { %>
+        <a class="cp-link cp-next" href="/celebrations/<%= slugifyYearLabel(yearLabel) %>/<%= celebSlug(nextCelebration) %>">
+          <span>
+            <div class="cp-label">Next</div>
+            <div class="cp-title"><%= nextCelebration.title %></div>
+          </span>
+          <span class="cp-arrow">›</span>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</section>

@@ -160,6 +160,76 @@ body {
 .nav-item.locked .nav-label { color: rgba(156,139,120,0.4); }
 .nav-item.locked .nav-icon { opacity: 0.3; }
 
+/* ────── Nested Celebrations menu ────── */
+.nav-parent {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.75rem 1.25rem 0.75rem 1.4rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+.nav-parent:hover { background: rgba(184,147,90,0.08); color: var(--cream); }
+.nav-parent.open { color: var(--cream); }
+.nav-parent.active::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--gold);
+}
+.nav-parent .nav-icon { flex-shrink: 0; }
+.nav-parent .nav-icon svg, .nav-parent .nav-icon i[data-lucide] {
+  width: 16px; height: 16px; color: var(--gold);
+}
+.nav-parent.open .nav-label-link, .nav-parent.active .nav-label-link { color: var(--gold) !important; }
+.nav-parent .nav-chevron {
+  margin-left: auto; color: var(--ink-light); font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+.nav-parent.open .nav-chevron { transform: rotate(90deg); color: var(--gold); }
+
+.nav-children {
+  display: none;
+  padding-bottom: 0.25rem;
+}
+.nav-parent.open + .nav-children { display: block; }
+
+.nav-year {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 1.25rem 0.5rem 3rem;
+  color: rgba(248,242,230,0.72);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-year:hover { background: rgba(184,147,90,0.06); color: var(--gold-light); }
+.nav-year.open { color: var(--gold-light); font-weight: 500; }
+.nav-year .nav-year-chevron {
+  margin-left: auto; color: var(--ink-light); font-size: 0.65rem;
+  transition: transform 0.2s;
+}
+.nav-year.open .nav-year-chevron { transform: rotate(90deg); color: var(--gold); }
+
+.nav-celebrations { display: none; padding: 0.15rem 0 0.5rem; }
+.nav-year.open + .nav-celebrations { display: block; }
+
+.nav-celebration {
+  display: block;
+  padding: 0.35rem 1.25rem 0.35rem 4rem;
+  color: rgba(248,242,230,0.6);
+  text-decoration: none;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  transition: color 0.15s, background 0.15s;
+  border-left: 1px solid rgba(184,147,90,0.15);
+  margin-left: 2.6rem;
+}
+.nav-celebration:hover { color: var(--gold-light); background: rgba(184,147,90,0.04); }
+.nav-celebration.active {
+  color: var(--gold);
+  font-weight: 500;
+  border-left-color: var(--gold);
+  background: rgba(184,147,90,0.06);
+}
+
 .sidebar-footer {
   padding: 1.2rem 1.5rem;
   border-top: 1px solid rgba(184,147,90,0.15);
@@ -947,6 +1017,11 @@ body {
   border: 1px solid rgba(184,147,90,0.2);
   border-radius: 2px;
   overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.holiday-card:hover {
+  box-shadow: 0 12px 32px rgba(30,24,18,0.12);
+  transform: translateY(-2px);
 }
 
 .holiday-card.reverse { grid-template-columns: 1fr 300px; }
@@ -955,7 +1030,26 @@ body {
   height: 260px;
   background: var(--blush);
   overflow: hidden;
+  position: relative;
 }
+
+.holiday-photo-count {
+  position: absolute; right: 10px; bottom: 10px;
+  background: rgba(30,24,18,0.78); color: var(--cream);
+  font-size: 0.7rem; padding: 4px 10px; border-radius: 999px;
+  letter-spacing: 0.05em; font-weight: 500;
+}
+
+.holiday-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+}
+.holiday-card:hover .holiday-link { color: var(--gold-dark); }
 
 .holiday-photo img {
   width: 100%;

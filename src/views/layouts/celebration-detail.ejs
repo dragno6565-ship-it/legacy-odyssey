@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title><%= celebration.title %> · <%= book.child_first_name %><%= book.child_middle_name ? ' ' + book.child_middle_name : '' %> <%= book.child_last_name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/book.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LMJVX82M3Q');
+  </script>
+
+  <style>
+    /* ─── Celebration detail page styles ─── */
+    .celebration-detail-page {
+      padding: 3rem 2.5rem 5rem;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .celebration-breadcrumb {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 2rem;
+    }
+    .celebration-breadcrumb a.bc-link {
+      color: var(--ink-light);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .celebration-breadcrumb a.bc-link:hover { color: var(--gold); }
+    .celebration-breadcrumb .bc-sep { margin: 0 0.5em; opacity: 0.5; }
+    .celebration-breadcrumb .bc-current { color: var(--ink); }
+
+    .celebration-hero { margin-bottom: 3rem; }
+
+    .celebration-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .celebration-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--ink);
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .celebration-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--ink-mid);
+      margin-bottom: 2.5rem;
+    }
+    .celebration-meta-item { display: flex; align-items: center; gap: 0.4rem; }
+    .celebration-meta-item svg { width: 14px; height: 14px; color: var(--gold); }
+
+    .celebration-hero-photo {
+      width: 100%;
+      aspect-ratio: 16/8;
+      background: var(--ink);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .celebration-hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .celebration-section { margin-bottom: 3rem; }
+
+    .celebration-section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .cs-rule { width: 24px; height: 1px; background: var(--gold); display: inline-block; }
+    .cs-meta { color: var(--ink-light); margin-left: 0.25rem; font-weight: 400; letter-spacing: 0.1em; }
+
+    .celebration-story {
+      max-width: 720px;
+      font-size: 1.02rem;
+      line-height: 1.85;
+      color: var(--ink-mid);
+      font-weight: 300;
+    }
+    .celebration-story p { margin-bottom: 1.4rem; }
+
+    .celebration-attendees {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .celebration-pill {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(184,147,90,0.1);
+      border: 1px solid rgba(184,147,90,0.3);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-size: 0.88rem;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .celebration-gifts {
+      list-style: none;
+      padding: 0;
+      max-width: 720px;
+    }
+    .celebration-gifts li {
+      padding: 0.65rem 0;
+      border-bottom: 1px dashed rgba(184,147,90,0.25);
+      font-size: 1rem;
+      color: var(--ink-mid);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .celebration-gifts li:last-child { border-bottom: none; }
+    .celebration-gifts li::before {
+      content: '✦';
+      color: var(--gold);
+      flex-shrink: 0;
+      font-size: 0.85rem;
+      margin-top: 0.15rem;
+    }
+
+    .celebration-album {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .celebration-photo-card {
+      background: var(--ivory);
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(30,24,18,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: zoom-in;
+    }
+    .celebration-photo-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(30,24,18,0.12);
+    }
+    .cpc-img {
+      aspect-ratio: 4/5;
+      overflow: hidden;
+      background: var(--blush);
+    }
+    .cpc-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cpc-caption {
+      padding: 0.85rem 1rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--ink-mid);
+      line-height: 1.5;
+    }
+
+    .celebration-pager {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(184,147,90,0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .cp-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .cp-link:hover { color: var(--gold); }
+    .cp-arrow { font-size: 1.4rem; color: var(--ink-light); }
+    .cp-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+    .cp-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+    }
+    .cp-next { margin-left: auto; text-align: right; }
+
+    @media (max-width: 768px) {
+      .celebration-detail-page { padding: 2rem 1.25rem 4rem; }
+      .celebration-meta { gap: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <% if (isDemoDomain) { %>
+  <div class="demo-banner" id="demoBanner">
+    <strong>This is a demo book.</strong>
+    <span>Preserve your own baby's story — get your own custom domain.</span>
+    <a href="https://www.legacyodyssey.com" target="_blank" class="demo-cta">Create Your Own →</a>
+    <button class="demo-banner-close" onclick="document.getElementById('demoBanner').style.display='none';document.body.classList.remove('demo-bar-visible');" aria-label="Dismiss">&times;</button>
+  </div>
+  <% } %>
+
+  <div id="app">
+    <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain, celebrationsByYear, activeCelebration: celebration }) %>
+
+    <div id="main-content">
+      <%- include('../book/celebration-detail', { celebration, yearLabel, prevCelebration, nextCelebration, imageUrl, photoPos }) %>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    if (window.lucide) window.lucide.createIcons();
+
+    // Mobile hamburger toggle (same as book.ejs SPA)
+    function toggleNav() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+      document.getElementById('navOverlay').classList.toggle('show');
+    }
+    window.toggleNav = toggleNav;
+  </script>
+</body>
+</html>

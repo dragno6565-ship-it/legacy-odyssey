@@ -5,26 +5,59 @@
     <p class="page-header-sub">The holidays, cultural traditions, and family rituals that will mark every year of your life.</p>
   </div>
 
-  <% const yearGroups = celebrationsByYear && celebrationsByYear.length ? celebrationsByYear : [{label: 'Your First Year', items: celebrations || []}]; %>
+  <%
+    // Filter to celebrations that actually have content. Empty rows (mobile
+    // 3-cap placeholders the user never filled in) are hidden so the
+    // overview doesn't show "(untitled)" cards.
+    const meaningful = (c) => c && (
+      (c.title && c.title.trim() && c.title !== '(untitled)') ||
+      (c.body && c.body.trim()) ||
+      c.location || c.attendees || c.gifts ||
+      (c.photos && c.photos.length > 0) || c.photo_path
+    );
+    function slugifyYearLabel(label) {
+      if (!label) return 'year';
+      const s = String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      return s || 'year';
+    }
+    function celebSlug(c) {
+      if (c && c.slug) return c.slug;
+      const base = (c && c.title) ? c.title : 'celebration';
+      return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'celebration';
+    }
+    const yearGroups = celebrationsByYear && celebrationsByYear.length ? celebrationsByYear : [{label: 'Your First Year', items: celebrations || []}];
+    const yearsWithContent = yearGroups.filter(y => (y.items || []).some(meaningful));
+  %>
   <% yearGroups.forEach(function(year) { %>
-    <% if (year.items && year.items.length > 0) { %>
-      <% if (yearGroups.filter(y => y.items && y.items.length > 0).length > 1) { %>
+    <% const items = (year.items || []).filter(meaningful); %>
+    <% if (items.length > 0) { %>
+      <% if (yearsWithContent.length > 1) { %>
         <h3 class="celebrations-year-heading"><%= year.label %></h3>
       <% } %>
       <div class="holidays-list">
-        <% year.items.forEach(function(c, i) { %>
-          <div class="holiday-card<%= i % 2 === 1 ? ' reverse' : '' %>">
+        <% items.forEach(function(c, i) { %>
+          <% const coverPath = c.coverPhoto || (c.photos && c.photos[0] && c.photos[0].photo_path) || c.photo_path || ''; %>
+          <% const photoCount = (c.photos && c.photos.length) || (c.photo_path ? 1 : 0); %>
+          <a class="holiday-card<%= i % 2 === 1 ? ' reverse' : '' %>"
+             href="/celebrations/<%= slugifyYearLabel(year.label) %>/<%= celebSlug(c) %>"
+             style="text-decoration:none;color:inherit;">
             <div class="holiday-photo">
-              <% if (c.photo_path) { %>
-                <img src="<%= imageUrl(c.photo_path) %>" alt="<%= c.title %>" loading="lazy" style="<%= photoPos(c.photo_path) %>">
+              <% if (coverPath) { %>
+                <img src="<%= imageUrl(coverPath) %>" alt="<%= c.title %>" loading="lazy" style="<%= photoPos(coverPath) %>">
+                <% if (photoCount > 1) { %>
+                  <div class="holiday-photo-count">+<%= photoCount - 1 %></div>
+                <% } %>
               <% } %>
             </div>
             <div class="holiday-body">
               <div class="holiday-eyebrow"><%= c.eyebrow || '' %></div>
               <h3 class="holiday-title"><%= c.title %></h3>
-              <p class="holiday-text"><%- (c.body || '').replace(/\n/g, '<br>') %></p>
+              <% if (c.body) { %>
+                <p class="holiday-text"><%- String(c.body).replace(/\n/g, '<br>') %></p>
+              <% } %>
+              <span class="holiday-link">Read more →</span>
             </div>
-          </div>
+          </a>
         <% }); %>
       </div>
     <% } %>
