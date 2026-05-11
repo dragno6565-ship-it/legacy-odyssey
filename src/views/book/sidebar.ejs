@@ -133,23 +133,29 @@
       <span class="nav-chevron">▸</span>
     </div>
     <div class="nav-children">
-      <% celebrationYears.forEach(function(year) { %>
+      <%
+        // Visitor-side sidebar only shows years that have at least one
+        // celebration with actual content. Empty placeholder years (like the
+        // auto-created "Year 2" / "Year 3" rows from the mobile editor) are
+        // hidden from visitors. The account-dashboard editor still shows
+        // every year so the owner can add celebrations into them.
+        const yearsWithContent = celebrationYears.filter((y) => (y.items || []).some(hasMeaningful));
+        const onlyOneYearWithContent = yearsWithContent.length === 1;
+      %>
+      <% yearsWithContent.forEach(function(year) { %>
         <% const yearSlug = slugifyYearLabel(year.label); %>
-        <% const yearHasItems = (year.items || []).some(hasMeaningful); %>
-        <% const isActiveYear = (activeYearLabel === year.label) || (celebrationYears.length === 1); %>
+        <% const isActiveYear = (activeYearLabel === year.label) || onlyOneYearWithContent; %>
         <div class="nav-year <%= isActiveYear ? 'open' : '' %>"
              onclick="event.stopPropagation();this.classList.toggle('open')">
           <span><%= year.label %></span>
-          <% if (yearHasItems) { %><span class="nav-year-chevron">▸</span><% } %>
+          <span class="nav-year-chevron">▸</span>
         </div>
-        <% if (yearHasItems) { %>
-          <div class="nav-celebrations">
-            <% year.items.filter(hasMeaningful).forEach(function(c) { %>
-              <a class="nav-celebration <%= activeCelebrationId === c.id ? 'active' : '' %>"
-                 href="/celebrations/<%= yearSlug %>/<%= celebSlug(c) %>"><%= c.title %></a>
-            <% }); %>
-          </div>
-        <% } %>
+        <div class="nav-celebrations">
+          <% year.items.filter(hasMeaningful).forEach(function(c) { %>
+            <a class="nav-celebration <%= activeCelebrationId === c.id ? 'active' : '' %>"
+               href="/celebrations/<%= yearSlug %>/<%= celebSlug(c) %>"><%= c.title %></a>
+          <% }); %>
+        </div>
       <% }); %>
     </div>
     <% } %>
