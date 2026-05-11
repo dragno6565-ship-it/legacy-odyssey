@@ -356,7 +356,7 @@
       <span class="breadcrumb-sep">›</span>
       <a href="#"><%= c.yearLabel %></a>
       <span class="breadcrumb-sep">›</span>
-      <span><%= c.title %></span>
+      <span><%= c.title.replace(/<[^>]*>/g, '') %></span>
     </div>
 
     <section class="celebration-hero">
