@@ -1,0 +1,185 @@
+<%
+  // Inputs:
+  //   recipe        — single recipe row, augmented with .photos / .slug / .coverPhoto /
+  //                   normalized .ingredients [{amount, item}] and .directions [{text}]
+  //                   by bookService.withResolvedRecipe
+  //   prevRecipe / nextRecipe — siblings (each may be null)
+  //   imageUrl(path) / photoPos(path) — helpers
+  //
+  // Every optional section only renders if it has content.
+
+  const r = recipe;
+  const photos = r.photos || [];
+  const hasPhotos = photos.length > 0;
+  const hasStory = !!(r.story && r.story.trim());
+  const hasDescription = !!(r.description && r.description.trim());
+  const hasNotes = !!(r.notes && r.notes.trim());
+  const ingredients = r.ingredients || [];
+  const directions = r.directions || [];
+  const hasIngredients = ingredients.length > 0;
+  const hasDirections = directions.length > 0;
+  const heroPhoto = (photos[0] && photos[0].photo_path) || r.photo_path || null;
+  const galleryPhotos = photos.length > 1 ? photos.slice(1) : [];
+  const hasStatStrip = !!(r.prep_time || r.cook_time || r.servings || r.difficulty);
+  function recipeSlugOf(x) {
+    if (x && x.slug) return x.slug;
+    const base = (x && x.title) ? x.title : 'recipe';
+    return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'recipe';
+  }
+%>
+<section class="recipe-detail-page">
+  <!-- Breadcrumb -->
+  <div class="recipe-breadcrumb">
+    <a class="bc-link" href="/">Home</a>
+    <span class="bc-sep">/</span>
+    <a class="bc-link" href="/#recipes">Family Recipes</a>
+    <span class="bc-sep">/</span>
+    <span class="bc-current"><%= r.title %></span>
+  </div>
+
+  <!-- Hero: photo + title side-by-side -->
+  <div class="recipe-hero">
+    <% if (heroPhoto) { %>
+      <div class="recipe-hero-photo">
+        <img src="<%= imageUrl(heroPhoto) %>" alt="<%= r.title %>" style="<%= photoPos(heroPhoto) %>">
+      </div>
+    <% } %>
+    <div class="recipe-hero-text">
+      <% if (r.origin_label && r.origin_label.trim()) { %>
+        <div class="recipe-hero-from"><%= r.origin_label %></div>
+      <% } %>
+      <h1 class="recipe-hero-title"><%= r.title %></h1>
+      <% if (hasDescription) { %>
+        <p class="recipe-hero-desc"><%= r.description %></p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Stat strip: only shows if any of the 4 stats are populated -->
+  <% if (hasStatStrip) { %>
+    <div class="recipe-stats">
+      <% if (r.prep_time && r.prep_time.trim()) { %>
+        <div class="recipe-stat">
+          <div class="recipe-stat-icon"><i data-lucide="clock"></i></div>
+          <div class="recipe-stat-label">Prep</div>
+          <div class="recipe-stat-value"><%= r.prep_time %></div>
+        </div>
+      <% } %>
+      <% if (r.cook_time && r.cook_time.trim()) { %>
+        <div class="recipe-stat">
+          <div class="recipe-stat-icon"><i data-lucide="flame"></i></div>
+          <div class="recipe-stat-label">Cook</div>
+          <div class="recipe-stat-value"><%= r.cook_time %></div>
+        </div>
+      <% } %>
+      <% if (r.servings && r.servings.trim()) { %>
+        <div class="recipe-stat">
+          <div class="recipe-stat-icon"><i data-lucide="users"></i></div>
+          <div class="recipe-stat-label">Serves</div>
+          <div class="recipe-stat-value"><%= r.servings %></div>
+        </div>
+      <% } %>
+      <% if (r.difficulty && r.difficulty.trim()) { %>
+        <div class="recipe-stat">
+          <div class="recipe-stat-icon"><i data-lucide="bar-chart-3"></i></div>
+          <div class="recipe-stat-label">Difficulty</div>
+          <div class="recipe-stat-value"><%= r.difficulty %></div>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <!-- The Story -->
+  <% if (hasStory) { %>
+    <div class="recipe-section recipe-story">
+      <div class="recipe-section-eyebrow">The Story</div>
+      <% (r.story || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean).forEach(function(para, i) { %>
+        <p<% if (i === 0) { %> class="story-lead"<% } %>><%- para.replace(/\n/g, '<br>') %></p>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <!-- Ingredients + Directions side-by-side on desktop -->
+  <% if (hasIngredients || hasDirections) { %>
+    <div class="recipe-content">
+      <% if (hasIngredients) { %>
+        <div class="recipe-ingredients-block">
+          <div class="recipe-section-eyebrow">Ingredients</div>
+          <h2 class="recipe-section-title">What you need</h2>
+          <div class="ingredients-card">
+            <ul class="ingredients-list">
+              <% ingredients.forEach(function(ing) { %>
+                <li>
+                  <% if (ing.amount && ing.amount.trim()) { %>
+                    <span class="ingredient-amount"><%= ing.amount %></span>
+                  <% } %>
+                  <span class="ingredient-item"><%= ing.item %></span>
+                </li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (hasDirections) { %>
+        <div class="recipe-directions-block">
+          <div class="recipe-section-eyebrow">Directions</div>
+          <h2 class="recipe-section-title">How to make it</h2>
+          <ol class="directions-list">
+            <% directions.forEach(function(step) { %>
+              <li><%- (step.text || '').replace(/\n/g, '<br>') %></li>
+            <% }); %>
+          </ol>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <!-- Notes / memories -->
+  <% if (hasNotes) { %>
+    <div class="recipe-section">
+      <div class="recipe-section-eyebrow">Notes &amp; Memories</div>
+      <div class="recipe-notes">
+        <%- (r.notes || '').replace(/\n/g, '<br>') %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Additional photos (hero photo is shown above, so we skip it here) -->
+  <% if (galleryPhotos.length > 0) { %>
+    <div class="recipe-section">
+      <div class="recipe-section-eyebrow">In the Kitchen</div>
+      <h2 class="recipe-section-title">Photos</h2>
+      <div class="recipe-photo-gallery">
+        <% galleryPhotos.forEach(function(p) { %>
+          <div class="recipe-photo-card">
+            <div class="rpc-img"><img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || '' %>" style="<%= photoPos(p.photo_path) %>"></div>
+            <% if (p.caption && p.caption.trim()) { %>
+              <div class="rpc-caption">"<%= p.caption %>"</div>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Pager: prev / next recipe -->
+  <% if (prevRecipe || nextRecipe) { %>
+    <div class="recipe-pager">
+      <% if (prevRecipe) { %>
+        <a href="/recipes/<%= recipeSlugOf(prevRecipe) %>" class="prev">
+          <div class="recipe-pager-label">← Previous recipe</div>
+          <div class="recipe-pager-title"><%= prevRecipe.title %></div>
+        </a>
+      <% } else { %>
+        <span></span>
+      <% } %>
+      <% if (nextRecipe) { %>
+        <a href="/recipes/<%= recipeSlugOf(nextRecipe) %>" class="next">
+          <div class="recipe-pager-label">Next recipe →</div>
+          <div class="recipe-pager-title"><%= nextRecipe.title %></div>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</section>

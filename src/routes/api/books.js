@@ -622,6 +622,151 @@ router.delete('/mine/celebration-photos/:photoId', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ─── Recipes (full CRUD + photo gallery) ───────────────────────────────────
+
+function recipeSlug(title, sortOrder) {
+  const base = (title || ('recipe-' + (sortOrder || 0))).toString();
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('recipe-' + (sortOrder || 0));
+}
+
+// GET a single recipe with its photos array
+router.get('/mine/recipes/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: r } = await _sb.from('recipes').select('*').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.status(404).json({ error: 'Recipe not found' });
+    const { data: photos } = await _sb.from('recipe_photos').select('*').eq('recipe_id', r.id).order('sort_order');
+    res.json({ ...r, photos: photos || [] });
+  } catch (err) { next(err); }
+});
+
+// POST a new recipe
+router.post('/mine/recipes', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: existing } = await _sb.from('recipes').select('sort_order').eq('book_id', book.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const title = (req.body.title || '').toString().trim() || 'New Recipe';
+    const row = {
+      book_id: book.id,
+      sort_order: nextSort,
+      title,
+      origin_label: req.body.origin_label || null,
+      description: req.body.description || null,
+      story: req.body.story || null,
+      prep_time: req.body.prep_time || null,
+      cook_time: req.body.cook_time || null,
+      servings: req.body.servings || null,
+      difficulty: req.body.difficulty || null,
+      notes: req.body.notes || null,
+      ingredients: Array.isArray(req.body.ingredients) ? req.body.ingredients : [],
+      directions: Array.isArray(req.body.directions) ? req.body.directions : [],
+      slug: req.body.slug || recipeSlug(title, nextSort),
+    };
+    const { data, error } = await _sb.from('recipes').insert(row).select().single();
+    if (error) throw error;
+    res.status(201).json({ ...data, photos: [] });
+  } catch (err) { next(err); }
+});
+
+// PUT update a recipe (excludes photos — use the photo endpoints)
+router.put('/mine/recipes/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+
+    const patch = {};
+    const editable = ['title', 'origin_label', 'description', 'story', 'prep_time', 'cook_time', 'servings', 'difficulty', 'notes', 'ingredients', 'directions', 'sort_order', 'slug'];
+    for (const f of editable) if (req.body[f] !== undefined) patch[f] = req.body[f];
+    if (req.body.title !== undefined && req.body.slug === undefined) {
+      patch.slug = recipeSlug(req.body.title, req.body.sort_order || 0);
+    }
+    patch.updated_at = new Date().toISOString();
+
+    const { data, error } = await _sb.from('recipes').update(patch).eq('id', req.params.id).eq('book_id', book.id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a recipe (cascades to recipe_photos via FK)
+router.delete('/mine/recipes/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { error } = await _sb.from('recipes').delete().eq('id', req.params.id).eq('book_id', book.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// POST add a photo to a recipe gallery
+router.post('/mine/recipes/:id/photos', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: r } = await _sb.from('recipes').select('id').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.status(404).json({ error: 'Recipe not found' });
+
+    const { photo_path, caption } = req.body;
+    if (!photo_path) return res.status(400).json({ error: 'photo_path is required' });
+
+    const { data: existing } = await _sb.from('recipe_photos').select('sort_order').eq('recipe_id', r.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { data, error } = await _sb.from('recipe_photos').insert({
+      recipe_id: r.id,
+      photo_path,
+      caption: caption || null,
+      sort_order: nextSort,
+    }).select().single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) { next(err); }
+});
+
+// PUT update a recipe photo
+router.put('/mine/recipe-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: photo } = await _sb.from('recipe_photos').select('id, recipe_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: r } = await _sb.from('recipes').select('id').eq('id', photo.recipe_id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.status(403).json({ error: 'Not authorized for this photo' });
+
+    const patch = {};
+    if (req.body.caption !== undefined) patch.caption = req.body.caption;
+    if (req.body.sort_order !== undefined) patch.sort_order = req.body.sort_order;
+    if (req.body.photo_path !== undefined) patch.photo_path = req.body.photo_path;
+    if (req.body.focal_x !== undefined) patch.focal_x = req.body.focal_x;
+    if (req.body.focal_y !== undefined) patch.focal_y = req.body.focal_y;
+
+    const { data, error } = await _sb.from('recipe_photos').update(patch).eq('id', req.params.photoId).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a recipe photo
+router.delete('/mine/recipe-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: photo } = await _sb.from('recipe_photos').select('id, recipe_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: r } = await _sb.from('recipes').select('id').eq('id', photo.recipe_id).eq('book_id', book.id).maybeSingle();
+    if (!r) return res.status(403).json({ error: 'Not authorized' });
+
+    const { error } = await _sb.from('recipe_photos').delete().eq('id', req.params.photoId);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 // Vault items
 router.get('/mine/vault', async (req, res, next) => {
   try {

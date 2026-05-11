@@ -166,10 +166,43 @@
     </a>
     <% } %>
     <% if (visibleSections.recipes) { %>
-    <a class="nav-item" onclick="showPage('recipes')">
+    <%
+      // Build the recipes submenu — same nested-dropdown UX as celebrations.
+      // We accept either `recipes` (from book.ejs SPA) or `recipesList`
+      // (from layouts/recipe-detail.ejs) — both flat arrays of recipe rows.
+      const _recipesSrc = (typeof recipesList !== 'undefined' && recipesList)
+        ? recipesList
+        : ((typeof recipes !== 'undefined' && recipes) ? recipes : []);
+      const _hasMeaningfulRecipe = (r) => r && (
+        (r.title && r.title.trim() && r.title !== '(untitled)' && r.title !== 'New Recipe') ||
+        (r.description && r.description.trim()) ||
+        (r.story && r.story.trim()) ||
+        (r.ingredients && r.ingredients.length > 0) ||
+        (r.directions && r.directions.length > 0) ||
+        (r.photos && r.photos.length > 0) ||
+        r.photo_path
+      );
+      const _visibleRecipes = _recipesSrc.filter(_hasMeaningfulRecipe);
+      const _activeRecipeId = (typeof activeRecipe !== 'undefined' && activeRecipe) ? activeRecipe.id : null;
+      const _isOnRecipeDetail = !!_activeRecipeId;
+      function _recipeSlugOf(x) {
+        if (x && x.slug) return x.slug;
+        const base = (x && x.title) ? x.title : 'recipe';
+        return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'recipe';
+      }
+    %>
+    <div class="nav-parent <%= _isOnRecipeDetail ? 'open active' : '' %>"
+         onclick="this.classList.toggle('open')">
       <span class="nav-icon"><i data-lucide="utensils-crossed"></i></span>
-      <span class="nav-label">Family Recipes</span>
-    </a>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('recipes')" style="flex:1;color:inherit;text-decoration:none;">Family Recipes</a>
+      <span class="nav-chevron">▸</span>
+    </div>
+    <div class="nav-children">
+      <% _visibleRecipes.forEach(function(r) { %>
+        <a class="nav-celebration <%= _activeRecipeId === r.id ? 'active' : '' %>"
+           href="/recipes/<%= _recipeSlugOf(r) %>"><%= r.title %></a>
+      <% }); %>
+    </div>
     <% } %>
     <% if (visibleSections.vault) { %>
     <div class="nav-section-label">The Vault</div>

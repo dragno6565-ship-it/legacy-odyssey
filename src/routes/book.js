@@ -712,10 +712,66 @@ router.get('/celebrations/:yearSlug/:celebrationSlug', resolveFamily, requireBoo
       visibleSections: data.visibleSections,
       celebrations: data.celebrations,
       celebrationsByYear: data.celebrationsByYear,
+      recipesList: data.recipes || [],
       celebration,
       yearLabel: matchedYear.label,
       prevCelebration,
       nextCelebration,
+      isFree,
+      isDemoDomain: isDemoBookDomain(req.hostname),
+      imageUrl: getPublicUrl,
+      photoPos: makePhotoPos(data.book && data.book.photo_positions),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /recipes/:slug — Detail page for a single recipe.
+// Same access pattern as celebrations: family resolved by host, password
+// enforced, free users redirected back to the SPA root.
+router.get('/recipes/:slug', resolveFamily, requireBookPassword, async (req, res, next) => {
+  try {
+    if (!req.family) return res.status(404).render('book/not-found');
+    if (req.family.subscription_status === 'canceled') {
+      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+      return res.render('book/suspended', { family: req.family, appDomain });
+    }
+
+    const data = await bookService.getFullBook(req.family.id);
+    if (!data) return res.status(404).render('book/not-found');
+
+    const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
+    if (isFree) return res.redirect('/');
+
+    const allRecipes = data.recipes || [];
+    const recipe = allRecipes.find((r) => r.slug === req.params.slug);
+    if (!recipe) return res.status(404).render('book/not-found');
+
+    // Only navigate among recipes with meaningful content.
+    const meaningful = (r) => r && (
+      (r.title && r.title.trim() && r.title !== '(untitled)') ||
+      (r.description && r.description.trim()) ||
+      (r.story && r.story.trim()) ||
+      (r.ingredients && r.ingredients.length > 0) ||
+      (r.directions && r.directions.length > 0) ||
+      (r.photos && r.photos.length > 0) ||
+      r.photo_path
+    );
+    const list = allRecipes.filter(meaningful);
+    const idx = list.findIndex((r) => r.id === recipe.id);
+    const prevRecipe = idx > 0 ? list[idx - 1] : null;
+    const nextRecipe = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
+
+    res.render('layouts/recipe-detail', {
+      book: data.book,
+      family: req.family,
+      visibleSections: data.visibleSections,
+      celebrationsByYear: data.celebrationsByYear,
+      recipesList: list,
+      recipe,
+      prevRecipe,
+      nextRecipe,
       isFree,
       isDemoDomain: isDemoBookDomain(req.hostname),
       imageUrl: getPublicUrl,

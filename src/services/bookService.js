@@ -61,6 +61,83 @@ function slugifyYear(label) {
   return s || 'year';
 }
 
+/**
+ * Resolve a recipe's photos, ingredients, and directions into stable shapes,
+ * with graceful fallback for pre-migration-015 data.
+ *
+ * Output shape:
+ *   {
+ *     ...recipe,
+ *     photos: [{ id, photo_path, caption, sort_order }],
+ *     ingredients: [{ amount, item }],
+ *     directions: [{ text }],
+ *     slug,
+ *     coverPhoto,
+ *   }
+ *
+ * The ingredients column originally stored plain strings ("2 cups flour");
+ * the new editor stores {amount, item}. We normalize so the templates
+ * always see {amount, item}, with `amount` empty for legacy rows.
+ *
+ * Same for directions — pre-015 there was no column, so we may see [],
+ * legacy strings, or {text} objects.
+ */
+function withResolvedRecipe(recipe, photoRows) {
+  if (!recipe) return recipe;
+
+  const photos = (photoRows && photoRows.length > 0)
+    ? photoRows.map((p) => ({
+        id: p.id,
+        photo_path: p.photo_path,
+        caption: p.caption || '',
+        focal_x: p.focal_x,
+        focal_y: p.focal_y,
+        sort_order: p.sort_order || 0,
+      }))
+    : (recipe.photo_path
+        ? [{
+            id: null, // synthetic — no row in recipe_photos yet
+            photo_path: recipe.photo_path,
+            caption: '',
+            sort_order: 0,
+          }]
+        : []);
+
+  // Normalize ingredients: accept strings OR {amount, item} objects.
+  const ingredients = (Array.isArray(recipe.ingredients) ? recipe.ingredients : [])
+    .map((ing) => {
+      if (ing == null) return null;
+      if (typeof ing === 'string') return { amount: '', item: ing };
+      return { amount: ing.amount || '', item: ing.item || ing.name || ing.text || '' };
+    })
+    .filter((ing) => ing && (ing.amount || ing.item));
+
+  // Normalize directions: accept strings OR {text} objects.
+  const directions = (Array.isArray(recipe.directions) ? recipe.directions : [])
+    .map((step) => {
+      if (step == null) return null;
+      if (typeof step === 'string') return { text: step };
+      return { text: step.text || step.body || '' };
+    })
+    .filter((step) => step && step.text);
+
+  // Slug: prefer DB value, otherwise synthesize from title.
+  let slug = recipe.slug;
+  if (!slug) {
+    const base = (recipe.title || ('recipe-' + (recipe.sort_order || 0))).toString();
+    slug = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('recipe-' + (recipe.sort_order || 0));
+  }
+
+  return {
+    ...recipe,
+    photos,
+    ingredients,
+    directions,
+    slug,
+    coverPhoto: (photos[0] && photos[0].photo_path) || recipe.photo_path || null,
+  };
+}
+
 
 /**
  * Compute which sections have meaningful user content (not just seed/default data).
@@ -108,9 +185,12 @@ function computeVisibleSections(data) {
   // Letters: at least one has body text
   const letters = (data.letters || []).some((l) => hasText(l.body));
 
-  // Recipes: at least one has description or photo
+  // Recipes: at least one has description/story/photo/directions/ingredients
   const recipes = (data.recipes || []).some(
-    (r) => hasText(r.description) || hasPhoto(r.photo_path)
+    (r) => hasText(r.description) || hasText(r.story) || hasPhoto(r.photo_path)
+        || (r.photos && r.photos.length > 0)
+        || (r.directions && r.directions.length > 0)
+        || (r.ingredients && r.ingredients.length > 0)
   );
 
   // Vault: has any items
@@ -199,6 +279,27 @@ async function getFullBook(familyId) {
     (photosByCelebration[p.celebration_id] = photosByCelebration[p.celebration_id] || []).push(p);
   }
 
+  // Same pattern for recipe_photos (post-migration-015). Falls back to
+  // legacy recipes.photo_path when the table is missing or empty.
+  let recipePhotos = [];
+  if (recipes && recipes.length > 0) {
+    const recipeIds = recipes.map((r) => r.id);
+    try {
+      const { data } = await supabaseAdmin
+        .from('recipe_photos')
+        .select('*')
+        .in('recipe_id', recipeIds)
+        .order('sort_order');
+      recipePhotos = data || [];
+    } catch (_) {
+      recipePhotos = [];
+    }
+  }
+  const photosByRecipe = {};
+  for (const p of recipePhotos) {
+    (photosByRecipe[p.recipe_id] = photosByRecipe[p.recipe_id] || []).push(p);
+  }
+
   const result = {
     book,
     beforeCards: beforeCards || [],
@@ -227,7 +328,7 @@ async function getFullBook(familyId) {
       return grouped;
     })(),
     letters: letters || [],
-    recipes: recipes || [],
+    recipes: (recipes || []).map((r) => withResolvedRecipe(r, photosByRecipe[r.id])),
     vaultItems: vaultItems || [],
   };
 
@@ -440,6 +541,7 @@ module.exports = {
   createBookWithDefaults,
   computeVisibleSections,
   withResolvedCelebration,
+  withResolvedRecipe,
   slugifyYear,
 };
 
