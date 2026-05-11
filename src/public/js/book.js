@@ -22,6 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo(0, 0);
   };
 
+  // If we arrived via /#section (e.g. coming back from a celebration detail
+  // page), open that section instead of defaulting to Welcome. Also match
+  // the nav-item to mark it active.
+  if (window.location.hash && window.location.hash.length > 1) {
+    const pageId = window.location.hash.slice(1);
+    if (document.getElementById('page-' + pageId)) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      navItems.forEach(n => {
+        n.classList.remove('active');
+        const handler = n.getAttribute('onclick') || '';
+        if (handler.indexOf("'" + pageId + "'") !== -1) n.classList.add('active');
+      });
+    }
+  }
+
   window.toggleNav = function() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('navOverlay').classList.toggle('open');

@@ -322,6 +322,14 @@
     }
     window.toggleNav = toggleNav;
 
+    // The shared sidebar's nav items call showPage('welcome'), showPage('before'),
+    // etc. — that's defined in book.js on the SPA route, but this is a
+    // standalone detail page. Hop back to the book root with a hash so the
+    // SPA can open the right section.
+    window.showPage = function(pageId) {
+      window.location.href = '/#' + pageId;
+    };
+
     // ─── Photo lightbox ───────────────────────────────────────────────────
     (function () {
       const lb = document.getElementById('celebration-lightbox');
