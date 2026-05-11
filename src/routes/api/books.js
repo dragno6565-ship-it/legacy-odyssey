@@ -431,26 +431,193 @@ router.get('/mine/celebrations', async (req, res, next) => {
 });
 
 router.put('/mine/celebrations', async (req, res, next) => {
+  // Backward-compatible full-replace-per-year endpoint used by the mobile
+  // CelebrationYearScreen. Now accepts the extended fields (location,
+  // attendees, gifts, celebration_date, slug). Old clients that omit them
+  // continue to work — only the previously-supported columns are written.
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
     const { supabaseAdmin } = require('../../config/supabase');
     const yearLabel = req.body.year_label || 'Your First Year';
     const items = req.body.items || [];
     await supabaseAdmin.from('celebrations').delete().eq('book_id', book.id).eq('year_label', yearLabel);
-    const meaningful = items.filter((c) => c.title || c.body || c.photo_path || c.eyebrow);
+    const meaningful = items.filter((c) =>
+      c.title || c.body || c.photo_path || c.eyebrow || c.location || c.attendees || c.gifts
+    );
     if (meaningful.length > 0) {
-      const rows = meaningful.map((c, i) => ({
-        book_id: book.id,
-        year_label: yearLabel,
-        sort_order: i,
-        photo_path: c.photo_path || null,
-        eyebrow: c.eyebrow || null,
-        title: c.title || '(untitled)',
-        body: c.body || null,
-      }));
+      const rows = meaningful.map((c, i) => {
+        const base = {
+          book_id: book.id,
+          year_label: yearLabel,
+          sort_order: i,
+          photo_path: c.photo_path || null,
+          eyebrow: c.eyebrow || null,
+          title: c.title || '(untitled)',
+          body: c.body || null,
+        };
+        // Add new optional fields only if present, so this still works against
+        // a pre-migration-014 database (the columns don't exist yet).
+        if (c.location !== undefined) base.location = c.location || null;
+        if (c.attendees !== undefined) base.attendees = c.attendees || null;
+        if (c.gifts !== undefined) base.gifts = c.gifts || null;
+        if (c.celebration_date !== undefined) base.celebration_date = c.celebration_date || null;
+        if (c.slug !== undefined) base.slug = c.slug || null;
+        return base;
+      });
       const { error } = await supabaseAdmin.from('celebrations').insert(rows);
       if (error) throw error;
     }
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ─── Single-celebration CRUD (used by the new web editor + future mobile) ───
+// All routes assume req.family is set by the auth middleware further up.
+
+const { supabaseAdmin: _sb } = require('../../config/supabase');
+
+function celebrationSlug(title, sortOrder) {
+  const base = (title || ('celebration-' + (sortOrder || 0))).toString();
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('celebration-' + (sortOrder || 0));
+}
+
+// GET single celebration by id (includes its photos)
+router.get('/mine/celebrations/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: c } = await _sb.from('celebrations').select('*').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.status(404).json({ error: 'Celebration not found' });
+    const { data: photos } = await _sb.from('celebration_photos').select('*').eq('celebration_id', c.id).order('sort_order');
+    res.json({ ...c, photos: photos || [] });
+  } catch (err) { next(err); }
+});
+
+// POST a new single celebration (returns the created row with photos:[])
+router.post('/mine/celebrations', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const yearLabel = req.body.year_label || 'Your First Year';
+
+    // Find the next sort_order within the year
+    const { data: existing } = await _sb.from('celebrations').select('sort_order').eq('book_id', book.id).eq('year_label', yearLabel).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const title = (req.body.title || '').toString().trim() || 'New Celebration';
+    const row = {
+      book_id: book.id,
+      year_label: yearLabel,
+      sort_order: nextSort,
+      title,
+      eyebrow: req.body.eyebrow || null,
+      body: req.body.body || null,
+      location: req.body.location || null,
+      attendees: req.body.attendees || null,
+      gifts: req.body.gifts || null,
+      celebration_date: req.body.celebration_date || null,
+      slug: req.body.slug || celebrationSlug(title, nextSort),
+    };
+    const { data, error } = await _sb.from('celebrations').insert(row).select().single();
+    if (error) throw error;
+    res.status(201).json({ ...data, photos: [] });
+  } catch (err) { next(err); }
+});
+
+// PUT update a single celebration (excludes photos — use the photo endpoints below)
+router.put('/mine/celebrations/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+
+    const patch = {};
+    const editable = ['title', 'eyebrow', 'body', 'location', 'attendees', 'gifts', 'celebration_date', 'year_label', 'sort_order', 'slug'];
+    for (const f of editable) if (req.body[f] !== undefined) patch[f] = req.body[f];
+    // Regenerate slug if title changed and no explicit slug given
+    if (req.body.title !== undefined && req.body.slug === undefined) {
+      patch.slug = celebrationSlug(req.body.title, req.body.sort_order || 0);
+    }
+    patch.updated_at = new Date().toISOString();
+
+    const { data, error } = await _sb.from('celebrations').update(patch).eq('id', req.params.id).eq('book_id', book.id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a single celebration (cascades to celebration_photos via FK)
+router.delete('/mine/celebrations/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { error } = await _sb.from('celebrations').delete().eq('id', req.params.id).eq('book_id', book.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// POST add a photo to a celebration's gallery
+router.post('/mine/celebrations/:id/photos', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    // Verify ownership
+    const { data: c } = await _sb.from('celebrations').select('id').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.status(404).json({ error: 'Celebration not found' });
+
+    const { photo_path, caption } = req.body;
+    if (!photo_path) return res.status(400).json({ error: 'photo_path is required' });
+
+    // Find next sort_order
+    const { data: existing } = await _sb.from('celebration_photos').select('sort_order').eq('celebration_id', c.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { data, error } = await _sb.from('celebration_photos').insert({
+      celebration_id: c.id,
+      photo_path,
+      caption: caption || null,
+      sort_order: nextSort,
+    }).select().single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) { next(err); }
+});
+
+// PUT update a celebration photo (caption, sort_order, photo_path)
+router.put('/mine/celebration-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    // Verify ownership via the celebration's book_id
+    const { data: photo } = await _sb.from('celebration_photos').select('id, celebration_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: c } = await _sb.from('celebrations').select('id').eq('id', photo.celebration_id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.status(403).json({ error: 'Not authorized for this photo' });
+
+    const patch = { updated_at: new Date().toISOString() };
+    if (req.body.caption !== undefined) patch.caption = req.body.caption;
+    if (req.body.sort_order !== undefined) patch.sort_order = req.body.sort_order;
+    if (req.body.photo_path !== undefined) patch.photo_path = req.body.photo_path;
+
+    const { data, error } = await _sb.from('celebration_photos').update(patch).eq('id', req.params.photoId).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a celebration photo
+router.delete('/mine/celebration-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    // Verify ownership
+    const { data: photo } = await _sb.from('celebration_photos').select('id, celebration_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: c } = await _sb.from('celebrations').select('id').eq('id', photo.celebration_id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.status(403).json({ error: 'Not authorized' });
+
+    const { error } = await _sb.from('celebration_photos').delete().eq('id', req.params.photoId);
+    if (error) throw error;
     res.json({ success: true });
   } catch (err) { next(err); }
 });

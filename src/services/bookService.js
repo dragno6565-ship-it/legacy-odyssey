@@ -4,6 +4,65 @@ const seedData = require('../utils/seedData');
 // --- Helpers ---
 
 /**
+ * Resolve a celebration's photos array, with graceful fallback.
+ *
+ * Reading order:
+ *   1. Rows from celebration_photos table (post-migration-014)
+ *   2. If none, synthesize one from celebrations.photo_path (pre-migration legacy data)
+ *
+ * Also generates a slug for celebrations missing one (defensive — the
+ * migration should set this, but new celebrations created before code
+ * deploys could be without one).
+ *
+ * Returns a NEW object — never mutates the input.
+ */
+function withResolvedCelebration(celebration, photoRows) {
+  if (!celebration) return celebration;
+  const photos = (photoRows && photoRows.length > 0)
+    ? photoRows.map((p) => ({
+        id: p.id,
+        photo_path: p.photo_path,
+        caption: p.caption || '',
+        sort_order: p.sort_order || 0,
+      }))
+    : (celebration.photo_path
+        ? [{
+            id: null, // synthetic — no row in celebration_photos yet
+            photo_path: celebration.photo_path,
+            caption: '',
+            sort_order: 0,
+          }]
+        : []);
+
+  // Slug: prefer DB value, otherwise synthesize from title.
+  // Same regex as migration 014 step 4 so they match.
+  let slug = celebration.slug;
+  if (!slug) {
+    const base = (celebration.title || ('celebration-' + (celebration.sort_order || 0))).toString();
+    slug = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('celebration-' + (celebration.sort_order || 0));
+  }
+
+  return {
+    ...celebration,
+    photos,
+    slug,
+    // Convenience field for the detail page: the cover photo (first in gallery, falls back to legacy photo_path)
+    coverPhoto: (photos[0] && photos[0].photo_path) || celebration.photo_path || null,
+  };
+}
+
+/**
+ * Slugify a year_label for URL use (e.g. "Year 1 (2025)" → "year-1-2025").
+ * Empty string falls back to 'year'.
+ */
+function slugifyYear(label) {
+  if (!label) return 'year';
+  const s = String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return s || 'year';
+}
+
+
+/**
  * Compute which sections have meaningful user content (not just seed/default data).
  * Returns an object like { before: true, birth: false, ... }
  */
@@ -115,6 +174,31 @@ async function getFullBook(familyId) {
     supabaseAdmin.from('vault_items').select('*').eq('book_id', book.id).order('created_at'),
   ]);
 
+  // Load celebration_photos for every celebration on this book. The table
+  // may not exist yet (pre-migration-014), in which case we silently treat
+  // every celebration as having no extra photos and fall back to the
+  // legacy single `celebrations.photo_path` column when rendering.
+  let celebrationPhotos = [];
+  if (celebrations && celebrations.length > 0) {
+    const celebrationIds = celebrations.map((c) => c.id);
+    try {
+      const { data } = await supabaseAdmin
+        .from('celebration_photos')
+        .select('*')
+        .in('celebration_id', celebrationIds)
+        .order('sort_order');
+      celebrationPhotos = data || [];
+    } catch (_) {
+      // Table doesn't exist yet — that's fine; legacy single photo_path is the fallback.
+      celebrationPhotos = [];
+    }
+  }
+  // Group photos by celebration_id for fast lookup.
+  const photosByCelebration = {};
+  for (const p of celebrationPhotos) {
+    (photosByCelebration[p.celebration_id] = photosByCelebration[p.celebration_id] || []).push(p);
+  }
+
   const result = {
     book,
     beforeCards: beforeCards || [],
@@ -124,9 +208,11 @@ async function getFullBook(familyId) {
     months: months || [],
     familyMembers: familyMembers || [],
     firsts: firsts || [],
-    celebrations: celebrations || [],
+    celebrations: (celebrations || []).map((c) => withResolvedCelebration(c, photosByCelebration[c.id])),
     celebrationsByYear: (() => {
-      const all = celebrations || [];
+      // Use the photo-resolved celebrations from above so the year groups
+      // also have the .photos arrays attached.
+      const all = (celebrations || []).map((c) => withResolvedCelebration(c, photosByCelebration[c.id]));
       const years = book.celebration_years || ['Your First Year'];
       // Build ordered list from book.celebration_years, then append any orphan years
       const grouped = years.map((label) => ({
@@ -353,5 +439,7 @@ module.exports = {
   updateSectionCards,
   createBookWithDefaults,
   computeVisibleSections,
+  withResolvedCelebration,
+  slugifyYear,
 };
 
