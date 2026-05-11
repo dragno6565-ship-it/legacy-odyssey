@@ -141,6 +141,46 @@ router.post('/create-founder-checkout', async (req, res, next) => {
   }
 });
 
+// POST /api/stripe/create-founder-page-checkout
+// Used only by the hidden /preview/founder landing page (shared privately
+// with friends and early supporters). Identical shape to the public
+// /create-founder-checkout endpoint above, but uses the $29/year flat
+// founder price with no coupon.
+router.post('/create-founder-page-checkout', async (req, res, next) => {
+  try {
+    const { email, domain, subdomain: legacySubdomain, book_type, founderNote } = req.body;
+
+    const subdomain = domain
+      ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
+      : legacySubdomain;
+
+    if (!email) {
+      return res.status(400).json({ error: 'email is required' });
+    }
+    if (!domain && !subdomain) {
+      return res.status(400).json({ error: 'domain is required' });
+    }
+
+    const resolvedBookType = 'baby_book';
+
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    const session = await stripeService.createFounderPageCheckoutSession({
+      email,
+      subdomain,
+      domain: domain || null,
+      bookType: resolvedBookType,
+      founderNote: founderNote || null,
+      successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+      // Cancel returns them to the hidden founder page, not the public home
+      cancelUrl: `https://${appDomain}/preview/founder`,
+    });
+
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/stripe/create-additional-site-checkout — Purchase another site
 router.post('/create-additional-site-checkout', requireAuth, async (req, res, next) => {
   try {

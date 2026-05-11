@@ -17,6 +17,11 @@ const PRICES = {
     monthly: process.env.STRIPE_PRICE_MONTHLY,
     annual: process.env.STRIPE_PRICE_ANNUAL,
     annualIntro: process.env.STRIPE_PRICE_ANNUAL_INTRO, // $49.99/yr with first-year coupon
+    // Founder rate: $29/yr flat, no coupon. Used only by the hidden
+    // /preview/founder landing page (shared privately with early supporters).
+    // Hardcoded fallback so the page works even if the env var isn't set
+    // yet on Railway; set STRIPE_PRICE_FOUNDER to override.
+    founder: process.env.STRIPE_PRICE_FOUNDER || 'price_1TIVpBJk2GIrL5uS5xg3lRhk',
   },
   setupFee: process.env.STRIPE_PRICE_SETUP,
   additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
@@ -264,6 +269,47 @@ async function createFounderCheckoutSession({ email, subdomain, domain, bookType
   return session;
 }
 
+/**
+ * Founder-page subscription checkout — $29/year flat, no coupon, no
+ * promotional pricing. Used only by the hidden /preview/founder
+ * landing page (shared privately with friends and early supporters).
+ *
+ * Identical to createFounderCheckoutSession except:
+ *   - Uses STRIPE_PRICE_FOUNDER ($29/yr recurring) instead of the
+ *     annualIntro price + first-year coupon
+ *   - Does not allow promotion codes (the price is already the deal)
+ *   - metadata.plan = 'founder' so the webhook + admin reports can
+ *     identify founder signups distinctly from annual_intro signups
+ */
+async function createFounderPageCheckoutSession({ email, subdomain, domain, bookType, founderNote, successUrl, cancelUrl }) {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  const priceId = PRICES.subscription.founder;
+  if (!priceId) throw new Error('Founder price not configured (STRIPE_PRICE_FOUNDER)');
+
+  const metadata = {
+    subdomain,
+    period: 'annual',
+    plan: 'founder',
+    book_type: bookType || 'baby_book',
+  };
+  if (domain) metadata.domain = domain;
+  if (founderNote) metadata.founder_note = String(founderNote).slice(0, 450); // Stripe metadata cap is 500/value
+
+  const sessionParams = {
+    mode: 'subscription',
+    payment_method_types: ['card'],
+    customer_email: email,
+    line_items: [{ price: priceId, quantity: 1 }],
+    metadata,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  };
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
+  return session;
+}
+
 async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
@@ -409,6 +455,7 @@ module.exports = {
   PRICES,
   createCheckoutSession,
   createFounderCheckoutSession,
+  createFounderPageCheckoutSession,
   createGiftCheckoutSession,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,

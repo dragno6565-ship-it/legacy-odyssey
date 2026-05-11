@@ -81,6 +81,14 @@ router.get('/preview/gift-landing', (req, res) => {
   res.render('marketing/gift-landing');
 });
 
+// Hidden "founder" landing page — shared privately with friends and early
+// supporters. Posts to /api/stripe/create-founder-page-checkout which uses
+// STRIPE_PRICE_FOUNDER ($29/yr flat, no coupon). NOT linked from anywhere
+// public; not in sitemap; meta robots=noindex on the page itself.
+router.get('/preview/founder', (req, res) => {
+  res.render('marketing/founder');
+});
+
 // Printable gift certificate.
 // Public route — the certificate_token is the only auth. Anyone with the
 // link can view + print, but only the buyer ever receives the link
