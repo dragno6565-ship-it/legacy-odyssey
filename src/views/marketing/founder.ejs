@@ -22,22 +22,42 @@
     .fd-page { font-family: 'Jost', system-ui, sans-serif; background: #faf7f2; color: #2c2416; overflow-x: hidden; line-height: 1.65; margin: 0; }
     .fd-page p { margin: 0 0 16px; }
 
-    /* ---------- NAV (minimal, no public links) ---------- */
+    /* ---------- HEADER NAV ---------- */
     .fd-nav {
-      position: sticky; top: 0; height: 56px; z-index: 100;
+      position: sticky; top: 0; height: 64px; z-index: 100;
       background: rgba(26, 21, 16, 0.95); backdrop-filter: blur(12px);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 28px;
+      border-bottom: 1px solid rgba(200,169,110,0.18);
     }
-    .fd-nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: #faf7f2; letter-spacing: 0.5px; text-decoration: none; }
+    .fd-nav-logo {
+      font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500;
+      color: #faf7f2; letter-spacing: 0.5px; text-decoration: none;
+    }
     .fd-nav-logo span { color: #c8a96e; }
+    .fd-nav-links {
+      display: flex; align-items: center; gap: 26px;
+      list-style: none; padding: 0; margin: 0;
+    }
+    .fd-nav-links a {
+      color: rgba(250,247,242,0.78); text-decoration: none;
+      font-size: 13px; font-weight: 500; letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+    .fd-nav-links a:hover { color: #c8a96e; }
     .fd-nav-cta {
-      background: #c8a96e; color: #1a1510; padding: 8px 18px;
-      border-radius: 4px; font-size: 12px; font-weight: 600;
+      background: #c8a96e; color: #1a1510 !important; padding: 9px 20px;
+      border-radius: 4px; font-size: 12px; font-weight: 700;
       letter-spacing: 0.5px; text-transform: uppercase;
       text-decoration: none; transition: background 0.2s;
+      white-space: nowrap;
     }
     .fd-nav-cta:hover { background: #d4bb8a; }
+    @media (max-width: 640px) {
+      .fd-nav-link-md { display: none; }
+      .fd-nav { padding: 0 16px; }
+      .fd-nav-links { gap: 14px; }
+    }
 
     /* ---------- HERO ---------- */
     .fd-hero {
@@ -219,12 +239,38 @@
 
     /* ---------- FOOTER ---------- */
     .fd-footer {
-      padding: 40px 24px; text-align: center;
-      background: #0f0d0a; color: rgba(250,247,242,0.5);
-      font-size: 13px;
+      background: #0f0d0a; color: rgba(250,247,242,0.55);
+      padding: 56px 24px 36px;
+      border-top: 1px solid rgba(200,169,110,0.15);
     }
-    .fd-footer a { color: rgba(250,247,242,0.65); text-decoration: none; margin: 0 10px; }
-    .fd-footer a:hover { color: #c8a96e; }
+    .fd-footer-inner {
+      max-width: 980px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr auto; gap: 36px; align-items: start;
+    }
+    @media (max-width: 700px) { .fd-footer-inner { grid-template-columns: 1fr; gap: 28px; } }
+    .fd-footer-brand {
+      font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500;
+      color: #faf7f2; margin-bottom: 8px;
+    }
+    .fd-footer-brand span { color: #c8a96e; }
+    .fd-footer-tag { font-size: 13px; color: rgba(250,247,242,0.5); line-height: 1.55; max-width: 380px; }
+    .fd-footer-links {
+      display: flex; flex-wrap: wrap; gap: 22px; align-items: center;
+      list-style: none; padding: 0; margin: 0;
+    }
+    .fd-footer-links a {
+      color: rgba(250,247,242,0.7); text-decoration: none;
+      font-size: 13px; transition: color 0.2s;
+    }
+    .fd-footer-links a:hover { color: #c8a96e; }
+    .fd-footer-bottom {
+      max-width: 980px; margin: 32px auto 0; padding-top: 22px;
+      border-top: 1px solid rgba(200,169,110,0.1);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+      font-size: 12px; color: rgba(250,247,242,0.4);
+    }
+    .fd-footer-bottom a { color: rgba(250,247,242,0.55); text-decoration: none; }
+    .fd-footer-bottom a:hover { color: #c8a96e; }
   </style>
 
   <!-- Google Analytics 4 (kept so I can see if friends visited / converted) -->
@@ -240,10 +286,14 @@
 </head>
 <body class="fd-page">
 
-  <!-- ====== NAV ====== -->
+  <!-- ====== HEADER NAV ====== -->
   <nav class="fd-nav">
     <a href="/" class="fd-nav-logo">Legacy <span>Odyssey</span></a>
-    <a href="#buy" class="fd-nav-cta">Join as a Founder</a>
+    <ul class="fd-nav-links">
+      <li class="fd-nav-link-md"><a href="https://www.your-childs-name.com" target="_blank" rel="noopener">See Demo</a></li>
+      <li class="fd-nav-link-md"><a href="/account">Sign In</a></li>
+      <li><a href="#buy" class="fd-nav-cta">Join as a Founder</a></li>
+    </ul>
   </nav>
 
   <!-- ====== HERO ====== -->
@@ -252,8 +302,8 @@
     <div class="fd-hero-overlay"></div>
     <div class="fd-hero-content">
       <div class="fd-hero-eyebrow">A private invitation</div>
-      <h1 class="fd-hero-headline">Help me<br><em>build this.</em></h1>
-      <p class="fd-hero-sub">If you're here, it's because I asked you. I'm building Legacy Odyssey, and I'd like you to be one of the first people to actually use it.</p>
+      <h1 class="fd-hero-headline">Founder Pricing<br>for <em>Legacy Odyssey.</em></h1>
+      <p class="fd-hero-sub">If you're here, it's because I asked you. I'm building Legacy Odyssey, and I'd like you to be one of the first people to actually use it — at a price that's locked in for as long as you stay.</p>
       <a href="#buy" class="fd-hero-cta">Become a Founder — $29/year →</a>
       <div class="fd-hero-cta-note">$29/year for as long as you keep your subscription. Cancel anytime.</div>
     </div>
@@ -306,26 +356,13 @@
           <span><strong>Password-protected &amp; private</strong> — only the people you share the password with can see it.</span>
         </li>
       </ul>
+      <p style="margin-top:32px;text-align:center;">
+        <a href="https://www.your-childs-name.com" target="_blank" rel="noopener" style="display:inline-block;color:#c8a96e;font-size:14px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(200,169,110,0.4);padding-bottom:3px;">See a Live Demo Book →</a>
+      </p>
     </div>
   </section>
 
-  <!-- ====== FOUNDER COMMITMENT ====== -->
-  <section class="fd-section fd-commitment">
-    <div class="fd-section-inner">
-      <div class="fd-section-eyebrow">The founder agreement</div>
-      <h2 class="fd-section-headline">What being a founder<br><em>means.</em></h2>
-      <div class="fd-commitment-card">
-        <h3>From me, to you:</h3>
-        <ul class="fd-commitment-list">
-          <li><div class="fd-commitment-bullet"></div><span><strong>$29/year, locked in</strong> for as long as you keep your subscription active. Not a first-year promo — your renewal price stays the same.</span></li>
-          <li><div class="fd-commitment-bullet"></div><span><strong>Direct line to me</strong> — questions, bugs, feature ideas. You're not opening a ticket; you're emailing the person who built it.</span></li>
-          <li><div class="fd-commitment-bullet"></div><span><strong>First look at new features</strong> before they ship publicly. Time Vault unlocks, new templates, the next chapter of the platform.</span></li>
-          <li><div class="fd-commitment-bullet"></div><span><strong>Your feedback shapes what gets built next.</strong> I keep a running list and the founders' notes go to the top.</span></li>
-          <li><div class="fd-commitment-bullet"></div><span><strong>No upsells, no surprise renewals, no auto-charges you didn't see coming.</strong> Cancel anytime from your account.</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
+  <!-- (Founder agreement section removed per Dan's review.) -->
 
   <!-- ====== BUY ====== -->
   <section class="fd-buy" id="buy">
@@ -368,12 +405,26 @@
 
   <!-- ====== FOOTER ====== -->
   <footer class="fd-footer">
-    <div style="margin-bottom:10px;">Questions before you sign up? Email me at <a href="mailto:hello@legacyodyssey.com" style="color:#c8a96e;">hello@legacyodyssey.com</a>.</div>
-    <div>
-      <a href="/terms">Terms</a> ·
-      <a href="/privacy">Privacy</a>
+    <div class="fd-footer-inner">
+      <div>
+        <div class="fd-footer-brand">Legacy <span>Odyssey</span></div>
+        <div class="fd-footer-tag">
+          A digital baby book at your child's own .com.<br>
+          Questions before you sign up? Email <a href="mailto:hello@legacyodyssey.com" style="color:#c8a96e;">hello@legacyodyssey.com</a>.
+        </div>
+      </div>
+      <ul class="fd-footer-links">
+        <li><a href="https://www.your-childs-name.com" target="_blank" rel="noopener">See Demo</a></li>
+        <li><a href="/account">Sign In</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/terms">Terms</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
     </div>
-    <div style="margin-top:14px;font-size:11px;color:rgba(250,247,242,0.35);">&copy; 2026 Legacy Odyssey · A private founder invitation</div>
+    <div class="fd-footer-bottom">
+      <div>&copy; 2026 Legacy Odyssey · DOR Industries · A private founder invitation</div>
+      <div><a href="/">legacyodyssey.com</a></div>
+    </div>
   </footer>
 
   <script>
