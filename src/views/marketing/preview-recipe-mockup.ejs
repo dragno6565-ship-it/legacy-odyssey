@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe redesign mockup — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <style>
+    :root {
+      --cream: #faf7f2;
+      --dark: #1a1510;
+      --gold: #c8a96e;
+      --gold-light: #d4bb8a;
+      --text: #2c2416;
+      --muted: #8a7e6b;
+      --card: #f0e8dc;
+      --border: #e0d5c4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--text); line-height: 1.6; padding-bottom: 4rem; }
+    .mockup-toolbar { background: var(--dark); color: #fff; padding: 0.85rem 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .mockup-toolbar strong { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; letter-spacing: 0.04em; }
+    .mockup-toolbar a { color: var(--gold-light); text-decoration: none; padding: 0.35rem 0.85rem; border: 1px solid rgba(212,187,138,0.4); border-radius: 4px; font-size: 0.82rem; }
+    .mockup-toolbar a.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+    .mockup-toolbar a:hover { background: rgba(212,187,138,0.15); }
+    .mockup-note { color: rgba(255,255,255,0.6); font-size: 0.78rem; margin-left: auto; font-style: italic; }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 2.5rem 1.5rem 1rem; }
+
+    /* Section header */
+    .page-eyebrow { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; text-align: center; margin-bottom: 0.65rem; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 500; color: var(--text); text-align: center; line-height: 1.15; margin-bottom: 0.8rem; }
+    .page-title em { font-style: italic; color: var(--gold); }
+    .page-sub { text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 1.5rem; font-size: 1.02rem; }
+    .page-intro { text-align: center; color: var(--text); max-width: 660px; margin: 0 auto 2.75rem; font-style: italic; font-size: 1rem; opacity: 0.85; }
+
+    /* OVERVIEW — recipe card grid */
+    .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .recipe-card { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(44,36,22,0.06); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+    .recipe-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(44,36,22,0.1); }
+    .recipe-card-photo { aspect-ratio: 4/3; background: var(--card); position: relative; overflow: hidden; }
+    .recipe-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .recipe-card-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--gold); }
+    .recipe-card-empty svg { width: 3rem; height: 3rem; stroke-width: 1.25; }
+    .recipe-card-badge { position: absolute; top: 0.65rem; right: 0.65rem; background: rgba(26,21,16,0.78); color: #fff; padding: 0.22rem 0.55rem; border-radius: 999px; font-size: 0.72rem; display: flex; align-items: center; gap: 0.25rem; }
+    .recipe-card-badge svg { width: 0.85rem; height: 0.85rem; }
+    .recipe-card-body { padding: 1.25rem 1.35rem 1.35rem; }
+    .recipe-card-from { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem; }
+    .recipe-card-from::before { content: '✦'; color: var(--gold); }
+    .recipe-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 600; line-height: 1.2; margin-bottom: 0.45rem; }
+    .recipe-card-snippet { color: var(--muted); font-size: 0.92rem; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .recipe-card-meta { display: flex; gap: 0.85rem; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--muted); }
+    .recipe-card-meta span { display: flex; align-items: center; gap: 0.25rem; }
+    .recipe-card-meta svg { width: 0.95rem; height: 0.95rem; }
+
+    /* DETAIL */
+    .detail-back { color: var(--muted); text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .detail-back:hover { color: var(--gold); }
+    .detail-back svg { width: 1rem; height: 1rem; }
+
+    .recipe-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: center; margin-bottom: 2.5rem; }
+    @media (max-width: 760px) { .recipe-hero { grid-template-columns: 1fr; } }
+    .recipe-hero-photo { aspect-ratio: 4/3; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 28px rgba(44,36,22,0.12); }
+    .recipe-hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .recipe-hero-from { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.65rem; }
+    .recipe-hero-from::before { content: '✦  '; color: var(--gold); }
+    .recipe-hero-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 500; line-height: 1.1; margin-bottom: 0.85rem; }
+    .recipe-hero-title em { color: var(--gold); font-style: italic; }
+    .recipe-hero-desc { color: var(--text); font-size: 1.02rem; opacity: 0.88; }
+
+    /* Stat strip */
+    .recipe-stats { display: flex; gap: 0; background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 2.5rem; }
+    .recipe-stat { flex: 1; padding: 1rem 0.85rem; text-align: center; border-right: 1px solid var(--border); }
+    .recipe-stat:last-child { border-right: 0; }
+    .recipe-stat-icon { color: var(--gold); margin-bottom: 0.45rem; display: flex; justify-content: center; }
+    .recipe-stat-icon svg { width: 1.3rem; height: 1.3rem; stroke-width: 1.5; }
+    .recipe-stat-label { color: var(--muted); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.2rem; }
+    .recipe-stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; color: var(--text); }
+
+    /* Section blocks */
+    .recipe-section { margin-bottom: 2.75rem; }
+    .recipe-section-eyebrow { color: var(--gold); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .recipe-section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 500; margin-bottom: 1rem; }
+
+    .recipe-story p { font-size: 1.04rem; line-height: 1.8; margin-bottom: 1rem; color: var(--text); }
+    .recipe-story p:first-of-type::first-letter { font-family: 'Cormorant Garamond', serif; font-size: 3.2rem; float: left; line-height: 0.9; padding: 0.2rem 0.55rem 0 0; color: var(--gold); font-style: italic; }
+
+    /* Two-column ingredients + directions on desktop, stacked on mobile */
+    .recipe-content { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 2.5rem; margin-bottom: 2.75rem; }
+    @media (max-width: 760px) { .recipe-content { grid-template-columns: 1fr; gap: 2rem; } }
+
+    .ingredients-card { background: #fff; border-radius: 12px; padding: 1.5rem 1.75rem; border: 1px solid var(--border); }
+    .ingredients-list { list-style: none; padding: 0; }
+    .ingredients-list li { padding: 0.65rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.98rem; }
+    .ingredients-list li:last-child { border-bottom: 0; }
+    .ingredients-list li::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--gold); margin-top: 0.55rem; flex-shrink: 0; }
+    .ingredient-amount { color: var(--gold); font-weight: 500; min-width: 5rem; }
+    .ingredient-item { color: var(--text); }
+
+    .directions-list { list-style: none; counter-reset: step; padding: 0; }
+    .directions-list li { counter-increment: step; padding: 0 0 1.5rem 3.25rem; position: relative; font-size: 1.02rem; line-height: 1.7; }
+    .directions-list li::before {
+      content: counter(step);
+      position: absolute; left: 0; top: 0;
+      width: 2.4rem; height: 2.4rem; border-radius: 50%;
+      background: var(--gold); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600;
+    }
+    .directions-list li:last-child { padding-bottom: 0; }
+
+    /* Notes / pro tips block */
+    .recipe-notes { background: #fdf9f3; border-left: 4px solid var(--gold); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; font-style: italic; color: var(--text); margin-bottom: 2.75rem; font-size: 0.98rem; line-height: 1.75; }
+    .recipe-notes::before { content: '“'; font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; color: var(--gold); line-height: 0; vertical-align: -0.65rem; margin-right: 0.25rem; }
+
+    /* Photo gallery */
+    .photo-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.85rem; }
+    .photo-tile { aspect-ratio: 1/1; background: var(--card); border-radius: 8px; overflow: hidden; cursor: zoom-in; }
+    .photo-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+    .photo-tile:hover img { transform: scale(1.04); }
+
+    /* Pager */
+    .recipe-pager { display: flex; justify-content: space-between; gap: 1rem; padding-top: 2rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .recipe-pager a { color: var(--text); text-decoration: none; flex: 1; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 8px; transition: all 0.15s; }
+    .recipe-pager a:hover { border-color: var(--gold); background: #fdf9f3; }
+    .recipe-pager-label { color: var(--muted); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.25rem; }
+    .recipe-pager-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
+    .recipe-pager a.next { text-align: right; }
+  </style>
+</head>
+<body>
+
+<div class="mockup-toolbar">
+  <strong>Family Recipes redesign — mockup</strong>
+  <a href="/preview/recipe-mockup/overview" class="<%= variant === 'overview' ? 'active' : '' %>">1. Overview (all recipes)</a>
+  <a href="/preview/recipe-mockup/detail" class="<%= variant === 'detail' ? 'active' : '' %>">2. Full recipe</a>
+  <a href="/preview/recipe-mockup/sparse" class="<%= variant === 'sparse' ? 'active' : '' %>">3. Sparse recipe</a>
+  <span class="mockup-note">Nothing here is live — preview only.</span>
+</div>
+
+<div class="wrap">
+
+<% if (variant === 'overview') { %>
+
+  <div class="page-eyebrow">Chapter Nine</div>
+  <h2 class="page-title">Family <em>Recipes</em> &amp; Traditions</h2>
+  <p class="page-sub">The flavors of home. The dishes that mark every celebration, every Sunday, every season.</p>
+  <p class="page-intro">Food is memory. These are the recipes that will always mean home — the ones that fill a kitchen with a particular smell and a particular feeling.</p>
+
+  <div class="recipe-grid">
+    <!-- Card 1: full recipe with photo -->
+    <a class="recipe-card" href="/preview/recipe-mockup/detail">
+      <div class="recipe-card-photo">
+        <img src="https://images.unsplash.com/photo-1568051243851-f9b136146e97?w=600&q=80" alt="">
+        <span class="recipe-card-badge"><i data-lucide="image"></i> 5</span>
+      </div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-from">From Grandma Sarah</div>
+        <div class="recipe-card-title">Sunday Morning Pancakes</div>
+        <p class="recipe-card-snippet">Buttermilk, a heavy hand with the vanilla, and the trick of letting the batter rest a full ten minutes before the first ladle hits the griddle.</p>
+        <div class="recipe-card-meta">
+          <span><i data-lucide="clock"></i> 25 min</span>
+          <span><i data-lucide="users"></i> Serves 4</span>
+          <span><i data-lucide="list-checks"></i> 6 steps</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 2: sparse — only photo + title -->
+    <a class="recipe-card" href="/preview/recipe-mockup/sparse">
+      <div class="recipe-card-photo">
+        <img src="https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&q=80" alt="">
+      </div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-from">From Aunt Mel</div>
+        <div class="recipe-card-title">Christmas Eve Pierogies</div>
+        <p class="recipe-card-snippet">Tap to see what we have so far — still adding the directions.</p>
+      </div>
+    </a>
+
+    <!-- Card 3: photo-only -->
+    <a class="recipe-card" href="#">
+      <div class="recipe-card-photo">
+        <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&q=80" alt="">
+        <span class="recipe-card-badge"><i data-lucide="image"></i> 3</span>
+      </div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-from">From Dad</div>
+        <div class="recipe-card-title">Roasted Tomato Sauce</div>
+        <p class="recipe-card-snippet">The one he makes every August when the garden tomatoes finally come in.</p>
+        <div class="recipe-card-meta">
+          <span><i data-lucide="clock"></i> 1 hr 40</span>
+          <span><i data-lucide="users"></i> Serves 6</span>
+          <span><i data-lucide="list-checks"></i> 4 steps</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 4: no photo -->
+    <a class="recipe-card" href="#">
+      <div class="recipe-card-photo">
+        <div class="recipe-card-empty"><i data-lucide="utensils-crossed"></i></div>
+      </div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-from">From Great-Grandma Rose</div>
+        <div class="recipe-card-title">Hand-Rolled Egg Noodles</div>
+        <p class="recipe-card-snippet">She never wrote it down. Mom finally got it out of her one Thanksgiving — measurements approximate, technique sacred.</p>
+        <div class="recipe-card-meta">
+          <span><i data-lucide="clock"></i> 45 min</span>
+          <span><i data-lucide="users"></i> Serves 6–8</span>
+          <span><i data-lucide="list-checks"></i> 5 steps</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+<% } else if (variant === 'detail') { %>
+
+  <a class="detail-back" href="/preview/recipe-mockup/overview"><i data-lucide="chevron-left"></i> All recipes</a>
+
+  <div class="recipe-hero">
+    <div class="recipe-hero-photo">
+      <img src="https://images.unsplash.com/photo-1568051243851-f9b136146e97?w=900&q=80" alt="">
+    </div>
+    <div>
+      <div class="recipe-hero-from">From Grandma Sarah</div>
+      <h1 class="recipe-hero-title">Sunday Morning <em>Pancakes</em></h1>
+      <p class="recipe-hero-desc">Mom grew up with these. Light, tangy from the buttermilk, and a little crispy at the edges from the butter in the pan. The one breakfast that always meant a slow morning.</p>
+    </div>
+  </div>
+
+  <div class="recipe-stats">
+    <div class="recipe-stat">
+      <div class="recipe-stat-icon"><i data-lucide="clock"></i></div>
+      <div class="recipe-stat-label">Prep</div>
+      <div class="recipe-stat-value">10 min</div>
+    </div>
+    <div class="recipe-stat">
+      <div class="recipe-stat-icon"><i data-lucide="flame"></i></div>
+      <div class="recipe-stat-label">Cook</div>
+      <div class="recipe-stat-value">15 min</div>
+    </div>
+    <div class="recipe-stat">
+      <div class="recipe-stat-icon"><i data-lucide="users"></i></div>
+      <div class="recipe-stat-label">Serves</div>
+      <div class="recipe-stat-value">4</div>
+    </div>
+    <div class="recipe-stat">
+      <div class="recipe-stat-icon"><i data-lucide="bar-chart-3"></i></div>
+      <div class="recipe-stat-label">Difficulty</div>
+      <div class="recipe-stat-value">Easy</div>
+    </div>
+  </div>
+
+  <div class="recipe-section recipe-story">
+    <div class="recipe-section-eyebrow">The Story</div>
+    <h2 class="recipe-section-title">Why we make these</h2>
+    <p>Grandma Sarah made these every single Sunday for forty years. Not just for her kids — for anyone who happened to be in the house. The kitchen on Sunday morning was the warmest room in the world, and the smell of the buttermilk hitting the hot pan is one of the first things Mom remembers from childhood.</p>
+    <p>The trick is the resting time. Grandma was adamant: stir it just enough to combine, then leave it alone for ten minutes. Don't whisk it smooth. The little lumps are what makes them tender.</p>
+  </div>
+
+  <div class="recipe-content">
+    <div>
+      <div class="recipe-section-eyebrow">Ingredients</div>
+      <h2 class="recipe-section-title">What you need</h2>
+      <div class="ingredients-card">
+        <ul class="ingredients-list">
+          <li><span class="ingredient-amount">2 cups</span><span class="ingredient-item">all-purpose flour</span></li>
+          <li><span class="ingredient-amount">2 tbsp</span><span class="ingredient-item">sugar</span></li>
+          <li><span class="ingredient-amount">2 tsp</span><span class="ingredient-item">baking powder</span></li>
+          <li><span class="ingredient-amount">1 tsp</span><span class="ingredient-item">baking soda</span></li>
+          <li><span class="ingredient-amount">1 tsp</span><span class="ingredient-item">salt</span></li>
+          <li><span class="ingredient-amount">2 cups</span><span class="ingredient-item">buttermilk</span></li>
+          <li><span class="ingredient-amount">2</span><span class="ingredient-item">large eggs</span></li>
+          <li><span class="ingredient-amount">4 tbsp</span><span class="ingredient-item">melted butter, plus more for the pan</span></li>
+          <li><span class="ingredient-amount">1 tsp</span><span class="ingredient-item">vanilla extract (don't skimp)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="recipe-section-eyebrow">Directions</div>
+      <h2 class="recipe-section-title">How to make them</h2>
+      <ol class="directions-list">
+        <li>Whisk the flour, sugar, baking powder, baking soda, and salt together in a large bowl.</li>
+        <li>In a separate bowl, whisk the buttermilk, eggs, melted butter, and vanilla until smooth.</li>
+        <li>Pour the wet into the dry and stir <em>just</em> until combined. Lumps are good. Walk away for 10 minutes.</li>
+        <li>Heat a skillet or griddle over medium-low. Add a knob of butter. When it foams, ladle in 1/3 cup of batter per pancake.</li>
+        <li>Cook until bubbles cover the surface and the edges look set, about 3 minutes. Flip and cook another 1–2 minutes.</li>
+        <li>Stack, top with butter and warm syrup, and don't talk to anyone for the first three bites.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="recipe-section">
+    <div class="recipe-section-eyebrow">Notes &amp; Memories</div>
+    <div class="recipe-notes">
+      Grandma always used real maple syrup, never the fake stuff. She kept a glass bottle of it in the cabinet next to the coffee tin and said it was "the only thing worth waking up for." If you double the recipe, don't double the salt — go 1.5x.
+    </div>
+  </div>
+
+  <div class="recipe-section">
+    <div class="recipe-section-eyebrow">In the Kitchen</div>
+    <h2 class="recipe-section-title">Photos</h2>
+    <div class="photo-gallery">
+      <div class="photo-tile"><img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=400&q=80" alt=""></div>
+      <div class="photo-tile"><img src="https://images.unsplash.com/photo-1565895405227-31cffbe0cf86?w=400&q=80" alt=""></div>
+      <div class="photo-tile"><img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80" alt=""></div>
+      <div class="photo-tile"><img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=80" alt=""></div>
+    </div>
+  </div>
+
+  <div class="recipe-pager">
+    <a href="#" class="prev">
+      <div class="recipe-pager-label">← Previous</div>
+      <div class="recipe-pager-title">Hand-Rolled Egg Noodles</div>
+    </a>
+    <a href="#" class="next">
+      <div class="recipe-pager-label">Next →</div>
+      <div class="recipe-pager-title">Christmas Eve Pierogies</div>
+    </a>
+  </div>
+
+<% } else if (variant === 'sparse') { %>
+
+  <a class="detail-back" href="/preview/recipe-mockup/overview"><i data-lucide="chevron-left"></i> All recipes</a>
+
+  <div class="recipe-hero">
+    <div class="recipe-hero-photo">
+      <img src="https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=900&q=80" alt="">
+    </div>
+    <div>
+      <div class="recipe-hero-from">From Aunt Mel</div>
+      <h1 class="recipe-hero-title">Christmas Eve <em>Pierogies</em></h1>
+      <p class="recipe-hero-desc">The one we make every December 24th. Mel still won't share the exact dough ratio.</p>
+    </div>
+  </div>
+
+  <!-- Sparse: no stat strip, no ingredients block, no directions, no notes, no gallery.
+       Only sections that have content render. This is the empty-state experience. -->
+
+  <div class="recipe-section recipe-story" style="text-align: center; color: var(--muted); padding: 2rem 0; font-style: italic;">
+    <p>Ingredients and directions still to be added — only the sections you fill in will show up here.</p>
+  </div>
+
+<% } %>
+
+</div>
+
+<script>
+  if (window.lucide) window.lucide.createIcons();
+</script>
+</body>
+</html>
