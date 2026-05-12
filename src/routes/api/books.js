@@ -373,6 +373,62 @@ for (const [route, table] of Object.entries(sectionTables)) {
   router.put(`/mine/${route}`, async (req, res, next) => {
     try {
       const book = await bookService.getBookByFamilyId(req.family.id);
+      // Special-case `recipes`: post-migration-015 it has rich fields
+      // (story, prep_time, cook_time, servings, difficulty, notes, directions,
+      // slug) plus a recipe_photos gallery. The legacy bulk endpoint here is
+      // still hit by mobile v1.0.9 — using updateSectionCards (delete-all,
+      // reinsert) would wipe all that. Switch to non-destructive merge.
+      if (table === 'recipes') {
+        const { supabaseAdmin } = require('../../config/supabase');
+        const items = req.body.items || req.body || [];
+        if (!Array.isArray(items)) return res.json({ success: true });
+
+        const { data: existing } = await supabaseAdmin
+          .from('recipes').select('id, sort_order')
+          .eq('book_id', book.id).order('sort_order');
+        const existingBySort = {};
+        for (const row of (existing || [])) existingBySort[row.sort_order] = row;
+
+        for (let i = 0; i < items.length; i++) {
+          const r = items[i] || {};
+          const isEmpty = !r.title && !r.description && !r.photo_path && !r.origin_label
+                       && (!Array.isArray(r.ingredients) || r.ingredients.length === 0);
+
+          const patch = {};
+          if (r.photo_path !== undefined)   patch.photo_path = r.photo_path || null;
+          if (r.origin_label !== undefined) patch.origin_label = r.origin_label || null;
+          if (r.title !== undefined)        patch.title = r.title || '(untitled)';
+          if (r.description !== undefined)  patch.description = r.description || null;
+          if (r.ingredients !== undefined)  patch.ingredients = Array.isArray(r.ingredients)
+            ? r.ingredients.filter((it) => it != null && it !== '') : [];
+          // Newer (v1.0.10+) clients might also send these; pass through if so
+          if (r.story !== undefined)        patch.story = r.story || null;
+          if (r.prep_time !== undefined)    patch.prep_time = r.prep_time || null;
+          if (r.cook_time !== undefined)    patch.cook_time = r.cook_time || null;
+          if (r.servings !== undefined)     patch.servings = r.servings || null;
+          if (r.difficulty !== undefined)   patch.difficulty = r.difficulty || null;
+          if (r.notes !== undefined)        patch.notes = r.notes || null;
+          if (r.directions !== undefined)   patch.directions = Array.isArray(r.directions)
+            ? r.directions : [];
+          if (r.slug !== undefined)         patch.slug = r.slug || null;
+
+          if (existingBySort[i]) {
+            if (!isEmpty && Object.keys(patch).length > 0) {
+              patch.updated_at = new Date().toISOString();
+              await supabaseAdmin.from('recipes').update(patch).eq('id', existingBySort[i].id);
+            }
+          } else if (!isEmpty) {
+            await supabaseAdmin.from('recipes').insert({
+              book_id: book.id,
+              sort_order: i,
+              title: r.title || '(untitled)',
+              ...patch,
+            });
+          }
+        }
+        // NOTE: do NOT delete recipes beyond items.length — preserves web-added recipes.
+        return res.json({ success: true });
+      }
       await bookService.updateSectionCards(table, book.id, req.body.items || req.body);
       res.json({ success: true });
     } catch (err) {
@@ -431,42 +487,84 @@ router.get('/mine/celebrations', async (req, res, next) => {
 });
 
 router.put('/mine/celebrations', async (req, res, next) => {
-  // Backward-compatible full-replace-per-year endpoint used by the mobile
-  // CelebrationYearScreen. Now accepts the extended fields (location,
-  // attendees, gifts, celebration_date, slug). Old clients that omit them
-  // continue to work — only the previously-supported columns are written.
+  // Legacy bulk-save endpoint used by mobile v1.0.9 and earlier. Originally
+  // this was destructive (delete-all-in-year, reinsert) which was safe when
+  // the schema only had {title, body, eyebrow, photo_path}.
+  //
+  // Post-migration-014 the schema has rich extra fields (location, attendees,
+  // gifts, multi-photo galleries via celebration_photos, slug, celebration_date).
+  // Old mobile clients don't know about those fields, so the destructive
+  // path would wipe rich data customers had added on the web.
+  //
+  // NEW (non-destructive merge) behavior:
+  //   • For each incoming item at index i: update the existing celebration
+  //     at (book_id, year_label, sort_order=i) if one exists, otherwise insert.
+  //   • Only the fields the client explicitly sent (or that map to legacy
+  //     v1.0.9 fields) are written. Unspecified rich fields are left alone.
+  //   • Celebrations beyond the items array (sort_order >= items.length) are
+  //     NOT touched. Their photos in celebration_photos stay intact.
+  //
+  // This means v1.0.9 stays functional, AND any rich web-edited data is safe.
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
     const { supabaseAdmin } = require('../../config/supabase');
     const yearLabel = req.body.year_label || 'Your First Year';
-    const items = req.body.items || [];
-    await supabaseAdmin.from('celebrations').delete().eq('book_id', book.id).eq('year_label', yearLabel);
-    const meaningful = items.filter((c) =>
-      c.title || c.body || c.photo_path || c.eyebrow || c.location || c.attendees || c.gifts
-    );
-    if (meaningful.length > 0) {
-      const rows = meaningful.map((c, i) => {
-        const base = {
+    const items = Array.isArray(req.body.items) ? req.body.items : [];
+
+    // Load any existing rows in this year so we can target updates by sort_order
+    const { data: existing } = await supabaseAdmin
+      .from('celebrations').select('id, sort_order')
+      .eq('book_id', book.id).eq('year_label', yearLabel)
+      .order('sort_order');
+    const existingBySort = {};
+    for (const row of (existing || [])) existingBySort[row.sort_order] = row;
+
+    for (let i = 0; i < items.length; i++) {
+      const c = items[i] || {};
+      // Build the patch with only fields the legacy client actually sends.
+      // Old clients send photo_path/eyebrow/title/body. Newer ones may add
+      // location/attendees/gifts/celebration_date/slug.
+      const patch = {};
+      if (c.photo_path !== undefined) patch.photo_path = c.photo_path || null;
+      if (c.eyebrow !== undefined)    patch.eyebrow    = c.eyebrow    || null;
+      if (c.title !== undefined)      patch.title      = c.title      || '(untitled)';
+      if (c.body !== undefined)       patch.body       = c.body       || null;
+      if (c.location !== undefined)   patch.location   = c.location   || null;
+      if (c.attendees !== undefined)  patch.attendees  = c.attendees  || null;
+      if (c.gifts !== undefined)      patch.gifts      = c.gifts      || null;
+      if (c.celebration_date !== undefined) patch.celebration_date = c.celebration_date || null;
+      if (c.slug !== undefined)       patch.slug       = c.slug       || null;
+
+      const hasAny = Object.keys(patch).length > 0;
+      const isEmptyCard = !c.title && !c.body && !c.photo_path && !c.eyebrow &&
+                          !c.location && !c.attendees && !c.gifts;
+
+      if (existingBySort[i]) {
+        // Update in place — but skip writing if the legacy client sent an
+        // entirely-empty card (likely a placeholder row that the v1.0.9 UI
+        // always renders). This prevents a "Save All" tap on an unfilled
+        // mobile slot from blanking out a web-populated celebration.
+        if (hasAny && !isEmptyCard) {
+          patch.updated_at = new Date().toISOString();
+          await supabaseAdmin.from('celebrations').update(patch)
+            .eq('id', existingBySort[i].id);
+        }
+      } else if (!isEmptyCard) {
+        // Insert new row at this sort_order
+        const insertRow = {
           book_id: book.id,
           year_label: yearLabel,
           sort_order: i,
-          photo_path: c.photo_path || null,
-          eyebrow: c.eyebrow || null,
           title: c.title || '(untitled)',
-          body: c.body || null,
+          ...patch,
         };
-        // Add new optional fields only if present, so this still works against
-        // a pre-migration-014 database (the columns don't exist yet).
-        if (c.location !== undefined) base.location = c.location || null;
-        if (c.attendees !== undefined) base.attendees = c.attendees || null;
-        if (c.gifts !== undefined) base.gifts = c.gifts || null;
-        if (c.celebration_date !== undefined) base.celebration_date = c.celebration_date || null;
-        if (c.slug !== undefined) base.slug = c.slug || null;
-        return base;
-      });
-      const { error } = await supabaseAdmin.from('celebrations').insert(rows);
-      if (error) throw error;
+        await supabaseAdmin.from('celebrations').insert(insertRow);
+      }
+      // else: no existing row + empty card → do nothing
     }
+
+    // NOTE: We do NOT delete celebrations beyond items.length. Anything the
+    // web user added past slot 3 stays put.
     res.json({ success: true });
   } catch (err) { next(err); }
 });
