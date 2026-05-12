@@ -364,6 +364,32 @@ for (const [route, table] of Object.entries(sectionTables)) {
       const book = await bookService.getBookByFamilyId(req.family.id);
       const { supabaseAdmin } = require('../../config/supabase');
       const { data } = await supabaseAdmin.from(table).select('*').eq('book_id', book.id).order('sort_order');
+
+      // For recipes (post-migration-015), surface a cover photo from
+      // recipe_photos so list views can render a thumbnail even when the
+      // legacy single photo_path is empty. Silent fallback if the photos
+      // table doesn't exist yet.
+      if (table === 'recipes' && data && data.length > 0) {
+        const ids = data.map((r) => r.id);
+        let coverByRecipeId = {};
+        try {
+          const { data: photos } = await supabaseAdmin
+            .from('recipe_photos')
+            .select('recipe_id, photo_path, sort_order')
+            .in('recipe_id', ids)
+            .order('sort_order');
+          for (const p of (photos || [])) {
+            if (!coverByRecipeId[p.recipe_id]) coverByRecipeId[p.recipe_id] = p.photo_path;
+          }
+        } catch (_) { /* silent */ }
+        return res.json(
+          data.map((r) => {
+            const cover = coverByRecipeId[r.id] || r.photo_path || null;
+            return { ...r, photo_path: cover, cover_photo: cover };
+          })
+        );
+      }
+
       res.json(data || []);
     } catch (err) {
       next(err);
@@ -481,7 +507,36 @@ router.get('/mine/celebrations', async (req, res, next) => {
       .eq('book_id', book.id)
       .eq('year_label', yearLabel)
       .order('sort_order');
-    const items = (data || []).map(c => ({ ...c, photo_path: resolvePhoto(c.photo_path) }));
+
+    // Batch-load celebration_photos to surface a cover photo per celebration.
+    // Falls back to legacy photo_path if no gallery photos. Table may not
+    // exist pre-migration-014 — silent fallback.
+    let coverByCelebrationId = {};
+    if (data && data.length > 0) {
+      const ids = data.map((c) => c.id);
+      try {
+        const { data: photos } = await supabaseAdmin
+          .from('celebration_photos')
+          .select('celebration_id, photo_path, sort_order')
+          .in('celebration_id', ids)
+          .order('sort_order');
+        for (const p of (photos || [])) {
+          if (!coverByCelebrationId[p.celebration_id]) {
+            coverByCelebrationId[p.celebration_id] = p.photo_path;
+          }
+        }
+      } catch (_) { /* pre-migration silent fallback */ }
+    }
+
+    const items = (data || []).map((c) => {
+      const cover = coverByCelebrationId[c.id] || c.photo_path || null;
+      return {
+        ...c,
+        photo_path: resolvePhoto(cover),
+        // Also surface as cover_photo so newer clients can be explicit
+        cover_photo: resolvePhoto(cover),
+      };
+    });
     res.json(items);
   } catch (err) { next(err); }
 });
