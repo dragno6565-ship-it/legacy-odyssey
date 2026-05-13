@@ -7,6 +7,88 @@ const { supabaseAdmin } = require('../config/supabase');
 
 const router = Router();
 
+// ─── ONE-SHOT: send Ashley Beine a custom "we fixed the bug" reset email.
+// Will be removed in a follow-up commit after the email goes out. Admin-only.
+router.get('/dev/email-ashley-apology', requireAdmin, async (req, res) => {
+  const TO = 'ashley.beine@outlook.com';
+  try {
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: TO,
+      options: { redirectTo: 'https://legacyodyssey.com/account/reset-password' },
+    });
+    if (linkError) throw linkError;
+    const resetUrl = linkData?.properties?.action_link;
+    if (!resetUrl) throw new Error('No action_link returned');
+
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr><td style="background:#1a1a2e;padding:24px;text-align:center;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:#c8a96e;letter-spacing:2px;">LEGACY ODYSSEY</span>
+        </td></tr>
+        <tr><td style="padding:36px 32px;">
+          <h1 style="font-family:Georgia,serif;font-size:22px;color:#1a1a2e;margin:0 0 16px;">Hi Ashley,</h1>
+          <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 14px;">
+            Thank you for writing in &mdash; you found a bug. The reset link itself was fine; the page you were sent to wasn't reading the link correctly. I've just fixed it, and I generated a fresh link for you below.
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:20px 0 24px;">
+            <a href="${resetUrl}" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;letter-spacing:0.3px;">Set Your Password</a>
+          </td></tr></table>
+          <p style="font-size:14px;line-height:1.7;color:#4a4a4a;margin:0 0 12px;">
+            This link expires in 24 hours. If you don't get to it in time, just reply to this email and I'll send you a new one.
+          </p>
+          <p style="font-size:14px;line-height:1.7;color:#4a4a4a;margin:0 0 20px;">
+            Once you set your password, you can sign in either on the web at <a href="https://legacyodyssey.com/account" style="color:#c8a96e;">legacyodyssey.com/account</a> or through the iPhone or Android app.
+          </p>
+          <p style="font-size:14px;line-height:1.7;color:#4a4a4a;margin:0 0 8px;">
+            Sorry for the inconvenience &mdash; and welcome to Legacy Odyssey.
+          </p>
+          <p style="font-size:14px;line-height:1.7;color:#4a4a4a;margin:18px 0 0;">
+            &mdash; Dan<br><span style="font-family:Georgia,serif;color:#1a1a2e;">Legacy Odyssey</span>
+          </p>
+          <p style="font-size:11px;line-height:1.5;color:#b0b0b0;margin:24px 0 0;word-break:break-all;">
+            Button not working? Copy and paste this link into your browser:<br>
+            <a href="${resetUrl}" style="color:#c8a96e;">${resetUrl}</a>
+          </p>
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your family's story, beautifully told</p>
+          <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+    const { data, error } = await resend.emails.send({
+      from: 'Legacy Odyssey <hello@legacyodyssey.com>',
+      to: [TO],
+      replyTo: process.env.EMAIL_REPLY_TO || process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com',
+      subject: "Sorry about that — here's a working password link",
+      html,
+    });
+    if (error) throw error;
+
+    res.send(`<!DOCTYPE html><html><body style="font-family:system-ui;padding:3rem;max-width:600px;margin:0 auto;background:#faf7f2;color:#2c2416;">
+<h1 style="color:#2e7d32;">Sent ✓</h1>
+<p>Custom recovery email delivered to <strong>${TO}</strong>.</p>
+<p>Resend ID: <code>${data.id}</code></p>
+<p>Reset link is valid for 24 hours.</p>
+<p style="margin-top:2rem;"><a href="/admin">← Back to admin</a></p>
+</body></html>`);
+  } catch (err) {
+    console.error('email-ashley-apology failed:', err);
+    res.status(500).send(`<pre>FAILED: ${err.message}</pre>`);
+  }
+});
+
 // Admin login
 router.get('/login', (req, res) => {
   res.render('admin/login', { error: null });
