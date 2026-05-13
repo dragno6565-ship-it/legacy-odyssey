@@ -46,6 +46,8 @@ import CelebrationDetailScreen from './src/screens/CelebrationDetailScreen';
 import LettersScreen from './src/screens/LettersScreen';
 import RecipesScreen from './src/screens/RecipesScreen';
 import RecipeDetailScreen from './src/screens/RecipeDetailScreen';
+import KeepsakesScreen from './src/screens/KeepsakesScreen';
+import KeepsakeDetailScreen from './src/screens/KeepsakeDetailScreen';
 import VaultScreen from './src/screens/VaultScreen';
 import ManageSectionsScreen from './src/screens/ManageSectionsScreen';
 import NewWebsiteScreen from './src/screens/NewWebsiteScreen';
@@ -121,6 +123,8 @@ function AppNavigator() {
       <AppStack.Screen name="Letters" component={LettersScreen} options={{ title: 'Letters to You' }} />
       <AppStack.Screen name="FamilyRecipes" component={RecipesScreen} options={{ title: 'Family Recipes' }} />
       <AppStack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ title: 'Recipe' }} />
+      <AppStack.Screen name="Keepsakes" component={KeepsakesScreen} options={{ title: 'Their Keepsakes' }} />
+      <AppStack.Screen name="KeepsakeDetail" component={KeepsakeDetailScreen} options={{ title: 'Keepsake' }} />
       <AppStack.Screen name="TheVault" component={VaultScreen} options={{ title: 'The Vault' }} />
       <AppStack.Screen name="ManageSections" component={ManageSectionsScreen} options={{ title: 'Website Sections' }} />
       <AppStack.Screen name="NewWebsite" component={NewWebsiteScreen} options={{ title: 'New Website' }} />

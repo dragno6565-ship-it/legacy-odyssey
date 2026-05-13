@@ -22,20 +22,22 @@ import {
   Gift,
   Mail,
   UtensilsCrossed,
+  Archive,
   Lock,
 } from 'lucide-react-native';
 
 const SECTION_TOGGLES = [
-  { key: 'before',   label: 'Before You Arrived', icon: Heart },
-  { key: 'birth',    label: 'Birth Story',         icon: BookOpen },
-  { key: 'home',     label: 'Coming Home',         icon: Home },
-  { key: 'months',   label: 'Month by Month',      icon: Calendar },
-  { key: 'family',   label: 'Our Family',          icon: Users },
-  { key: 'firsts',   label: 'Your Firsts',         icon: Star },
-  { key: 'holidays', label: 'Celebrations',        icon: Gift },
-  { key: 'letters',  label: 'Letters to You',      icon: Mail },
-  { key: 'recipes',  label: 'Family Recipes',      icon: UtensilsCrossed },
-  { key: 'vault',    label: 'The Vault',           icon: Lock },
+  { key: 'before',    label: 'Before You Arrived', icon: Heart },
+  { key: 'birth',     label: 'Birth Story',         icon: BookOpen },
+  { key: 'home',      label: 'Coming Home',         icon: Home },
+  { key: 'months',    label: 'Month by Month',      icon: Calendar },
+  { key: 'family',    label: 'Our Family',          icon: Users },
+  { key: 'firsts',    label: 'Your Firsts',         icon: Star },
+  { key: 'holidays',  label: 'Celebrations',        icon: Gift },
+  { key: 'letters',   label: 'Letters to You',      icon: Mail },
+  { key: 'recipes',   label: 'Family Recipes',      icon: UtensilsCrossed },
+  { key: 'keepsakes', label: 'Their Keepsakes',     icon: Archive },
+  { key: 'vault',     label: 'The Vault',           icon: Lock },
 ];
 
 export default function ManageSectionsScreen() {
