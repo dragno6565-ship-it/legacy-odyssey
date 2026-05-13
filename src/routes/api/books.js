@@ -97,7 +97,7 @@ router.put('/mine/sections', async (req, res, next) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     if (!book) return res.status(404).json({ error: 'No book found' });
 
-    const VALID_KEYS = ['before', 'birth', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'vault'];
+    const VALID_KEYS = ['before', 'birth', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
     const current = book.visible_sections || {};
 
     for (const [key, value] of Object.entries(req.body)) {
@@ -915,6 +915,172 @@ router.delete('/mine/recipe-photos/:photoId', async (req, res, next) => {
     if (!r) return res.status(403).json({ error: 'Not authorized' });
 
     const { error } = await _sb.from('recipe_photos').delete().eq('id', req.params.photoId);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ─── Keepsakes (full CRUD + photo gallery) ─────────────────────────────────
+
+function keepsakeSlug(title, sortOrder) {
+  const base = (title || ('keepsake-' + (sortOrder || 0))).toString();
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('keepsake-' + (sortOrder || 0));
+}
+
+// GET — list all keepsakes for the book (used by mobile + list views).
+// Returns rows with a `cover_photo` field synthesized from keepsake_photos.
+router.get('/mine/keepsakes', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data } = await _sb.from('keepsakes').select('*').eq('book_id', book.id).order('sort_order');
+
+    let coverByKeepsakeId = {};
+    if (data && data.length > 0) {
+      const ids = data.map((k) => k.id);
+      try {
+        const { data: photos } = await _sb.from('keepsake_photos')
+          .select('keepsake_id, photo_path, sort_order')
+          .in('keepsake_id', ids)
+          .order('sort_order');
+        for (const p of (photos || [])) {
+          if (!coverByKeepsakeId[p.keepsake_id]) coverByKeepsakeId[p.keepsake_id] = p.photo_path;
+        }
+      } catch (_) { /* silent */ }
+    }
+    res.json((data || []).map((k) => ({ ...k, cover_photo: coverByKeepsakeId[k.id] || null })));
+  } catch (err) { next(err); }
+});
+
+// GET single keepsake (includes its photos)
+router.get('/mine/keepsakes/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: k } = await _sb.from('keepsakes').select('*').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.status(404).json({ error: 'Keepsake not found' });
+    const { data: photos } = await _sb.from('keepsake_photos').select('*').eq('keepsake_id', k.id).order('sort_order');
+    res.json({ ...k, photos: photos || [] });
+  } catch (err) { next(err); }
+});
+
+// POST a new keepsake (returns the created row with photos:[])
+router.post('/mine/keepsakes', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: existing } = await _sb.from('keepsakes').select('sort_order').eq('book_id', book.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const title = (req.body.title || '').toString().trim() || 'New Keepsake';
+    const row = {
+      book_id: book.id,
+      sort_order: nextSort,
+      title,
+      category: req.body.category || null,
+      age_text: req.body.age_text || null,
+      date_made: req.body.date_made || null,
+      attribution: req.body.attribution || null,
+      description: req.body.description || null,
+      story: req.body.story || null,
+      slug: req.body.slug || keepsakeSlug(title, nextSort),
+    };
+    const { data, error } = await _sb.from('keepsakes').insert(row).select().single();
+    if (error) throw error;
+    res.status(201).json({ ...data, photos: [] });
+  } catch (err) { next(err); }
+});
+
+// PUT update a keepsake (excludes photos — use photo endpoints)
+router.put('/mine/keepsakes/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+
+    const patch = {};
+    const editable = ['title', 'category', 'age_text', 'date_made', 'attribution', 'description', 'story', 'sort_order', 'slug'];
+    for (const f of editable) if (req.body[f] !== undefined) patch[f] = req.body[f];
+    if (req.body.title !== undefined && req.body.slug === undefined) {
+      patch.slug = keepsakeSlug(req.body.title, req.body.sort_order || 0);
+    }
+    patch.updated_at = new Date().toISOString();
+
+    const { data, error } = await _sb.from('keepsakes').update(patch).eq('id', req.params.id).eq('book_id', book.id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a keepsake (cascades to keepsake_photos via FK)
+router.delete('/mine/keepsakes/:id', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { error } = await _sb.from('keepsakes').delete().eq('id', req.params.id).eq('book_id', book.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// POST add a photo to a keepsake gallery
+router.post('/mine/keepsakes/:id/photos', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: k } = await _sb.from('keepsakes').select('id').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.status(404).json({ error: 'Keepsake not found' });
+
+    const { photo_path, caption } = req.body;
+    if (!photo_path) return res.status(400).json({ error: 'photo_path is required' });
+
+    const { data: existing } = await _sb.from('keepsake_photos').select('sort_order').eq('keepsake_id', k.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { data, error } = await _sb.from('keepsake_photos').insert({
+      keepsake_id: k.id,
+      photo_path,
+      caption: caption || null,
+      sort_order: nextSort,
+    }).select().single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) { next(err); }
+});
+
+// PUT update a keepsake photo
+router.put('/mine/keepsake-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: photo } = await _sb.from('keepsake_photos').select('id, keepsake_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: k } = await _sb.from('keepsakes').select('id').eq('id', photo.keepsake_id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.status(403).json({ error: 'Not authorized for this photo' });
+
+    const patch = {};
+    if (req.body.caption !== undefined) patch.caption = req.body.caption;
+    if (req.body.sort_order !== undefined) patch.sort_order = req.body.sort_order;
+    if (req.body.photo_path !== undefined) patch.photo_path = req.body.photo_path;
+    if (req.body.focal_x !== undefined) patch.focal_x = req.body.focal_x;
+    if (req.body.focal_y !== undefined) patch.focal_y = req.body.focal_y;
+
+    const { data, error } = await _sb.from('keepsake_photos').update(patch).eq('id', req.params.photoId).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a keepsake photo
+router.delete('/mine/keepsake-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: photo } = await _sb.from('keepsake_photos').select('id, keepsake_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: k } = await _sb.from('keepsakes').select('id').eq('id', photo.keepsake_id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.status(403).json({ error: 'Not authorized' });
+
+    const { error } = await _sb.from('keepsake_photos').delete().eq('id', req.params.photoId);
     if (error) throw error;
     res.json({ success: true });
   } catch (err) { next(err); }

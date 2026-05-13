@@ -790,6 +790,58 @@ router.get('/recipes/:slug', resolveFamily, requireBookPassword, async (req, res
   }
 });
 
+// GET /keepsakes/:slug — Detail page for a single keepsake.
+// Same access pattern as celebrations/recipes.
+router.get('/keepsakes/:slug', resolveFamily, requireBookPassword, async (req, res, next) => {
+  try {
+    if (!req.family) return res.status(404).render('book/not-found');
+    if (req.family.subscription_status === 'canceled') {
+      const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+      return res.render('book/suspended', { family: req.family, appDomain });
+    }
+
+    const data = await bookService.getFullBook(req.family.id);
+    if (!data) return res.status(404).render('book/not-found');
+
+    const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
+    if (isFree) return res.redirect('/');
+
+    const allKeepsakes = data.keepsakes || [];
+    const keepsake = allKeepsakes.find((k) => k.slug === req.params.slug);
+    if (!keepsake) return res.status(404).render('book/not-found');
+
+    // Only navigate among keepsakes with meaningful content.
+    const meaningful = (k) => k && (
+      (k.title && k.title.trim() && k.title !== '(untitled)' && k.title !== 'New Keepsake') ||
+      (k.description && k.description.trim()) ||
+      (k.story && k.story.trim()) ||
+      (k.photos && k.photos.length > 0)
+    );
+    const list = allKeepsakes.filter(meaningful);
+    const idx = list.findIndex((k) => k.id === keepsake.id);
+    const prevKeepsake = idx > 0 ? list[idx - 1] : null;
+    const nextKeepsake = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
+
+    res.render('layouts/keepsake-detail', {
+      book: data.book,
+      family: req.family,
+      visibleSections: data.visibleSections,
+      celebrationsByYear: data.celebrationsByYear,
+      recipesList: data.recipes || [],
+      keepsakesList: list,
+      keepsake,
+      prevKeepsake,
+      nextKeepsake,
+      isFree,
+      isDemoDomain: isDemoBookDomain(req.hostname),
+      imageUrl: getPublicUrl,
+      photoPos: makePhotoPos(data.book && data.book.photo_positions),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Catch /book/:slug for path-based access
 router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, next) => {
   try {

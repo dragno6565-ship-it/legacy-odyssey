@@ -1,0 +1,147 @@
+<%
+  // Inputs:
+  //   keepsake — single keepsake row resolved via bookService.withResolvedKeepsake
+  //              (photos[], slug, coverPhoto attached)
+  //   prevKeepsake / nextKeepsake — siblings (each may be null)
+  //   imageUrl(path) / photoPos(path) — helpers
+  //
+  // Conditional rendering: every optional section only renders if it has
+  // content. Empty fields don't produce empty sections.
+
+  const k = keepsake;
+  const photos = k.photos || [];
+  const hasStory = !!(k.story && k.story.trim());
+  const hasDescription = !!(k.description && k.description.trim());
+  const galleryPhotos = photos.length > 1 ? photos.slice(1) : [];
+  const cover = (photos[0] && photos[0].photo_path) || k.coverPhoto || null;
+
+  const CATEGORY_DEFS = {
+    artwork:     { label: 'Artwork',     icon: 'palette',        tint: 'bg-artwork' },
+    schoolwork:  { label: 'Schoolwork',  icon: 'graduation-cap', tint: 'bg-schoolwork' },
+    award:       { label: 'Award',       icon: 'award',          tint: 'bg-award' },
+    memorabilia: { label: 'Memorabilia', icon: 'archive',        tint: 'bg-memorabilia' },
+  };
+  function catDef(c) {
+    const key = (c || '').toString().toLowerCase().trim();
+    return CATEGORY_DEFS[key] || { label: c || 'Keepsake', icon: 'sparkles', tint: 'bg-memorabilia' };
+  }
+  const cat = catDef(k.category);
+
+  function fmtDate(d) {
+    if (!d) return '';
+    try {
+      return new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    } catch (_) { return String(d); }
+  }
+  const hasMetaStrip = !!(k.attribution || k.age_text || k.date_made || k.category);
+
+  function ksSlug(x) {
+    if (x && x.slug) return x.slug;
+    const base = (x && x.title) ? x.title : 'keepsake';
+    return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'keepsake';
+  }
+%>
+<section class="keepsake-detail-page">
+  <a class="detail-back" href="/#keepsakes">
+    <i data-lucide="chevron-left"></i> All keepsakes
+  </a>
+
+  <div class="keepsake-hero">
+    <div class="keepsake-hero-photo <%= cover ? '' : cat.tint %>">
+      <% if (cover) { %>
+        <img src="<%= imageUrl(cover) %>" alt="<%= k.title %>" style="<%= photoPos(cover) %>">
+      <% } else { %>
+        <div class="keepsake-photo-fallback" style="padding:2rem;">
+          <div class="icon" style="width:96px;height:96px;">
+            <i data-lucide="<%= cat.icon %>" style="width:48px;height:48px;"></i>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    <div>
+      <div class="keepsake-hero-eyebrow"><i data-lucide="<%= cat.icon %>"></i> <%= cat.label %></div>
+      <h1 class="keepsake-hero-title"><%= k.title %></h1>
+      <% if (hasDescription) { %>
+        <p class="keepsake-hero-desc"><%= k.description %></p>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (hasMetaStrip) { %>
+    <div class="keepsake-meta-strip">
+      <% if (k.attribution && k.attribution.trim()) { %>
+        <div class="km-cell">
+          <div class="km-cell-icon"><i data-lucide="user"></i></div>
+          <div class="km-cell-label">Made by</div>
+          <div class="km-cell-value"><%= k.attribution %></div>
+        </div>
+      <% } %>
+      <% if (k.age_text && k.age_text.trim()) { %>
+        <div class="km-cell">
+          <div class="km-cell-icon"><i data-lucide="calendar"></i></div>
+          <div class="km-cell-label">Age</div>
+          <div class="km-cell-value"><%= k.age_text %></div>
+        </div>
+      <% } %>
+      <% if (k.date_made) { %>
+        <div class="km-cell">
+          <div class="km-cell-icon"><i data-lucide="clock"></i></div>
+          <div class="km-cell-label">Date</div>
+          <div class="km-cell-value"><%= fmtDate(k.date_made) %></div>
+        </div>
+      <% } %>
+      <% if (k.category) { %>
+        <div class="km-cell">
+          <div class="km-cell-icon"><i data-lucide="tag"></i></div>
+          <div class="km-cell-label">Category</div>
+          <div class="km-cell-value"><%= cat.label %></div>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <% if (hasStory) { %>
+    <div class="keepsake-section keepsake-story">
+      <div class="keepsake-section-eyebrow">The Story</div>
+      <% (k.story || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean).forEach(function(para) { %>
+        <p><%- para.replace(/\n/g, '<br>') %></p>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <% if (galleryPhotos.length > 0) { %>
+    <div class="keepsake-section">
+      <div class="keepsake-section-eyebrow">More photos</div>
+      <h2 class="keepsake-section-title">Different angles</h2>
+      <div class="photo-gallery">
+        <% galleryPhotos.forEach(function(p) { %>
+          <div class="photo-tile">
+            <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || '' %>" style="<%= photoPos(p.photo_path) %>">
+            <% if (p.caption && p.caption.trim()) { %>
+              <div class="photo-tile-caption">"<%= p.caption %>"</div>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (prevKeepsake || nextKeepsake) { %>
+    <div class="keepsake-pager">
+      <% if (prevKeepsake) { %>
+        <a href="/keepsakes/<%= ksSlug(prevKeepsake) %>" class="prev">
+          <div class="keepsake-pager-label"><i data-lucide="chevron-left"></i> Previous</div>
+          <div class="keepsake-pager-title"><%= prevKeepsake.title %></div>
+        </a>
+      <% } else { %>
+        <span></span>
+      <% } %>
+      <% if (nextKeepsake) { %>
+        <a href="/keepsakes/<%= ksSlug(nextKeepsake) %>" class="next">
+          <div class="keepsake-pager-label">Next <i data-lucide="chevron-right"></i></div>
+          <div class="keepsake-pager-title"><%= nextKeepsake.title %></div>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</section>

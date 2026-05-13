@@ -138,6 +138,42 @@ function withResolvedRecipe(recipe, photoRows) {
   };
 }
 
+/**
+ * Resolve a keepsake's photos array + slug + cover, with graceful fallback
+ * for pre-migration-016 data. Mirrors withResolvedRecipe and
+ * withResolvedCelebration.
+ *
+ * Output:
+ *   { ...keepsake, photos: [{id, photo_path, caption, ...}], slug, coverPhoto }
+ */
+function withResolvedKeepsake(keepsake, photoRows) {
+  if (!keepsake) return keepsake;
+
+  const photos = (photoRows && photoRows.length > 0)
+    ? photoRows.map((p) => ({
+        id: p.id,
+        photo_path: p.photo_path,
+        caption: p.caption || '',
+        focal_x: p.focal_x,
+        focal_y: p.focal_y,
+        sort_order: p.sort_order || 0,
+      }))
+    : [];
+
+  let slug = keepsake.slug;
+  if (!slug) {
+    const base = (keepsake.title || ('keepsake-' + (keepsake.sort_order || 0))).toString();
+    slug = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('keepsake-' + (keepsake.sort_order || 0));
+  }
+
+  return {
+    ...keepsake,
+    photos,
+    slug,
+    coverPhoto: (photos[0] && photos[0].photo_path) || null,
+  };
+}
+
 
 /**
  * Compute which sections have meaningful user content (not just seed/default data).
@@ -193,6 +229,12 @@ function computeVisibleSections(data) {
         || (r.ingredients && r.ingredients.length > 0)
   );
 
+  // Keepsakes: at least one has title/photo/story/description
+  const keepsakes = (data.keepsakes || []).some(
+    (k) => hasText(k.title) || hasText(k.description) || hasText(k.story)
+        || (k.photos && k.photos.length > 0)
+  );
+
   // Vault: has any items
   const vault = (data.vaultItems || []).length > 0;
 
@@ -209,6 +251,7 @@ function computeVisibleSections(data) {
     holidays: overrides.holidays !== undefined ? overrides.holidays : holidays,
     letters: overrides.letters !== undefined ? overrides.letters : letters,
     recipes: overrides.recipes !== undefined ? overrides.recipes : recipes,
+    keepsakes: overrides.keepsakes !== undefined ? overrides.keepsakes : keepsakes,
     vault: overrides.vault !== undefined ? overrides.vault : vault,
   };
 }
@@ -239,6 +282,7 @@ async function getFullBook(familyId) {
     { data: celebrations },
     { data: letters },
     { data: recipes },
+    { data: keepsakes },
     { data: vaultItems },
   ] = await Promise.all([
     supabaseAdmin.from('before_arrived_cards').select('*').eq('book_id', book.id).order('sort_order'),
@@ -251,6 +295,9 @@ async function getFullBook(familyId) {
     supabaseAdmin.from('celebrations').select('*').eq('book_id', book.id).order('sort_order'),
     supabaseAdmin.from('letters').select('*').eq('book_id', book.id).order('sort_order'),
     supabaseAdmin.from('recipes').select('*').eq('book_id', book.id).order('sort_order'),
+    // keepsakes table is new (migration 016) — wrap in try/catch in case of
+    // pre-migration databases.
+    supabaseAdmin.from('keepsakes').select('*').eq('book_id', book.id).order('sort_order').then(r => r).catch(() => ({ data: [] })),
     supabaseAdmin.from('vault_items').select('*').eq('book_id', book.id).order('created_at'),
   ]);
 
@@ -300,6 +347,27 @@ async function getFullBook(familyId) {
     (photosByRecipe[p.recipe_id] = photosByRecipe[p.recipe_id] || []).push(p);
   }
 
+  // Same pattern for keepsake_photos (post-migration-016). New table —
+  // wrap in try/catch so pre-migration deployments don't break.
+  let keepsakePhotos = [];
+  if (keepsakes && keepsakes.length > 0) {
+    const keepsakeIds = keepsakes.map((k) => k.id);
+    try {
+      const { data } = await supabaseAdmin
+        .from('keepsake_photos')
+        .select('*')
+        .in('keepsake_id', keepsakeIds)
+        .order('sort_order');
+      keepsakePhotos = data || [];
+    } catch (_) {
+      keepsakePhotos = [];
+    }
+  }
+  const photosByKeepsake = {};
+  for (const p of keepsakePhotos) {
+    (photosByKeepsake[p.keepsake_id] = photosByKeepsake[p.keepsake_id] || []).push(p);
+  }
+
   const result = {
     book,
     beforeCards: beforeCards || [],
@@ -329,6 +397,7 @@ async function getFullBook(familyId) {
     })(),
     letters: letters || [],
     recipes: (recipes || []).map((r) => withResolvedRecipe(r, photosByRecipe[r.id])),
+    keepsakes: (keepsakes || []).map((k) => withResolvedKeepsake(k, photosByKeepsake[k.id])),
     vaultItems: vaultItems || [],
   };
 
@@ -542,6 +611,7 @@ module.exports = {
   computeVisibleSections,
   withResolvedCelebration,
   withResolvedRecipe,
+  withResolvedKeepsake,
   slugifyYear,
 };
 

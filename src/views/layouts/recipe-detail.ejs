@@ -406,7 +406,7 @@
   <% } %>
 
   <div id="app">
-    <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain, celebrationsByYear, activeCelebration: null, recipesList, activeRecipe: recipe }) %>
+    <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain, celebrationsByYear, activeCelebration: null, recipesList, activeRecipe: recipe, keepsakes: typeof keepsakesList !== 'undefined' ? keepsakesList : [], activeKeepsake: null }) %>
 
     <div id="main-content">
       <%- include('../book/recipe-detail', { recipe, prevRecipe, nextRecipe, imageUrl, photoPos }) %>

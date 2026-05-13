@@ -213,7 +213,7 @@
 
   <div id="app">
     <!-- Sidebar -->
-    <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain, celebrationsByYear, activeCelebration: null, recipes, activeRecipe: null }) %>
+    <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain, celebrationsByYear, activeCelebration: null, recipes, activeRecipe: null, keepsakes, activeKeepsake: null }) %>
 
     <!-- Main Content -->
     <div id="main-content">
@@ -268,6 +268,9 @@
         <% } %>
         <% if (visibleSections.recipes) { %>
           <%- include('../book/recipes', { recipes, imageUrl, photoPos }) %>
+        <% } %>
+        <% if (visibleSections.keepsakes) { %>
+          <%- include('../book/keepsakes', { keepsakes, imageUrl, photoPos }) %>
         <% } %>
         <% if (visibleSections.vault) { %>
           <%- include('../book/vault', { book, vaultItems }) %>

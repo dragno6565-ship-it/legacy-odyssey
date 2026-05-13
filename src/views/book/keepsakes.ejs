@@ -1,0 +1,120 @@
+<%
+  // Visitor-side Keepsakes overview. Renders a card grid of every
+  // keepsake with meaningful content. Filter chips at the top let
+  // visitors narrow by category. Tap a card → /keepsakes/:slug.
+  const all = keepsakes || [];
+  const hasMeaningful = (k) => k && (
+    (k.title && k.title.trim() && k.title !== '(untitled)' && k.title !== 'New Keepsake') ||
+    (k.description && k.description.trim()) ||
+    (k.story && k.story.trim()) ||
+    (k.photos && k.photos.length > 0)
+  );
+  const visible = all.filter(hasMeaningful);
+
+  function ksSlug(x) {
+    if (x && x.slug) return x.slug;
+    const base = (x && x.title) ? x.title : 'keepsake';
+    return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'keepsake';
+  }
+
+  // Map category → human label + Lucide icon name + tint class.
+  const CATEGORY_DEFS = {
+    artwork:     { label: 'Artwork',     icon: 'palette',        tint: 'bg-artwork' },
+    schoolwork:  { label: 'Schoolwork',  icon: 'graduation-cap', tint: 'bg-schoolwork' },
+    award:       { label: 'Award',       icon: 'award',          tint: 'bg-award' },
+    memorabilia: { label: 'Memorabilia', icon: 'archive',        tint: 'bg-memorabilia' },
+  };
+  function catDef(c) {
+    const key = (c || '').toString().toLowerCase().trim();
+    return CATEGORY_DEFS[key] || { label: c || 'Keepsake', icon: 'sparkles', tint: 'bg-memorabilia' };
+  }
+
+  // Which distinct categories actually appear (to show only relevant chips)
+  const usedCategories = new Set();
+  for (const k of visible) {
+    const c = (k.category || '').toString().toLowerCase().trim();
+    if (c && CATEGORY_DEFS[c]) usedCategories.add(c);
+  }
+%>
+<section id="page-keepsakes" class="page-section">
+  <div class="page-header">
+    <div class="page-header-eyebrow">Chapter Ten</div>
+    <h2 class="page-header-title">Their <em>Keepsakes</em></h2>
+    <p class="page-header-sub">Drawings, awards, certificates, handprints &mdash; the small things you can't keep forever, kept forever here.</p>
+  </div>
+
+  <div class="keepsakes-body">
+
+    <% if (visible.length === 0) { %>
+      <p style="text-align:center;color:var(--ink-light);font-style:italic;margin-top:2rem;padding:0 2rem;">No keepsakes added yet.</p>
+    <% } else { %>
+
+      <div class="keepsakes-intro">
+        <p class="keepsakes-intro-text">A box in the closet only holds so much. Take a photo, add a note about what it meant, and let go of the original knowing it lives on here.</p>
+      </div>
+
+      <% if (usedCategories.size > 1) { %>
+        <div class="keepsake-filters" id="keepsakeFilters">
+          <button class="filter-chip active" data-filter="all">
+            <i data-lucide="layers"></i> All
+          </button>
+          <% Object.keys(CATEGORY_DEFS).forEach(function(key) { if (usedCategories.has(key)) { %>
+            <button class="filter-chip" data-filter="<%= key %>">
+              <i data-lucide="<%= CATEGORY_DEFS[key].icon %>"></i> <%= CATEGORY_DEFS[key].label %>
+            </button>
+          <% } }); %>
+        </div>
+      <% } %>
+
+      <div class="keepsake-grid">
+        <% visible.forEach(function(k) {
+          const cat = catDef(k.category);
+          const catKey = (k.category || '').toString().toLowerCase().trim();
+          const cover = (k.photos && k.photos[0] && k.photos[0].photo_path) || null;
+        %>
+          <a class="keepsake-card" href="/keepsakes/<%= ksSlug(k) %>" data-category="<%= catKey %>">
+            <div class="keepsake-photo <%= cover ? '' : cat.tint %>">
+              <span class="keepsake-badge"><i data-lucide="<%= cat.icon %>"></i> <%= cat.label %></span>
+              <% if (cover) { %>
+                <img src="<%= imageUrl(cover) %>" alt="<%= k.title %>" loading="lazy" style="<%= photoPos(cover) %>">
+              <% } else { %>
+                <div class="keepsake-photo-fallback">
+                  <div class="icon"><i data-lucide="<%= cat.icon %>"></i></div>
+                </div>
+              <% } %>
+            </div>
+            <div class="keepsake-body-text">
+              <div class="keepsake-card-title"><%= k.title %></div>
+              <% if (k.age_text || k.date_made) { %>
+                <div class="keepsake-card-meta">
+                  <i data-lucide="calendar"></i>
+                  <%= k.age_text || (k.date_made ? new Date(k.date_made).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '') %>
+                </div>
+              <% } %>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+
+      <% if (usedCategories.size > 1) { %>
+      <script>
+        (function() {
+          var filters = document.querySelectorAll('#keepsakeFilters .filter-chip');
+          var cards = document.querySelectorAll('#page-keepsakes .keepsake-card');
+          filters.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var f = btn.getAttribute('data-filter');
+              filters.forEach(function(b) { b.classList.toggle('active', b === btn); });
+              cards.forEach(function(c) {
+                c.style.display = (f === 'all' || c.getAttribute('data-category') === f) ? '' : 'none';
+              });
+            });
+          });
+        })();
+      </script>
+      <% } %>
+
+    <% } %>
+
+  </div>
+</section>

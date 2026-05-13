@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title><%= keepsake.title %> · <%= book.child_first_name %><%= book.child_middle_name ? ' ' + book.child_middle_name : '' %> <%= book.child_last_name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/book.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LMJVX82M3Q');
+  </script>
+
+  <style>
+    /* Lightbox overlay (same pattern as celebration/recipe detail) */
+    #keepsake-lightbox {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15, 12, 8, 0.94);
+      display: none;
+      align-items: center; justify-content: center;
+      cursor: zoom-out;
+      padding: 2rem;
+    }
+    #keepsake-lightbox.open { display: flex; }
+    #keepsake-lightbox img {
+      max-width: 95vw; max-height: 80vh;
+      object-fit: contain;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      border-radius: 4px;
+    }
+    #keepsake-lightbox .lb-inner {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1rem;
+      max-width: 95vw;
+    }
+    #keepsake-lightbox .lb-caption {
+      color: #f8f2e6;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      text-align: center;
+      max-width: 60ch;
+    }
+    #keepsake-lightbox .lb-close {
+      position: absolute; top: 1rem; right: 1.25rem;
+      background: transparent; border: none;
+      color: rgba(248,242,230,0.7);
+      font-size: 2.4rem; line-height: 1; cursor: pointer;
+      padding: 0.25rem 0.6rem;
+    }
+    #keepsake-lightbox .lb-close:hover { color: var(--gold); }
+    #keepsake-lightbox .lb-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: transparent; border: none;
+      color: rgba(248,242,230,0.7);
+      font-size: 3rem; line-height: 1; cursor: pointer;
+      padding: 0.25rem 0.85rem;
+      user-select: none;
+    }
+    #keepsake-lightbox .lb-nav:hover { color: var(--gold); }
+    #keepsake-lightbox .lb-nav.prev { left: 0.5rem; }
+    #keepsake-lightbox .lb-nav.next { right: 0.5rem; }
+    #keepsake-lightbox .lb-counter {
+      position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      color: rgba(248,242,230,0.55);
+      font-size: 0.8rem; letter-spacing: 0.15em;
+    }
+  </style>
+</head>
+<body>
+
+  <% if (isDemoDomain) { %>
+  <div class="demo-banner" id="demoBanner">
+    <strong>This is a demo book.</strong>
+    <span>Preserve your own baby's story — get your own custom domain.</span>
+    <a href="https://www.legacyodyssey.com" target="_blank" class="demo-cta">Create Your Own →</a>
+    <button class="demo-banner-close" onclick="document.getElementById('demoBanner').style.display='none';document.body.classList.remove('demo-bar-visible');" aria-label="Dismiss">&times;</button>
+  </div>
+  <% } %>
+
+  <div id="app">
+    <%- include('../book/sidebar', {
+      book, family, visibleSections, isFree, isDemoDomain,
+      celebrationsByYear,
+      activeCelebration: null,
+      recipes: typeof recipesList !== 'undefined' ? recipesList : [],
+      activeRecipe: null,
+      keepsakes: typeof keepsakesList !== 'undefined' ? keepsakesList : [],
+      activeKeepsake: keepsake,
+    }) %>
+
+    <div id="main-content">
+      <%- include('../book/keepsake-detail', { keepsake, prevKeepsake, nextKeepsake, imageUrl, photoPos }) %>
+    </div>
+  </div>
+
+  <!-- Lightbox overlay -->
+  <div id="keepsake-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="lb-close" type="button" aria-label="Close">×</button>
+    <button class="lb-nav prev" type="button" aria-label="Previous photo">‹</button>
+    <button class="lb-nav next" type="button" aria-label="Next photo">›</button>
+    <div class="lb-inner">
+      <img alt="">
+      <div class="lb-caption"></div>
+    </div>
+    <div class="lb-counter"></div>
+  </div>
+
+  <script>
+    if (window.lucide) window.lucide.createIcons();
+
+    function toggleNav() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+      document.getElementById('navOverlay').classList.toggle('show');
+    }
+    window.toggleNav = toggleNav;
+
+    // Standalone detail page — sidebar's showPage('recipes') etc.
+    // need to hop back to the book root.
+    window.showPage = function(pageId) {
+      window.location.href = '/#' + pageId;
+    };
+
+    // ─── Photo lightbox ──────────────────────────────────────────
+    (function () {
+      const lb = document.getElementById('keepsake-lightbox');
+      if (!lb) return;
+      const img = lb.querySelector('img');
+      const cap = lb.querySelector('.lb-caption');
+      const counter = lb.querySelector('.lb-counter');
+      const btnClose = lb.querySelector('.lb-close');
+      const btnPrev = lb.querySelector('.lb-nav.prev');
+      const btnNext = lb.querySelector('.lb-nav.next');
+
+      // Collect every photo tile + the hero photo
+      const tiles = Array.from(document.querySelectorAll('.photo-tile img'));
+      const heroImg = document.querySelector('.keepsake-hero-photo img');
+      const allImgs = heroImg ? [heroImg, ...tiles] : tiles;
+      const photos = allImgs.map((el) => ({
+        src: el.getAttribute('src') || '',
+        caption: (el.parentElement && el.parentElement.querySelector && el.parentElement.querySelector('.photo-tile-caption'))
+          ? el.parentElement.querySelector('.photo-tile-caption').textContent.replace(/^"|"$/g, '').trim()
+          : '',
+      })).filter((p) => p.src);
+
+      let currentIndex = -1;
+      function open(idx) {
+        if (idx < 0 || idx >= photos.length) return;
+        currentIndex = idx;
+        const p = photos[idx];
+        img.setAttribute('src', p.src);
+        img.setAttribute('alt', p.caption || '');
+        cap.textContent = p.caption ? '"' + p.caption + '"' : '';
+        cap.style.display = p.caption ? '' : 'none';
+        counter.textContent = (idx + 1) + ' / ' + photos.length;
+        btnPrev.style.visibility = idx > 0 ? 'visible' : 'hidden';
+        btnNext.style.visibility = idx < photos.length - 1 ? 'visible' : 'hidden';
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function close() { lb.classList.remove('open'); document.body.style.overflow = ''; currentIndex = -1; }
+      function go(delta) { const next = currentIndex + delta; if (next < 0 || next >= photos.length) return; open(next); }
+
+      // Wire up clicks on all photos
+      allImgs.forEach((el, i) => {
+        el.style.cursor = 'zoom-in';
+        el.addEventListener('click', (e) => { e.preventDefault(); open(i); });
+      });
+      lb.addEventListener('click', (e) => {
+        if (e.target === lb || e.target.classList.contains('lb-inner')) close();
+      });
+      btnClose.addEventListener('click', close);
+      btnPrev.addEventListener('click', (e) => { e.stopPropagation(); go(-1); });
+      btnNext.addEventListener('click', (e) => { e.stopPropagation(); go(1); });
+      document.addEventListener('keydown', (e) => {
+        if (!lb.classList.contains('open')) return;
+        if (e.key === 'Escape') close();
+        else if (e.key === 'ArrowLeft') go(-1);
+        else if (e.key === 'ArrowRight') go(1);
+      });
+    })();
+  </script>
+</body>
+</html>
