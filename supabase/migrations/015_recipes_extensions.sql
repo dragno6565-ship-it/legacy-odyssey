@@ -52,6 +52,12 @@ CREATE TABLE IF NOT EXISTS recipe_photos (
 );
 CREATE INDEX IF NOT EXISTS recipe_photos_recipe_id_idx ON recipe_photos(recipe_id);
 
+-- Enable RLS to match the rest of the public schema. Service role bypasses
+-- RLS; no policies = anon/authenticated cannot read or write. All access
+-- flows through the backend with the service-role key.
+-- Added May 13 2026 after Supabase Advisor flagged this.
+ALTER TABLE recipe_photos ENABLE ROW LEVEL SECURITY;
+
 -- Backfill: every existing recipe with a photo_path gets one row in
 -- recipe_photos so the gallery shows the legacy photo even before the
 -- owner re-uploads anything. Idempotent — the NOT EXISTS clause means

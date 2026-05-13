@@ -55,6 +55,12 @@ CREATE TABLE IF NOT EXISTS celebration_photos (
 );
 CREATE INDEX IF NOT EXISTS idx_celebration_photos_celebration ON celebration_photos (celebration_id, sort_order);
 
+-- Enable RLS to match the project's existing posture (service role bypasses
+-- RLS; no policies = anon/authenticated get nothing, which is what we want
+-- since all data access goes through the backend with the service-role key).
+-- Added May 13 2026 after Supabase Advisor flagged this.
+ALTER TABLE celebration_photos ENABLE ROW LEVEL SECURITY;
+
 -- ─── 3. Backfill: existing photo_path becomes first row in celebration_photos
 -- The NOT EXISTS guard makes this idempotent — if the migration is rerun,
 -- it won't duplicate the photo.
