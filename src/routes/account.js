@@ -251,6 +251,8 @@ router.get('/reset-password', (req, res) => {
     token_hash: token_hash || '',
     error: null,
     success: false,
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
   });
 });
 
@@ -261,6 +263,8 @@ router.post('/reset-password', async (req, res) => {
     token_hash: token_hash || '',
     error,
     success: false,
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
   });
 
   if (!token_hash) return renderError('Invalid reset link. Please request a new one.');
@@ -293,7 +297,11 @@ router.post('/reset-password', async (req, res) => {
       return renderError(`Failed to update password: ${updateError.message}`);
     }
 
-    res.render('marketing/account-reset-password', { token_hash: '', error: null, success: true });
+    res.render('marketing/account-reset-password', {
+      token_hash: '', error: null, success: true,
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+    });
   } catch (err) {
     console.error('Reset password error:', err.message);
     return renderError('Something went wrong. Please try again.');
