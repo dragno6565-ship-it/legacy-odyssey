@@ -32,10 +32,11 @@ import {
   Archive,
   Lock,
   Globe,
+  LifeBuoy,
   Settings as SettingsIcon,
 } from 'lucide-react-native';
 
-const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'manageSections', 'settings']);
+const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'manageSections', 'help', 'settings']);
 
 const SECTIONS = [
   { key: 'childInfo',      title: 'Welcome / Child Info', icon: Sparkles,        screen: 'ChildInfo' },
@@ -51,6 +52,7 @@ const SECTIONS = [
   { key: 'keepsakes',      title: 'Their Keepsakes',      icon: Archive,         screen: 'Keepsakes' },
   { key: 'vault',          title: 'The Vault',            icon: Lock,            screen: 'TheVault' },
   { key: 'manageSections', title: 'Website Sections',     icon: Globe,           screen: 'ManageSections' },
+  { key: 'help',           title: 'Help & Support',       icon: LifeBuoy,        screen: 'Help' },
   { key: 'settings',       title: 'Settings',             icon: SettingsIcon,    screen: 'Settings' },
 ];
 
