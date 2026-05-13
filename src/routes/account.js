@@ -1278,6 +1278,229 @@ router.post('/book/recipes/photo/:photoId/delete', requireAccountSession, async 
   } catch (err) { next(err); }
 });
 
+// ─── Keepsakes (Chapter Ten) ──────────────────────────────────────────────────
+
+function keepsakeSlugify(title, sortOrder) {
+  const base = (title || ('keepsake-' + (sortOrder || 0))).toString();
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('keepsake-' + (sortOrder || 0));
+}
+
+router.get('/book/keepsakes', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    let keepsakes = [];
+    try {
+      const { data } = await supabaseAdmin
+        .from('keepsakes').select('*').eq('book_id', book.id).order('sort_order');
+      keepsakes = data || [];
+    } catch (_) { /* pre-migration: silent */ }
+
+    // Cover photo per keepsake (first row from keepsake_photos)
+    let coverByKeepsakeId = {};
+    let photoCounts = {};
+    if (keepsakes.length > 0) {
+      try {
+        const { data: photos } = await supabaseAdmin
+          .from('keepsake_photos').select('keepsake_id, photo_path, sort_order')
+          .in('keepsake_id', keepsakes.map(k => k.id))
+          .order('sort_order');
+        for (const p of (photos || [])) {
+          if (!coverByKeepsakeId[p.keepsake_id]) coverByKeepsakeId[p.keepsake_id] = p.photo_path;
+          photoCounts[p.keepsake_id] = (photoCounts[p.keepsake_id] || 0) + 1;
+        }
+      } catch (_) { /* pre-migration: silent */ }
+    }
+
+    const keepsakesWithMeta = keepsakes.map(k => ({
+      ...k,
+      photoUrl: coverByKeepsakeId[k.id] ? getPublicUrl(coverByKeepsakeId[k.id]) : null,
+      photo_count: photoCounts[k.id] || 0,
+    }));
+
+    res.render('marketing/account-book-keepsakes', {
+      family: req.family,
+      book: book || {},
+      keepsakes: keepsakesWithMeta,
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+// Create a new keepsake (from "Add keepsake" form on list page)
+router.post('/book/keepsakes/new', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const title = (req.body.title || '').toString().trim() || 'New Keepsake';
+
+    const { data: existing } = await supabaseAdmin
+      .from('keepsakes').select('sort_order').eq('book_id', book.id)
+      .order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const row = {
+      book_id: book.id,
+      sort_order: nextSort,
+      title,
+      category: (req.body.category || '').toString().trim().toLowerCase() || null,
+    };
+    try { row.slug = keepsakeSlugify(title, nextSort); } catch (_) {}
+
+    const { data, error } = await supabaseAdmin.from('keepsakes').insert(row).select().single();
+    if (error) throw error;
+    res.redirect('/account/book/keepsakes/edit/' + data.id);
+  } catch (err) {
+    console.error('Create keepsake failed:', err.message);
+    res.redirect('/account/book/keepsakes?error=create_failed');
+  }
+});
+
+// Detail editor — GET
+router.get('/book/keepsakes/edit/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: k } = await supabaseAdmin
+      .from('keepsakes').select('*').eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.redirect('/account/book/keepsakes?error=not_found');
+
+    let photos = [];
+    try {
+      const { data } = await supabaseAdmin.from('keepsake_photos')
+        .select('*').eq('keepsake_id', k.id).order('sort_order');
+      photos = data || [];
+    } catch (_) { /* pre-migration */ }
+    const photosWithUrls = photos.map(p => ({ ...p, url: getPublicUrl(p.photo_path) }));
+
+    res.render('marketing/account-book-keepsake-detail', {
+      family: req.family,
+      book: book || {},
+      keepsake: k,
+      photos: photosWithUrls,
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+// Detail editor — POST save
+router.post('/book/keepsakes/edit/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const patch = {
+      title: (req.body.title || '').toString().trim() || 'Untitled',
+      category: (req.body.category || '').toString().trim().toLowerCase() || null,
+      age_text: (req.body.age_text || '').toString().trim() || null,
+      attribution: (req.body.attribution || '').toString().trim() || null,
+      description: (req.body.description || '').toString().trim() || null,
+      story: (req.body.story || '').toString().trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+
+    // date_made: only send if parses as YYYY-MM-DD
+    const dt = (req.body.date_made || '').toString().trim();
+    patch.date_made = /^\d{4}-\d{2}-\d{2}$/.test(dt) ? dt : null;
+
+    try { patch.slug = keepsakeSlugify(patch.title, 0); } catch (_) {}
+
+    let { error } = await supabaseAdmin.from('keepsakes').update(patch).eq('id', req.params.id).eq('book_id', book.id);
+    if (error && /column .* does not exist/i.test(error.message)) {
+      // Pre-migration fallback (shouldn't happen on prod but defensive)
+      const fallback = { title: patch.title, description: patch.description, updated_at: patch.updated_at };
+      ({ error } = await supabaseAdmin.from('keepsakes').update(fallback).eq('id', req.params.id).eq('book_id', book.id));
+    }
+    if (error) throw error;
+    res.redirect('/account/book/keepsakes/edit/' + req.params.id + '?success=1');
+  } catch (err) {
+    console.error('Save keepsake failed:', err.message);
+    res.redirect('/account/book/keepsakes/edit/' + req.params.id + '?error=save_failed');
+  }
+});
+
+// Delete a keepsake (FK cascades keepsake_photos)
+router.post('/book/keepsakes/delete/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    await supabaseAdmin.from('keepsakes').delete().eq('id', req.params.id).eq('book_id', book.id);
+    res.redirect('/account/book/keepsakes?success=keepsake_deleted');
+  } catch (err) { next(err); }
+});
+
+// Upload a photo to a keepsake gallery
+router.post('/book/keepsakes/:id/photo', requireAccountSession, upload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.redirect('/account/book/keepsakes/edit/' + req.params.id + '?error=no_file');
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: k } = await supabaseAdmin.from('keepsakes').select('id')
+      .eq('id', req.params.id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.redirect('/account/book/keepsakes?error=not_found');
+
+    const ident = k.id + '-' + Date.now();
+    const result = await photoService.upload(req.family.id, 'keepsakes', ident, req.file.buffer, req.file.mimetype);
+
+    const { data: existing } = await supabaseAdmin.from('keepsake_photos')
+      .select('sort_order').eq('keepsake_id', k.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { error } = await supabaseAdmin.from('keepsake_photos').insert({
+      keepsake_id: k.id,
+      photo_path: result.path,
+      caption: null,
+      sort_order: nextSort,
+    });
+    if (error) throw error;
+
+    res.redirect('/account/book/keepsakes/edit/' + req.params.id + '?success=photo_added');
+  } catch (err) {
+    console.error('Keepsake photo upload failed:', err.message);
+    res.redirect('/account/book/keepsakes/edit/' + req.params.id + '?error=photo_upload_failed');
+  }
+});
+
+// Update keepsake photo caption
+router.post('/book/keepsakes/photo/:photoId/edit', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+
+    const { data: photo } = await supabaseAdmin.from('keepsake_photos').select('id, keepsake_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/keepsakes?error=photo_not_found');
+    const { data: k } = await supabaseAdmin.from('keepsakes').select('id').eq('id', photo.keepsake_id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.redirect('/account/book/keepsakes?error=not_authorized');
+
+    const patch = {};
+    if (req.body.caption !== undefined) patch.caption = (req.body.caption || '').toString().trim() || null;
+    if (req.body.sort_order !== undefined) patch.sort_order = parseInt(req.body.sort_order, 10) || 0;
+    await supabaseAdmin.from('keepsake_photos').update(patch).eq('id', req.params.photoId);
+
+    res.redirect('/account/book/keepsakes/edit/' + k.id + '?success=photo_updated');
+  } catch (err) { next(err); }
+});
+
+// Delete a keepsake photo
+router.post('/book/keepsakes/photo/:photoId/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('keepsake_photos').select('id, keepsake_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/keepsakes?error=photo_not_found');
+    const { data: k } = await supabaseAdmin.from('keepsakes').select('id').eq('id', photo.keepsake_id).eq('book_id', book.id).maybeSingle();
+    if (!k) return res.redirect('/account/book/keepsakes?error=not_authorized');
+
+    await supabaseAdmin.from('keepsake_photos').delete().eq('id', req.params.photoId);
+    res.redirect('/account/book/keepsakes/edit/' + k.id + '?success=photo_deleted');
+  } catch (err) { next(err); }
+});
+
 // ─── The Vault ────────────────────────────────────────────────────────────────
 
 router.get('/book/vault', requireAccountSession, async (req, res, next) => {
