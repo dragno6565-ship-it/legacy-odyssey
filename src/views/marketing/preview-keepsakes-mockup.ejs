@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keepsakes redesign mockup — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <style>
+    :root {
+      --cream: #faf7f2;
+      --dark: #1a1510;
+      --gold: #c8a96e;
+      --gold-light: #d4bb8a;
+      --text: #2c2416;
+      --muted: #8a7e6b;
+      --card: #f0e8dc;
+      --border: #e0d5c4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--text); line-height: 1.6; padding-bottom: 4rem; }
+
+    .mockup-toolbar { background: var(--dark); color: #fff; padding: 0.85rem 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .mockup-toolbar strong { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; letter-spacing: 0.04em; }
+    .mockup-toolbar a { color: var(--gold-light); text-decoration: none; padding: 0.35rem 0.85rem; border: 1px solid rgba(212,187,138,0.4); border-radius: 4px; font-size: 0.82rem; }
+    .mockup-toolbar a.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+    .mockup-toolbar a:hover { background: rgba(212,187,138,0.15); }
+    .mockup-note { color: rgba(255,255,255,0.6); font-size: 0.78rem; margin-left: auto; font-style: italic; }
+
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 2.5rem 1.5rem 1rem; }
+
+    /* Section header (matches book viewer) */
+    .page-eyebrow { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; text-align: center; margin-bottom: 0.65rem; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 500; color: var(--text); text-align: center; line-height: 1.15; margin-bottom: 0.8rem; }
+    .page-title em { font-style: italic; color: var(--gold); }
+    .page-sub { text-align: center; color: var(--muted); max-width: 620px; margin: 0 auto 1.5rem; font-size: 1.02rem; }
+    .page-intro { text-align: center; color: var(--text); max-width: 680px; margin: 0 auto 2.5rem; font-style: italic; font-size: 1rem; opacity: 0.85; }
+
+    /* Filter chips */
+    .filter-row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.25rem; }
+    .filter-chip {
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-chip.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+    .filter-chip:hover { border-color: var(--gold); }
+
+    /* OVERVIEW — grid */
+    .keepsake-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .keepsake-card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(44,36,22,0.06);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+    }
+    .keepsake-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(44,36,22,0.1);
+    }
+    .keepsake-photo {
+      aspect-ratio: 4/5;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .keepsake-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .keepsake-photo-fallback {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .keepsake-photo-fallback .emoji { font-size: 3.5rem; margin-bottom: 0.5rem; }
+    .keepsake-photo-fallback .scribble { color: rgba(255,255,255,0.7); font-style: italic; font-size: 0.85rem; padding: 0 1.5rem; text-align: center; }
+
+    /* Category-specific backgrounds for cards without real photos */
+    .bg-artwork { background: linear-gradient(135deg, #f5d3c0, #d8a47f); }
+    .bg-schoolwork { background: linear-gradient(135deg, #d4ebd0, #88b07a); }
+    .bg-award { background: linear-gradient(135deg, #fce6a4, #c8a96e); }
+    .bg-memorabilia { background: linear-gradient(135deg, #d8d5e8, #8d83a9); }
+
+    .keepsake-badge {
+      position: absolute; top: 0.65rem; left: 0.65rem;
+      background: rgba(26,21,16,0.78); color: #fff;
+      padding: 0.22rem 0.6rem; border-radius: 999px;
+      font-size: 0.7rem; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .keepsake-body { padding: 1rem 1.15rem 1.15rem; }
+    .keepsake-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-weight: 600;
+      line-height: 1.25; margin-bottom: 0.3rem;
+      color: var(--text);
+    }
+    .keepsake-meta {
+      font-size: 0.78rem; color: var(--muted);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .keepsake-meta svg { width: 0.85rem; height: 0.85rem; }
+
+    /* DETAIL */
+    .detail-back { color: var(--muted); text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .detail-back:hover { color: var(--gold); }
+    .detail-back svg { width: 1rem; height: 1rem; }
+
+    .keepsake-hero {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    @media (max-width: 760px) { .keepsake-hero { grid-template-columns: 1fr; } }
+    .keepsake-hero-photo {
+      aspect-ratio: 4/5;
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(44,36,22,0.15);
+    }
+    .keepsake-hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .keepsake-hero-eyebrow {
+      color: var(--gold);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 0.85rem;
+    }
+    .keepsake-hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.4rem; font-weight: 500;
+      line-height: 1.1; margin-bottom: 0.85rem;
+    }
+    .keepsake-hero-title em { color: var(--gold); font-style: italic; }
+    .keepsake-hero-desc { color: var(--text); font-size: 1.02rem; opacity: 0.88; }
+
+    /* Meta strip */
+    .keepsake-meta-strip {
+      display: flex;
+      gap: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+    }
+    .km-cell { flex: 1; padding: 0.95rem 0.85rem; text-align: center; border-right: 1px solid var(--border); }
+    .km-cell:last-child { border-right: 0; }
+    .km-cell-icon { color: var(--gold); margin-bottom: 0.4rem; display: flex; justify-content: center; }
+    .km-cell-icon svg { width: 1.25rem; height: 1.25rem; stroke-width: 1.5; }
+    .km-cell-label { color: var(--muted); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.2rem; }
+    .km-cell-value { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--text); }
+
+    /* Story */
+    .keepsake-section { margin-bottom: 2.5rem; }
+    .keepsake-section-eyebrow { color: var(--gold); font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 0.65rem; }
+    .keepsake-section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.65rem; font-weight: 500; margin-bottom: 1.1rem; }
+    .keepsake-story p { font-size: 1.04rem; line-height: 1.85; margin-bottom: 1rem; color: var(--text); }
+
+    /* Gallery */
+    .photo-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.9rem; }
+    .photo-tile {
+      aspect-ratio: 1/1;
+      background: var(--card);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+    .photo-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .photo-tile:hover img { transform: scale(1.05); }
+    .photo-tile-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .photo-tile-fallback .emoji { font-size: 3rem; opacity: 0.7; }
+
+    /* Pager */
+    .keepsake-pager { display: flex; justify-content: space-between; gap: 1rem; padding-top: 2rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    .keepsake-pager a { color: var(--text); text-decoration: none; flex: 1; padding: 0.9rem 1.1rem; border: 1px solid var(--border); border-radius: 10px; transition: all 0.15s; background: #fff; }
+    .keepsake-pager a:hover { border-color: var(--gold); background: #fdf9f3; }
+    .keepsake-pager-label { color: var(--muted); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .keepsake-pager-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
+    .keepsake-pager a.next { text-align: right; }
+
+    /* Sparse-state explainer (mockup-only) */
+    .sparse-note {
+      text-align: center;
+      color: var(--muted);
+      padding: 2rem;
+      font-style: italic;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="mockup-toolbar">
+  <strong>Keepsakes — design mockup</strong>
+  <a href="/preview/keepsakes-mockup/overview" class="<%= variant === 'overview' ? 'active' : '' %>">1. Overview (all keepsakes)</a>
+  <a href="/preview/keepsakes-mockup/detail" class="<%= variant === 'detail' ? 'active' : '' %>">2. Keepsake page</a>
+  <a href="/preview/keepsakes-mockup/sparse" class="<%= variant === 'sparse' ? 'active' : '' %>">3. Sparse keepsake</a>
+  <span class="mockup-note">Preview only — nothing is live yet.</span>
+</div>
+
+<div class="wrap">
+
+<% if (variant === 'overview') { %>
+
+  <div class="page-eyebrow">Chapter Ten</div>
+  <h2 class="page-title">Their <em>Keepsakes</em></h2>
+  <p class="page-sub">Drawings, awards, certificates, handprints. The little things you can't keep forever — preserved here forever.</p>
+  <p class="page-intro">A box in the closet only holds so much. Take a photo, add a note about what it meant, and let go of the original knowing it lives on here.</p>
+
+  <div class="filter-row">
+    <button class="filter-chip active">All keepsakes</button>
+    <button class="filter-chip">Artwork</button>
+    <button class="filter-chip">Schoolwork</button>
+    <button class="filter-chip">Awards</button>
+    <button class="filter-chip">Memorabilia</button>
+  </div>
+
+  <div class="keepsake-grid">
+
+    <!-- Card 1: Artwork — first finger painting -->
+    <a class="keepsake-card" href="/preview/keepsakes-mockup/detail">
+      <div class="keepsake-photo bg-artwork">
+        <span class="keepsake-badge">Artwork</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">🎨</div>
+          <div class="scribble">Finger painting<br>(your photo here)</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">My first finger painting</div>
+        <div class="keepsake-meta"><i data-lucide="calendar"></i> Age 2</div>
+      </div>
+    </a>
+
+    <!-- Card 2: Award — pre-K certificate -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-award">
+        <span class="keepsake-badge">Award</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">🏆</div>
+          <div class="scribble">Pre-K Certificate<br>of Completion</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">Pre-K Certificate of Completion</div>
+        <div class="keepsake-meta"><i data-lucide="graduation-cap"></i> Pre-K</div>
+      </div>
+    </a>
+
+    <!-- Card 3: Schoolwork — first written name -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-schoolwork">
+        <span class="keepsake-badge">Schoolwork</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">✏️</div>
+          <div class="scribble">First time<br>writing my name</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">First time I wrote my own name</div>
+        <div class="keepsake-meta"><i data-lucide="calendar"></i> Age 4</div>
+      </div>
+    </a>
+
+    <!-- Card 4: Memorabilia — first lost tooth -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-memorabilia">
+        <span class="keepsake-badge">Memorabilia</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">🦷</div>
+          <div class="scribble">First lost tooth<br>April 2030</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">First lost tooth</div>
+        <div class="keepsake-meta"><i data-lucide="calendar"></i> Age 5 · April 2030</div>
+      </div>
+    </a>
+
+    <!-- Card 5: Artwork — handprint -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-artwork">
+        <span class="keepsake-badge">Artwork</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">🖐️</div>
+          <div class="scribble">Handprint art<br>for Mother's Day</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">Handprint art for Mother's Day</div>
+        <div class="keepsake-meta"><i data-lucide="calendar"></i> Age 3</div>
+      </div>
+    </a>
+
+    <!-- Card 6: Award — swim ribbon -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-award">
+        <span class="keepsake-badge">Award</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">🎗️</div>
+          <div class="scribble">First place ribbon<br>swim meet</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">First-place ribbon — swim meet</div>
+        <div class="keepsake-meta"><i data-lucide="calendar"></i> Age 6</div>
+      </div>
+    </a>
+
+    <!-- Card 7: Schoolwork — kindergarten report card -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-schoolwork">
+        <span class="keepsake-badge">Schoolwork</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">📋</div>
+          <div class="scribble">Kindergarten<br>report card</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">Kindergarten report card</div>
+        <div class="keepsake-meta"><i data-lucide="graduation-cap"></i> Kindergarten</div>
+      </div>
+    </a>
+
+    <!-- Card 8: Memorabilia — concert program -->
+    <a class="keepsake-card" href="#">
+      <div class="keepsake-photo bg-memorabilia">
+        <span class="keepsake-badge">Memorabilia</span>
+        <div class="keepsake-photo-fallback">
+          <div class="emoji">🎼</div>
+          <div class="scribble">Spring concert<br>program</div>
+        </div>
+      </div>
+      <div class="keepsake-body">
+        <div class="keepsake-title">Spring concert program</div>
+        <div class="keepsake-meta"><i data-lucide="calendar"></i> Age 6</div>
+      </div>
+    </a>
+
+  </div>
+
+<% } else if (variant === 'detail') { %>
+
+  <a class="detail-back" href="/preview/keepsakes-mockup/overview"><i data-lucide="chevron-left"></i> All keepsakes</a>
+
+  <div class="keepsake-hero">
+    <div class="keepsake-hero-photo bg-artwork" style="display:flex;align-items:center;justify-content:center;">
+      <div class="keepsake-photo-fallback">
+        <div class="emoji" style="font-size: 5rem;">🎨</div>
+        <div class="scribble" style="font-size: 1rem;">My first finger painting<br>(your photo here)</div>
+      </div>
+    </div>
+    <div>
+      <div class="keepsake-hero-eyebrow">Artwork</div>
+      <h1 class="keepsake-hero-title">My first <em>finger painting</em></h1>
+      <p class="keepsake-hero-desc">A swirl of blue, yellow, and red — done at the kitchen table on a Saturday morning with both hands and a healthy disregard for the paper's edges.</p>
+    </div>
+  </div>
+
+  <div class="keepsake-meta-strip">
+    <div class="km-cell">
+      <div class="km-cell-icon"><i data-lucide="user"></i></div>
+      <div class="km-cell-label">Made by</div>
+      <div class="km-cell-value">Sophia</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-cell-icon"><i data-lucide="calendar"></i></div>
+      <div class="km-cell-label">Age</div>
+      <div class="km-cell-value">2 years old</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-cell-icon"><i data-lucide="clock"></i></div>
+      <div class="km-cell-label">Date</div>
+      <div class="km-cell-value">March 2028</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-cell-icon"><i data-lucide="tag"></i></div>
+      <div class="km-cell-label">Category</div>
+      <div class="km-cell-value">Artwork</div>
+    </div>
+  </div>
+
+  <div class="keepsake-section keepsake-story">
+    <div class="keepsake-section-eyebrow">The Story</div>
+    <h2 class="keepsake-section-title">How this happened</h2>
+    <p>It was raining outside and Daddy pulled out the finger paints from the back of the cupboard. Sophia took one look at the blue jar, plunged her whole hand in, and slapped it on the paper like she'd been waiting her whole life to do exactly that.</p>
+    <p>Twenty minutes later there was paint on the chair, paint on the dog, and paint on the wall in places we didn't think a two-year-old could reach. We saved this one painting and threw the rest of the morning out with the paper towels.</p>
+  </div>
+
+  <div class="keepsake-section">
+    <div class="keepsake-section-eyebrow">More photos</div>
+    <h2 class="keepsake-section-title">Different angles</h2>
+    <div class="photo-gallery">
+      <div class="photo-tile">
+        <div class="photo-tile-fallback bg-artwork"><span class="emoji">🎨</span></div>
+      </div>
+      <div class="photo-tile">
+        <div class="photo-tile-fallback bg-artwork"><span class="emoji">🖌️</span></div>
+      </div>
+      <div class="photo-tile">
+        <div class="photo-tile-fallback bg-artwork"><span class="emoji">🖼️</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="keepsake-pager">
+    <a href="#" class="prev">
+      <div class="keepsake-pager-label">← Previous</div>
+      <div class="keepsake-pager-title">Pre-K Certificate of Completion</div>
+    </a>
+    <a href="#" class="next">
+      <div class="keepsake-pager-label">Next →</div>
+      <div class="keepsake-pager-title">First time I wrote my name</div>
+    </a>
+  </div>
+
+<% } else if (variant === 'sparse') { %>
+
+  <a class="detail-back" href="/preview/keepsakes-mockup/overview"><i data-lucide="chevron-left"></i> All keepsakes</a>
+
+  <div class="keepsake-hero">
+    <div class="keepsake-hero-photo bg-memorabilia" style="display:flex;align-items:center;justify-content:center;">
+      <div class="keepsake-photo-fallback">
+        <div class="emoji" style="font-size: 5rem;">🦷</div>
+        <div class="scribble" style="font-size: 1rem;">First lost tooth<br>(your photo here)</div>
+      </div>
+    </div>
+    <div>
+      <div class="keepsake-hero-eyebrow">Memorabilia</div>
+      <h1 class="keepsake-hero-title">First <em>lost tooth</em></h1>
+      <p class="keepsake-hero-desc">Pulled out at the kitchen table after wiggling it for a week.</p>
+    </div>
+  </div>
+
+  <div class="sparse-note">
+    Every other section (story, gallery, meta strip) is hidden because nothing was filled in.
+    The owner fills in only what they care about — empty fields never show.
+  </div>
+
+<% } %>
+
+</div>
+
+<script>
+  if (window.lucide) window.lucide.createIcons();
+</script>
+</body>
+</html>

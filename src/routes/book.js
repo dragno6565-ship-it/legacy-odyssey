@@ -182,6 +182,14 @@ function recipeMockupHandler(req, res) {
 router.get('/preview/recipe-mockup', recipeMockupHandler);
 router.get('/preview/recipe-mockup/:variant', recipeMockupHandler);
 
+// ─── Keepsakes design mockup (preview-only, not wired to data yet) ─────────
+function keepsakesMockupHandler(req, res) {
+  const v = (req.params.variant || 'overview').toLowerCase();
+  res.render('marketing/preview-keepsakes-mockup', { variant: v });
+}
+router.get('/preview/keepsakes-mockup', keepsakesMockupHandler);
+router.get('/preview/keepsakes-mockup/:variant', keepsakesMockupHandler);
+
 // Printable gift certificate.
 // Public route — the certificate_token is the only auth. Anyone with the
 // link can view + print, but only the buyer ever receives the link
