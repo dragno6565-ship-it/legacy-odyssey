@@ -17,6 +17,12 @@ const FROM_ADDRESS = 'Legacy Odyssey <hello@legacyodyssey.com>';
 // hello@legacyodyssey.com via env var to keep replies fully on-brand.
 const REPLY_TO = process.env.EMAIL_REPLY_TO || process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com';
 
+// Open + click tracking on all transactional sends. Opens use a 1x1 pixel;
+// clicks rewrite URLs through Resend's tracking domain. This gives per-message
+// signal of whether a customer actually saw and engaged with the email — which
+// is the most reliable practical answer to "did it go to spam?"
+const TRACKING = { opens: true, clicks: true };
+
 // Words that appear as first word of a family/display name but aren't a real first name
 const NON_NAME_WORDS = new Set(['the', 'your', 'our', 'my', 'a', 'an', 'apple', 'google', 'sample', 'demo', 'test', 'family', 'review']);
 
@@ -71,6 +77,7 @@ async function sendWelcomeEmail({ to, displayName, setPasswordUrl, bookPassword,
     replyTo: REPLY_TO,
     subject: `Welcome to Legacy Odyssey, ${getFirstName(displayName, to)}!`,
     html,
+    tracking: TRACKING,
   });
 
   if (error) {
@@ -398,6 +405,7 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
     subject,
     html,
     headers,
+    tracking: TRACKING,
   });
 
   if (error) {
@@ -626,6 +634,7 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
     replyTo: REPLY_TO,
     subject: 'Reset your Legacy Odyssey password',
     html,
+    tracking: TRACKING,
   });
 
   if (error) {
@@ -727,6 +736,7 @@ async function sendCancellationEmail({ to, displayName, type, periodEnd, customD
       replyTo: REPLY_TO,
       subject,
       html,
+      tracking: TRACKING,
     });
     if (error) {
       console.error('Failed to send cancellation email:', error);
@@ -786,6 +796,7 @@ async function sendReactivationEmail({ to, displayName, customDomain, subdomain 
       replyTo: REPLY_TO,
       subject: `Welcome back to Legacy Odyssey, ${firstName}!`,
       html,
+      tracking: TRACKING,
     });
     if (error) { console.error('Reactivation email failed:', error); return null; }
     console.log(`Reactivation email sent to ${to} (id: ${data.id})`);
@@ -859,6 +870,7 @@ async function sendSiteLiveEmail({ to, displayName, customDomain, subdomain, boo
       from: FROM_ADDRESS, to: [to], replyTo: REPLY_TO,
       subject: `${firstName}, your site is live!`,
       html,
+      tracking: TRACKING,
     });
     if (error) { console.error('Site-live email failed:', error); return null; }
     console.log(`Site-live email sent to ${to} (id: ${data.id})`);
