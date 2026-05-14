@@ -81,7 +81,32 @@ router.get('/', requireAdmin, async (req, res, next) => {
       archived: families.filter((f) => !!f.archived_at).length,
     };
 
-    res.render('admin/dashboard', { families: enriched, stats, admin: req.admin });
+    // Gift code stats — surface unredeemed count so Dan sees pending gifts
+    // at a glance from the main dashboard rather than having to drill into
+    // /admin/gifts.
+    let giftStats = { total: 0, unredeemed: 0, redeemed: 0, expired: 0, stale: 0 };
+    try {
+      const { data: gifts } = await supabaseAdmin
+        .from('gift_codes')
+        .select('status, created_at, expires_at');
+      const now = Date.now();
+      const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+      for (const g of (gifts || [])) {
+        giftStats.total++;
+        if (g.status === 'purchased') {
+          giftStats.unredeemed++;
+          if (g.created_at && (now - new Date(g.created_at).getTime()) > THIRTY_DAYS) {
+            giftStats.stale++;
+          }
+        } else if (g.status === 'redeemed') {
+          giftStats.redeemed++;
+        } else if (g.status === 'expired') {
+          giftStats.expired++;
+        }
+      }
+    } catch (_) { /* table may not exist on fresh installs */ }
+
+    res.render('admin/dashboard', { families: enriched, stats, giftStats, admin: req.admin });
   } catch (err) {
     next(err);
   }
@@ -113,14 +138,45 @@ router.get('/gifts', requireAdmin, async (req, res, next) => {
       .select('*')
       .order('created_at', { ascending: false });
 
+    const now = Date.now();
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+    // Annotate each gift with derived fields the view uses (days_since_purchase,
+    // is_stale, is_expired_unused) so the EJS stays clean.
+    const annotated = (gifts || []).map((g) => {
+      const created = g.created_at ? new Date(g.created_at).getTime() : null;
+      const expires = g.expires_at ? new Date(g.expires_at).getTime() : null;
+      const days_since_purchase = created ? Math.floor((now - created) / (24 * 60 * 60 * 1000)) : null;
+      const is_unredeemed = g.status === 'purchased';
+      const is_stale = is_unredeemed && days_since_purchase !== null && days_since_purchase >= 30;
+      const is_expired_now = !!(expires && expires < now && is_unredeemed);
+      return { ...g, days_since_purchase, is_unredeemed, is_stale, is_expired_now };
+    });
+
     const stats = {
-      total: (gifts || []).length,
-      purchased: (gifts || []).filter((g) => g.status === 'purchased').length,
-      redeemed: (gifts || []).filter((g) => g.status === 'redeemed').length,
-      expired: (gifts || []).filter((g) => g.status === 'expired').length,
+      total: annotated.length,
+      purchased: annotated.filter((g) => g.status === 'purchased').length,
+      redeemed: annotated.filter((g) => g.status === 'redeemed').length,
+      expired: annotated.filter((g) => g.status === 'expired').length,
+      stale: annotated.filter((g) => g.is_stale).length,
     };
 
-    res.render('admin/gifts', { gifts: gifts || [], stats, admin: req.admin });
+    // Server-side filter via ?filter= so links from the main dashboard can
+    // deep-link straight to the relevant subset. Default is 'unredeemed'
+    // because that's the most actionable view; 'all' shows everything.
+    const filter = (req.query.filter || 'unredeemed').toString().toLowerCase();
+    let filteredGifts = annotated;
+    if (filter === 'unredeemed') {
+      filteredGifts = annotated.filter((g) => g.is_unredeemed);
+    } else if (filter === 'stale') {
+      filteredGifts = annotated.filter((g) => g.is_stale);
+    } else if (filter === 'redeemed') {
+      filteredGifts = annotated.filter((g) => g.status === 'redeemed');
+    } else if (filter === 'expired') {
+      filteredGifts = annotated.filter((g) => g.status === 'expired');
+    } // else 'all' — keep everything
+
+    res.render('admin/gifts', { gifts: filteredGifts, stats, filter, admin: req.admin });
   } catch (err) {
     next(err);
   }

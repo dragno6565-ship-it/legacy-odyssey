@@ -21,6 +21,42 @@
     .badge-purchased { background: #fff8e7; color: #b08e4a; border: 1px solid #e8d9b0; }
     .badge-redeemed  { background: #e8f5e9; color: #2e7d32; border: 1px solid #b2dfdb; }
     .badge-expired   { background: #fafafa; color: #9e9e9e; border: 1px solid #e0e0e0; }
+
+    /* Filter pills */
+    .filter-row { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom: 1.25rem; }
+    .filter-pill {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      padding: 0.45rem 0.9rem; border-radius: 999px;
+      border: 1px solid #e0d5c4; background: #fff;
+      color: #2c2416; text-decoration: none;
+      font-size: 0.85rem; font-family: 'Jost', sans-serif;
+      transition: all 0.15s;
+    }
+    .filter-pill:hover { border-color: #c8a96e; }
+    .filter-pill.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+    .filter-pill .count { font-weight: 600; opacity: 0.7; font-size: 0.8rem; }
+    .filter-pill.active .count { opacity: 1; }
+    .filter-pill.pill-stale { border-color: #b08e4a; color: #b08e4a; }
+    .filter-pill.pill-stale.active { background: #b08e4a; color: #fff; border-color: #b08e4a; }
+
+    /* Stale row highlight */
+    tr.row-stale { background: #fff8e7; }
+    tr.row-stale td { border-color: #e8d9b0; }
+    .cell-age { font-size: 0.85rem; color: var(--ink-mid); white-space: nowrap; }
+    .cell-age.stale { color: #b08e4a; font-weight: 600; }
+
+    /* Top alert banner */
+    .stale-alert {
+      background: #fff8e7;
+      border: 1px solid #e8d9b0;
+      border-left: 4px solid #b08e4a;
+      border-radius: 8px;
+      padding: 0.95rem 1.15rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      color: #2c2416;
+    }
+    .stale-alert strong { color: #8c6a35; }
     .cell-message {
       max-width: 180px;
       white-space: nowrap;
@@ -73,7 +109,7 @@
           <div class="kpi-value"><%= stats.total %></div>
         </div>
         <div class="kpi-card kpi-trialing">
-          <div class="kpi-label">Pending Redemption</div>
+          <div class="kpi-label">Awaiting Redemption</div>
           <div class="kpi-value"><%= stats.purchased %></div>
         </div>
         <div class="kpi-card kpi-active">
@@ -84,6 +120,43 @@
           <div class="kpi-label">Expired</div>
           <div class="kpi-value"><%= stats.expired %></div>
         </div>
+        <% if (stats.stale > 0) { %>
+        <div class="kpi-card" style="border-left:3px solid #b08e4a;">
+          <div class="kpi-label" style="color:#b08e4a;">30+ days unredeemed</div>
+          <div class="kpi-value" style="color:#b08e4a;"><%= stats.stale %></div>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (stats.stale > 0 && filter !== 'stale') { %>
+        <div class="stale-alert">
+          <strong>&#9888; <%= stats.stale %> gift<%= stats.stale === 1 ? '' : 's' %> purchased 30+ days ago haven't been redeemed.</strong>
+          Consider following up with the buyer to make sure the recipient got their code.
+          <a href="/admin/gifts?filter=stale" style="color:#b08e4a;font-weight:600;margin-left:0.4rem;">Show only these &rarr;</a>
+        </div>
+      <% } %>
+
+      <!-- Filter pills -->
+      <div class="filter-row">
+        <a class="filter-pill <%= filter === 'unredeemed' ? 'active' : '' %>" href="/admin/gifts?filter=unredeemed">
+          Awaiting Redemption <span class="count">(<%= stats.purchased %>)</span>
+        </a>
+        <% if (stats.stale > 0) { %>
+        <a class="filter-pill pill-stale <%= filter === 'stale' ? 'active' : '' %>" href="/admin/gifts?filter=stale">
+          30+ days old <span class="count">(<%= stats.stale %>)</span>
+        </a>
+        <% } %>
+        <a class="filter-pill <%= filter === 'redeemed' ? 'active' : '' %>" href="/admin/gifts?filter=redeemed">
+          Redeemed <span class="count">(<%= stats.redeemed %>)</span>
+        </a>
+        <% if (stats.expired > 0) { %>
+        <a class="filter-pill <%= filter === 'expired' ? 'active' : '' %>" href="/admin/gifts?filter=expired">
+          Expired <span class="count">(<%= stats.expired %>)</span>
+        </a>
+        <% } %>
+        <a class="filter-pill <%= filter === 'all' ? 'active' : '' %>" href="/admin/gifts?filter=all">
+          All <span class="count">(<%= stats.total %>)</span>
+        </a>
       </div>
 
       <!-- Search -->
@@ -95,7 +168,21 @@
       <div class="table-container">
         <% if (gifts.length === 0) { %>
           <div style="text-align: center; padding: 60px; color: var(--ink-light);">
-            <p>No gift codes yet.</p>
+            <% if (filter === 'unredeemed') { %>
+              <p>No gifts awaiting redemption — everything's been claimed.</p>
+              <p style="margin-top:0.5rem;font-size:0.9rem;"><a href="/admin/gifts?filter=all" style="color:var(--gold);">View all gifts &rarr;</a></p>
+            <% } else if (filter === 'stale') { %>
+              <p>No stale gifts. Nothing 30+ days old without a redemption.</p>
+              <p style="margin-top:0.5rem;font-size:0.9rem;"><a href="/admin/gifts?filter=unredeemed" style="color:var(--gold);">View all awaiting redemption &rarr;</a></p>
+            <% } else if (filter === 'redeemed') { %>
+              <p>No gifts have been redeemed yet.</p>
+            <% } else if (filter === 'expired') { %>
+              <p>No expired gifts.</p>
+            <% } else if (stats.total === 0) { %>
+              <p>No gift codes yet.</p>
+            <% } else { %>
+              <p>No gifts match this filter.</p>
+            <% } %>
           </div>
         <% } else { %>
         <table class="data-table" id="giftsTable">
@@ -107,13 +194,14 @@
               <th>Recipient</th>
               <th>Message</th>
               <th>Purchased</th>
+              <th>Age</th>
               <th>Expires</th>
               <th>Account</th>
             </tr>
           </thead>
           <tbody>
             <% gifts.forEach(function(gift) { %>
-              <tr data-search="<%= (gift.code || '').toLowerCase() %> <%= (gift.buyer_email || '').toLowerCase() %> <%= (gift.buyer_name || '').toLowerCase() %> <%= (gift.recipient_name || '').toLowerCase() %> <%= (gift.recipient_email || '').toLowerCase() %>">
+              <tr class="<%= gift.is_stale ? 'row-stale' : '' %>" data-search="<%= (gift.code || '').toLowerCase() %> <%= (gift.buyer_email || '').toLowerCase() %> <%= (gift.buyer_name || '').toLowerCase() %> <%= (gift.recipient_name || '').toLowerCase() %> <%= (gift.recipient_email || '').toLowerCase() %>">
                 <td>
                   <span class="code-badge"><%= gift.code %></span>
                 </td>
@@ -137,6 +225,17 @@
                 </td>
                 <td class="cell-date">
                   <%= gift.created_at ? new Date(gift.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' %>
+                </td>
+                <td class="cell-age <%= gift.is_stale ? 'stale' : '' %>">
+                  <% if (gift.days_since_purchase === null) { %>
+                    —
+                  <% } else if (gift.days_since_purchase === 0) { %>
+                    Today
+                  <% } else if (gift.days_since_purchase === 1) { %>
+                    1 day
+                  <% } else { %>
+                    <%= gift.days_since_purchase %> days
+                  <% } %>
                 </td>
                 <td class="cell-date">
                   <% const now = new Date(); const exp = gift.expires_at ? new Date(gift.expires_at) : null; %>

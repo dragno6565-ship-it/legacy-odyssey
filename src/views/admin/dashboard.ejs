@@ -68,6 +68,47 @@
         </div>
       </div>
 
+      <% if (typeof giftStats !== 'undefined' && giftStats.total > 0) { %>
+        <!-- Gift Cards Section -->
+        <div style="margin-top: 2rem;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.75rem;">
+            <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;color:var(--ink);margin:0;">Gift Cards</h2>
+            <a href="/admin/gifts" style="font-size:0.85rem;color:var(--gold);text-decoration:none;">Manage gift codes &rarr;</a>
+          </div>
+
+          <% if (giftStats.stale > 0) { %>
+            <div style="background:#fff8e7;border:1px solid #e8d9b0;border-left:4px solid #b08e4a;border-radius:8px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.9rem;color:var(--ink);">
+              <strong>&#9888; <%= giftStats.stale %> gift<%= giftStats.stale === 1 ? '' : 's' %> purchased 30+ days ago that haven't been redeemed yet.</strong>
+              <a href="/admin/gifts?filter=stale" style="color:var(--gold);margin-left:0.4rem;">Review &rarr;</a>
+            </div>
+          <% } %>
+
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Total Gifts Purchased</div>
+              <div class="kpi-value"><%= giftStats.total %></div>
+            </div>
+            <div class="kpi-card kpi-trialing">
+              <div class="kpi-label">Awaiting Redemption</div>
+              <div class="kpi-value"><%= giftStats.unredeemed %></div>
+              <% if (giftStats.unredeemed > 0) { %>
+                <a href="/admin/gifts?filter=unredeemed" style="font-size:0.78rem;color:var(--gold);text-decoration:none;display:block;margin-top:0.4rem;">View &rarr;</a>
+              <% } %>
+            </div>
+            <div class="kpi-card kpi-active">
+              <div class="kpi-label">Redeemed</div>
+              <div class="kpi-value"><%= giftStats.redeemed %></div>
+            </div>
+            <% if (giftStats.expired > 0) { %>
+            <div class="kpi-card kpi-canceled">
+              <div class="kpi-label">Expired Unused</div>
+              <div class="kpi-value"><%= giftStats.expired %></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
       <!-- View tabs: Active customers vs Archived -->
       <div style="display:flex;gap:8px;margin:24px 0 12px;">
         <button type="button" id="tabActive" class="btn btn-sm" style="background:#1a1a2e;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;" onclick="setView('active')">
