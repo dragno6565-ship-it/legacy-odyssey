@@ -7,6 +7,132 @@ const { supabaseAdmin } = require('../config/supabase');
 
 const router = Router();
 
+// ─── ONE-SHOT: send the Keepsakes announcement to all real paying customers.
+// Will be removed in a follow-up commit after delivery. Admin-only.
+router.get('/dev/announce-keepsakes', requireAdmin, async (req, res) => {
+  // Hardcoded recipient list — these are the 9 real paying customers Dan
+  // approved on May 14 2026. Demo / test / Apple-review / Dan's own
+  // accounts are intentionally excluded.
+  const RECIPIENTS = [
+    'lindsey.e.cherry@gmail.com',
+    'eowynkiller@gmail.com',
+    'ashleetatler@gmail.com',
+    'stoneal13@gmail.com',
+    'Jeffpresutti61@gmail.com',
+    'jadeashb@gmail.com',
+    'rdawnporter@gmail.com',
+    'ashley.beine@outlook.com',
+    'lorenearley23@gmail.com',
+  ];
+
+  try {
+    // Look up first names from the families table so each email is personalized.
+    const { data: families } = await supabaseAdmin
+      .from('families')
+      .select('email, customer_name, display_name')
+      .in('email', RECIPIENTS);
+    const familiesByEmail = {};
+    for (const f of (families || [])) familiesByEmail[f.email.toLowerCase()] = f;
+
+    function getFirstName(email) {
+      const fam = familiesByEmail[email.toLowerCase()];
+      const raw = (fam && (fam.customer_name || fam.display_name)) || '';
+      // First word that isn't a filler like "The" / "Your"
+      const skip = new Set(['the', 'your', 'our', 'a', 'an']);
+      const first = raw.split(/\s+/).find((w) => w && !skip.has(w.toLowerCase()));
+      if (first) return first;
+      // Fall back to the local-part of the email, title-cased
+      const prefix = email.split('@')[0].replace(/[._\-]+/g, ' ').trim().split(' ')[0];
+      return prefix ? prefix.charAt(0).toUpperCase() + prefix.slice(1).toLowerCase() : 'there';
+    }
+
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const results = [];
+    for (const to of RECIPIENTS) {
+      const firstName = getFirstName(to);
+      const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr><td style="background:#1a1a2e;padding:24px;text-align:center;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:#c8a96e;letter-spacing:2px;">LEGACY ODYSSEY</span>
+        </td></tr>
+        <tr><td style="padding:36px 32px;">
+          <h1 style="font-family:Georgia,serif;font-size:22px;color:#1a1a2e;margin:0 0 18px;">Hi ${firstName},</h1>
+          <p style="font-size:15px;line-height:1.75;color:#4a4a4a;margin:0 0 14px;">
+            A quick note about something new in your Legacy Odyssey book.
+          </p>
+          <p style="font-size:15px;line-height:1.75;color:#4a4a4a;margin:0 0 14px;">
+            We as parents want to keep every painting, picture, drawing, and piece of art our child makes. It's hard to store them all, so reluctantly we end up throwing them away. With our new <strong>Keepsakes section</strong>, you can save a version of every one.
+          </p>
+          <p style="font-size:15px;line-height:1.75;color:#4a4a4a;margin:0 0 14px;">
+            Snap a photo of the artwork, the certificate, the report card, or the swim ribbon &mdash; add a short note about what it was &mdash; and let the original go knowing it lives on in your book. Each keepsake gets its own little page with a story, the age your child was, who made it, and as many photos as you want.
+          </p>
+          <p style="font-size:15px;line-height:1.75;color:#4a4a4a;margin:0 0 22px;">
+            It's live now on your website and in the iPhone and Android apps (version 1.0.11 &mdash; make sure your app is updated from the store).
+          </p>
+          <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding-bottom:24px;">
+            <a href="https://legacyodyssey.com/account/book/keepsakes" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:13px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;letter-spacing:0.3px;">Add Your First Keepsake</a>
+          </td></tr></table>
+          <p style="font-size:15px;line-height:1.75;color:#4a4a4a;margin:0 0 6px;">Hope you love it.</p>
+          <p style="font-size:15px;line-height:1.75;color:#4a4a4a;margin:18px 0 0;">
+            &mdash; Dan<br><span style="font-family:Georgia,serif;color:#1a1a2e;">Legacy Odyssey</span>
+          </p>
+          <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:28px 0 0;font-style:italic;border-top:1px solid #f0ece6;padding-top:18px;">
+            P.S. &mdash; If our emails ever end up in your spam folder, marking them &ldquo;Not Spam&rdquo; helps make sure you see future updates.
+          </p>
+        </td></tr>
+        <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey</p>
+          <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+      try {
+        const { data, error } = await resend.emails.send({
+          from: 'Legacy Odyssey <hello@legacyodyssey.com>',
+          to: [to],
+          replyTo: process.env.EMAIL_REPLY_TO || process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com',
+          subject: 'A new section in your book — Keepsakes',
+          html,
+          tracking: { opens: true, clicks: true },
+        });
+        if (error) {
+          results.push({ to, firstName, error: error.message || JSON.stringify(error) });
+        } else {
+          results.push({ to, firstName, id: data.id });
+        }
+      } catch (err) {
+        results.push({ to, firstName, error: err.message });
+      }
+    }
+
+    const successCount = results.filter((r) => r.id).length;
+    const failCount = results.filter((r) => r.error).length;
+    res.send(`<!DOCTYPE html><html><body style="font-family:system-ui;padding:3rem;max-width:720px;margin:0 auto;background:#faf7f2;color:#2c2416;">
+<h1 style="color:#2e7d32;">Keepsakes announcement sent</h1>
+<p><strong>${successCount}</strong> delivered, <strong>${failCount}</strong> failed (out of ${RECIPIENTS.length}).</p>
+<table style="width:100%;border-collapse:collapse;margin-top:1.5rem;font-size:0.92rem;">
+<thead><tr style="background:#f0ebe3;text-align:left;"><th style="padding:8px 12px;">Recipient</th><th style="padding:8px 12px;">Name used</th><th style="padding:8px 12px;">Status</th></tr></thead>
+<tbody>
+${results.map((r) => `<tr style="border-top:1px solid #e0d5c4;"><td style="padding:8px 12px;">${r.to}</td><td style="padding:8px 12px;">${r.firstName}</td><td style="padding:8px 12px;">${r.id ? `<span style="color:#2e7d32;">✓ ${r.id.substring(0, 8)}…</span>` : `<span style="color:#c0392b;">✗ ${r.error}</span>`}</td></tr>`).join('')}
+</tbody>
+</table>
+<p style="margin-top:2rem;"><a href="/admin">← Back to admin</a> · <a href="https://resend.com/emails" target="_blank">View in Resend →</a></p>
+</body></html>`);
+  } catch (err) {
+    console.error('announce-keepsakes failed:', err);
+    res.status(500).send(`<pre>FAILED: ${err.message}</pre>`);
+  }
+});
+
 // Admin login
 router.get('/login', (req, res) => {
   res.render('admin/login', { error: null });
