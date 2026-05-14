@@ -548,6 +548,16 @@ async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certi
       <a href="${certificateUrl}" style="display:inline-block;background:#c8a96e;color:#1a1a2e;padding:12px 26px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:0.5px;">View &amp; Print Certificate</a>
     </div>` : '';
 
+  // Friendly heads-up nudge so the buyer reminds the recipient to
+  // check spam if our redemption email lands there.
+  const spamHeadsUpBlock = `<br><br>
+    <div style="background:#fdf8f0;border:1px solid #e8d9b0;border-left:4px solid #c8a96e;border-radius:8px;padding:14px 18px;font-size:14px;color:#2c2416;line-height:1.55;">
+      <strong>One small favor:</strong> when ${recipient} gets the redemption email,
+      please remind ${recipient === 'your recipient' ? 'them' : 'them'} to check their
+      spam or junk folder if they don't see it within a minute &mdash; and to mark it
+      <em>Not Spam</em> if it's there. That keeps our future messages reaching their inbox.
+    </div>`;
+
   return sendOnboardingEmail({
     to,
     subject: 'Your Legacy Odyssey gift is ready!',
@@ -558,7 +568,7 @@ async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certi
       <div style="background:#f5f0eb;border:2px dashed #c8a96e;border-radius:8px;padding:16px;text-align:center;font-size:20px;font-weight:bold;letter-spacing:2px;color:#1a1a2e;margin:8px 0;">${giftCode}</div><br>
       The recipient redeems at:<br>
       <a href="${redeemUrl}" style="color:#c8a96e;">${redeemUrl}</a><br><br>
-      This is a one-time, non-recurring gift — there are no future charges to your card. The code is valid for one year from today.${certificateBlock}`,
+      This is a one-time, non-recurring gift — there are no future charges to your card. The code is valid for one year from today.${certificateBlock}${spamHeadsUpBlock}`,
     ctaText: certificateUrl ? 'View &amp; Print Certificate' : 'Copy Redemption Link',
     ctaUrl: certificateUrl || redeemUrl,
   });
@@ -606,7 +616,7 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
             We received a request to reset the password for your Legacy Odyssey account.
           </p>
           <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 28px;">
-            Click the button below to choose a new password. This link expires in 1 hour.
+            Click the button below to choose a new password. This link expires in 24 hours.
           </p>
           <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding-bottom:28px;">
             <a href="${resetUrl}" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;">Reset Password</a>

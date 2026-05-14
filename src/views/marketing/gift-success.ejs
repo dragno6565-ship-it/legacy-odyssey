@@ -241,7 +241,14 @@
 
       <p class="success-note">$29 introductory price · One-year subscription · Recipient picks their own custom .com when they redeem · Code valid for 1 year.</p>
 
-      <p class="buyer-email-note">A confirmation has been sent to <strong><%= buyerEmail %></strong>.</p>
+      <p class="buyer-email-note">A confirmation has been sent to <strong><%= buyerEmail %></strong>. If you don't see it within a minute, check your spam or junk folder.</p>
+
+      <% if (typeof recipientEmail !== 'undefined' && recipientEmail) { %>
+        <div style="background:#fff8e7;border:1px solid #e8d9b0;border-left:4px solid #c8a96e;border-radius:8px;padding:1rem 1.2rem;margin:1.5rem auto 0;max-width:540px;text-align:left;font-size:0.93rem;color:#2c2416;line-height:1.55;">
+          <strong style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#1a1510;">A note for the recipient</strong><br>
+          When <%= (typeof recipientName !== 'undefined' && recipientName) ? recipientName : 'they' %> receives the redemption email, ask them to <strong>check their spam or junk folder</strong> if they don't see it &mdash; and to mark it <em>Not Spam</em> if it lands there. That keeps our future emails reaching their inbox.
+        </div>
+      <% } %>
     </div>
   </main>
 
