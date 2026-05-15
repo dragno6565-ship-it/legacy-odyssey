@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adoption Story — design mockup — Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Pull the real book stylesheet so the mockup looks identical to your-childs-name.com -->
+  <link rel="stylesheet" href="/css/book.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <style>
+    /* ─── Mockup toolbar (preview only — not part of the section) ─── */
+    .mockup-toolbar {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0.85rem 1.5rem;
+      display: flex; gap: 1rem;
+      align-items: center; flex-wrap: wrap;
+      border-bottom: 1px solid var(--gold-dark);
+    }
+    .mockup-toolbar strong {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; letter-spacing: 0.04em;
+    }
+    .mockup-toolbar a {
+      color: var(--gold-light); text-decoration: none;
+      padding: 0.35rem 0.85rem;
+      border: 1px solid rgba(212,180,131,0.4);
+      border-radius: 4px; font-size: 0.82rem;
+    }
+    .mockup-toolbar a.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+    .mockup-toolbar a:hover { background: rgba(212,180,131,0.15); }
+    .mockup-note { color: rgba(248,242,230,0.55); font-size: 0.78rem; margin-left: auto; font-style: italic; }
+
+    body { background: var(--cream); }
+
+    /* ─── Adoption Story page styles (uses book.css tokens) ─── */
+    .as-body { padding: 3rem 4rem 5rem; max-width: 980px; }
+
+    .as-intro { max-width: 700px; margin: 0 auto 2.75rem; text-align: center; }
+    .as-intro-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-style: italic;
+      color: var(--ink-mid); line-height: 1.65;
+    }
+
+    /* Milestone strip — selectable, dated; empty ones never render */
+    .as-milestones {
+      display: flex;
+      background: var(--ivory);
+      border: 1px solid rgba(184,147,90,0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+    }
+    .as-mcell {
+      flex: 1; padding: 1.2rem 0.9rem;
+      text-align: center;
+      border-right: 1px solid rgba(184,147,90,0.2);
+    }
+    .as-mcell:last-child { border-right: 0; }
+    .as-mcell-icon { color: var(--gold); margin-bottom: 0.5rem; display: flex; justify-content: center; }
+    .as-mcell-icon svg { width: 1.35rem; height: 1.35rem; stroke-width: 1.5; }
+    .as-mcell-label {
+      color: var(--ink-light);
+      font-size: 0.62rem; letter-spacing: 0.18em;
+      text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .as-mcell-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 500; color: var(--ink);
+    }
+
+    /* Story */
+    .as-section { margin-bottom: 3rem; }
+    .as-section-eyebrow {
+      color: var(--gold);
+      font-size: 0.68rem; letter-spacing: 0.25em;
+      text-transform: uppercase; margin-bottom: 0.65rem;
+    }
+    .as-section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.85rem; font-weight: 400;
+      color: var(--ink); margin-bottom: 1.35rem;
+    }
+    .as-story p {
+      font-size: 1.04rem; line-height: 1.95;
+      margin-bottom: 1.15rem; color: var(--ink);
+    }
+    .as-story p:first-of-type::first-letter {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 3.6rem;
+      float: left; line-height: 0.9;
+      padding: 0.25rem 0.55rem 0 0; color: var(--gold);
+    }
+
+    /* Photo gallery */
+    .as-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .as-tile {
+      aspect-ratio: 1/1;
+      background: linear-gradient(135deg, var(--blush), #f1e1ba);
+      border-radius: 2px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      cursor: zoom-in; transition: transform 0.2s;
+    }
+    .as-tile:hover { transform: translateY(-2px); }
+    .as-tile img { width: 100%; height: 100%; object-fit: cover; }
+    .as-tile-fallback { color: var(--gold-dark); display: flex; }
+    .as-tile-fallback svg { width: 36px; height: 36px; stroke-width: 1.4; opacity: 0.8; }
+
+    /* Closing letter block */
+    .as-letter {
+      background: var(--ivory);
+      border: 1px solid rgba(184,147,90,0.25);
+      border-radius: 2px;
+      padding: 2.5rem 2.75rem;
+      text-align: center;
+    }
+    .as-letter-eyebrow {
+      color: var(--gold);
+      font-size: 0.68rem; letter-spacing: 0.25em;
+      text-transform: uppercase; margin-bottom: 1rem;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+    }
+    .as-letter-eyebrow svg { width: 0.95rem; height: 0.95rem; stroke-width: 1.6; }
+    .as-letter-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-style: italic;
+      color: var(--ink-mid); line-height: 1.7;
+      max-width: 620px; margin: 0 auto 1.25rem;
+    }
+    .as-letter-sign {
+      font-size: 0.72rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-light);
+    }
+
+    /* Sparse explainer */
+    .sparse-note {
+      text-align: center;
+      padding: 2.25rem;
+      background: var(--ivory);
+      border: 1px dashed rgba(184,147,90,0.5);
+      border-radius: 2px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; color: var(--ink-mid);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .as-body { padding: 2rem 1.5rem 3rem; }
+      .as-milestones { flex-wrap: wrap; }
+      .as-mcell { flex: 1 1 100%; border-right: 0; border-bottom: 1px solid rgba(184,147,90,0.2); }
+      .as-mcell:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mockup-toolbar">
+  <strong>Adoption Story — design mockup (single story page)</strong>
+  <a href="/preview/adoption-story-mockup/full" class="<%= variant === 'sparse' ? '' : 'active' %>">1. Full page</a>
+  <a href="/preview/adoption-story-mockup/sparse" class="<%= variant === 'sparse' ? 'active' : '' %>">2. Sparse (shows optionality)</a>
+  <span class="mockup-note">Preview only — nothing is live yet.</span>
+</div>
+
+<section class="page-section active">
+  <div class="page-header">
+    <div class="page-header-eyebrow">&#10022; Your Beginning</div>
+    <h2 class="page-header-title">The <em>Adoption</em> Story</h2>
+    <p class="page-header-sub">How you found your way to us — the wait, the day everything changed, and the family that was always meant to be.</p>
+  </div>
+
+  <div class="as-body">
+
+  <% if (variant === 'sparse') { %>
+
+    <div class="as-section as-story">
+      <div class="as-section-eyebrow">Our Story</div>
+      <h2 class="as-section-title">How you came home</h2>
+      <p>We didn't carry you, but we waited for you just the same. The day we brought you home, the whole world finally felt like it had been put together right.</p>
+    </div>
+
+    <div class="sparse-note">
+      Every other part of this page — the milestone dates, the photo gallery, the closing letter — stays hidden because nothing was filled in. A family adds only what they have and want to share; empty fields never show.
+    </div>
+
+  <% } else { %>
+
+    <div class="as-intro">
+      <p class="as-intro-text">Some families begin with a heartbeat on a monitor. Ours began with a phone call. This is the story of how you came to be exactly where you belong.</p>
+    </div>
+
+    <!-- Milestone strip: each cell is optional, with a selectable label -->
+    <div class="as-milestones">
+      <div class="as-mcell">
+        <div class="as-mcell-icon"><i data-lucide="heart-handshake"></i></div>
+        <div class="as-mcell-label">The Day We Met</div>
+        <div class="as-mcell-value">June 14, 2027</div>
+      </div>
+      <div class="as-mcell">
+        <div class="as-mcell-icon"><i data-lucide="home"></i></div>
+        <div class="as-mcell-label">Homecoming Day</div>
+        <div class="as-mcell-value">June 28, 2027</div>
+      </div>
+      <div class="as-mcell">
+        <div class="as-mcell-icon"><i data-lucide="scroll"></i></div>
+        <div class="as-mcell-label">Finalized</div>
+        <div class="as-mcell-value">October 2, 2027</div>
+      </div>
+    </div>
+
+    <div class="as-section as-story">
+      <div class="as-section-eyebrow">Our Story</div>
+      <h2 class="as-section-title">How you came home</h2>
+      <p>We didn't carry you, but we waited for you just the same. For two years the spare room sat half-finished and the question mark sat right at the center of our lives — until the morning the phone rang and, on the other side of it, there was you.</p>
+      <p>The drive to meet you was the longest of our lives. We had practiced what we would say a hundred times, and then the door opened and every practiced word went straight out of our heads. You looked up, and that was that.</p>
+      <p>People sometimes ask how it feels to love a child you didn't give birth to. The honest answer is that it feels exactly like this: ordinary and enormous at the same time, the most natural thing in the world.</p>
+    </div>
+
+    <div class="as-section">
+      <div class="as-section-eyebrow">Photographs</div>
+      <h2 class="as-section-title">The day everything changed</h2>
+      <div class="as-gallery">
+        <div class="as-tile"><div class="as-tile-fallback"><i data-lucide="image"></i></div></div>
+        <div class="as-tile"><div class="as-tile-fallback"><i data-lucide="image"></i></div></div>
+        <div class="as-tile"><div class="as-tile-fallback"><i data-lucide="image"></i></div></div>
+        <div class="as-tile"><div class="as-tile-fallback"><i data-lucide="image"></i></div></div>
+      </div>
+    </div>
+
+    <div class="as-letter">
+      <div class="as-letter-eyebrow"><i data-lucide="feather"></i> A letter to you</div>
+      <p class="as-letter-text">You did not grow under our hearts, but you have grown in them every single day since. We did not give you the gift of life — life gave us the gift of you.</p>
+      <div class="as-letter-sign">— With all our love</div>
+    </div>
+
+  <% } %>
+
+  </div>
+</section>
+
+<script>
+  if (window.lucide) window.lucide.createIcons();
+</script>
+</body>
+</html>

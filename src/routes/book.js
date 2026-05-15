@@ -190,6 +190,14 @@ function keepsakesMockupHandler(req, res) {
 router.get('/preview/keepsakes-mockup', keepsakesMockupHandler);
 router.get('/preview/keepsakes-mockup/:variant', keepsakesMockupHandler);
 
+// ─── Adoption Story design mockup (preview-only, not wired to data yet) ────
+function adoptionStoryMockupHandler(req, res) {
+  const v = (req.params.variant || 'full').toLowerCase();
+  res.render('marketing/preview-adoption-story-mockup', { variant: v });
+}
+router.get('/preview/adoption-story-mockup', adoptionStoryMockupHandler);
+router.get('/preview/adoption-story-mockup/:variant', adoptionStoryMockupHandler);
+
 // Printable gift certificate.
 // Public route — the certificate_token is the only auth. Anyone with the
 // link can view + print, but only the buyer ever receives the link
