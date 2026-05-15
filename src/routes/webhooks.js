@@ -46,6 +46,15 @@ router.post('/stripe/webhook', async (req, res) => {
             scheduledDate,
           });
 
+          // Webhook idempotency: if Stripe retried this delivery (slow
+          // response, etc.) and the gift row already existed, skip the
+          // email sends so the buyer and recipient don't get duplicates.
+          if (gift._alreadyExisted) {
+            console.log(`[webhook] gift session ${session.id} already processed (gift ${gift.code}) — skipping duplicate emails`);
+            res.json({ received: true });
+            return;
+          }
+
           const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
           const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
           const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;

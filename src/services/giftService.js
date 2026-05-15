@@ -53,6 +53,28 @@ async function createGiftCode({
   deliveryMethod,
   scheduledDate,
 }) {
+  // ─── IDEMPOTENCY ────────────────────────────────────────────────────────
+  // Stripe retries webhook deliveries on slow / non-2xx responses. Without
+  // this check each retry inserted a new gift_codes row for the same
+  // checkout session — see the May 14 2026 Giulia Busetto incident (3 rows
+  // created within 2.3s for a single $29 charge). Before inserting, look
+  // up an existing row by stripe_session_id; if found, return it and let
+  // the caller skip duplicate work (email sends, etc.).
+  if (stripeSessionId) {
+    const { data: existing, error: existingErr } = await supabaseAdmin
+      .from('gift_codes')
+      .select('*')
+      .eq('stripe_session_id', stripeSessionId)
+      .maybeSingle();
+    if (existingErr) throw existingErr;
+    if (existing) {
+      // Signal "this isn't new" so the webhook can skip resending emails.
+      // Returning the row plus a flag keeps the contract simple — every
+      // existing caller already destructures fields off the result.
+      return { ...existing, _alreadyExisted: true };
+    }
+  }
+
   const code = generateGiftCode();
   const certificateToken = generateCertificateToken();
   const expiresAt = new Date();
@@ -95,7 +117,20 @@ async function createGiftCode({
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    // If we lost a race and another webhook beat us to the insert, the
+    // unique constraint on stripe_session_id (migration 017) will fire
+    // with Postgres code 23505. Treat that as "already exists" and fetch.
+    if (error.code === '23505' && stripeSessionId) {
+      const { data: existing } = await supabaseAdmin
+        .from('gift_codes')
+        .select('*')
+        .eq('stripe_session_id', stripeSessionId)
+        .single();
+      if (existing) return { ...existing, _alreadyExisted: true };
+    }
+    throw error;
+  }
   return data;
 }
 
