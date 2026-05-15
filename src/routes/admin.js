@@ -49,8 +49,21 @@ router.get('/dev/announce-keepsakes', requireAdmin, async (req, res) => {
     const { Resend } = require('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
 
+    // Optional retry-single: /admin/dev/announce-keepsakes?only=email@x.com
+    // sends just that recipient. Used to retry Jade after the first run
+    // hit Resend's 5 req/sec rate limit on May 14 2026.
+    const onlyEmail = (req.query.only || '').toString().toLowerCase().trim();
+    const sendList = onlyEmail
+      ? RECIPIENTS.filter((e) => e.toLowerCase() === onlyEmail)
+      : RECIPIENTS;
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const results = [];
-    for (const to of RECIPIENTS) {
+    for (let i = 0; i < sendList.length; i++) {
+      // Resend free / starter plans cap at 5 req/sec. A 300ms gap keeps us
+      // well under that, and burns only ~2.4s for the full 9-recipient run.
+      if (i > 0) await sleep(300);
+      const to = sendList[i];
       const firstName = getFirstName(to);
       const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
