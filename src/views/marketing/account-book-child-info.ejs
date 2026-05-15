@@ -71,8 +71,18 @@
     .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
     .btn-back:hover { color: #2c2416; }
 
+    /* Welcome-page field toggles */
+    .wf-section { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f0ebe3; }
+    .wf-head { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .wf-note { font-size: 0.82rem; color: #8a7e6b; margin: 0.4rem 0 0.9rem; line-height: 1.45; }
+    .wf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7rem 1rem; }
+    .wf-check { display: flex; align-items: center; gap: 0.5rem; font-size: 0.92rem; color: #2c2416; font-weight: 400; text-transform: none; letter-spacing: 0; cursor: pointer; }
+    .wf-check input { width: auto; margin: 0; accent-color: #c8a96e; }
+    .field-note { font-size: 0.78rem; color: #8a7e6b; }
+
     @media (max-width: 520px) {
       .form-row, .form-row.three { grid-template-columns: 1fr; }
+      .wf-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -113,6 +123,11 @@
         <div class="form-group">
           <label>Meaning of Their Name</label>
           <textarea name="name_meaning" placeholder="Why did you choose this name? What does it mean?"><%= book.name_meaning || '' %></textarea>
+        </div>
+        <div class="form-group">
+          <label>Name Subtitle</label>
+          <input type="text" name="name_quote" value="<%= book.name_quote || '' %>" placeholder="A name chosen with love, meaning, and intention">
+          <span class="field-note">Shown under your child's name on the welcome page. Leave blank to use the default.</span>
         </div>
       </div>
 
@@ -155,6 +170,20 @@
           <div class="form-group">
             <label>Hospital</label>
             <input type="text" name="birth_hospital" value="<%= book.birth_hospital || '' %>" placeholder="e.g. St. Luke's">
+          </div>
+        </div>
+
+        <% const wfc = book.welcome_fields || {}; const wfOn = (k) => wfc[k] === false ? '' : 'checked'; %>
+        <div class="wf-section">
+          <div class="wf-head">Show on Welcome Page</div>
+          <p class="wf-note">Choose which details appear on your book's cover page. Any field left blank is hidden automatically — uncheck one here to hide it even when it has a value.</p>
+          <div class="wf-grid">
+            <label class="wf-check"><input type="checkbox" name="wf_born" <%= wfOn('born') %>> Birthday</label>
+            <label class="wf-check"><input type="checkbox" name="wf_time" <%= wfOn('time') %>> Time of Birth</label>
+            <label class="wf-check"><input type="checkbox" name="wf_weight" <%= wfOn('weight') %>> Weight</label>
+            <label class="wf-check"><input type="checkbox" name="wf_length" <%= wfOn('length') %>> Length</label>
+            <label class="wf-check"><input type="checkbox" name="wf_birthplace" <%= wfOn('birthplace') %>> Birthplace</label>
+            <label class="wf-check"><input type="checkbox" name="wf_hospital" <%= wfOn('hospital') %>> Hospital</label>
           </div>
         </div>
       </div>

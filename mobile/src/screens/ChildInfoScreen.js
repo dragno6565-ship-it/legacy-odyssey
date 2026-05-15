@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -46,6 +47,18 @@ function formatTime(hour, minute, ampm) {
   return `${hour}:${m} ${ampm}`;
 }
 
+// Welcome-page vital-stat tiles the owner can show/hide on their book's cover.
+// Blank fields hide automatically; these toggles also hide a field that
+// does have a value.
+const WELCOME_STAT_FIELDS = [
+  { key: 'born', label: 'Birthday' },
+  { key: 'time', label: 'Time of Birth' },
+  { key: 'weight', label: 'Weight' },
+  { key: 'length', label: 'Length' },
+  { key: 'birthplace', label: 'Birthplace' },
+  { key: 'hospital', label: 'Hospital' },
+];
+
 export default function ChildInfoScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
@@ -74,6 +87,10 @@ export default function ChildInfoScreen({ navigation }) {
   const [nameQuote, setNameQuote] = useState('');
   const [parentQuote, setParentQuote] = useState('');
   const [parentQuoteAttribution, setParentQuoteAttribution] = useState('');
+  // Which vital-stat tiles show on the welcome page. Default: all shown.
+  const [welcomeFields, setWelcomeFields] = useState({
+    born: true, time: true, weight: true, length: true, birthplace: true, hospital: true,
+  });
 
   useEffect(() => {
     async function fetchData() {
@@ -104,6 +121,16 @@ export default function ChildInfoScreen({ navigation }) {
         setNameQuote(book.name_quote || '');
         setParentQuote(book.parent_quote || '');
         setParentQuoteAttribution(book.parent_quote_attribution || '');
+
+        const wf = book.welcome_fields || {};
+        setWelcomeFields({
+          born: wf.born !== false,
+          time: wf.time !== false,
+          weight: wf.weight !== false,
+          length: wf.length !== false,
+          birthplace: wf.birthplace !== false,
+          hospital: wf.hospital !== false,
+        });
       } catch (err) {
         setError(err.message || 'Failed to load child info.');
       } finally {
@@ -123,6 +150,7 @@ export default function ChildInfoScreen({ navigation }) {
         name_quote: nameQuote.trim() || null,
         parent_quote: parentQuote.trim() || null,
         parent_quote_attribution: parentQuoteAttribution.trim() || null,
+        welcome_fields: welcomeFields,
         child: {
           first_name: firstName.trim(),
           middle_name: middleName.trim(),
@@ -448,6 +476,33 @@ export default function ChildInfoScreen({ navigation }) {
           placeholderTextColor={colors.placeholder}
         />
 
+        <Text style={styles.label}>Birth Details on Cover</Text>
+        <Text style={styles.helperText}>
+          Choose which details appear on your book's welcome page. Fields left
+          blank are hidden automatically.
+        </Text>
+        <View style={styles.toggleCard}>
+          {WELCOME_STAT_FIELDS.map((f, i) => (
+            <View
+              key={f.key}
+              style={[
+                styles.toggleRow,
+                i === WELCOME_STAT_FIELDS.length - 1 && styles.toggleRowLast,
+              ]}
+            >
+              <Text style={styles.toggleLabel}>{f.label}</Text>
+              <Switch
+                value={welcomeFields[f.key]}
+                onValueChange={(val) =>
+                  setWelcomeFields((prev) => ({ ...prev, [f.key]: val }))
+                }
+                trackColor={{ false: colors.border, true: colors.goldLight }}
+                thumbColor={welcomeFields[f.key] ? colors.gold : colors.placeholder}
+              />
+            </View>
+          ))}
+        </View>
+
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
           onPress={handleSave}
@@ -534,6 +589,30 @@ const styles = StyleSheet.create({
   multilineInput: {
     minHeight: 100,
     paddingTop: spacing.md,
+  },
+  toggleCard: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+    marginTop: spacing.xs,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  toggleRowLast: {
+    borderBottomWidth: 0,
+  },
+  toggleLabel: {
+    fontSize: typography.sizes.md,
+    color: colors.textPrimary,
   },
   row: {
     flexDirection: 'row',

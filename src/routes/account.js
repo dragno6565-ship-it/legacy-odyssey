@@ -419,7 +419,7 @@ router.post('/book/child-info', requireAccountSession, async (req, res, next) =>
       'child_first_name', 'child_middle_name', 'child_last_name',
       'birth_date', 'birth_time', 'birth_weight_lbs', 'birth_weight_oz',
       'birth_length_inches', 'birth_city', 'birth_state', 'birth_hospital',
-      'name_meaning', 'hero_image_path', 'parent_quote', 'parent_quote_attribution',
+      'name_meaning', 'name_quote', 'hero_image_path', 'parent_quote', 'parent_quote_attribution',
     ];
     const updates = {};
     for (const key of allowed) {
@@ -429,6 +429,12 @@ router.post('/book/child-info', requireAccountSession, async (req, res, next) =>
     for (const col of ['birth_date', 'birth_time', 'birth_weight_lbs', 'birth_weight_oz', 'birth_length_inches']) {
       if (col in updates && !updates[col]) updates[col] = null;
     }
+    // Welcome-page vital-stat visibility — six checkboxes named wf_*. A checkbox
+    // only posts a value when checked, so an absent key means unchecked = hidden.
+    const WF_KEYS = ['born', 'time', 'weight', 'length', 'birthplace', 'hospital'];
+    const welcomeFields = {};
+    for (const k of WF_KEYS) welcomeFields[k] = req.body['wf_' + k] !== undefined;
+    updates.welcome_fields = welcomeFields;
     await bookService.updateBook(book.id, updates);
     res.redirect('/account/book/child-info?success=1');
   } catch (err) {

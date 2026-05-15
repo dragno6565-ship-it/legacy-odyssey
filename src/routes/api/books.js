@@ -156,7 +156,7 @@ router.put('/mine', async (req, res, next) => {
       'birth_weight_lbs', 'birth_weight_oz', 'birth_length_inches',
       'birth_city', 'birth_state', 'birth_hospital', 'name_meaning',
       'hero_image_path', 'name_quote', 'parent_quote', 'parent_quote_attribution',
-      'vault_unlock_date',
+      'vault_unlock_date', 'welcome_fields',
     ];
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];

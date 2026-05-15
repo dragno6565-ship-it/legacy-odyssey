@@ -2,7 +2,7 @@
 
 **Status:** active (since Feb 2026)
 **Owner:** Legacy Odyssey database + storage + auth
-**Last touched:** 2026-04-28
+**Last touched:** 2026-05-15
 
 ## What it is
 Postgres-as-a-service. Source of truth for: families (customers), books and book content, domain orders, gift codes, subscriptions, photos (storage bucket), authentication (Supabase Auth).
@@ -32,13 +32,16 @@ Postgres-as-a-service. Source of truth for: families (customers), books and book
 
 ## Migrations
 - Located in `supabase/migrations/`
-- Recently: `011` (mom_title/dad_title on birth_stories), `012` (partial unique indexes on families.email/auth_user_id WHERE archived_at IS NULL)
+- Recently: `011` (mom_title/dad_title on birth_stories), `012` (partial unique indexes on families.email/auth_user_id WHERE archived_at IS NULL), `018` (books.visible_sections JSONB), `019` (books.welcome_fields JSONB)
+- ⚠️ `017` (gift_codes stripe_session_id unique index) — written but NOT yet applied
 
 ## History
 - 2026-02 — Project created
 - 2026-04-22 — Migration 011 (editable birth-story headlines)
 - 2026-04-26 — Migration 012 (partial unique indexes — allows cancel→resignup without violating constraints)
 - 2026-04-28 — Verified 12 families rows via /admin/health
+- 2026-05-15 — Migration 018 (books.visible_sections JSONB DEFAULT '{}'). Fixes the "Website Sections" toggle, which was a no-op platform-wide because the column the code read/wrote never existed. Applied via SQL Editor; all 19 books default to {} (no live site changes).
+- 2026-05-15 — Migration 019 (books.welcome_fields JSONB DEFAULT '{}'). Makes the Welcome-page birth-stat tiles (Born/Time/Weight/Length/Born In/Hospital) optional: empty tiles auto-hide, plus per-tile toggles in the editor. Built for adoptive families lacking pregnancy/birth details. Applied via SQL Editor; all 19 books default to {}.
 
 ## Related
 - `infrastructure/stripe.md` — webhooks update families table on subscription events
