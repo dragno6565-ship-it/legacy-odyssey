@@ -106,18 +106,12 @@ router.put('/mine/sections', async (req, res, next) => {
       }
     }
 
-    try {
-      await bookService.updateBook(book.id, { visible_sections: current });
-    } catch (dbErr) {
-      // If visible_sections column doesn't exist yet, ignore gracefully
-      if (dbErr.message && dbErr.message.includes('visible_sections')) {
-        console.warn('visible_sections column not yet added to books table');
-      } else {
-        throw dbErr;
-      }
-    }
+    // Persist the override. As of migration 018 the visible_sections column
+    // exists; a failure here is a real error and should surface to the
+    // client (the route-level catch returns it) rather than being swallowed.
+    await bookService.updateBook(book.id, { visible_sections: current });
 
-    // Return the computed sections (which includes overrides if column exists)
+    // Return the computed sections (which now includes the saved overrides)
     const data = await bookService.getFullBook(req.family.id);
     res.json(data.visibleSections);
   } catch (err) {
