@@ -34,6 +34,7 @@ import DashboardScreen from './src/screens/DashboardScreen';
 import ChildInfoScreen from './src/screens/ChildInfoScreen';
 import BeforeScreen from './src/screens/BeforeScreen';
 import BirthStoryScreen from './src/screens/BirthStoryScreen';
+import JourneyScreen from './src/screens/JourneyScreen';
 import ComingHomeScreen from './src/screens/ComingHomeScreen';
 import MonthsScreen from './src/screens/MonthsScreen';
 import MonthDetailScreen from './src/screens/MonthDetailScreen';
@@ -103,6 +104,7 @@ function AppNavigator() {
       <AppStack.Screen name="ChildInfo" component={ChildInfoScreen} options={{ title: 'Child Info' }} />
       <AppStack.Screen name="BeforeArrived" component={BeforeScreen} options={{ title: 'Before You Arrived' }} />
       <AppStack.Screen name="BirthStory" component={BirthStoryScreen} options={{ title: 'Birth Story' }} />
+      <AppStack.Screen name="Journey" component={JourneyScreen} options={{ title: 'Your Journey to Us' }} />
       <AppStack.Screen name="ComingHome" component={ComingHomeScreen} options={{ title: 'Coming Home' }} />
       <AppStack.Screen name="Months" component={MonthsScreen} options={{ title: 'Month by Month' }} />
       <AppStack.Screen

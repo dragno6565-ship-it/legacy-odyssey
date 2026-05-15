@@ -22,6 +22,7 @@ import {
   Sparkles,
   Heart,
   BookOpen,
+  Compass,
   Home,
   Calendar,
   Users,
@@ -36,12 +37,13 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react-native';
 
-const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'manageSections', 'help', 'settings']);
+const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'journey', 'manageSections', 'help', 'settings']);
 
 const SECTIONS = [
   { key: 'childInfo',      title: 'Welcome / Child Info', icon: Sparkles,        screen: 'ChildInfo' },
   { key: 'before',         title: 'Before You Arrived',   icon: Heart,           screen: 'BeforeArrived' },
   { key: 'birth',          title: 'Birth Story',          icon: BookOpen,        screen: 'BirthStory' },
+  { key: 'journey',        title: 'Your Journey to Us',   icon: Compass,         screen: 'Journey' },
   { key: 'comingHome',     title: 'Coming Home',          icon: Home,            screen: 'ComingHome' },
   { key: 'months',         title: 'Month by Month',       icon: Calendar,        screen: 'Months' },
   { key: 'family',         title: 'Our Family',           icon: Users,           screen: 'OurFamily' },
