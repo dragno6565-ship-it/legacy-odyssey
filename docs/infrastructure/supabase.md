@@ -32,7 +32,7 @@ Postgres-as-a-service. Source of truth for: families (customers), books and book
 
 ## Migrations
 - Located in `supabase/migrations/`
-- Recently: `011` (mom_title/dad_title on birth_stories), `012` (partial unique indexes on families.email/auth_user_id WHERE archived_at IS NULL), `018` (books.visible_sections JSONB), `019` (books.welcome_fields JSONB)
+- Recently: `011` (mom_title/dad_title on birth_stories), `012` (partial unique indexes), `018` (books.visible_sections JSONB), `019` (books.welcome_fields JSONB), `020` (journey_story + journey_photos tables), `021` (birth_stories person1_label/person2_label)
 - ⚠️ `017` (gift_codes stripe_session_id unique index) — written but NOT yet applied
 
 ## History
@@ -42,6 +42,7 @@ Postgres-as-a-service. Source of truth for: families (customers), books and book
 - 2026-04-28 — Verified 12 families rows via /admin/health
 - 2026-05-15 — Migration 018 (books.visible_sections JSONB DEFAULT '{}'). Fixes the "Website Sections" toggle, which was a no-op platform-wide because the column the code read/wrote never existed. Applied via SQL Editor; all 19 books default to {} (no live site changes).
 - 2026-05-15 — Migration 019 (books.welcome_fields JSONB DEFAULT '{}'). Makes the Welcome-page birth-stat tiles (Born/Time/Weight/Length/Born In/Hospital) optional: empty tiles auto-hide, plus per-tile toggles in the editor. Built for adoptive families lacking pregnancy/birth details. Applied via SQL Editor; all 19 books default to {}.
+- 2026-05-15 — Migrations 020 + 021. 020: journey_story + journey_photos tables (RLS enabled) for the new optional "Your Journey to Us" section — a single story page for adoption/surrogacy/foster families, sibling to Birth Story. 021: birth_stories.person1_label/person2_label so Birth Story perspectives have selectable labels (Mom & Mom, Dad & Dad, Mom & Mama, single parent, etc.). Both applied via SQL Editor.
 
 ## Related
 - `infrastructure/stripe.md` — webhooks update families table on subscription events

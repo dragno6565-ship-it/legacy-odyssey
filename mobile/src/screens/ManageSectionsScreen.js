@@ -15,6 +15,7 @@ import { get, put } from '../api/client';
 import {
   Heart,
   BookOpen,
+  Compass,
   Home,
   Calendar,
   Users,
@@ -29,6 +30,7 @@ import {
 const SECTION_TOGGLES = [
   { key: 'before',    label: 'Before You Arrived', icon: Heart },
   { key: 'birth',     label: 'Birth Story',         icon: BookOpen },
+  { key: 'journey',   label: 'Your Journey to Us',  icon: Compass },
   { key: 'home',      label: 'Coming Home',         icon: Home },
   { key: 'months',    label: 'Month by Month',      icon: Calendar },
   { key: 'family',    label: 'Our Family',          icon: Users },
