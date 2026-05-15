@@ -32,6 +32,9 @@ export default function BirthStoryScreen({ navigation }) {
   const [momPhoto2, setMomPhoto2] = useState('');
   const [dadPhoto1, setDadPhoto1] = useState('');
   const [dadPhoto2, setDadPhoto2] = useState('');
+  // Selectable perspective labels (migration 021). Blank = "Mom" / "Dad".
+  const [person1Label, setPerson1Label] = useState('');
+  const [person2Label, setPerson2Label] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -47,6 +50,8 @@ export default function BirthStoryScreen({ navigation }) {
         setMomPhoto2(d.mom_photo_2 || '');
         setDadPhoto1(d.dad_photo_1 || '');
         setDadPhoto2(d.dad_photo_2 || '');
+        setPerson1Label(d.person1_label || '');
+        setPerson2Label(d.person2_label || '');
       } catch (err) {
         if (err.status !== 404) {
           setError(err.message || 'Failed to load birth story.');
@@ -72,6 +77,8 @@ export default function BirthStoryScreen({ navigation }) {
         mom_photo_2: momPhoto2,
         dad_photo_1: dadPhoto1,
         dad_photo_2: dadPhoto2,
+        person1_label: person1Label.trim(),
+        person2_label: person2Label.trim(),
       });
       showToast('Birth story updated.');
       setTimeout(() => navigation.goBack(), 1800);
@@ -121,7 +128,17 @@ export default function BirthStoryScreen({ navigation }) {
         />
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Mom's Perspective</Text>
+          <Text style={styles.sectionHeader}>First Perspective</Text>
+          <Text style={styles.fieldLabel}>Perspective Label</Text>
+          <TextInput
+            style={styles.input}
+            value={person1Label}
+            onChangeText={setPerson1Label}
+            placeholder="Mom"
+            placeholderTextColor={colors.placeholder}
+            maxLength={40}
+          />
+          <Text style={styles.helperText}>Shown as "From ___'s Point of View". Type any role — Mom, Mama, Dad, Papa, Grandma, etc.</Text>
           <Text style={styles.fieldLabel}>Headline</Text>
           <TextInput
             style={styles.input}
@@ -136,20 +153,30 @@ export default function BirthStoryScreen({ navigation }) {
             style={[styles.input, styles.narrativeInput]}
             value={momNarrative}
             onChangeText={setMomNarrative}
-            placeholder="Mom's birth story..."
+            placeholder="The story from this perspective..."
             placeholderTextColor={colors.placeholder}
             multiline
             numberOfLines={10}
             textAlignVertical="top"
           />
-          <Text style={styles.photoLabel}>Mom's Photo 1</Text>
+          <Text style={styles.photoLabel}>Photo 1</Text>
           <PhotoPicker currentPhoto={momPhoto1} onPhotoSelected={setMomPhoto1} />
-          <Text style={styles.photoLabel}>Mom's Photo 2</Text>
+          <Text style={styles.photoLabel}>Photo 2</Text>
           <PhotoPicker currentPhoto={momPhoto2} onPhotoSelected={setMomPhoto2} />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Dad's Perspective</Text>
+          <Text style={styles.sectionHeader}>Second Perspective</Text>
+          <Text style={styles.fieldLabel}>Perspective Label</Text>
+          <TextInput
+            style={styles.input}
+            value={person2Label}
+            onChangeText={setPerson2Label}
+            placeholder="Dad"
+            placeholderTextColor={colors.placeholder}
+            maxLength={40}
+          />
+          <Text style={styles.helperText}>Leave this whole perspective blank if your family has one voice — it won't appear.</Text>
           <Text style={styles.fieldLabel}>Headline</Text>
           <TextInput
             style={styles.input}
@@ -164,15 +191,15 @@ export default function BirthStoryScreen({ navigation }) {
             style={[styles.input, styles.narrativeInput]}
             value={dadNarrative}
             onChangeText={setDadNarrative}
-            placeholder="Dad's birth story..."
+            placeholder="The story from this perspective..."
             placeholderTextColor={colors.placeholder}
             multiline
             numberOfLines={10}
             textAlignVertical="top"
           />
-          <Text style={styles.photoLabel}>Dad's Photo 1</Text>
+          <Text style={styles.photoLabel}>Photo 1</Text>
           <PhotoPicker currentPhoto={dadPhoto1} onPhotoSelected={setDadPhoto1} />
-          <Text style={styles.photoLabel}>Dad's Photo 2</Text>
+          <Text style={styles.photoLabel}>Photo 2</Text>
           <PhotoPicker currentPhoto={dadPhoto2} onPhotoSelected={setDadPhoto2} />
         </View>
 
@@ -209,6 +236,7 @@ const styles = StyleSheet.create({
   sectionHeader: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.gold, marginBottom: spacing.sm },
   photoLabel: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginTop: spacing.md, marginBottom: spacing.xs },
   fieldLabel: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginBottom: spacing.xs, marginTop: spacing.sm },
+  helperText: { fontSize: typography.sizes.xs, color: colors.textSecondary, marginTop: spacing.xs, marginBottom: spacing.xs, lineHeight: 16 },
   saveButton: { backgroundColor: colors.gold, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', justifyContent: 'center', marginTop: spacing.xl, minHeight: 50, ...shadows.button },
   saveButtonDisabled: { opacity: 0.7 },
   saveButtonText: { color: colors.white, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold },
