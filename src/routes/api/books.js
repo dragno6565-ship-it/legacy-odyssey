@@ -97,7 +97,7 @@ router.put('/mine/sections', async (req, res, next) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     if (!book) return res.status(404).json({ error: 'No book found' });
 
-    const VALID_KEYS = ['before', 'birth', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
+    const VALID_KEYS = ['before', 'birth', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
     const current = book.visible_sections || {};
 
     for (const [key, value] of Object.entries(req.body)) {
@@ -1075,6 +1075,85 @@ router.delete('/mine/keepsake-photos/:photoId', async (req, res, next) => {
     if (!k) return res.status(403).json({ error: 'Not authorized' });
 
     const { error } = await _sb.from('keepsake_photos').delete().eq('id', req.params.photoId);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ─── Your Journey to Us (migration 020) ─────────────────────────────────────
+// Single story-page section for non-traditional families (adoption,
+// surrogacy, foster, etc.). One journey_story row per book.
+
+// GET the journey_story row + its gallery photos.
+router.get('/mine/journey', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { supabaseAdmin } = require('../../config/supabase');
+    const { data: journey } = await supabaseAdmin
+      .from('journey_story').select('*').eq('book_id', book.id).maybeSingle();
+    if (!journey) return res.json({});
+    const { data: photos } = await supabaseAdmin
+      .from('journey_photos').select('*').eq('journey_id', journey.id).order('sort_order');
+    res.json({
+      ...journey,
+      photos: (photos || []).map((p) => ({ ...p, photo_path: resolvePhoto(p.photo_path) })),
+    });
+  } catch (err) { next(err); }
+});
+
+// PUT upsert the journey_story row (title, intro, story, milestones, letter).
+router.put('/mine/journey', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const data = await bookService.upsertJourneyStory(book.id, req.body);
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+// POST add a photo to the journey gallery (creates the journey row if needed).
+router.post('/mine/journey/photos', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { photo_path, caption } = req.body;
+    if (!photo_path) return res.status(400).json({ error: 'photo_path is required' });
+
+    const { supabaseAdmin } = require('../../config/supabase');
+    let { data: journey } = await supabaseAdmin
+      .from('journey_story').select('id').eq('book_id', book.id).maybeSingle();
+    if (!journey) {
+      const ins = await supabaseAdmin.from('journey_story').insert({ book_id: book.id }).select('id').single();
+      if (ins.error) throw ins.error;
+      journey = ins.data;
+    }
+    const { data: existing } = await supabaseAdmin
+      .from('journey_photos').select('sort_order').eq('journey_id', journey.id)
+      .order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+
+    const { data, error } = await supabaseAdmin.from('journey_photos').insert({
+      journey_id: journey.id, photo_path, caption: caption || null, sort_order: nextSort,
+    }).select().single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) { next(err); }
+});
+
+// DELETE a journey photo (ownership checked via journey_story.book_id).
+router.delete('/mine/journey-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { supabaseAdmin } = require('../../config/supabase');
+    const { data: photo } = await supabaseAdmin
+      .from('journey_photos').select('id, journey_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    const { data: j } = await supabaseAdmin
+      .from('journey_story').select('id').eq('id', photo.journey_id).eq('book_id', book.id).maybeSingle();
+    if (!j) return res.status(403).json({ error: 'Not authorized' });
+    const { error } = await supabaseAdmin.from('journey_photos').delete().eq('id', req.params.photoId);
     if (error) throw error;
     res.json({ success: true });
   } catch (err) { next(err); }

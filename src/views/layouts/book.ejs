@@ -238,6 +238,9 @@
       <% if (visibleSections.birth) { %>
         <%- include('../book/birth', { book, birthStory, imageUrl, photoPos }) %>
       <% } %>
+      <% if (visibleSections.journey) { %>
+        <%- include('../book/journey', { journeyStory, imageUrl, photoPos }) %>
+      <% } %>
 
       <% if (isFree) { %>
         <!-- Locked sections for free tier -->

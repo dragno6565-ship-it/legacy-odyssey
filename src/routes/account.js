@@ -467,6 +467,8 @@ router.post('/book/birth-story', requireAccountSession, async (req, res, next) =
     const book = await bookService.getBookByFamilyId(req.family.id);
     await bookService.upsertBirthStory(book.id, {
       first_held_by: req.body.first_held_by || null,
+      person1_label: (req.body.person1_label || '').trim() || null,
+      person2_label: (req.body.person2_label || '').trim() || null,
       mom_title: (req.body.mom_title || '').trim() || null,
       mom_narrative: sanitizeBookHtml(req.body.mom_narrative),
       dad_title: (req.body.dad_title || '').trim() || null,
@@ -479,6 +481,99 @@ router.post('/book/birth-story', requireAccountSession, async (req, res, next) =
     console.error('Birth story save error:', err.message);
     res.redirect('/account/book/birth-story?error=1');
   }
+});
+
+// ─── Your Journey to Us ──────────────────────────────────────────────────────
+
+router.get('/book/journey', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { data: journey } = await supabaseAdmin
+      .from('journey_story').select('*').eq('book_id', book.id).maybeSingle();
+    let photos = [];
+    if (journey) {
+      const { data } = await supabaseAdmin.from('journey_photos')
+        .select('*').eq('journey_id', journey.id).order('sort_order');
+      photos = (data || []).map((p) => ({ ...p, url: getPublicUrl(p.photo_path) }));
+    }
+    res.render('marketing/account-book-journey', {
+      family: req.family,
+      book: book || {},
+      journey: journey || {},
+      photos,
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/journey', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    // Milestones arrive as parallel arrays milestone_label[] / milestone_date[].
+    const labels = [].concat(req.body.milestone_label || []);
+    const dates = [].concat(req.body.milestone_date || []);
+    const milestones = [];
+    for (let i = 0; i < labels.length; i++) {
+      const label = (labels[i] || '').toString().trim();
+      const date = (dates[i] || '').toString().trim();
+      if (label || date) milestones.push({ label, date });
+    }
+    await bookService.upsertJourneyStory(book.id, {
+      title: (req.body.title || '').toString().trim() || null,
+      intro: (req.body.intro || '').toString().trim() || null,
+      story_title: (req.body.story_title || '').toString().trim() || null,
+      story: sanitizeBookHtml(req.body.story),
+      milestones,
+      letter_text: sanitizeBookHtml(req.body.letter_text),
+      letter_sign: (req.body.letter_sign || '').toString().trim() || null,
+    });
+    res.redirect('/account/book/journey?success=1');
+  } catch (err) {
+    console.error('Journey save error:', err.message);
+    res.redirect('/account/book/journey?error=1');
+  }
+});
+
+router.post('/book/journey/photo', requireAccountSession, upload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.redirect('/account/book/journey?error=no_file');
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    let { data: journey } = await supabaseAdmin
+      .from('journey_story').select('id').eq('book_id', book.id).maybeSingle();
+    if (!journey) {
+      const ins = await supabaseAdmin.from('journey_story').insert({ book_id: book.id }).select('id').single();
+      if (ins.error) throw ins.error;
+      journey = ins.data;
+    }
+    const ident = journey.id + '-' + Date.now();
+    const result = await photoService.upload(req.family.id, 'journey', ident, req.file.buffer, req.file.mimetype);
+    const { data: existing } = await supabaseAdmin.from('journey_photos')
+      .select('sort_order').eq('journey_id', journey.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+    const { error } = await supabaseAdmin.from('journey_photos').insert({
+      journey_id: journey.id, photo_path: result.path, caption: null, sort_order: nextSort,
+    });
+    if (error) throw error;
+    res.redirect('/account/book/journey?success=photo_added');
+  } catch (err) {
+    console.error('Journey photo upload failed:', err.message);
+    res.redirect('/account/book/journey?error=photo_upload_failed');
+  }
+});
+
+router.post('/book/journey/photo/:photoId/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { data: photo } = await supabaseAdmin.from('journey_photos')
+      .select('id, journey_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/journey?error=photo_not_found');
+    const { data: j } = await supabaseAdmin.from('journey_story')
+      .select('id').eq('id', photo.journey_id).eq('book_id', book.id).maybeSingle();
+    if (!j) return res.redirect('/account/book/journey?error=not_authorized');
+    await supabaseAdmin.from('journey_photos').delete().eq('id', req.params.photoId);
+    res.redirect('/account/book/journey?success=photo_deleted');
+  } catch (err) { next(err); }
 });
 
 // ─── Before Arrived ──────────────────────────────────────────────────────────

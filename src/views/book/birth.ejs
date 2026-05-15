@@ -26,26 +26,45 @@
       <div class="birth-stat-value"><%= (birthStory && birthStory.first_held_by) || '' %></div>
     </div>
   </div>
+  <%
+    // Two perspectives with selectable labels (migration 021). Each one shows
+    // only when it has a narrative, a headline, or a photo — so a single
+    // parent (or any family shape) can use just one voice.
+    var bs = birthStory || {};
+    var p1Label = (bs.person1_label && bs.person1_label.trim()) ? bs.person1_label.trim() : 'Mom';
+    var p2Label = (bs.person2_label && bs.person2_label.trim()) ? bs.person2_label.trim() : 'Dad';
+    function hasPerspective(narrative, title, photo) {
+      return !!((narrative && narrative.trim()) || (title && title.trim()) || photo);
+    }
+    var showP1 = hasPerspective(bs.mom_narrative, bs.mom_title, bs.mom_photo_1);
+    var showP2 = hasPerspective(bs.dad_narrative, bs.dad_title, bs.dad_photo_1);
+  %>
+  <% if (showP1 || showP2) { %>
   <div class="birth-perspectives">
+    <% if (showP1) { %>
     <div class="perspective">
-      <div class="perspective-who">&#10022; From Mom's Point of View</div>
-      <h3 class="perspective-title"><%= (birthStory && birthStory.mom_title && birthStory.mom_title.trim()) ? birthStory.mom_title : '"The moment I heard you cry..."' %></h3>
-      <p class="perspective-text"><%- ((birthStory && birthStory.mom_narrative) || '').replace(/\n/g, '<br>') %></p>
-      <% if (birthStory && birthStory.mom_photo_1) { %>
+      <div class="perspective-who">&#10022; From <%= p1Label %>'s Point of View</div>
+      <h3 class="perspective-title"><%= (bs.mom_title && bs.mom_title.trim()) ? bs.mom_title : '"The moment I heard you cry..."' %></h3>
+      <p class="perspective-text"><%- (bs.mom_narrative || '').replace(/\n/g, '<br>') %></p>
+      <% if (bs.mom_photo_1) { %>
         <div class="perspective-photo">
-          <img src="<%= imageUrl(birthStory.mom_photo_1) %>" alt="Mom's birth photo" loading="lazy" style="<%= photoPos(birthStory.mom_photo_1) %>">
+          <img src="<%= imageUrl(bs.mom_photo_1) %>" alt="<%= p1Label %>'s birth photo" loading="lazy" style="<%= photoPos(bs.mom_photo_1) %>">
         </div>
       <% } %>
     </div>
+    <% } %>
+    <% if (showP2) { %>
     <div class="perspective">
-      <div class="perspective-who">&#10022; From Dad's Point of View</div>
-      <h3 class="perspective-title"><%= (birthStory && birthStory.dad_title && birthStory.dad_title.trim()) ? birthStory.dad_title : '"I was completely unprepared for how I felt..."' %></h3>
-      <p class="perspective-text"><%- ((birthStory && birthStory.dad_narrative) || '').replace(/\n/g, '<br>') %></p>
-      <% if (birthStory && birthStory.dad_photo_1) { %>
+      <div class="perspective-who">&#10022; From <%= p2Label %>'s Point of View</div>
+      <h3 class="perspective-title"><%= (bs.dad_title && bs.dad_title.trim()) ? bs.dad_title : '"I was completely unprepared for how I felt..."' %></h3>
+      <p class="perspective-text"><%- (bs.dad_narrative || '').replace(/\n/g, '<br>') %></p>
+      <% if (bs.dad_photo_1) { %>
         <div class="perspective-photo">
-          <img src="<%= imageUrl(birthStory.dad_photo_1) %>" alt="Dad's birth photo" loading="lazy" style="<%= photoPos(birthStory.dad_photo_1) %>">
+          <img src="<%= imageUrl(bs.dad_photo_1) %>" alt="<%= p2Label %>'s birth photo" loading="lazy" style="<%= photoPos(bs.dad_photo_1) %>">
         </div>
       <% } %>
     </div>
+    <% } %>
   </div>
+  <% } %>
 </section>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Journey to Us – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.5; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem; color: #2c2416; }
+    .card-desc { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.25rem; line-height: 1.5; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"], input[type="date"], textarea {
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #e0d5c4;
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      color: #2c2416;
+      background: #fff;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
+    textarea { resize: vertical; min-height: 90px; }
+    textarea.tall { min-height: 200px; }
+    .field-note { font-size: 0.78rem; color: #8a7e6b; }
+
+    /* Milestone rows */
+    .milestone-row { display: grid; grid-template-columns: 1fr 160px 36px; gap: 0.6rem; align-items: center; margin-bottom: 0.6rem; }
+    .milestone-row .ms-remove {
+      background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b;
+      border-radius: 8px; height: 38px; cursor: pointer; font-size: 1rem; line-height: 1;
+    }
+    .btn-add {
+      background: #f7f1e6; border: 1.5px dashed #c8a96e; color: #b08e4a;
+      border-radius: 8px; padding: 0.6rem 1rem; font-family: 'Jost', sans-serif;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 0.35rem;
+    }
+    .btn-add:hover { background: #f1e8d6; }
+
+    /* Photo gallery */
+    .jphoto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.85rem; margin-bottom: 1.1rem; }
+    .jphoto { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; border: 1px solid #e0d5c4; }
+    .jphoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .jphoto .ph-del {
+      position: absolute; top: 0.35rem; right: 0.35rem;
+      background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%;
+      width: 26px; height: 26px; font-size: 0.85rem; cursor: pointer; line-height: 1;
+    }
+    .jphoto .ph-del:hover { background: rgba(192,57,43,0.95); }
+    .photo-add-zone {
+      border: 2px dashed #e0d5c4; border-radius: 10px; padding: 1.4rem;
+      text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      font-size: 0.88rem; color: #8a7e6b;
+    }
+    .photo-add-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .photo-add-zone strong { color: #c8a96e; }
+    .empty-photos { font-size: 0.85rem; color: #8a7e6b; margin-bottom: 1rem; font-style: italic; }
+
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+
+    @media (max-width: 520px) {
+      .milestone-row { grid-template-columns: 1fr 1fr 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Your Journey to Us
+    </div>
+
+    <h1>Your Journey to Us</h1>
+    <p class="section-desc">
+      An optional story page for families whose path began differently &mdash; adoption,
+      surrogacy, fostering, and every other way a child finds their family. Fill in
+      only what fits your story; anything left blank simply won't appear.
+    </p>
+
+    <% if (success) { %><div class="flash flash-success">&#10003; Saved successfully.</div><% } %>
+    <% if (error && error !== 'no_file') { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <form method="POST" action="/account/book/journey" id="journeyForm">
+
+      <!-- The Basics -->
+      <div class="card">
+        <h2>The Basics</h2>
+        <p class="card-desc">The title and opening line shown at the top of the page.</p>
+        <div class="form-group">
+          <label>Page Title</label>
+          <input type="text" name="title" value="<%= journey.title || '' %>" placeholder="Your Journey to Us">
+          <span class="field-note">Name it whatever fits &mdash; "The Adoption Story", "Our Surrogacy Story", etc. Leave blank for the default.</span>
+        </div>
+        <div class="form-group">
+          <label>Intro Line</label>
+          <textarea name="intro" placeholder="A sentence or two to open the page."><%= journey.intro || '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="card">
+        <h2>Milestone Dates</h2>
+        <p class="card-desc">Optional dated moments &mdash; the day you were matched, homecoming day, the day it was finalized. Add as many as you like; empty ones are ignored.</p>
+        <div id="milestoneList">
+          <% var ms = Array.isArray(journey.milestones) ? journey.milestones : []; %>
+          <% if (ms.length === 0) { ms = [{ label: '', date: '' }]; } %>
+          <% ms.forEach(function (m) { %>
+          <div class="milestone-row">
+            <input type="text" name="milestone_label[]" value="<%= (m && m.label) || '' %>" placeholder="e.g. Homecoming Day">
+            <input type="date" name="milestone_date[]" value="<%= (m && m.date) ? String(m.date).substring(0,10) : '' %>">
+            <button type="button" class="ms-remove" onclick="removeMilestone(this)" aria-label="Remove">&times;</button>
+          </div>
+          <% }); %>
+        </div>
+        <button type="button" class="btn-add" onclick="addMilestone()">+ Add a milestone</button>
+      </div>
+
+      <!-- The Story -->
+      <div class="card">
+        <h2>The Story</h2>
+        <p class="card-desc">The heart of the page &mdash; how your child came to be part of your family.</p>
+        <div class="form-group">
+          <label>Story Heading</label>
+          <input type="text" name="story_title" value="<%= journey.story_title || '' %>" placeholder="How you came home">
+        </div>
+        <div class="form-group">
+          <label>Your Story</label>
+          <textarea name="story" class="tall" placeholder="Tell the story in your own words. Leave a blank line between paragraphs."><%= journey.story || '' %></textarea>
+        </div>
+      </div>
+
+      <!-- A Letter to You -->
+      <div class="card">
+        <h2>A Letter to You (optional)</h2>
+        <p class="card-desc">A short closing message to your child. Appears in a quote block at the end of the page.</p>
+        <div class="form-group">
+          <label>Letter</label>
+          <textarea name="letter_text" placeholder="A few lines straight to your child."><%= journey.letter_text || '' %></textarea>
+        </div>
+        <div class="form-group">
+          <label>Signed</label>
+          <input type="text" name="letter_sign" value="<%= journey.letter_sign || '' %>" placeholder="e.g. With all our love, Mom &amp; Mama">
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book" class="btn-back">&larr; Back to My Book</a>
+      </div>
+
+    </form>
+
+    <!-- Photos (separate forms — file upload + per-photo delete) -->
+    <div class="card">
+      <h2>Photos</h2>
+      <p class="card-desc">Photographs for this page. They appear in a gallery within the section.</p>
+      <% if (photos && photos.length) { %>
+      <div class="jphoto-grid">
+        <% photos.forEach(function (p) { %>
+        <div class="jphoto">
+          <img src="<%= p.url %>" alt="Journey photo" loading="lazy">
+          <form method="POST" action="/account/book/journey/photo/<%= p.id %>/delete" onsubmit="return confirm('Remove this photo?');">
+            <button type="submit" class="ph-del" aria-label="Delete photo">&times;</button>
+          </form>
+        </div>
+        <% }); %>
+      </div>
+      <% } else { %>
+      <p class="empty-photos">No photos yet.</p>
+      <% } %>
+      <form method="POST" action="/account/book/journey/photo" enctype="multipart/form-data" id="photoForm">
+        <div class="photo-add-zone" onclick="document.getElementById('journeyFileInput').click()">
+          <strong>Click to upload</strong> a photo &mdash; JPG or PNG
+        </div>
+        <input type="file" id="journeyFileInput" name="file" accept="image/*" style="display:none"
+               onchange="if(this.files[0]){document.getElementById('photoForm').submit();}">
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    function addMilestone() {
+      var row = document.createElement('div');
+      row.className = 'milestone-row';
+      row.innerHTML =
+        '<input type="text" name="milestone_label[]" placeholder="e.g. Homecoming Day">' +
+        '<input type="date" name="milestone_date[]">' +
+        '<button type="button" class="ms-remove" onclick="removeMilestone(this)" aria-label="Remove">&times;</button>';
+      document.getElementById('milestoneList').appendChild(row);
+    }
+    function removeMilestone(btn) {
+      var list = document.getElementById('milestoneList');
+      btn.closest('.milestone-row').remove();
+      if (!list.querySelector('.milestone-row')) addMilestone();
+    }
+  </script>
+</body>
+</html>

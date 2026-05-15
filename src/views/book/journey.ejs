@@ -1,0 +1,74 @@
+<section id="page-journey" class="page-section">
+  <%
+    // "Your Journey to Us" — single story page for non-traditional families.
+    var j = journeyStory || {};
+    var jTitle = (j.title && j.title.trim()) ? j.title.trim() : '';
+    var jStoryTitle = (j.story_title && j.story_title.trim()) ? j.story_title.trim() : 'Our Story';
+    var jMilestones = Array.isArray(j.milestones)
+      ? j.milestones.filter(function (m) { return m && (m.label || m.date); })
+      : [];
+    var jPhotos = Array.isArray(j.photos) ? j.photos : [];
+    function fmtJourneyDate(d) {
+      if (!d) return '';
+      var dt = new Date(d);
+      if (isNaN(dt.getTime())) return d;
+      return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+  %>
+  <div class="page-header">
+    <div class="page-header-eyebrow">&#10022; Your Beginning</div>
+    <h2 class="page-header-title"><% if (jTitle) { %><%= jTitle %><% } else { %>Your <em>Journey</em> to Us<% } %></h2>
+    <% if (j.intro && j.intro.trim()) { %>
+    <p class="page-header-sub"><%= j.intro %></p>
+    <% } %>
+  </div>
+
+  <div class="journey-body">
+
+    <% if (jMilestones.length) { %>
+    <div class="journey-milestones">
+      <% jMilestones.forEach(function (m) { %>
+      <div class="journey-mcell">
+        <div class="journey-mcell-icon"><i data-lucide="calendar"></i></div>
+        <% if (m.label) { %><div class="journey-mcell-label"><%= m.label %></div><% } %>
+        <% if (m.date) { %><div class="journey-mcell-value"><%= fmtJourneyDate(m.date) %></div><% } %>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <% if (j.story && j.story.trim()) { %>
+    <div class="journey-section journey-story">
+      <div class="journey-section-eyebrow">Our Story</div>
+      <h3 class="journey-section-title"><%= jStoryTitle %></h3>
+      <% j.story.split(/\n\n+/).forEach(function (para) { if (para.trim()) { %>
+      <p><%- para.trim().replace(/\n/g, '<br>') %></p>
+      <% } }); %>
+    </div>
+    <% } %>
+
+    <% if (jPhotos.length) { %>
+    <div class="journey-section">
+      <div class="journey-section-eyebrow">Photographs</div>
+      <div class="journey-gallery">
+        <% jPhotos.forEach(function (p) { %>
+        <div class="journey-tile">
+          <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || 'Journey photo' %>" loading="lazy"<% if (typeof photoPos === 'function') { %> style="<%= photoPos(p.photo_path) %>"<% } %>>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (j.letter_text && j.letter_text.trim()) { %>
+    <div class="journey-letter">
+      <div class="journey-letter-eyebrow"><i data-lucide="feather"></i> A letter to you</div>
+      <p class="journey-letter-text"><%- j.letter_text.trim().replace(/\n/g, '<br>') %></p>
+      <% if (j.letter_sign && j.letter_sign.trim()) { %>
+      <div class="journey-letter-sign">&mdash; <%= j.letter_sign %></div>
+      <% } %>
+    </div>
+    <% } %>
+
+  </div>
+</section>

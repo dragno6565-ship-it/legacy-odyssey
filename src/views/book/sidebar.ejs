@@ -34,6 +34,12 @@
       <span class="nav-label">Birth Story</span>
     </a>
     <% } %>
+    <% if (visibleSections.journey) { %>
+    <a class="nav-item" onclick="showPage('journey')">
+      <span class="nav-icon"><i data-lucide="route"></i></span>
+      <span class="nav-label">Your Journey to Us</span>
+    </a>
+    <% } %>
 
     <% if (isFree) { %>
     <!-- Locked sections shown in sidebar for free users -->

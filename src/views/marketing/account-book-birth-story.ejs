@@ -90,7 +90,7 @@
     </div>
 
     <h1>Birth Story</h1>
-    <p class="section-desc">Mom's and Dad's perspectives from the day your child arrived. Each gets their own narrative and photo.</p>
+    <p class="section-desc">Two perspectives from the day your child arrived — each with a selectable label, headline, narrative, and photo. Fill in one or both.</p>
 
     <% if (success) { %><div class="flash flash-success">✓ Saved successfully.</div><% } %>
     <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
@@ -128,12 +128,17 @@
         </div>
       </div>
 
-      <!-- Mom's perspective -->
+      <!-- First perspective -->
       <div class="card">
-        <h2>From Mom's Point of View</h2>
+        <h2>First Perspective</h2>
+        <div class="form-group">
+          <label>Perspective Label</label>
+          <input type="text" name="person1_label" list="roleOptions" value="<%= birthStory.person1_label || '' %>" placeholder="Mom" maxlength="40">
+          <span style="font-size:0.78rem;color:#8a7e6b;">Shown on the website as "From ___'s Point of View". Pick from the list or type your own — Mom, Mama, Dad, Papa, Grandma, etc.</span>
+        </div>
         <div class="photo-row">
           <div>
-            <div class="photo-field-label">Mom's Photo</div>
+            <div class="photo-field-label">Photo</div>
             <input type="hidden" name="mom_photo_1" id="momPhotoPath" value="<%= birthStory.mom_photo_1 || '' %>">
             <div class="photo-zone <%= momPhotoUrl ? 'has-photo' : '' %>" id="momPhotoZone" onclick="document.getElementById('momFileInput').click()">
               <% if (momPhotoUrl) { %>
@@ -150,11 +155,11 @@
           </div>
           <div class="photo-side">
             <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
-              <label>Mom's Headline</label>
+              <label>Headline</label>
               <input type="text" name="mom_title" value="<%= birthStory.mom_title || '' %>" placeholder='"The moment I heard you cry..."' maxlength="120">
             </div>
             <div class="form-group" style="margin-bottom:0;flex:1;">
-              <label>Mom's Narrative</label>
+              <label>Narrative</label>
               <div id="momEditor" style="margin-top:0.25rem;"><%= birthStory.mom_narrative || '' %></div>
               <textarea name="mom_narrative" id="momNarrative" style="display:none;"><%= birthStory.mom_narrative || '' %></textarea>
             </div>
@@ -162,12 +167,17 @@
         </div>
       </div>
 
-      <!-- Dad's perspective -->
+      <!-- Second perspective -->
       <div class="card">
-        <h2>From Dad's Point of View</h2>
+        <h2>Second Perspective</h2>
+        <div class="form-group">
+          <label>Perspective Label</label>
+          <input type="text" name="person2_label" list="roleOptions" value="<%= birthStory.person2_label || '' %>" placeholder="Dad" maxlength="40">
+          <span style="font-size:0.78rem;color:#8a7e6b;">Leave this perspective blank entirely if your family has one voice — it simply won't appear.</span>
+        </div>
         <div class="photo-row">
           <div>
-            <div class="photo-field-label">Dad's Photo</div>
+            <div class="photo-field-label">Photo</div>
             <input type="hidden" name="dad_photo_1" id="dadPhotoPath" value="<%= birthStory.dad_photo_1 || '' %>">
             <div class="photo-zone <%= dadPhotoUrl ? 'has-photo' : '' %>" id="dadPhotoZone" onclick="document.getElementById('dadFileInput').click()">
               <% if (dadPhotoUrl) { %>
@@ -184,11 +194,11 @@
           </div>
           <div class="photo-side">
             <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
-              <label>Dad's Headline</label>
+              <label>Headline</label>
               <input type="text" name="dad_title" value="<%= birthStory.dad_title || '' %>" placeholder='"I was completely unprepared for how I felt..."' maxlength="120">
             </div>
             <div class="form-group" style="margin-bottom:0;flex:1;">
-              <label>Dad's Narrative</label>
+              <label>Narrative</label>
               <div id="dadEditor" style="margin-top:0.25rem;"><%= birthStory.dad_narrative || '' %></div>
               <textarea name="dad_narrative" id="dadNarrative" style="display:none;"><%= birthStory.dad_narrative || '' %></textarea>
             </div>
@@ -200,6 +210,24 @@
         <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
         <a href="/account/book" class="btn-back">← Back to My Book</a>
       </div>
+
+      <!-- Shared suggestions for both perspective-label inputs -->
+      <datalist id="roleOptions">
+        <option value="Mom"></option>
+        <option value="Mommy"></option>
+        <option value="Mama"></option>
+        <option value="Mother"></option>
+        <option value="Dad"></option>
+        <option value="Daddy"></option>
+        <option value="Dada"></option>
+        <option value="Papa"></option>
+        <option value="Father"></option>
+        <option value="Grandma"></option>
+        <option value="Grandpa"></option>
+        <option value="Nana"></option>
+        <option value="Auntie"></option>
+        <option value="Uncle"></option>
+      </datalist>
 
     </form>
   </div>
@@ -217,13 +245,13 @@
     const momQuill = new Quill('#momEditor', {
       theme: 'snow',
       modules: { toolbar: toolbarOptions },
-      placeholder: "Write about the moment from Mom's point of view…",
+      placeholder: "Write about the moment from the first perspective…",
     });
 
     const dadQuill = new Quill('#dadEditor', {
       theme: 'snow',
       modules: { toolbar: toolbarOptions },
-      placeholder: "Write about the moment from Dad's point of view…",
+      placeholder: "Write about the moment from the second perspective…",
     });
 
     // Before submitting, copy Quill HTML into hidden textareas

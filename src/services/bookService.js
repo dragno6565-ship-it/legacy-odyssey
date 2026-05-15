@@ -174,6 +174,33 @@ function withResolvedKeepsake(keepsake, photoRows) {
   };
 }
 
+/**
+ * Resolve a journey_story row: attach a normalized photos[] array and a
+ * cleaned milestones[] array. The "Your Journey to Us" section is one row
+ * per book. Returns null when there is no journey row at all.
+ *
+ * Output: { ...journey, photos: [{id, photo_path, caption, sort_order}], milestones: [{label, date}] }
+ */
+function withResolvedJourney(journey, photoRows) {
+  if (!journey) return null;
+
+  const photos = (photoRows && photoRows.length > 0)
+    ? photoRows.map((p) => ({
+        id: p.id,
+        photo_path: p.photo_path,
+        caption: p.caption || '',
+        sort_order: p.sort_order || 0,
+      }))
+    : [];
+
+  // milestones is a JSONB array of { label, date }; drop blank entries.
+  const milestones = (Array.isArray(journey.milestones) ? journey.milestones : [])
+    .map((m) => ({ label: (m && m.label) || '', date: (m && m.date) || '' }))
+    .filter((m) => m.label || m.date);
+
+  return { ...journey, photos, milestones };
+}
+
 
 /**
  * Compute which sections have meaningful user content (not just seed/default data).
@@ -238,12 +265,21 @@ function computeVisibleSections(data) {
   // Vault: has any items
   const vault = (data.vaultItems || []).length > 0;
 
+  // Your Journey to Us: has a story, intro, closing letter, milestones, or photos
+  const j = data.journeyStory;
+  const journey = !!(j && (
+    hasText(j.story) || hasText(j.intro) || hasText(j.letter_text) ||
+    (j.milestones && j.milestones.length > 0) ||
+    (j.photos && j.photos.length > 0)
+  ));
+
   // Use manual overrides from visible_sections column if it exists on the book
   const overrides = data.book?.visible_sections || {};
 
   return {
     before: overrides.before !== undefined ? overrides.before : before,
     birth: overrides.birth !== undefined ? overrides.birth : birth,
+    journey: overrides.journey !== undefined ? overrides.journey : journey,
     home: overrides.home !== undefined ? overrides.home : home,
     months: overrides.months !== undefined ? overrides.months : months,
     family: overrides.family !== undefined ? overrides.family : family,
@@ -284,6 +320,7 @@ async function getFullBook(familyId) {
     { data: recipes },
     { data: keepsakes },
     { data: vaultItems },
+    { data: journeyStoryRow },
   ] = await Promise.all([
     supabaseAdmin.from('before_arrived_cards').select('*').eq('book_id', book.id).order('sort_order'),
     supabaseAdmin.from('before_arrived_checklist').select('*').eq('book_id', book.id).order('sort_order'),
@@ -299,6 +336,8 @@ async function getFullBook(familyId) {
     // pre-migration databases.
     supabaseAdmin.from('keepsakes').select('*').eq('book_id', book.id).order('sort_order').then(r => r).catch(() => ({ data: [] })),
     supabaseAdmin.from('vault_items').select('*').eq('book_id', book.id).order('created_at'),
+    // journey_story is new (migration 020) — one row per book, may not exist.
+    supabaseAdmin.from('journey_story').select('*').eq('book_id', book.id).maybeSingle().then(r => r).catch(() => ({ data: null })),
   ]);
 
   // Load celebration_photos for every celebration on this book. The table
@@ -368,6 +407,21 @@ async function getFullBook(familyId) {
     (photosByKeepsake[p.keepsake_id] = photosByKeepsake[p.keepsake_id] || []).push(p);
   }
 
+  // journey_story has at most one row per book — load its gallery photos.
+  let journeyPhotos = [];
+  if (journeyStoryRow && journeyStoryRow.id) {
+    try {
+      const { data } = await supabaseAdmin
+        .from('journey_photos')
+        .select('*')
+        .eq('journey_id', journeyStoryRow.id)
+        .order('sort_order');
+      journeyPhotos = data || [];
+    } catch (_) {
+      journeyPhotos = [];
+    }
+  }
+
   const result = {
     book,
     beforeCards: beforeCards || [],
@@ -399,6 +453,7 @@ async function getFullBook(familyId) {
     recipes: (recipes || []).map((r) => withResolvedRecipe(r, photosByRecipe[r.id])),
     keepsakes: (keepsakes || []).map((k) => withResolvedKeepsake(k, photosByKeepsake[k.id])),
     vaultItems: vaultItems || [],
+    journeyStory: withResolvedJourney(journeyStoryRow, journeyPhotos),
   };
 
   result.visibleSections = computeVisibleSections(result);
@@ -469,7 +524,7 @@ async function upsertFamilyMember(bookId, memberKey, fields) {
 
 async function upsertBirthStory(bookId, fields) {
   // Whitelist allowed fields to prevent DB errors from unknown columns
-  const allowed = ['first_held_by', 'mom_title', 'mom_narrative', 'dad_title', 'dad_narrative', 'mom_photo_1', 'mom_photo_2', 'dad_photo_1', 'dad_photo_2'];
+  const allowed = ['first_held_by', 'mom_title', 'mom_narrative', 'dad_title', 'dad_narrative', 'mom_photo_1', 'mom_photo_2', 'dad_photo_1', 'dad_photo_2', 'person1_label', 'person2_label'];
   const safe = {};
   for (const key of allowed) {
     if (fields[key] !== undefined) safe[key] = fields[key];
@@ -500,6 +555,46 @@ async function upsertBirthStory(bookId, fields) {
     if (error) throw error;
     return data;
   }
+}
+
+// Upsert the single "Your Journey to Us" row for a book (migration 020).
+async function upsertJourneyStory(bookId, fields) {
+  const allowed = ['title', 'intro', 'story_title', 'story', 'milestones', 'letter_text', 'letter_sign'];
+  const safe = {};
+  for (const key of allowed) {
+    if (fields[key] !== undefined) safe[key] = fields[key];
+  }
+  // milestones must be a clean array of {label, date}
+  if (safe.milestones !== undefined) {
+    safe.milestones = (Array.isArray(safe.milestones) ? safe.milestones : [])
+      .map((m) => ({ label: (m && m.label) || '', date: (m && m.date) || '' }))
+      .filter((m) => m.label || m.date);
+  }
+  safe.updated_at = new Date().toISOString();
+
+  const { data: existing } = await supabaseAdmin
+    .from('journey_story')
+    .select('id')
+    .eq('book_id', bookId)
+    .maybeSingle();
+
+  if (existing) {
+    const { data, error } = await supabaseAdmin
+      .from('journey_story')
+      .update(safe)
+      .eq('id', existing.id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+  const { data, error } = await supabaseAdmin
+    .from('journey_story')
+    .insert({ book_id: bookId, ...safe })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 async function updateSectionCards(table, bookId, cards) {
@@ -606,12 +701,14 @@ module.exports = {
   upsertMonth,
   upsertFamilyMember,
   upsertBirthStory,
+  upsertJourneyStory,
   updateSectionCards,
   createBookWithDefaults,
   computeVisibleSections,
   withResolvedCelebration,
   withResolvedRecipe,
   withResolvedKeepsake,
+  withResolvedJourney,
   slugifyYear,
 };
 
