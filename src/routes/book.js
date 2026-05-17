@@ -586,13 +586,18 @@ router.get('/gift/success', async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== 'paid') return res.redirect('/gift');
 
-    // Find the gift code created by the webhook
+    // Find the gift code created by the webhook. Use limit(1) rather than
+    // .single() — a webhook/redirect race can briefly leave more than one
+    // row for a session, and .single() errors on multiple rows, which would
+    // throw and bounce the buyer off this success page back to /gift.
     const { supabaseAdmin } = require('../config/supabase');
-    let { data: gift } = await supabaseAdmin
+    const { data: giftRows } = await supabaseAdmin
       .from('gift_codes')
       .select('*')
       .eq('stripe_session_id', sessionId)
-      .single();
+      .order('created_at', { ascending: true })
+      .limit(1);
+    let gift = (giftRows && giftRows[0]) || null;
 
     if (!gift) {
       // Webhook hasn't fired yet — create the gift code now, passing all

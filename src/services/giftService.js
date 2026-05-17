@@ -61,12 +61,17 @@ async function createGiftCode({
   // up an existing row by stripe_session_id; if found, return it and let
   // the caller skip duplicate work (email sends, etc.).
   if (stripeSessionId) {
-    const { data: existing, error: existingErr } = await supabaseAdmin
+    // limit(1) rather than maybeSingle(): maybeSingle() errors when more than
+    // one row already exists, which would defeat the idempotency check it's
+    // meant to power. Take the earliest row for this session.
+    const { data: existingRows, error: existingErr } = await supabaseAdmin
       .from('gift_codes')
       .select('*')
       .eq('stripe_session_id', stripeSessionId)
-      .maybeSingle();
+      .order('created_at', { ascending: true })
+      .limit(1);
     if (existingErr) throw existingErr;
+    const existing = existingRows && existingRows[0];
     if (existing) {
       // Signal "this isn't new" so the webhook can skip resending emails.
       // Returning the row plus a flag keeps the contract simple — every
@@ -80,7 +85,10 @@ async function createGiftCode({
   const expiresAt = new Date();
   expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year to redeem
 
-  const resolvedMethod = ['email_now', 'email_scheduled'].includes(deliveryMethod)
+  // 'print' = buyer hands over the printable certificate themselves; we
+  // never email the recipient. 'email_now' is the fallback for anything
+  // unrecognized so a paid gift is never left without a delivery path.
+  const resolvedMethod = ['email_now', 'email_scheduled', 'print'].includes(deliveryMethod)
     ? deliveryMethod
     : 'email_now';
 
@@ -122,11 +130,13 @@ async function createGiftCode({
     // unique constraint on stripe_session_id (migration 017) will fire
     // with Postgres code 23505. Treat that as "already exists" and fetch.
     if (error.code === '23505' && stripeSessionId) {
-      const { data: existing } = await supabaseAdmin
+      const { data: existingRows } = await supabaseAdmin
         .from('gift_codes')
         .select('*')
         .eq('stripe_session_id', stripeSessionId)
-        .single();
+        .order('created_at', { ascending: true })
+        .limit(1);
+      const existing = existingRows && existingRows[0];
       if (existing) return { ...existing, _alreadyExisted: true };
     }
     throw error;
