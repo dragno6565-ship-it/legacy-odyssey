@@ -59,8 +59,9 @@ router.post('/create-gift-checkout', async (req, res, next) => {
     if (!recipientName) {
       return res.status(400).json({ error: 'recipientName is required' });
     }
-    // Recipient email is required for both email-delivery options.
-    if (!recipientEmail) {
+    // Recipient email is required only when we're emailing the recipient.
+    // For deliveryMethod 'print' the buyer hands over the certificate themselves.
+    if (deliveryMethod !== 'print' && !recipientEmail) {
       return res.status(400).json({ error: 'recipientEmail is required' });
     }
 

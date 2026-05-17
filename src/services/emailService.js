@@ -532,6 +532,8 @@ async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certi
     const d = new Date(deliverAt);
     const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     deliveryLine = `We'll send <strong>${recipient}</strong> the gift email on <strong>${dateStr}</strong> — right when the moment matters.`;
+  } else if (deliveryMethod === 'print') {
+    deliveryLine = `Your gift is ready to give. We haven't emailed ${recipient} — the printable certificate below is yours to hand them whenever you like.`;
   } else {
     deliveryLine = recipientName
       ? `We've already sent <strong>${recipient}</strong> the gift email — it should be in their inbox shortly.`
@@ -549,8 +551,9 @@ async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certi
     </div>` : '';
 
   // Friendly heads-up nudge so the buyer reminds the recipient to
-  // check spam if our redemption email lands there.
-  const spamHeadsUpBlock = `<br><br>
+  // check spam if our redemption email lands there. Skipped for 'print'
+  // delivery — we don't email the recipient in that case.
+  const spamHeadsUpBlock = (deliveryMethod === 'print') ? '' : `<br><br>
     <div style="background:#fdf8f0;border:1px solid #e8d9b0;border-left:4px solid #c8a96e;border-radius:8px;padding:14px 18px;font-size:14px;color:#2c2416;line-height:1.55;">
       <strong>One small favor:</strong> when ${recipient} gets the redemption email,
       please remind ${recipient === 'your recipient' ? 'them' : 'them'} to check their

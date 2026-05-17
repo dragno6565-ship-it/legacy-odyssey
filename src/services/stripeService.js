@@ -314,7 +314,8 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
   if (!stripe) throw new Error('Stripe not configured');
 
   // Validate deliveryMethod. Default to email_now if missing/invalid.
-  const validMethods = ['email_now', 'email_scheduled'];
+  // 'print' = buyer gives the certificate themselves; we never email the recipient.
+  const validMethods = ['email_now', 'email_scheduled', 'print'];
   const resolvedMethod = validMethods.includes(deliveryMethod) ? deliveryMethod : 'email_now';
 
   // Validate scheduledDate when method is email_scheduled.
