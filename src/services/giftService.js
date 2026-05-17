@@ -82,8 +82,12 @@ async function createGiftCode({
 
   const code = generateGiftCode();
   const certificateToken = generateCertificateToken();
+  // Gift codes don't expire — a buyer can hold one as long as they like
+  // before giving it, and the recipient can redeem whenever they're ready
+  // (this matches the promise on the /gift page). expires_at is NOT NULL,
+  // so we store a far-future date rather than enforcing a real window.
   const expiresAt = new Date();
-  expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year to redeem
+  expiresAt.setFullYear(expiresAt.getFullYear() + 100);
 
   // 'print' = buyer hands over the printable certificate themselves; we
   // never email the recipient. 'email_now' is the fallback for anything
@@ -169,7 +173,8 @@ async function redeemGiftCode({ code, email, domain }) {
     throw new Error('This gift code has been refunded and is no longer valid. Please contact the person who sent it to you.');
   }
   if (gift.status !== 'purchased') throw new Error('This gift code has already been redeemed.');
-  if (new Date(gift.expires_at) < new Date()) throw new Error('This gift code has expired.');
+  // Gift codes intentionally don't expire (see createGiftCode) — a code stays
+  // redeemable whenever the recipient is ready, no matter how long it sat.
 
   // 2. Create auth user — or reuse one that already exists.
   // A previous customer who cancelled and is now redeeming a gift would
@@ -233,8 +238,12 @@ async function redeemGiftCode({ code, email, domain }) {
     try {
       const customer = await stripe.customers.create({ email, metadata: { family_id: family.id } });
 
-      // Calculate trial end: gift purchase date + months_prepaid
-      const trialEnd = new Date(gift.created_at);
+      // The gift year runs from when the recipient REDEEMS — not from when
+      // the gift was purchased — so a gift bought well in advance still
+      // gives the recipient a full year. months_prepaid is the gifted
+      // length (12). redeemGiftCode runs at redemption time, so "now" is
+      // exactly the moment the recipient claimed the gift.
+      const trialEnd = new Date();
       trialEnd.setMonth(trialEnd.getMonth() + gift.months_prepaid);
 
       // Gift recipients are explicitly told on the gift page that the post-
