@@ -44,28 +44,24 @@
         <a href="/admin/customers/new" class="btn btn-primary">&#x2795; Add Customer</a>
       </div>
 
-      <!-- KPI Cards -->
+      <!-- KPI Cards — click any card to see that group of customers below -->
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <a class="kpi-card" href="/admin?filter=all" style="display:block;text-decoration:none;color:inherit;cursor:pointer;">
           <div class="kpi-label">Total Customers</div>
           <div class="kpi-value"><%= stats.total %></div>
-        </div>
-        <div class="kpi-card kpi-active">
+        </a>
+        <a class="kpi-card kpi-active" href="/admin?filter=active" style="display:block;text-decoration:none;color:inherit;cursor:pointer;">
           <div class="kpi-label">Active</div>
           <div class="kpi-value"><%= stats.active %></div>
-        </div>
-        <div class="kpi-card kpi-trialing">
-          <div class="kpi-label">Trialing</div>
-          <div class="kpi-value"><%= stats.trialing %></div>
-        </div>
-        <div class="kpi-card kpi-canceled">
+        </a>
+        <a class="kpi-card kpi-canceled" href="/admin?filter=canceled" style="display:block;text-decoration:none;color:inherit;cursor:pointer;">
           <div class="kpi-label">Canceled</div>
           <div class="kpi-value"><%= stats.canceled %></div>
-        </div>
-        <div class="kpi-card" style="border-left:3px solid #8a7e6b;">
+        </a>
+        <a class="kpi-card" href="/admin?filter=archived" style="display:block;text-decoration:none;color:inherit;cursor:pointer;border-left:3px solid #8a7e6b;">
           <div class="kpi-label">Archived</div>
           <div class="kpi-value"><%= stats.archived %></div>
-        </div>
+        </a>
       </div>
 
       <% if (typeof giftStats !== 'undefined' && giftStats.total > 0) { %>
@@ -108,6 +104,12 @@
           </div>
         </div>
       <% } %>
+
+      <!-- KPI filter indicator — shown when you arrive from a clicked KPI card -->
+      <div id="kpiFilterBanner" style="display:none;align-items:center;gap:10px;margin:24px 0 4px;padding:10px 14px;background:#fff8e7;border:1px solid #e8d9b0;border-radius:8px;font-size:0.9rem;color:#1a1a2e;">
+        <span id="kpiFilterText"></span>
+        <a href="/admin" style="color:var(--gold);text-decoration:none;font-weight:600;">Clear &times;</a>
+      </div>
 
       <!-- View tabs: Active customers vs Archived -->
       <div style="display:flex;gap:8px;margin:24px 0 12px;">
@@ -195,23 +197,41 @@
     let currentView = 'active';   // 'active' | 'archived'
     let currentSort = { key: 'date', dir: 'desc' }; // default: newest signups first
 
-    // ── Filter (combines tab + search) ──
+    // KPI filter — set when arriving via a clicked KPI card (?filter=...).
+    // When set, it drives the table scope instead of the Active/Archived tab.
+    let kpiFilter = new URLSearchParams(window.location.search).get('filter');
+    if (!['all', 'active', 'canceled', 'archived'].includes(kpiFilter)) kpiFilter = null;
+
+    // ── Filter (combines KPI filter OR tab, plus search) ──
     function applyFilters() {
       const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
       const rows = document.querySelectorAll('#customersTable tbody tr');
-      let visibleCount = 0;
       rows.forEach(function(row) {
         const archived = row.getAttribute('data-archived') === '1';
-        const matchesView = (currentView === 'archived') ? archived : !archived;
+        const status = row.getAttribute('data-status') || '';
+        let matchesScope;
+        if (kpiFilter === 'all') {
+          matchesScope = true;
+        } else if (kpiFilter === 'active') {
+          matchesScope = status === 'active';
+        } else if (kpiFilter === 'canceled') {
+          matchesScope = status === 'canceled';
+        } else if (kpiFilter === 'archived') {
+          matchesScope = archived;
+        } else {
+          matchesScope = (currentView === 'archived') ? archived : !archived;
+        }
         const matchesSearch = !query || (row.getAttribute('data-search') || '').includes(query);
-        const visible = matchesView && matchesSearch;
-        row.style.display = visible ? '' : 'none';
-        if (visible) visibleCount++;
+        row.style.display = (matchesScope && matchesSearch) ? '' : 'none';
       });
     }
 
     // ── Tab switching ──
     function setView(view) {
+      // Clicking a tab clears any KPI-card filter.
+      kpiFilter = null;
+      const banner = document.getElementById('kpiFilterBanner');
+      if (banner) banner.style.display = 'none';
       currentView = view;
       const active = document.getElementById('tabActive');
       const archived = document.getElementById('tabArchived');
@@ -271,6 +291,20 @@
 
     // ── Init ──
     document.addEventListener('DOMContentLoaded', function() {
+      if (kpiFilter) {
+        const labels = {
+          all: 'all customers',
+          active: 'active customers',
+          canceled: 'canceled customers',
+          archived: 'archived customers',
+        };
+        const banner = document.getElementById('kpiFilterBanner');
+        const txt = document.getElementById('kpiFilterText');
+        if (banner && txt) {
+          txt.textContent = 'Showing ' + (labels[kpiFilter] || kpiFilter);
+          banner.style.display = 'flex';
+        }
+      }
       applySort();
       updateSortArrows();
       applyFilters();
