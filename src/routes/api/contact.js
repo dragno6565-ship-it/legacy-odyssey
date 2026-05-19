@@ -24,6 +24,36 @@ router.post('/', contactLimiter, async (req, res) => {
       return res.json({ success: true });
     }
 
+    // Cloudflare Turnstile verification. Skipped gracefully when the secret
+    // isn't configured (e.g., before the env var has been set on Railway) —
+    // the honeypot still defends in that interim. On Cloudflare-side outages
+    // (verify endpoint unreachable), let the request through with a warning
+    // log rather than block legitimate visitors.
+    if (process.env.TURNSTILE_SECRET_KEY) {
+      const turnstileToken = (req.body.cfTurnstileToken || '').toString();
+      if (!turnstileToken) {
+        return res.status(400).json({ error: 'Please complete the verification challenge and try again.' });
+      }
+      try {
+        const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            secret: process.env.TURNSTILE_SECRET_KEY,
+            response: turnstileToken,
+            remoteip: req.ip || req.headers['x-forwarded-for'] || '',
+          }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          console.log('[contact] Turnstile failed:', verifyData['error-codes'] || verifyData);
+          return res.status(400).json({ error: 'Verification failed. Please refresh the page and try again.' });
+        }
+      } catch (err) {
+        console.error('[contact] Turnstile verify request error — passing through:', err.message);
+      }
+    }
+
     if (!name || !email || !message) {
       return res.status(400).json({ error: 'Name, email, and message are required.' });
     }

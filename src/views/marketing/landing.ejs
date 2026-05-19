@@ -627,6 +627,10 @@
           <label for="cf-website">Website (leave blank)</label>
           <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off">
         </div>
+        <!-- Cloudflare Turnstile: invisible/managed bot challenge. The Site Key
+             is public (safe to embed); the Secret Key lives in TURNSTILE_SECRET_KEY. -->
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADSqswy0UC1jvjWd" style="margin: 1rem 0;"></div>
         <button type="submit" class="btn-primary contact-submit">Send Message</button>
         <p class="contact-success" id="contactSuccess" style="display:none;">Thanks! We'll get back to you within 24 hours.</p>
         <p class="contact-error" id="contactError" style="display:none;">Something went wrong. Please email us directly at help@legacyodyssey.com</p>
@@ -697,14 +701,17 @@
             topic: form.topic.value,
             message: form.message.value,
             website: form.website.value, // honeypot — humans leave blank
+            cfTurnstileToken: (form.querySelector('[name="cf-turnstile-response"]') || {}).value || '',
           }),
         });
         if (res.ok) {
           success.style.display = 'block';
           pintrk('track', 'lead');
           form.reset();
+          if (window.turnstile && typeof window.turnstile.reset === 'function') window.turnstile.reset();
         } else {
           error.style.display = 'block';
+          if (window.turnstile && typeof window.turnstile.reset === 'function') window.turnstile.reset();
         }
       } catch (err) {
         error.style.display = 'block';

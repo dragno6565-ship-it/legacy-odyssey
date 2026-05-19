@@ -724,6 +724,10 @@
           <label for="cf-website-v2">Website (leave blank)</label>
           <input type="text" id="cf-website-v2" name="website" tabindex="-1" autocomplete="off">
         </div>
+        <!-- Cloudflare Turnstile: invisible/managed bot challenge. The Site Key
+             is public (safe to embed); the Secret Key lives in TURNSTILE_SECRET_KEY. -->
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADSqswy0UC1jvjWd" style="margin: 0.75rem 0;"></div>
         <button type="submit">Send Message</button>
         <div class="lo-contact-status" id="loContactStatus"></div>
       </form>
@@ -1059,6 +1063,7 @@
         email: form.email.value.trim(),
         message: form.message.value.trim(),
         website: form.website.value, // honeypot — humans leave blank
+        cfTurnstileToken: (form.querySelector('[name="cf-turnstile-response"]') || {}).value || '',
       };
       status.textContent = 'Sending…';
       try {
@@ -1072,9 +1077,11 @@
           if (typeof fbq !== 'undefined') fbq('track', 'Lead');
           if (typeof pintrk !== 'undefined') pintrk('track', 'lead');
           form.reset();
+          if (window.turnstile && typeof window.turnstile.reset === 'function') window.turnstile.reset();
         } else {
           const err = await res.json().catch(() => ({}));
           status.textContent = err.error || 'Something went wrong. Please email hello@legacyodyssey.com.';
+          if (window.turnstile && typeof window.turnstile.reset === 'function') window.turnstile.reset();
         }
       } catch (err) {
         status.textContent = 'Network error. Please email hello@legacyodyssey.com.';
