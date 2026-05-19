@@ -576,6 +576,53 @@ router.post('/book/journey/photo/:photoId/delete', requireAccountSession, async 
   } catch (err) { next(err); }
 });
 
+// ─── Website Sections (show / hide on the public site) ───────────────────────
+
+router.get('/book/sections', requireAccountSession, async (req, res, next) => {
+  try {
+    const data = await bookService.getFullBook(req.family.id);
+    if (!data) return res.redirect('/account/book');
+    // effective = content auto-detection with any saved overrides applied.
+    const effective = data.visibleSections || {};
+    // auto = pure content-based detection (overrides stripped) so a save
+    // stores only deviations — a section the owner never deliberately
+    // toggled keeps auto-showing when it gets content later.
+    const auto = bookService.computeVisibleSections({
+      ...data,
+      book: { ...(data.book || {}), visible_sections: {} },
+    });
+    res.render('marketing/account-book-sections', {
+      family: req.family,
+      book: data.book || {},
+      effective,
+      auto,
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/sections', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const KEYS = ['before', 'birth', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
+    // Each row posts a checkbox (sec_<key>, present only when on) and a hidden
+    // auto_<key> carrying the content-based default. Store an override only
+    // when the chosen state differs from that default, keeping the map minimal.
+    const overrides = {};
+    for (const k of KEYS) {
+      const checked = req.body['sec_' + k] !== undefined;
+      const auto = req.body['auto_' + k] === '1';
+      if (checked !== auto) overrides[k] = checked;
+    }
+    await bookService.updateBook(book.id, { visible_sections: overrides });
+    res.redirect('/account/book/sections?success=1');
+  } catch (err) {
+    console.error('Sections save error:', err.message);
+    res.redirect('/account/book/sections?error=1');
+  }
+});
+
 // ─── Before Arrived ──────────────────────────────────────────────────────────
 
 router.get('/book/before-arrived', requireAccountSession, async (req, res, next) => {

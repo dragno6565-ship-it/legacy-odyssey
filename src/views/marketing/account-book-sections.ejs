@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Sections – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0ebe3; overflow: hidden; }
+    .sec-row { display: flex; align-items: center; gap: 0.9rem; padding: 0.95rem 1.25rem; border-bottom: 1px solid #f0ebe3; }
+    .sec-row:last-child { border-bottom: none; }
+    .sec-icon { width: 26px; display: flex; align-items: center; justify-content: center; color: #c8a96e; flex-shrink: 0; }
+    .sec-icon svg { width: 22px; height: 22px; stroke-width: 1.5; }
+    .sec-info { flex: 1; min-width: 0; }
+    .sec-name { font-size: 0.98rem; font-weight: 500; color: #2c2416; }
+    .sec-hint { font-size: 0.76rem; color: #8a7e6b; margin-top: 0.1rem; }
+    /* Toggle switch */
+    .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: #e0d5c4; border-radius: 26px; transition: background 0.2s; cursor: pointer; }
+    .slider::before { content: ''; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .switch input:checked + .slider { background: #c8a96e; }
+    .switch input:checked + .slider::before { transform: translateX(20px); }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: #b08e4a; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Website Sections
+    </div>
+
+    <h1>Website Sections</h1>
+    <p class="section-desc">
+      Choose which sections appear on your public website. A section shows automatically
+      once you add content to it — the switches below let you override that: turn one off
+      to hide it even when it has content, or on to show it regardless. This stays in sync
+      with the mobile app.
+    </p>
+
+    <% if (success) { %><div class="flash flash-success">&#10003; Saved successfully.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong. Please try again.</div><% } %>
+
+    <%
+      var SECTIONS = [
+        { key: 'before',    name: 'Before You Arrived', icon: 'heart' },
+        { key: 'birth',     name: 'Birth Story',        icon: 'book-open' },
+        { key: 'journey',   name: 'Your Journey to Us', icon: 'compass' },
+        { key: 'home',      name: 'Coming Home',        icon: 'home' },
+        { key: 'months',    name: 'Month by Month',     icon: 'calendar' },
+        { key: 'family',    name: 'Our Family',         icon: 'users' },
+        { key: 'firsts',    name: 'Your Firsts',        icon: 'star' },
+        { key: 'holidays',  name: 'Celebrations',       icon: 'gift' },
+        { key: 'letters',   name: 'Letters to You',     icon: 'mail' },
+        { key: 'recipes',   name: 'Family Recipes',     icon: 'utensils-crossed' },
+        { key: 'keepsakes', name: 'Their Keepsakes',    icon: 'archive' },
+        { key: 'vault',     name: 'The Vault',          icon: 'lock' },
+      ];
+    %>
+
+    <form method="POST" action="/account/book/sections">
+      <div class="card">
+        <% SECTIONS.forEach(function (s) { %>
+        <div class="sec-row">
+          <div class="sec-icon"><i data-lucide="<%= s.icon %>"></i></div>
+          <div class="sec-info">
+            <div class="sec-name"><%= s.name %></div>
+            <div class="sec-hint"><%= auto[s.key] ? 'Has content' : 'No content yet' %></div>
+          </div>
+          <input type="hidden" name="auto_<%= s.key %>" value="<%= auto[s.key] ? '1' : '0' %>">
+          <label class="switch">
+            <input type="checkbox" name="sec_<%= s.key %>" <%= effective[s.key] ? 'checked' : '' %>>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <% }); %>
+      </div>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <a href="/account/book" class="btn-back">&larr; Back to My Book</a>
+      </div>
+    </form>
+
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

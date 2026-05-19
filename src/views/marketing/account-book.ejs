@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Book – Legacy Odyssey</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 4rem; }
@@ -30,7 +31,8 @@
       position: relative;
     }
     .section-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
-    .section-card .emoji { font-size: 1.75rem; line-height: 1; }
+    .section-card .card-icon { color: #c8a96e; line-height: 1; }
+    .section-card .card-icon svg { width: 28px; height: 28px; stroke-width: 1.5; }
     .section-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: #2c2416; }
     .section-card p { font-size: 0.82rem; color: #8a7e6b; line-height: 1.5; }
     .dot {
@@ -79,96 +81,107 @@
 
       <a href="/account/book/child-info" class="section-card">
         <div class="dot <%= (book && book.child_first_name) ? '' : 'empty' %>"></div>
-        <div class="emoji">👶</div>
+        <div class="card-icon"><i data-lucide="sparkles"></i></div>
         <h3>Child Info</h3>
         <p>Name, birthday, birth details, and hero photo</p>
       </a>
 
       <a href="/account/book/birth-story" class="section-card">
         <div class="dot <%= visibleSections.birth ? '' : 'empty' %>"></div>
-        <div class="emoji">🌟</div>
+        <div class="card-icon"><i data-lucide="book-open"></i></div>
         <h3>Birth Story</h3>
         <p>Two perspectives from the big day, with selectable labels</p>
       </a>
 
       <a href="/account/book/journey" class="section-card">
         <div class="dot <%= visibleSections.journey ? '' : 'empty' %>"></div>
-        <div class="emoji">🧭</div>
+        <div class="card-icon"><i data-lucide="compass"></i></div>
         <h3>Your Journey to Us</h3>
         <p>For adoption, surrogacy, fostering — an optional story page</p>
       </a>
 
       <a href="/account/book/before-arrived" class="section-card">
         <div class="dot <%= visibleSections.before ? '' : 'empty' %>"></div>
-        <div class="emoji">🤰</div>
+        <div class="card-icon"><i data-lucide="heart"></i></div>
         <h3>Before You Arrived</h3>
         <p>Pregnancy memories and the anticipation of arrival</p>
       </a>
 
       <a href="/account/book/coming-home" class="section-card">
         <div class="dot <%= visibleSections.home ? '' : 'empty' %>"></div>
-        <div class="emoji">🏠</div>
+        <div class="card-icon"><i data-lucide="home"></i></div>
         <h3>Coming Home</h3>
         <p>The journey home and your first days together</p>
       </a>
 
       <a href="/account/book/months" class="section-card">
         <div class="dot <%= visibleSections.months ? '' : 'empty' %>"></div>
-        <div class="emoji">📅</div>
+        <div class="card-icon"><i data-lucide="calendar"></i></div>
         <h3>Month by Month</h3>
         <p>Monthly milestones, notes, and photos from 1 to 12</p>
       </a>
 
       <a href="/account/book/family" class="section-card">
         <div class="dot <%= visibleSections.family ? '' : 'empty' %>"></div>
-        <div class="emoji">❤️</div>
+        <div class="card-icon"><i data-lucide="users"></i></div>
         <h3>Our Family</h3>
         <p>Family members, their roles, and their stories</p>
       </a>
 
       <a href="/account/book/firsts" class="section-card">
         <div class="dot <%= visibleSections.firsts ? '' : 'empty' %>"></div>
-        <div class="emoji">⭐</div>
+        <div class="card-icon"><i data-lucide="star"></i></div>
         <h3>Your Firsts</h3>
         <p>First smile, first word, first steps, and more</p>
       </a>
 
       <a href="/account/book/celebrations" class="section-card">
         <div class="dot <%= visibleSections.holidays ? '' : 'empty' %>"></div>
-        <div class="emoji">🎉</div>
+        <div class="card-icon"><i data-lucide="gift"></i></div>
         <h3>Celebrations</h3>
         <p>Birthdays, holidays, and special occasions</p>
       </a>
 
       <a href="/account/book/letters" class="section-card">
         <div class="dot <%= visibleSections.letters ? '' : 'empty' %>"></div>
-        <div class="emoji">✉️</div>
+        <div class="card-icon"><i data-lucide="mail"></i></div>
         <h3>Letters</h3>
         <p>Letters written to your little one over time</p>
       </a>
 
       <a href="/account/book/recipes" class="section-card">
         <div class="dot <%= visibleSections.recipes ? '' : 'empty' %>"></div>
-        <div class="emoji">🍽️</div>
+        <div class="card-icon"><i data-lucide="utensils-crossed"></i></div>
         <h3>Family Recipes</h3>
         <p>Recipes and food memories passed down through generations</p>
       </a>
 
       <a href="/account/book/keepsakes" class="section-card">
         <div class="dot <%= visibleSections.keepsakes ? '' : 'empty' %>"></div>
-        <div class="emoji">🗃️</div>
+        <div class="card-icon"><i data-lucide="archive"></i></div>
         <h3>Their Keepsakes</h3>
         <p>Photos of drawings, awards, certificates &mdash; the small treasures you can't keep forever</p>
       </a>
 
       <a href="/account/book/vault" class="section-card">
         <div class="dot <%= visibleSections.vault ? '' : 'empty' %>"></div>
-        <div class="emoji">🔒</div>
+        <div class="card-icon"><i data-lucide="lock"></i></div>
         <h3>The Vault</h3>
         <p>Letters sealed and hidden until your child is ready</p>
       </a>
 
+      <a href="/account/book/sections" class="section-card">
+        <div class="card-icon"><i data-lucide="globe"></i></div>
+        <h3>Website Sections</h3>
+        <p>Choose which sections show on your public website</p>
+      </a>
+
     </div>
   </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
 </body>
 </html>
