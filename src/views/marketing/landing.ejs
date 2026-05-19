@@ -622,6 +622,11 @@
         <div class="form-row">
           <textarea name="message" placeholder="How can we help?" rows="4" required></textarea>
         </div>
+        <!-- Honeypot: hidden from humans; bots that scrape forms fill it and get silently dropped server-side. -->
+        <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
+          <label for="cf-website">Website (leave blank)</label>
+          <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <button type="submit" class="btn-primary contact-submit">Send Message</button>
         <p class="contact-success" id="contactSuccess" style="display:none;">Thanks! We'll get back to you within 24 hours.</p>
         <p class="contact-error" id="contactError" style="display:none;">Something went wrong. Please email us directly at help@legacyodyssey.com</p>
@@ -691,6 +696,7 @@
             email: form.email.value,
             topic: form.topic.value,
             message: form.message.value,
+            website: form.website.value, // honeypot — humans leave blank
           }),
         });
         if (res.ok) {

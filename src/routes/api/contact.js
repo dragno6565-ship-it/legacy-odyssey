@@ -13,6 +13,17 @@ router.post('/', contactLimiter, async (req, res) => {
   try {
     const { name, email, topic, message } = req.body;
 
+    // Honeypot: the landing form has a hidden "website" field positioned
+    // off-screen with aria-hidden and tabindex=-1. Humans never see or fill
+    // it. Form-scraping bots fill every input they find. If this comes back
+    // non-empty, it's a bot — silently return success so the bot moves on,
+    // but don't email, don't fire the Lead CAPI event, don't do anything.
+    const honeypot = (req.body.website || '').toString().trim();
+    if (honeypot) {
+      console.log(`[contact] honeypot triggered (value: ${honeypot.slice(0, 80)}) — dropping spam from ${req.ip}`);
+      return res.json({ success: true });
+    }
+
     if (!name || !email || !message) {
       return res.status(400).json({ error: 'Name, email, and message are required.' });
     }

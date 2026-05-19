@@ -719,6 +719,11 @@
         <input type="text" name="name" placeholder="Your name" required>
         <input type="email" name="email" placeholder="Your email" required>
         <textarea name="message" placeholder="Your question or message" required></textarea>
+        <!-- Honeypot: hidden from humans; bots fill it and get silently dropped server-side. -->
+        <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
+          <label for="cf-website-v2">Website (leave blank)</label>
+          <input type="text" id="cf-website-v2" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <button type="submit">Send Message</button>
         <div class="lo-contact-status" id="loContactStatus"></div>
       </form>
@@ -1053,6 +1058,7 @@
         name: form.name.value.trim(),
         email: form.email.value.trim(),
         message: form.message.value.trim(),
+        website: form.website.value, // honeypot — humans leave blank
       };
       status.textContent = 'Sending…';
       try {
