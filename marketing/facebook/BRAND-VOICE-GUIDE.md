@@ -82,6 +82,12 @@ Easier to sustain solo, and avoids the "who is this person" problem.
 
 ---
 
+## Positioning rules (the website angle)
+
+- **Always emphasize that the product is a real website.** This is the differentiator people respond to. Use the word *website* (or *site*) often and plainly. "Your baby's book, as a real website at your-childs-name.com." "A password-protected website." "The website that lives at their name."
+- **Do NOT claim other baby books "live inside an app" or anything similar.** They don't — most baby books are physical books, scrapbooks, photo albums. That comparison is factually wrong and gets pointed out.
+- **Don't position against "apps" as the contrast.** Position FOR the website. *We're a website* lands; *they're an app and we're not* doesn't (and isn't true).
+
 ## Banned words & hard rules (apply to EVERY post)
 
 - **"forever" / "permanent"** — never. Product is not marketed on permanence.
