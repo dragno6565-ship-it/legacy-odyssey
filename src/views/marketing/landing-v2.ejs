@@ -53,6 +53,8 @@
        ============================================================ */
     .lo-page *, .lo-page *::before, .lo-page *::after { box-sizing: border-box; }
     .lo-page { font-family: 'Jost', system-ui, sans-serif; background: #faf7f2; color: #2c2416; overflow-x: hidden; line-height: 1.5; }
+    /* Offset anchor targets so they clear the 64px fixed nav. */
+    #pricing, #features, #how-it-works, #help { scroll-margin-top: 80px; }
     .lo-page a { text-decoration: none; }
 
     /* NAV */
@@ -1087,6 +1089,23 @@
         status.textContent = 'Network error. Please email hello@legacyodyssey.com.';
       }
     });
+  </script>
+
+  <script>
+    // Robust hash scrolling. A native "/#pricing" jump can land at the very
+    // top of this page because the tall hero + section images shift layout
+    // after the anchor position is first computed. After the page has fully
+    // loaded we re-scroll to the hash target. scrollIntoView walks every
+    // scroll ancestor, so it works even though .lo-page sets overflow-x.
+    (function () {
+      function scrollToHash() {
+        if (!location.hash) return;
+        var el = document.querySelector(location.hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      window.addEventListener('load', function () { setTimeout(scrollToHash, 80); });
+      window.addEventListener('hashchange', scrollToHash);
+    })();
   </script>
 
 </body>

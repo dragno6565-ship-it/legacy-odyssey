@@ -45,6 +45,8 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <link rel="stylesheet" href="/css/marketing.css">
   <style>
+    /* Offset anchor targets so they clear the fixed marketing nav. */
+    #pricing, #features, #how-it-works, #help { scroll-margin-top: 90px; }
     .waitlist-section { margin: 2rem 0; max-width: 520px; }
     .waitlist-form { display: flex; gap: 0.5rem; width: 100%; }
     .waitlist-form input[type="email"] {
@@ -971,6 +973,21 @@
   <script>
     if (window.lucide) lucide.createIcons();
     else window.addEventListener('load', () => window.lucide && lucide.createIcons());
+  </script>
+
+  <script>
+    // Robust hash scrolling — a native "/#pricing" jump can land at the top of
+    // the page because the hero/section images shift layout after the anchor
+    // position is first computed. After load, re-scroll to the hash target.
+    (function () {
+      function scrollToHash() {
+        if (!location.hash) return;
+        var el = document.querySelector(location.hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      window.addEventListener('load', function () { setTimeout(scrollToHash, 80); });
+      window.addEventListener('hashchange', scrollToHash);
+    })();
   </script>
 
 </body>
