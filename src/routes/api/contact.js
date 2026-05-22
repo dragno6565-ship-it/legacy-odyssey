@@ -32,25 +32,32 @@ router.post('/', contactLimiter, async (req, res) => {
     if (process.env.TURNSTILE_SECRET_KEY) {
       const turnstileToken = (req.body.cfTurnstileToken || '').toString();
       if (!turnstileToken) {
-        return res.status(400).json({ error: 'Please complete the verification challenge and try again.' });
-      }
-      try {
-        const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            secret: process.env.TURNSTILE_SECRET_KEY,
-            response: turnstileToken,
-            remoteip: req.ip || req.headers['x-forwarded-for'] || '',
-          }),
-        });
-        const verifyData = await verifyRes.json();
-        if (!verifyData.success) {
-          console.log('[contact] Turnstile failed:', verifyData['error-codes'] || verifyData);
-          return res.status(400).json({ error: 'Verification failed. Please refresh the page and try again.' });
+        // No token usually means a bot — but it can also be a real human whose
+        // browser blocked challenges.cloudflare.com (privacy extension, ad
+        // blocker, locked-down corporate network, VPN/Tor). Rather than hard-
+        // block that legitimate slice, fall through to honeypot-only defense
+        // (the honeypot already passed above) plus the rate limiter. Log it so
+        // we can watch for abuse via this path.
+        console.warn(`[contact] Turnstile token missing — passing through on honeypot+rate-limit only (ip: ${req.ip})`);
+      } else {
+        try {
+          const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              secret: process.env.TURNSTILE_SECRET_KEY,
+              response: turnstileToken,
+              remoteip: req.ip || req.headers['x-forwarded-for'] || '',
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyData.success) {
+            console.log('[contact] Turnstile failed:', verifyData['error-codes'] || verifyData);
+            return res.status(400).json({ error: 'Verification failed. Please refresh the page and try again.' });
+          }
+        } catch (err) {
+          console.error('[contact] Turnstile verify request error — passing through:', err.message);
         }
-      } catch (err) {
-        console.error('[contact] Turnstile verify request error — passing through:', err.message);
       }
     }
 
