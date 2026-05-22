@@ -1098,24 +1098,28 @@
     // loaded we re-scroll to the hash target. scrollIntoView walks every
     // scroll ancestor, so it works even though .lo-page sets overflow-x.
     (function () {
-      function scrollToHash() {
-        if (!location.hash) return;
+      if (!location.hash) return;
+      // The page sets html { scroll-behavior: smooth } globally, so a
+      // cross-page "/#pricing" landing turns into a long animated scroll that
+      // gets aborted by lazy-loading images shifting layout mid-scroll — which
+      // strands the visitor near the top. Force an instant jump to the element's
+      // computed offset (minus the 64px fixed nav) instead, and re-run a couple
+      // of times so late layout shifts are corrected. Same-page anchor clicks
+      // are untouched and keep their native smooth scroll.
+      function jumpToHash() {
         var el;
         try { el = document.querySelector(location.hash); } catch (e) { return; }
-        // Instant jump, not smooth: a long smooth animation gets aborted when
-        // lazy-loaded images above the target shift layout mid-scroll, which
-        // leaves the visitor stranded near the top. Re-run a couple of times
-        // so late layout shifts are corrected.
-        if (el) el.scrollIntoView({ block: 'start' });
+        if (!el) return;
+        var prev = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollTo(0, el.getBoundingClientRect().top + window.pageYOffset - 80);
+        document.documentElement.style.scrollBehavior = prev;
       }
-      if (location.hash) {
-        window.addEventListener('load', function () {
-          scrollToHash();
-          setTimeout(scrollToHash, 250);
-          setTimeout(scrollToHash, 700);
-        });
-      }
-      window.addEventListener('hashchange', scrollToHash);
+      window.addEventListener('load', function () {
+        jumpToHash();
+        setTimeout(jumpToHash, 250);
+        setTimeout(jumpToHash, 700);
+      });
     })();
   </script>
 
