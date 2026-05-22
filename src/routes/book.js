@@ -315,6 +315,13 @@ router.get('/sitemap.xml', async (req, res) => {
     { loc: `https://${appDomain}/blog`, priority: '0.6', changefreq: 'weekly' },
     { loc: `https://${appDomain}/blog/what-to-write-in-baby-book`, priority: '0.7', changefreq: 'monthly' },
     { loc: `https://${appDomain}/blog/getting-started-with-legacy-odyssey`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/legacy-odyssey-walkthrough`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/what-is-legacy-odyssey`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/birth-story-section`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/month-by-month`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/letters-to-your-child`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/the-family-website`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/getting-started-guide`, priority: '0.7', changefreq: 'monthly' },
   ];
 
   if (families) {
@@ -409,6 +416,62 @@ router.get('/privacy', (req, res) => {
 // Blog posts registry — add new posts here
 const BLOG_POSTS = [
   {
+    title: 'Inside Legacy Odyssey: A Complete Walkthrough of Every Section',
+    excerpt: 'Every section of the book explained — what\'s in it, how to fill it in, and what family sees on the website.',
+    url: '/blog/legacy-odyssey-walkthrough',
+    category: 'Walkthrough',
+    date: 'May 22, 2026',
+    readTime: '8 min read',
+  },
+  {
+    title: 'What Is Legacy Odyssey?',
+    excerpt: 'A digital baby book built as a real website at your child\'s own .com domain. Here\'s how it works.',
+    url: '/blog/what-is-legacy-odyssey',
+    category: 'Overview',
+    date: 'May 22, 2026',
+    readTime: '4 min read',
+  },
+  {
+    title: 'How the Birth Story Section Works',
+    excerpt: 'Two perspectives, custom labels, and a layout built for the people who were actually there.',
+    url: '/blog/birth-story-section',
+    category: 'Feature',
+    date: 'May 22, 2026',
+    readTime: '3 min read',
+  },
+  {
+    title: 'Month by Month: Tracking the First Year',
+    excerpt: 'Twelve months, each with a photo, measurements, and a note. Fill it in as the year goes on.',
+    url: '/blog/month-by-month',
+    category: 'Feature',
+    date: 'May 22, 2026',
+    readTime: '3 min read',
+  },
+  {
+    title: 'Letters to You: Writing to Your Child Inside the Book',
+    excerpt: 'Letters from family members, displayed as actual letter-style cards on the website.',
+    url: '/blog/letters-to-your-child',
+    category: 'Feature',
+    date: 'May 22, 2026',
+    readTime: '3 min read',
+  },
+  {
+    title: 'What the Family Website Looks Like',
+    excerpt: 'No app, no signup. Family opens it in any browser. Here\'s exactly what they see.',
+    url: '/blog/the-family-website',
+    category: 'The Website',
+    date: 'May 22, 2026',
+    readTime: '4 min read',
+  },
+  {
+    title: 'Getting Started with Legacy Odyssey',
+    excerpt: 'What you get, how to access everything, and what to expect when your domain goes live.',
+    url: '/blog/getting-started-guide',
+    category: 'Getting Started',
+    date: 'May 22, 2026',
+    readTime: '3 min read',
+  },
+  {
     title: 'Getting Started with Legacy Odyssey: A Complete Walkthrough',
     excerpt: 'A thorough walkthrough of everything that happens after you purchase — setting your password, downloading the app, filling in every section of your book, sharing with family, and the Time Vault.',
     url: '/blog/getting-started-with-legacy-odyssey',
@@ -439,6 +502,28 @@ router.get('/blog/getting-started-with-legacy-odyssey', (req, res) => {
 // GET /blog/what-to-write-in-baby-book
 router.get('/blog/what-to-write-in-baby-book', (req, res) => {
   res.render('marketing/blog-what-to-write-in-baby-book');
+});
+
+router.get('/blog/legacy-odyssey-walkthrough', (req, res) => {
+  res.render('marketing/blog-legacy-odyssey-walkthrough');
+});
+router.get('/blog/what-is-legacy-odyssey', (req, res) => {
+  res.render('marketing/blog-what-is-legacy-odyssey');
+});
+router.get('/blog/birth-story-section', (req, res) => {
+  res.render('marketing/blog-birth-story-section');
+});
+router.get('/blog/month-by-month', (req, res) => {
+  res.render('marketing/blog-month-by-month');
+});
+router.get('/blog/letters-to-your-child', (req, res) => {
+  res.render('marketing/blog-letters-to-your-child');
+});
+router.get('/blog/the-family-website', (req, res) => {
+  res.render('marketing/blog-the-family-website');
+});
+router.get('/blog/getting-started-guide', (req, res) => {
+  res.render('marketing/blog-getting-started-guide');
 });
 
 // POST /verify-password
