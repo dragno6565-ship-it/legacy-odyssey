@@ -982,10 +982,21 @@
     (function () {
       function scrollToHash() {
         if (!location.hash) return;
-        var el = document.querySelector(location.hash);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var el;
+        try { el = document.querySelector(location.hash); } catch (e) { return; }
+        // Instant jump, not smooth: a long smooth animation gets aborted when
+        // lazy-loaded images above the target shift layout mid-scroll, which
+        // leaves the visitor stranded near the top. Re-run a couple of times
+        // so late layout shifts are corrected.
+        if (el) el.scrollIntoView({ block: 'start' });
       }
-      window.addEventListener('load', function () { setTimeout(scrollToHash, 80); });
+      if (location.hash) {
+        window.addEventListener('load', function () {
+          scrollToHash();
+          setTimeout(scrollToHash, 250);
+          setTimeout(scrollToHash, 700);
+        });
+      }
       window.addEventListener('hashchange', scrollToHash);
     })();
   </script>
