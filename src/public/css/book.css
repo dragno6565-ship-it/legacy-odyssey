@@ -1089,6 +1089,13 @@ body {
   font-size: 0.85rem;
   line-height: 1.85;
   color: var(--ink-mid);
+  /* Clamp the preview on the LIST card to keep card heights even — the full
+     body always renders on the celebration detail page. Safe for all books. */
+  margin-bottom: 0.85rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* --- LETTERS PAGE --- */
@@ -2248,4 +2255,47 @@ body {
   .journey-mcell { flex: 1 1 100%; border-right: 0; border-bottom: 1px solid rgba(184,147,90,0.2); }
   .journey-mcell:last-child { border-bottom: 0; }
   .journey-letter { padding: 2rem 1.5rem; }
+}
+
+/* ===================== DEMO BANNER (demo domains only) =====================
+ * Shared across the SPA (layouts/book.ejs) AND the standalone detail layouts
+ * (recipe-detail / celebration-detail / keepsake-detail). These rules are
+ * fully scoped: `.demo-banner` only exists in the markup on demo domains, and
+ * the offset rules are gated on `body.demo-bar-visible`, which is only set when
+ * isDemoDomain is true. They have ZERO effect on real customer books.
+ *
+ * The banner is a fixed 44px bar at the top of the viewport; the offsets push
+ * the sidebar, main content, and mobile header down by 44px so nothing renders
+ * underneath it (previously the detail pages had no offset, so the banner
+ * overlapped the breadcrumb / back link). */
+.demo-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  background: #1a1510; border-bottom: 2px solid #c8a96e;
+  height: 44px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Jost', sans-serif; font-size: 0.85rem; color: #d4bb8a;
+  padding: 0 3rem; gap: 0.75rem; text-align: center;
+}
+.demo-banner strong { color: #faf7f2; }
+.demo-banner a.demo-cta {
+  background: #c8a96e; color: #1a1510; font-weight: 700;
+  padding: 0.25rem 0.9rem; border-radius: 2px; text-decoration: none;
+  font-size: 0.8rem; letter-spacing: 0.05em; white-space: nowrap;
+}
+.demo-banner a.demo-cta:hover { background: #d4bb8a; }
+.demo-banner-close {
+  position: absolute; right: 1rem; background: none; border: none;
+  color: #8a7e6b; font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0;
+}
+.demo-banner-close:hover { color: #faf7f2; }
+
+/* Push the app shell below the fixed banner on demo pages. */
+body.demo-bar-visible #sidebar { top: 44px; height: calc(100vh - 44px); }
+body.demo-bar-visible #main-content { padding-top: 44px; }
+body.demo-bar-visible .mobile-header { top: 44px; }
+
+@media (max-width: 768px) {
+  /* On mobile the sidebar is off-canvas and the fixed 56px mobile header sits
+   * below the 44px banner, so main content needs to clear both (56 + 44). */
+  body.demo-bar-visible #main-content { padding-top: calc(56px + 44px); }
+  .demo-banner { font-size: 0.75rem; padding: 0 1rem; }
 }
