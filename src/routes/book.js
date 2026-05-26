@@ -74,59 +74,6 @@ router.get('/preview/landing-v1', (req, res) => {
   res.render('marketing/landing', { landingVariant: 'v1' });
 });
 
-// Preview route for the CRO revision of landing-v2 (Alexis Cottray audit, May 2026).
-// NOT live in the A/B split — review-only until promoted.
-router.get('/preview/landing-v2-cro', (req, res) => {
-  res.render('marketing/landing-v2-cro', { landingVariant: 'v2-cro' });
-});
-
-// Side-by-side comparison: original landing-v2 (left) vs CRO revision (right),
-// each rendered in its own iframe at the real preview routes above.
-router.get('/preview/cro-compare', (req, res) => {
-  res.set('Content-Type', 'text/html').send(`<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRO Comparison — Original vs Revised</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Jost',system-ui,sans-serif;background:#1a1510;color:#faf7f2;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-  header{flex:0 0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid rgba(200,169,110,0.2);background:#0f0b07}
-  header h1{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:#c8a96e}
-  header .hint{font-size:12px;color:rgba(250,247,242,0.5)}
-  header label{font-size:12px;color:rgba(250,247,242,0.7);margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer}
-  .panes{flex:1 1 auto;display:flex;min-height:0}
-  .panes.stacked{flex-direction:column}
-  .pane{flex:1 1 50%;display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid rgba(200,169,110,0.25)}
-  .pane:last-child{border-right:none}
-  .pane .bar{flex:0 0 auto;padding:7px 14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;background:#2e2218;color:#c8a96e;display:flex;justify-content:space-between;align-items:center}
-  .pane .bar a{color:rgba(250,247,242,0.6);font-size:11px;text-decoration:none}
-  .pane .bar a:hover{color:#c8a96e}
-  .pane iframe{flex:1 1 auto;width:100%;border:none;background:#faf7f2}
-</style></head>
-<body>
-  <header>
-    <h1>Legacy Odyssey — CRO Comparison</h1>
-    <span class="hint">Left: current landing (v2) &nbsp;·&nbsp; Right: CRO revision. Each scrolls independently.</span>
-    <label><input type="checkbox" id="stackToggle"> Stack vertically</label>
-  </header>
-  <div class="panes" id="panes">
-    <div class="pane">
-      <div class="bar"><span>Original — landing-v2</span><a href="/preview/landing-v2" target="_blank">open full ↗</a></div>
-      <iframe src="/preview/landing-v2" title="Original landing v2" loading="eager"></iframe>
-    </div>
-    <div class="pane">
-      <div class="bar"><span>CRO revision — landing-v2-cro</span><a href="/preview/landing-v2-cro" target="_blank">open full ↗</a></div>
-      <iframe src="/preview/landing-v2-cro" title="CRO revised landing" loading="eager"></iframe>
-    </div>
-  </div>
-  <script>
-    document.getElementById('stackToggle').addEventListener('change', function(e){
-      document.getElementById('panes').classList.toggle('stacked', e.target.checked);
-    });
-  </script>
-</body></html>`);
-});
-
 // Preview route for the gift-giver landing — NOT live until promoted.
 // Same architecture: bypasses resolveFamily so it renders for legacyodyssey.com
 // regardless of which family record the host resolves to.
@@ -298,20 +245,12 @@ function isDemoBookDomain(hostname) {
   return DEMO_BOOK_DOMAINS.includes(bare.toLowerCase());
 }
 
-// Serve static demo sites for specific domains and subdomains.
-//
-// NOTE: your-childs-name.com was removed from this map (May 26 2026). That host
-// now resolves to a real family/book record and flows through the shared book
-// viewer (hostname → resolveFamily → demo password bypass → layouts/book) so it
-// gets working clickable detail pages, the demo banner, and rich seeded content.
-// The static file src/public/your-childs-name-demo.html is left on disk but is
-// no longer served for that host. your-family-photo-album.com keeps its static
-// page here intentionally — its DB-backed demo is the *.com book viewer below,
-// served via the family record, and this static map only applies to the bare
-// "/" path; the album demo intentionally stays static.
+// Serve static demo sites for specific domains and subdomains
 const DEMO_SITES = {
   'your-family-photo-album.com': 'family-album-demo.html',
   'your-family-photo-album': 'family-album-demo.html', // subdomain match
+  'your-childs-name.com': 'your-childs-name-demo.html',
+  'your-childs-name': 'your-childs-name-demo.html', // subdomain match
 };
 
 router.use((req, res, next) => {

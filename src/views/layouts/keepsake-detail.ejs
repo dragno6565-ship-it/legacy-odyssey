@@ -9,7 +9,14 @@
   <link rel="stylesheet" href="/css/book.css">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 
-  <!-- Analytics removed from the private book viewer (G8) — no tracking on private content. -->
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LMJVX82M3Q');
+  </script>
 
   <style>
     /* Lightbox overlay (same pattern as celebration/recipe detail) */
@@ -67,7 +74,7 @@
     }
   </style>
 </head>
-<body class="<%= isDemoDomain ? 'demo-bar-visible' : '' %>">
+<body>
 
   <% if (isDemoDomain) { %>
   <div class="demo-banner" id="demoBanner">
