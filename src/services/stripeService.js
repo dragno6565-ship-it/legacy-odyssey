@@ -612,7 +612,7 @@ async function createSignupSubscription({ email, subdomain, domain, period, ref 
     items: [{ price: priceId }],
     payment_behavior: 'default_incomplete',
     payment_settings: { save_default_payment_method: 'on_subscription' },
-    expand: ['latest_invoice.payment_intent'],
+    expand: ['latest_invoice'],
     metadata: {
       signup_flow: 'embedded',
       email: email || '',
@@ -633,9 +633,25 @@ async function createSignupSubscription({ email, subdomain, domain, period, ref 
   }
 
   const subscription = await stripe.subscriptions.create(params);
-  const pi = subscription.latest_invoice && subscription.latest_invoice.payment_intent;
+
+  // Resolve the first-invoice client secret in a way that works across Stripe
+  // API versions: older versions expose invoice.payment_intent; the Basil+
+  // (2025+) versions moved it to invoice.confirmation_secret. Try both.
+  const inv = subscription.latest_invoice;
+  let clientSecret = null;
+  if (inv && inv.payment_intent) {
+    const piId = typeof inv.payment_intent === 'string' ? inv.payment_intent : inv.payment_intent.id;
+    try { const pi = await stripe.paymentIntents.retrieve(piId); clientSecret = pi.client_secret; } catch (e) {}
+  }
+  if (!clientSecret && inv && inv.id) {
+    try {
+      const freshInv = await stripe.invoices.retrieve(inv.id, { expand: ['confirmation_secret'] });
+      if (freshInv && freshInv.confirmation_secret) clientSecret = freshInv.confirmation_secret.client_secret;
+    } catch (e) { /* confirmation_secret may not exist on older API versions */ }
+  }
+
   return {
-    clientSecret: pi ? pi.client_secret : null,
+    clientSecret,
     subscriptionId: subscription.id,
     customerId: customer.id,
     period: resolvedPeriod,
