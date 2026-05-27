@@ -87,6 +87,47 @@ router.post('/create-gift-checkout', async (req, res, next) => {
   }
 });
 
+// POST /api/stripe/create-gift-payment-intent
+// Powers the on-brand embedded checkout (Stripe Payment Element). Returns the
+// PaymentIntent client secret + the publishable key the browser needs to mount
+// Elements. Fulfillment happens on `payment_intent.succeeded` in the webhook.
+router.post('/create-gift-payment-intent', async (req, res, next) => {
+  try {
+    const {
+      buyerEmail, buyerName, recipientName, recipientEmail,
+      message, giftMessage, deliveryMethod, scheduledDate, plan,
+    } = req.body;
+
+    if (!buyerEmail) return res.status(400).json({ error: 'buyerEmail is required' });
+    if (!recipientName) return res.status(400).json({ error: 'recipientName is required' });
+    if (deliveryMethod !== 'print' && !recipientEmail) {
+      return res.status(400).json({ error: 'recipientEmail is required' });
+    }
+
+    const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+      return res.status(503).json({ error: 'Embedded checkout is not configured yet (missing publishable key).' });
+    }
+
+    const result = await stripeService.createGiftPaymentIntent({
+      buyerEmail, buyerName, recipientName, recipientEmail,
+      message: message || giftMessage,
+      deliveryMethod,
+      scheduledDate,
+      plan: plan === 'childhood' ? 'childhood' : 'annual',
+    });
+
+    res.json({
+      clientSecret: result.clientSecret,
+      publishableKey,
+      amount: result.amount,
+      plan: result.plan,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/stripe/redeem-gift
 router.post('/redeem-gift', async (req, res, next) => {
   try {

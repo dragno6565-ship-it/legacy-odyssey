@@ -449,6 +449,60 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
 }
 
 /**
+ * Create a one-time PaymentIntent for a gift purchase — used by the on-brand
+ * embedded checkout (Stripe Payment Element + Appearance API). It carries the
+ * SAME metadata the gift webhook needs, so fulfillment is identical to the
+ * hosted-Checkout path; the only difference is the trigger event
+ * (`payment_intent.succeeded` instead of `checkout.session.completed`).
+ *
+ * The PaymentIntent id doubles as the idempotency key for createGiftCode
+ * (stored in gift_codes.stripe_session_id), exactly like the session id is.
+ */
+async function createGiftPaymentIntent({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, plan }) {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  const isChildhood = plan === 'childhood';
+  const amount = isChildhood ? 45000 : 2900;
+
+  // Normalize delivery method + scheduled date (mirrors createGiftCheckoutSession).
+  const validMethods = ['email_now', 'email_scheduled', 'print'];
+  let method = validMethods.includes(deliveryMethod) ? deliveryMethod : 'email_now';
+  let scheduledIso = '';
+  if (method === 'email_scheduled') {
+    if (scheduledDate) {
+      const parsed = new Date(scheduledDate + 'T09:00:00Z'); // 9am UTC on chosen date
+      if (!isNaN(parsed.getTime()) && parsed.getTime() > Date.now()) scheduledIso = parsed.toISOString();
+      else method = 'email_now';
+    } else {
+      method = 'email_now';
+    }
+  }
+
+  const pi = await stripe.paymentIntents.create({
+    amount,
+    currency: 'usd',
+    automatic_payment_methods: { enabled: true },
+    receipt_email: buyerEmail || undefined,
+    description: isChildhood
+      ? 'Legacy Odyssey — Entire Childhood Gift (18 years)'
+      : 'Legacy Odyssey — 1 Year Gift',
+    metadata: {
+      type: 'gift',
+      gift_plan: isChildhood ? 'childhood' : 'annual',
+      buyer_email: buyerEmail || '',
+      buyer_name: buyerName || '',
+      recipient_name: recipientName || '',
+      recipient_email: recipientEmail || '',
+      gift_message: message || '',
+      delivery_method: method,
+      scheduled_date: scheduledIso,
+    },
+  });
+
+  return { clientSecret: pi.client_secret, paymentIntentId: pi.id, amount, plan: isChildhood ? 'childhood' : 'annual' };
+}
+
+/**
  * Create a Stripe Checkout session for purchasing an additional site.
  *
  * As of May 2026 we no longer offer the discounted $12.99/yr add-on. Each
@@ -537,6 +591,7 @@ module.exports = {
   createFounderPageCheckoutSession,
   createChildhoodCheckoutSession,
   createGiftCheckoutSession,
+  createGiftPaymentIntent,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,
   cancelSubscriptionAtPeriodEnd,

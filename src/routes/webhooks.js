@@ -245,19 +245,19 @@ router.post('/stripe/webhook', async (req, res) => {
           limit: 1,
         });
         const session = sessions.data[0];
-        if (!session) {
-          console.log(`[webhook] charge.refunded ${charge.id}: no checkout session found for pi ${charge.payment_intent} — skipping`);
-          break;
-        }
+        // Hosted checkout stores the Checkout Session id in gift_codes.stripe_session_id;
+        // the embedded checkout (Payment Element) stores the PaymentIntent id there.
+        // Use whichever applies so refunds invalidate gifts from either flow.
+        const giftKey = session ? session.id : charge.payment_intent;
 
         const { supabaseAdmin } = require('../config/supabase');
         const { data: gift } = await supabaseAdmin
           .from('gift_codes')
           .select('id, code, status, redeemed_at, family_id')
-          .eq('stripe_session_id', session.id)
+          .eq('stripe_session_id', giftKey)
           .single();
         if (!gift) {
-          console.log(`[webhook] charge.refunded ${charge.id}: no gift_code for session ${session.id} — likely a non-gift refund`);
+          console.log(`[webhook] charge.refunded ${charge.id}: no gift_code for key ${giftKey} — likely a non-gift refund`);
           break;
         }
 
@@ -274,6 +274,74 @@ router.post('/stripe/webhook', async (req, res) => {
           .update({ status: 'refunded', updated_at: new Date().toISOString() })
           .eq('id', gift.id);
         console.log(`[webhook] gift ${gift.code} marked refunded after charge.refunded ${charge.id}`);
+        break;
+      }
+      case 'payment_intent.succeeded': {
+        // Gift fulfillment for the on-brand embedded checkout (Payment Element).
+        // GUARD: only PaymentIntents WE created via createGiftPaymentIntent carry
+        // metadata.type==='gift'. PaymentIntents auto-created by a hosted Checkout
+        // Session have empty metadata, so they fall through here untouched and are
+        // fulfilled by the checkout.session.completed handler instead — no
+        // double-fulfillment. A given purchase only ever matches one path.
+        const pi = event.data.object;
+        if (pi.metadata?.type === 'gift') {
+          const giftService = require('../services/giftService');
+          const { supabaseAdmin } = require('../config/supabase');
+          const { sendGiftPurchaseEmail, sendGiftNotificationEmail } = require('../services/emailService');
+
+          const deliveryMethod = pi.metadata.delivery_method || 'email_now';
+          const scheduledDate = pi.metadata.scheduled_date || null;
+          const giftPlan = pi.metadata.gift_plan === 'childhood' ? 'childhood' : 'annual';
+          const monthsPrepaid = giftPlan === 'childhood' ? 216 : 12;
+          const buyerEmail = pi.metadata.buyer_email || pi.receipt_email || null;
+
+          const gift = await giftService.createGiftCode({
+            buyerEmail,
+            buyerName: pi.metadata.buyer_name,
+            recipientName: pi.metadata.recipient_name || null,
+            recipientEmail: pi.metadata.recipient_email,
+            recipientMessage: pi.metadata.gift_message,
+            stripeSessionId: pi.id, // PI id is the idempotency key for the embedded-checkout path
+            deliveryMethod,
+            scheduledDate,
+            monthsPrepaid,
+          });
+
+          if (gift._alreadyExisted) {
+            console.log(`[webhook] gift PI ${pi.id} already processed (gift ${gift.code}) — skipping duplicate emails`);
+            break;
+          }
+
+          const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+          const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+          const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;
+
+          await sendGiftPurchaseEmail({
+            to: gift.buyer_email,
+            buyerName: gift.buyer_name,
+            giftCode: gift.code,
+            redeemUrl,
+            certificateUrl,
+            recipientName: gift.recipient_name,
+            deliveryMethod: gift.delivery_method,
+            deliverAt: gift.deliver_at,
+            monthsPrepaid: gift.months_prepaid,
+          });
+
+          if (gift.recipient_email && gift.delivery_method === 'email_now') {
+            await sendGiftNotificationEmail({
+              to: gift.recipient_email,
+              buyerName: gift.buyer_name,
+              message: gift.recipient_message,
+              redeemUrl,
+              monthsPrepaid: gift.months_prepaid,
+            });
+            await supabaseAdmin
+              .from('gift_codes')
+              .update({ recipient_email_sent_at: new Date().toISOString() })
+              .eq('id', gift.id);
+          }
+        }
         break;
       }
       default:

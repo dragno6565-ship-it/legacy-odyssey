@@ -709,6 +709,27 @@ router.get('/gift', (req, res) => {
   res.render('marketing/gift-landing');
 });
 
+// On-brand embedded gift checkout (Stripe Payment Element + Appearance API).
+// Standalone for now so we can verify it without disturbing the live /gift
+// hosted-Checkout flow. Once verified, the /gift "Give the Gift" button can
+// point here. Needs STRIPE_PUBLISHABLE_KEY on the server to function.
+router.get('/gift/checkout', (req, res) => {
+  res.render('marketing/gift-checkout', {
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+    initialPlan: req.query.plan === 'childhood' ? 'childhood' : 'annual',
+  });
+});
+
+// Post-payment confirmation for the embedded checkout. Fulfillment (gift code
+// + emails) happens in the payment_intent.succeeded webhook, so this page just
+// reassures the buyer — it never needs to race the gift-code lookup.
+router.get('/gift/thank-you', (req, res) => {
+  res.render('marketing/gift-thank-you', {
+    appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+  });
+});
+
 // Gift success page — shown right after Stripe payment clears.
 // We try to read the gift_codes row created by the webhook first; if the
 // webhook hasn't fired yet (race), we create the row inline. Either way,
