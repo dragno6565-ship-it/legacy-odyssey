@@ -155,7 +155,7 @@
         <div class="cert-rule"></div>
         <div class="cert-eyebrow">Gift Certificate</div>
         <h1 class="cert-title">A digital baby book<br>and their own <em>personal website.</em></h1>
-        <p class="cert-subtitle">One full year of Legacy Odyssey — a real .com domain registered in the child's name, plus a beautifully designed digital baby book to fill it with.</p>
+        <p class="cert-subtitle"><%= (gift.months_prepaid || 12) >= 216 ? 'The entire childhood — 18 years' : 'One full year' %> of Legacy Odyssey — a real .com domain registered in the child's name, plus a beautifully designed digital baby book to fill it with.</p>
       </div>
 
       <div class="cert-mid">
@@ -185,7 +185,7 @@
         <div class="cert-redeem-label">Redeem at</div>
         <div class="cert-redeem-url"><strong><%= bareRedeemUrl %></strong></div>
         <div class="cert-fineprint">
-          One-year subscription · Recipient picks their own .com when they redeem
+          <%= (gift.months_prepaid || 12) >= 216 ? 'Entire Childhood — 18 years, no renewals' : 'One-year subscription' %> · Recipient picks their own .com when they redeem
         </div>
       </div>
     </div>

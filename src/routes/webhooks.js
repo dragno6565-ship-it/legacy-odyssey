@@ -34,6 +34,9 @@ router.post('/stripe/webhook', async (req, res) => {
 
           const deliveryMethod = session.metadata.delivery_method || 'email_now';
           const scheduledDate = session.metadata.scheduled_date || null;
+          // Gift tier: 'childhood' (18 years, $450) prepays 216 months; default 'annual' = 12.
+          const giftPlan = session.metadata.gift_plan === 'childhood' ? 'childhood' : 'annual';
+          const monthsPrepaid = giftPlan === 'childhood' ? 216 : 12;
 
           const gift = await giftService.createGiftCode({
             buyerEmail: session.customer_email || session.customer_details?.email,
@@ -44,6 +47,7 @@ router.post('/stripe/webhook', async (req, res) => {
             stripeSessionId: session.id,
             deliveryMethod,
             scheduledDate,
+            monthsPrepaid,
           });
 
           // Webhook idempotency: if Stripe retried this delivery (slow
@@ -70,6 +74,7 @@ router.post('/stripe/webhook', async (req, res) => {
             recipientName: gift.recipient_name,
             deliveryMethod: gift.delivery_method,
             deliverAt: gift.deliver_at,
+            monthsPrepaid: gift.months_prepaid,
           });
 
           // Recipient email: only send NOW if delivery_method=email_now AND we
@@ -81,6 +86,7 @@ router.post('/stripe/webhook', async (req, res) => {
               buyerName: gift.buyer_name,
               message: gift.recipient_message,
               redeemUrl,
+              monthsPrepaid: gift.months_prepaid,
             });
             // Mark sent so the cron doesn't re-send.
             await supabaseAdmin

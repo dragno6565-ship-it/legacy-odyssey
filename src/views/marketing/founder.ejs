@@ -273,16 +273,8 @@
     .fd-footer-bottom a:hover { color: #c8a96e; }
   </style>
 
-  <!-- Google Analytics 4 (kept so I can see if friends visited / converted) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    // Tag this page as the founder landing so it doesn't pollute the v1/v2 A/B test.
-    gtag('set', { 'landing_variant': 'founder' });
-    gtag('config', 'G-LMJVX82M3Q');
-  </script>
+  <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
+  <%- include('../partials/tracking') %>
 </head>
 <body class="fd-page">
 

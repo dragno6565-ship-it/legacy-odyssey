@@ -167,14 +167,8 @@
     .footer-links a:hover { text-decoration: underline; }
   </style>
 
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-LMJVX82M3Q');
-  </script>
+  <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
+  <%- include('../partials/tracking') %>
 </head>
 <body>
   <div class="wrap">

@@ -127,54 +127,8 @@
       display: none;
     }
   </style>
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-LMJVX82M3Q');
-  </script>
-  <!-- End Google Analytics 4 -->
-
-  <!-- Meta Pixel Code -->
-  <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '839009299208301');
-  fbq('track', 'PageView');
-  </script>
-  <noscript>
-  <img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=839009299208301&ev=PageView&noscript=1"/>
-  </noscript>
-  <!-- End Meta Pixel Code -->
-
-  <!-- Hotjar Tracking -->
-  <script src="https://t.contentsquare.net/uxa/38cdf4e1f1a56.js"></script>
-
-  <!-- Pinterest Tag -->
-  <script>
-  !function(e){if(!window.pintrk){window.pintrk = function () {
-  window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
-    n=window.pintrk;n.queue=[],n.version="3.0";var
-    t=document.createElement("script");t.async=!0,t.src=e;var
-    r=document.getElementsByTagName("script")[0];
-    r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
-  pintrk('load', '2613467907928');
-  pintrk('page');
-  </script>
-  <noscript>
-  <img height="1" width="1" style="display:none;" alt=""
-    src="https://ct.pinterest.com/v3/?event=init&tid=2613467907928&noscript=1" />
-  </noscript>
-  <!-- end Pinterest Tag -->
+  <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
+  <%- include('../partials/tracking') %>
 </head>
 <body>
 
@@ -220,18 +174,33 @@
           <textarea id="giftMessage" name="giftMessage" placeholder="Write a personal note to include with the gift..."></textarea>
         </div>
 
+        <div style="display:grid;gap:0.6rem;margin-bottom:1rem;">
+          <label class="gift-plan-option" style="display:flex;align-items:flex-start;gap:0.7rem;border:2px solid #d9c9a8;border-radius:10px;padding:0.9rem 1rem;cursor:pointer;">
+            <input type="radio" name="giftPlan" value="annual" checked style="margin-top:0.25rem;">
+            <span>
+              <strong style="display:block;color:#1a1a2e;">One Year — $29</strong>
+              <span style="font-size:0.82rem;color:#777;">Introductory price. Renews at $49.99/year after the gift year unless cancelled.</span>
+            </span>
+          </label>
+          <label class="gift-plan-option" style="display:flex;align-items:flex-start;gap:0.7rem;border:2px solid #d9c9a8;border-radius:10px;padding:0.9rem 1rem;cursor:pointer;">
+            <input type="radio" name="giftPlan" value="childhood" style="margin-top:0.25rem;">
+            <span>
+              <strong style="display:block;color:#1a1a2e;">Entire Childhood (18 years) — $450</strong>
+              <span style="font-size:0.82rem;color:#777;">One payment covers all 18 years. No annual renewals, ever.</span>
+            </span>
+          </label>
+        </div>
+
         <div class="gift-pricing">
-          <div style="text-align:center;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;color:#B8935A;margin-bottom:0.6rem;text-transform:uppercase;">Introductory Offer</div>
           <div class="gift-price-line">
-            <span>One Year Subscription</span>
-            <span>$29</span>
+            <span id="giftPlanName">One Year Subscription</span>
+            <span id="giftPlanPrice">$29</span>
           </div>
           <div class="gift-price-total">
-            <span>Total (introductory price)</span>
-            <span>$29</span>
+            <span>Total</span>
+            <span id="giftPlanTotal">$29</span>
           </div>
-          <p style="font-size:0.85rem;color:#999;margin-top:0.5rem;text-align:center;">$29 introductory price. No setup fee for annual gifts. Recipient can choose their domain when they redeem.</p>
-          <p style="font-size:0.78rem;color:#999;margin-top:0.5rem;text-align:center;line-height:1.5;">After the gift year, the recipient's subscription will automatically renew at the standard price of <strong>$49.99/year</strong> unless they cancel from their account before then.</p>
+          <p id="giftPlanNote" style="font-size:0.82rem;color:#999;margin-top:0.5rem;text-align:center;line-height:1.5;">$29 introductory price. Recipient picks their domain when they redeem. After the gift year, the subscription renews at <strong>$49.99/year</strong> unless cancelled.</p>
         </div>
 
         <button type="submit" class="gift-btn" id="giftBtn">Purchase Gift</button>
@@ -254,6 +223,31 @@
   </footer>
 
   <script>
+    // Plan selector: update the price summary + highlight the chosen card.
+    function loSelectedGiftPlan() {
+      const el = document.querySelector('input[name="giftPlan"]:checked');
+      return el ? el.value : 'annual';
+    }
+    function loUpdateGiftPlanUI() {
+      const plan = loSelectedGiftPlan();
+      const isChildhood = plan === 'childhood';
+      document.getElementById('giftPlanName').textContent = isChildhood ? 'Entire Childhood (18 years)' : 'One Year Subscription';
+      document.getElementById('giftPlanPrice').textContent = isChildhood ? '$450' : '$29';
+      document.getElementById('giftPlanTotal').textContent = isChildhood ? '$450' : '$29';
+      document.getElementById('giftPlanNote').innerHTML = isChildhood
+        ? 'One payment of $450 covers all 18 years — no annual renewals. Recipient picks their domain when they redeem.'
+        : '$29 introductory price. Recipient picks their domain when they redeem. After the gift year, the subscription renews at <strong>$49.99/year</strong> unless cancelled.';
+      document.querySelectorAll('.gift-plan-option').forEach(function(lbl) {
+        const checked = lbl.querySelector('input').checked;
+        lbl.style.borderColor = checked ? '#B8935A' : '#d9c9a8';
+        lbl.style.background = checked ? '#fbf6ec' : 'transparent';
+      });
+    }
+    document.querySelectorAll('input[name="giftPlan"]').forEach(function(r) {
+      r.addEventListener('change', loUpdateGiftPlanUI);
+    });
+    loUpdateGiftPlanUI();
+
     document.getElementById('giftForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('giftBtn');
@@ -272,6 +266,7 @@
             recipientName: document.getElementById('recipientName').value,
             recipientEmail: document.getElementById('recipientEmail').value,
             giftMessage: document.getElementById('giftMessage').value,
+            plan: loSelectedGiftPlan(),
           }),
         });
 

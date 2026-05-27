@@ -110,6 +110,26 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// Sent to lead-magnet / exit-intent signups — delivers the free guide.
+const GUIDE_EMAIL_HTML = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;background:#F8F2E6;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F2E6;padding:40px 20px;"><tr><td align="center">
+    <table width="560" cellpadding="0" cellspacing="0" style="background:#FFFCF5;border:1px solid #E8DCC8;border-radius:8px;overflow:hidden;max-width:560px;width:100%;">
+      <tr><td style="background:#1E1812;padding:28px 40px;text-align:center;"><p style="margin:0;font-size:20px;color:#B8935A;letter-spacing:0.1em;">LEGACY ODYSSEY</p></td></tr>
+      <tr><td style="padding:36px 40px;">
+        <p style="margin:0 0 18px;font-size:24px;color:#1E1812;">Your guide is here.</p>
+        <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">Thanks for grabbing <strong>Protecting Your Child's Digital Identity</strong> &mdash; a quick, practical read on safeguarding your child's name, privacy, and digital footprint from day one.</p>
+        <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 24px;">
+          <a href="https://legacyodyssey.com/guides/protecting-your-childs-digital-identity.html" style="display:inline-block;background:#B8935A;color:#1E1812;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:16px;font-weight:bold;">Read the guide &rarr;</a>
+        </td></tr></table>
+        <p style="margin:0;font-size:15px;color:#4A3F32;line-height:1.7;">When you're ready, you can give your child their own private .com &mdash; a place to keep their story that you control. <a href="https://legacyodyssey.com" style="color:#B8935A;">See Legacy Odyssey &rarr;</a></p>
+      </td></tr>
+      <tr><td style="padding:20px 40px;border-top:1px solid #E8DCC8;text-align:center;"><p style="margin:0;font-size:12px;color:#B8A090;">Legacy Odyssey &middot; <a href="https://legacyodyssey.com" style="color:#B8935A;">legacyodyssey.com</a> &middot; You received this because you requested the guide at legacyodyssey.com.</p></td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`;
+
 const router = Router();
 
 // POST /api/waitlist
@@ -142,11 +162,40 @@ router.post('/', async (req, res) => {
       clientUserAgent: req.headers['user-agent'],
     });
 
-    // Fire and forget — never block the response
+    // Route the right email per source (fire and forget — never block response):
+    //  • lead_magnet / exit_intent → deliver the free guide
+    //  • newsletter → stored silently (nurture handled separately, task B16)
+    //  • anything else (primary waitlist signup) → the welcome email
+    const GUIDE_SOURCES = ['lead_magnet', 'exit_intent'];
+    if (GUIDE_SOURCES.includes(source)) {
+      sendEmail({
+        to: email.trim(),
+        subject: "Your free guide: Protecting Your Child's Digital Identity",
+        html: GUIDE_EMAIL_HTML,
+      });
+    } else if (source !== 'newsletter') {
+      sendEmail({
+        to: email.trim(),
+        subject: "You're on the Legacy Odyssey list",
+        html: WELCOME_EMAIL_HTML,
+      });
+    }
+
+    // Notify the team of every NEW signup (free guide / mailing list / waitlist)
+    // so we can follow up. Fire-and-forget — never blocks the response, and only
+    // fires on a genuinely new row (duplicates already returned above).
+    const signupKind = GUIDE_SOURCES.includes(source)
+      ? 'Free guide'
+      : (source === 'newsletter' ? 'Newsletter' : 'Waitlist');
     sendEmail({
-      to: email.trim(),
-      subject: "You're on the Legacy Odyssey list",
-      html: WELCOME_EMAIL_HTML,
+      to: 'info@legacyodyssey.com',
+      subject: `New ${signupKind} signup: ${email.trim().toLowerCase()}`,
+      html: `<div style="font-family:Arial,sans-serif;font-size:14px;color:#2c2416;line-height:1.6;">
+        <p>A new <strong>${signupKind}</strong> signup just came in.</p>
+        <p><strong>Email:</strong> ${email.trim().toLowerCase()}<br>
+        <strong>Source tag:</strong> ${source}<br>
+        <strong>When:</strong> ${new Date().toISOString()}</p>
+      </div>`,
     });
 
     res.json({ success: true, message: "You're on the list!" });
@@ -154,6 +203,24 @@ router.post('/', async (req, res) => {
     console.error('Waitlist error:', err.message);
     res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
   }
+});
+
+// GET /api/waitlist/unsubscribe?e=<email> — opt out of nurture emails (B16).
+router.get('/unsubscribe', async (req, res) => {
+  const email = ((req.query && req.query.e) || '').toString().trim().toLowerCase();
+  if (email && email.includes('@')) {
+    try {
+      await supabaseAdmin.from('waitlist').update({ unsubscribed_at: new Date().toISOString() }).eq('email', email);
+    } catch (e) {
+      console.error('[waitlist] unsubscribe error:', e.message);
+    }
+  }
+  const home = process.env.APP_DOMAIN || 'legacyodyssey.com';
+  res.set('Content-Type', 'text/html').send(`<!doctype html><html><head><meta charset="utf-8"><title>Unsubscribed — Legacy Odyssey</title></head>
+<body style="font-family:system-ui,sans-serif;background:#faf7f2;color:#2c2416;text-align:center;padding:80px 24px;">
+  <h1 style="font-family:Georgia,serif;color:#1a1510;font-weight:500;">You're unsubscribed</h1>
+  <p style="color:#8a7e6b;max-width:420px;margin:12px auto 0;line-height:1.6;">You won't receive any more emails from Legacy Odyssey. <a href="https://${home}" style="color:#c8a96e;">Back to Legacy Odyssey →</a></p>
+</body></html>`);
 });
 
 module.exports = router;

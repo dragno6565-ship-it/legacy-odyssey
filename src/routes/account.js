@@ -316,7 +316,7 @@ router.get('/dashboard', async (req, res) => {
   try {
     const { data: family, error } = await supabaseAdmin
       .from('families')
-      .select('id, email, display_name, subscription_status, billing_period, stripe_customer_id, stripe_subscription_id, custom_domain, subdomain, archived_at, auth_user_id')
+      .select('id, email, display_name, subscription_status, billing_period, stripe_customer_id, stripe_subscription_id, custom_domain, subdomain, archived_at, auth_user_id, referral_code, referral_qualified_count, referral_credits_granted')
       .eq('id', familyId)
       .single();
     if (error || !family) {
@@ -335,16 +335,46 @@ router.get('/dashboard', async (req, res) => {
     try { isPrimary = await subscriptionService.isPrimaryFamily(family); }
     catch (err) { console.error('isPrimaryFamily failed:', err.message); }
 
+    // Referral program (B13): ensure this family has a shareable code, then
+    // build the stats the dashboard card renders. Best-effort — a failure here
+    // must never break the dashboard.
+    let referral = null;
+    try {
+      const referralService = require('../services/referralService');
+      await referralService.getOrCreateCodeForFamily(family);
+      referral = referralService.getReferralStats(family, APP_DOMAIN());
+    } catch (err) { console.error('referral stats failed:', err.message); }
+
     res.render('marketing/account-dashboard', {
       family,
       linkedFamilies,
       isPrimary,
+      referral,
       appDomain: APP_DOMAIN(),
       error: null,
     });
   } catch (err) {
-    res.render('marketing/account-dashboard', { family: null, linkedFamilies: [], isPrimary: null, appDomain: APP_DOMAIN(), error: 'Could not load account details.' });
+    res.render('marketing/account-dashboard', { family: null, linkedFamilies: [], isPrimary: null, referral: null, appDomain: APP_DOMAIN(), error: 'Could not load account details.' });
   }
+});
+
+// GET /account/export — GDPR right of access / data portability.
+// Returns a downloadable JSON copy of the account's personal data + full book.
+router.get('/export', requireAccountSession, async (req, res, next) => {
+  try {
+    const fullBook = await bookService.getFullBook(req.family.id);
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      notice: 'This file is a copy of the personal data Legacy Odyssey holds for your account, provided under your right of access and data portability. To request deletion, see your account or email help@legacyodyssey.com.',
+      account: req.family,
+      book: fullBook?.book || null,
+      visibleSections: fullBook?.visibleSections || {},
+    };
+    const filename = `legacy-odyssey-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(JSON.stringify(payload, null, 2));
+  } catch (err) { next(err); }
 });
 
 // POST /account/portal — Stripe billing portal

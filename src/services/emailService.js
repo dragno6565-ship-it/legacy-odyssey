@@ -522,9 +522,13 @@ async function sendDay13Email({ to, displayName, subdomain, customDomain, family
  *   - delivery-timing context so the buyer knows when the recipient will
  *     hear from us (now / on a scheduled date)
  */
-async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certificateUrl, recipientName, deliveryMethod, deliverAt }) {
+async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certificateUrl, recipientName, deliveryMethod, deliverAt, monthsPrepaid }) {
   const firstName = getFirstName(buyerName, to);
   const recipient = recipientName ? recipientName : 'your recipient';
+  const isChildhood = (monthsPrepaid || 12) >= 216;
+  const giftDurationLine = isChildhood
+    ? 'It covers your recipient&rsquo;s entire childhood &mdash; all 18 years, with no annual renewals.'
+    : 'It gives your recipient a full year of Legacy Odyssey.';
 
   // Friendly delivery-timing line for the body.
   let deliveryLine = '';
@@ -571,7 +575,7 @@ async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certi
       <div style="background:#f5f0eb;border:2px dashed #c8a96e;border-radius:8px;padding:16px;text-align:center;font-size:20px;font-weight:bold;letter-spacing:2px;color:#1a1a2e;margin:8px 0;">${giftCode}</div><br>
       The recipient redeems at:<br>
       <a href="${redeemUrl}" style="color:#c8a96e;">${redeemUrl}</a><br><br>
-      This is a one-time, non-recurring gift — there are no future charges to your card. The code is valid for one year from today.${certificateBlock}${spamHeadsUpBlock}`,
+      This is a one-time, non-recurring gift — there are no future charges to your card. ${giftDurationLine}${certificateBlock}${spamHeadsUpBlock}`,
     ctaText: certificateUrl ? 'View &amp; Print Certificate' : 'Copy Redemption Link',
     ctaUrl: certificateUrl || redeemUrl,
   });
@@ -580,14 +584,18 @@ async function sendGiftPurchaseEmail({ to, buyerName, giftCode, redeemUrl, certi
 /**
  * Send gift notification email to the recipient (optional).
  */
-async function sendGiftNotificationEmail({ to, buyerName, message, redeemUrl }) {
+async function sendGiftNotificationEmail({ to, buyerName, message, redeemUrl, monthsPrepaid }) {
   const from = buyerName || 'Someone special';
+  const isChildhood = (monthsPrepaid || 12) >= 216;
+  const giftIntro = isChildhood
+    ? "You've been gifted Legacy Odyssey for your child's entire childhood — 18 years of a beautiful digital baby book on your own custom .com domain, with no annual renewals."
+    : "You've been gifted a year of Legacy Odyssey — a beautiful digital baby book with your own custom .com domain.";
   return sendOnboardingEmail({
     to,
     subject: `${from} sent you a Legacy Odyssey gift!`,
-    preheader: 'You received a gift — a beautiful digital baby book or family album.',
+    preheader: 'You received a gift — a beautiful digital baby book on your own .com.',
     heading: `${from} sent you a gift!`,
-    body: `You've been gifted a year of Legacy Odyssey — a beautiful digital baby book or family album with your own custom .com domain.${message ? `<br><br><em>"${message}"</em>` : ''}<br><br>Click below to redeem your gift, create your account, and pick your domain.`,
+    body: `${giftIntro}${message ? `<br><br><em>"${message}"</em>` : ''}<br><br>Click below to redeem your gift, create your account, and pick your domain.`,
     ctaText: 'Redeem Your Gift',
     ctaUrl: redeemUrl,
   });

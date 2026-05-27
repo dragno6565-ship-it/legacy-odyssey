@@ -23,6 +23,9 @@ const PRICES = {
     // yet on Railway; set STRIPE_PRICE_FOUNDER to override.
     founder: process.env.STRIPE_PRICE_FOUNDER || 'price_1TIVpBJk2GIrL5uS5xg3lRhk',
   },
+  // Childhood plan: $450 one-time, covers all 18 years (no recurring billing).
+  // Hardcoded fallback so it works before the env var lands on Railway.
+  childhood: process.env.STRIPE_PRICE_CHILDHOOD || 'price_1Tb8OlJk2GIrL5uSTV1BVgNS',
   setupFee: process.env.STRIPE_PRICE_SETUP,
   additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
   annualIntroCoupon: process.env.STRIPE_ANNUAL_INTRO_COUPON, // $20.99 off first invoice
@@ -38,7 +41,7 @@ function resolvePriceId(plan, period) {
   throw new Error(`No Stripe price configured for period="${resolvedPeriod}"`);
 }
 
-async function createCheckoutSession({ email, subdomain, domain, period, bookType, successUrl, cancelUrl }) {
+async function createCheckoutSession({ email, subdomain, domain, period, bookType, ref, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const resolvedPeriod = period || 'monthly';
@@ -46,6 +49,7 @@ async function createCheckoutSession({ email, subdomain, domain, period, bookTyp
 
   const metadata = { subdomain, period: resolvedPeriod, book_type: bookType || 'baby_book' };
   if (domain) metadata.domain = domain;
+  if (ref) metadata.ref = ref;
 
   // Build line items: subscription + setup fee for monthly only
   const line_items = [{
@@ -82,10 +86,26 @@ async function handleCheckoutComplete(session) {
   const domain = session.metadata?.domain || null;
   const period = session.metadata?.period || 'monthly';
   const bookType = session.metadata?.book_type || 'baby_book';
+  const referralCode = session.metadata?.ref || null;
   const stripeCustomerId = session.customer;
   const stripeSubscriptionId = session.subscription;
 
   const { supabaseAdmin } = require('../config/supabase');
+
+  // Referral attribution + reward (B13). A completed subscription checkout is
+  // the qualifying event. Best-effort — never let it block account creation.
+  const creditReferral = async (family) => {
+    if (!referralCode || !family) return;
+    try {
+      const referralService = require('./referralService');
+      // Re-read so we have the freshly-set stripe_customer_id / referred_by.
+      const fresh = await familyService.findById(family.id) || family;
+      await referralService.attributeSignup(fresh, referralCode);
+      await referralService.recordQualifiedReferral(fresh);
+    } catch (e) {
+      console.error('[referral] attribution failed:', e.message);
+    }
+  };
 
   // Check if an existing account (free or cancelled) exists for this email — upgrade or reinstate it
   const existingFamily = await familyService.findByEmail(email);
@@ -133,6 +153,7 @@ async function handleCheckoutComplete(session) {
       }
     }
 
+    await creditReferral(existingFamily);
     return { family: existingFamily, tempPassword: null, setPasswordUrl, domain };
   }
 
@@ -218,6 +239,8 @@ async function handleCheckoutComplete(session) {
     }
   }
 
+  await creditReferral(family);
+
   return { family, tempPassword, setPasswordUrl, domain };
 }
 
@@ -239,7 +262,7 @@ async function createPortalSession(stripeCustomerId, returnUrl) {
 /**
  * Create a Stripe Checkout session for the annual intro plan ($29/yr first year).
  */
-async function createFounderCheckoutSession({ email, subdomain, domain, bookType, successUrl, cancelUrl }) {
+async function createFounderCheckoutSession({ email, subdomain, domain, bookType, ref, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.subscription.annualIntro || PRICES.subscription.founder;
@@ -247,6 +270,7 @@ async function createFounderCheckoutSession({ email, subdomain, domain, bookType
 
   const metadata = { subdomain, period: 'annual', plan: 'annual_intro', book_type: bookType || 'baby_book' };
   if (domain) metadata.domain = domain;
+  if (ref) metadata.ref = ref;
 
   const sessionParams = {
     mode: 'subscription',
@@ -310,8 +334,61 @@ async function createFounderPageCheckoutSession({ email, subdomain, domain, book
   return session;
 }
 
-async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, successUrl, cancelUrl }) {
+/**
+ * Childhood Plan checkout — a single $450 payment that covers all 18 years of
+ * childhood, with NO recurring Stripe subscription. We keep the domain
+ * auto-renewing on our side for the full term.
+ *
+ * Implementation note: this is a one-time `payment`-mode session, but we route
+ * it through the same webhook path as a normal signup by tagging
+ * metadata.period = 'childhood'. handleCheckoutComplete then provisions a
+ * paid family (plan='paid', billing_period='childhood') with no
+ * stripe_subscription_id — so nothing will ever mark it past_due or bill again.
+ * `customer_creation: 'always'` ensures session.customer is populated so the
+ * customer can manage billing and qualify for referral credit.
+ */
+async function createChildhoodCheckoutSession({ email, subdomain, domain, bookType, ref, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
+
+  const priceId = PRICES.childhood;
+  if (!priceId) throw new Error('Childhood price not configured (STRIPE_PRICE_CHILDHOOD)');
+
+  const metadata = {
+    subdomain,
+    period: 'childhood',
+    plan: 'childhood',
+    book_type: bookType || 'baby_book',
+  };
+  if (domain) metadata.domain = domain;
+  if (ref) metadata.ref = ref;
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    payment_method_types: ['card'],
+    customer_email: email,
+    customer_creation: 'always',
+    line_items: [{ price: priceId, quantity: 1 }],
+    metadata,
+    // Mirror the same metadata onto the PaymentIntent for dashboard clarity.
+    payment_intent_data: { metadata },
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  });
+  return session;
+}
+
+async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, plan, successUrl, cancelUrl }) {
+  if (!stripe) throw new Error('Stripe not configured');
+
+  // Gift tier: 'annual' (1 year, $29) or 'childhood' (Entire Childhood, 18 years, $450).
+  const isChildhood = plan === 'childhood';
+  const unitAmount = isChildhood ? 45000 : 2900;
+  const productName = isChildhood
+    ? `Legacy Odyssey — Entire Childhood Gift (18 years) for ${recipientName || 'your recipient'}`
+    : `Legacy Odyssey — 1 Year Gift for ${recipientName || 'your recipient'}`;
+  const productDescription = isChildhood
+    ? 'Entire Childhood gift — covers all 18 years, no annual renewals. Recipient redeems a gift code to create their own account and choose their custom domain.'
+    : 'One-year gift subscription. Recipient redeems a gift code to create their own account and choose their custom domain.';
 
   // Validate deliveryMethod. Default to email_now if missing/invalid.
   // 'print' = buyer gives the certificate themselves; we never email the recipient.
@@ -345,17 +422,18 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Legacy Odyssey — 1 Year Gift for ${recipientName || 'your recipient'}`,
-            description: 'One-year gift subscription. Recipient redeems a gift code to create their own account and choose their custom domain.',
+            name: productName,
+            description: productDescription,
             images: ['https://legacyodyssey.com/images/og-image.png'],
           },
-          unit_amount: 2900, // $29.00 introductory
+          unit_amount: unitAmount,
         },
         quantity: 1,
       },
     ],
     metadata: {
       type: 'gift',
+      gift_plan: isChildhood ? 'childhood' : 'annual',
       buyer_name: buyerName || '',
       recipient_name: recipientName || '',
       recipient_email: recipientEmail || '',
@@ -457,6 +535,7 @@ module.exports = {
   createCheckoutSession,
   createFounderCheckoutSession,
   createFounderPageCheckoutSession,
+  createChildhoodCheckoutSession,
   createGiftCheckoutSession,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,

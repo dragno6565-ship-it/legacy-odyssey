@@ -54,6 +54,7 @@ async function runGiftDeliveries() {
           buyerName: gift.buyer_name,
           message: gift.recipient_message,
           redeemUrl,
+          monthsPrepaid: gift.months_prepaid,
         });
         // Stamp before logging so even if logging throws we don't double-send
         const { error: updateError } = await supabaseAdmin

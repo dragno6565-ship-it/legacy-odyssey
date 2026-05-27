@@ -33,15 +33,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/marketing.css">
 
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-LMJVX82M3Q');
-  </script>
-
+  <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
+  <%- include('../partials/tracking') %>
   <style>
     /* Blog uses a light "paper" theme; override marketing.css dark body. */
     body { background: #faf7f2; color: #2C2318; }

@@ -152,54 +152,8 @@
     }
   </script>
 
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMJVX82M3Q"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-LMJVX82M3Q');
-  </script>
-  <!-- End Google Analytics 4 -->
-
-  <!-- Meta Pixel Code -->
-  <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '839009299208301');
-  fbq('track', 'PageView');
-  </script>
-  <noscript>
-  <img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=839009299208301&ev=PageView&noscript=1"/>
-  </noscript>
-  <!-- End Meta Pixel Code -->
-
-  <!-- Hotjar Tracking -->
-  <script src="https://t.contentsquare.net/uxa/38cdf4e1f1a56.js"></script>
-
-  <!-- Pinterest Tag -->
-  <script>
-  !function(e){if(!window.pintrk){window.pintrk = function () {
-  window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
-    n=window.pintrk;n.queue=[],n.version="3.0";var
-    t=document.createElement("script");t.async=!0,t.src=e;var
-    r=document.getElementsByTagName("script")[0];
-    r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
-  pintrk('load', '2613467907928');
-  pintrk('page');
-  </script>
-  <noscript>
-  <img height="1" width="1" style="display:none;" alt=""
-    src="https://ct.pinterest.com/v3/?event=init&tid=2613467907928&noscript=1" />
-  </noscript>
-  <!-- end Pinterest Tag -->
+  <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
+  <%- include('../partials/tracking') %>
 </head>
 <body>
   <div class="wrap">
@@ -320,6 +274,50 @@
         <a href="https://<%= appDomain %>/#pricing" class="btn-gold">View Plans</a>
         <p class="portal-note">You're on a free trial. Visit our pricing page to subscribe.</p>
       <% } %>
+    </div>
+
+    <% if (typeof referral !== 'undefined' && referral && referral.code) { %>
+    <div class="card">
+      <h2>Refer friends, get a free year</h2>
+      <p style="font-size:14px;color:#4a4a5a;line-height:1.6;margin-bottom:14px;">Share your link below. When <strong><%= referral.threshold %> friends</strong> start a book of their own, we credit your account <strong><%= referral.rewardLabel %></strong> toward your next renewal — automatically. No limit: every <%= referral.threshold %> more is another year on us.</p>
+
+      <label style="display:block;font-size:12px;color:#8a7e6b;margin-bottom:6px;letter-spacing:0.04em;text-transform:uppercase;">Your referral link</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input id="loRefLink" type="text" readonly value="<%= referral.link %>" onclick="this.select()"
+          style="flex:1;min-width:220px;padding:11px 13px;border:1px solid #e0d5c4;border-radius:8px;background:#faf7f2;color:#2c2416;font-size:14px;" />
+        <button type="button" class="btn-gold" style="margin:0;white-space:nowrap;" onclick="loCopyRef(this)">Copy link</button>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <span style="font-size:13px;color:#4a4a5a;"><strong><%= referral.towardNext %></strong> of <%= referral.threshold %> toward your next free year</span>
+          <% if (referral.creditsGranted > 0) { %>
+            <span style="font-size:13px;color:#b08e4a;font-weight:600;"><%= referral.creditsGranted %> free year<%= referral.creditsGranted === 1 ? '' : 's' %> earned 🎉</span>
+          <% } %>
+        </div>
+        <div style="height:8px;background:#efe7d8;border-radius:6px;overflow:hidden;">
+          <div style="height:100%;width:<%= Math.round((referral.towardNext / referral.threshold) * 100) %>%;background:#c8a96e;border-radius:6px;transition:width .3s;"></div>
+        </div>
+        <p class="portal-note" style="margin-top:10px;">A referral counts once your friend completes their first paid checkout. Credits apply to your next invoice through Stripe.</p>
+      </div>
+    </div>
+    <script>
+      function loCopyRef(btn) {
+        var input = document.getElementById('loRefLink');
+        input.select();
+        var done = function () { var t = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = t; }, 1600); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(input.value).then(done).catch(function(){ try { document.execCommand('copy'); done(); } catch(e){} });
+        } else { try { document.execCommand('copy'); done(); } catch(e){} }
+      }
+    </script>
+    <% } %>
+
+    <div class="card">
+      <h2>Your Data &amp; Privacy</h2>
+      <p style="font-size:14px;color:#4a4a5a;line-height:1.6;margin-bottom:14px;">Download a copy of all the personal data we hold for your account at any time. See our <a href="/privacy" style="color:#c8a96e;">Privacy Policy</a>.</p>
+      <a href="/account/export" class="btn-gold" style="display:inline-block;">Download My Data</a>
+      <p class="portal-note" style="margin-top:10px;">To delete your account and all its data, cancel your subscription above, or email <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a> and we'll remove it.</p>
     </div>
 
     <% } %>

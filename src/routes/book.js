@@ -74,6 +74,59 @@ router.get('/preview/landing-v1', (req, res) => {
   res.render('marketing/landing', { landingVariant: 'v1' });
 });
 
+// Preview route for the CRO revision of landing-v2 (Alexis Cottray audit, May 2026).
+// NOT live in the A/B split — review-only until promoted.
+router.get('/preview/landing-v2-cro', (req, res) => {
+  res.render('marketing/landing-v2-cro', { landingVariant: 'v2-cro' });
+});
+
+// Side-by-side comparison: original landing-v2 (left) vs CRO revision (right),
+// each rendered in its own iframe at the real preview routes above.
+router.get('/preview/cro-compare', (req, res) => {
+  res.set('Content-Type', 'text/html').send(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO Comparison — Original vs Revised</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Jost',system-ui,sans-serif;background:#1a1510;color:#faf7f2;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  header{flex:0 0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid rgba(200,169,110,0.2);background:#0f0b07}
+  header h1{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:#c8a96e}
+  header .hint{font-size:12px;color:rgba(250,247,242,0.5)}
+  header label{font-size:12px;color:rgba(250,247,242,0.7);margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer}
+  .panes{flex:1 1 auto;display:flex;min-height:0}
+  .panes.stacked{flex-direction:column}
+  .pane{flex:1 1 50%;display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid rgba(200,169,110,0.25)}
+  .pane:last-child{border-right:none}
+  .pane .bar{flex:0 0 auto;padding:7px 14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;background:#2e2218;color:#c8a96e;display:flex;justify-content:space-between;align-items:center}
+  .pane .bar a{color:rgba(250,247,242,0.6);font-size:11px;text-decoration:none}
+  .pane .bar a:hover{color:#c8a96e}
+  .pane iframe{flex:1 1 auto;width:100%;border:none;background:#faf7f2}
+</style></head>
+<body>
+  <header>
+    <h1>Legacy Odyssey — CRO Comparison</h1>
+    <span class="hint">Left: current landing (v2) &nbsp;·&nbsp; Right: CRO revision. Each scrolls independently.</span>
+    <label><input type="checkbox" id="stackToggle"> Stack vertically</label>
+  </header>
+  <div class="panes" id="panes">
+    <div class="pane">
+      <div class="bar"><span>Original — landing-v2</span><a href="/preview/landing-v2" target="_blank">open full ↗</a></div>
+      <iframe src="/preview/landing-v2" title="Original landing v2" loading="eager"></iframe>
+    </div>
+    <div class="pane">
+      <div class="bar"><span>CRO revision — landing-v2-cro</span><a href="/preview/landing-v2-cro" target="_blank">open full ↗</a></div>
+      <iframe src="/preview/landing-v2-cro" title="CRO revised landing" loading="eager"></iframe>
+    </div>
+  </div>
+  <script>
+    document.getElementById('stackToggle').addEventListener('change', function(e){
+      document.getElementById('panes').classList.toggle('stacked', e.target.checked);
+    });
+  </script>
+</body></html>`);
+});
+
 // Preview route for the gift-giver landing — NOT live until promoted.
 // Same architecture: bypasses resolveFamily so it renders for legacyodyssey.com
 // regardless of which family record the host resolves to.
@@ -733,9 +786,10 @@ router.get('/redeem', (req, res) => {
 router.get('/', resolveFamily, (req, res, next) => {
   // If no family found, show the marketing landing page (A/B split)
   if (req.isMarketingSite) {
-    const variant = pickLandingVariant(req, res);
-    const template = variant === 'v2' ? 'marketing/landing-v2' : 'marketing/landing';
-    return res.render(template, { landingVariant: variant });
+    // landing-v2-cro is the sole live landing page (CRO redesign promoted, May 2026),
+    // replacing the old v1/v2 A/B split. The old pages stay reachable for reference
+    // at /preview/landing-v1 and /preview/landing-v2. The gift landing is separate.
+    return res.render('marketing/landing-v2-cro', { landingVariant: 'v2-cro' });
   }
   next();
 }, requireBookPassword, async (req, res, next) => {

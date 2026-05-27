@@ -52,6 +52,9 @@ app.use(cookieParser(process.env.SESSION_SECRET));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Sets res.locals.consentRequired (true for EU/EEA/UK visitors) for all views.
+app.use(require('./middleware/consentRegion'));
+
 // Rate limiting on auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -157,6 +160,15 @@ const server = app.listen(PORT, () => {
   // Hourly: send scheduled gift emails whose deliver_at has come due.
   const { startGiftDeliveriesScheduler } = require('./jobs/giftDeliveries');
   startGiftDeliveriesScheduler();
+
+  // Daily: lead-nurture drip for waitlist signups (B16).
+  const { startLeadNurtureScheduler } = require('./jobs/leadNurture');
+  startLeadNurtureScheduler();
+
+  // Weekly: remind admin to manually delete accounts past their 1-year
+  // retention window (interim stand-in for the #38 auto-purge job).
+  const { startDataRetentionReminderScheduler } = require('./jobs/dataRetentionReminder');
+  startDataRetentionReminderScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).

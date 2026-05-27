@@ -52,6 +52,7 @@ async function createGiftCode({
   stripeSessionId,
   deliveryMethod,
   scheduledDate,
+  monthsPrepaid,
 }) {
   // ─── IDEMPOTENCY ────────────────────────────────────────────────────────
   // Stripe retries webhook deliveries on slow / non-2xx responses. Without
@@ -119,7 +120,9 @@ async function createGiftCode({
       recipient_email: recipientEmail || null,
       recipient_message: recipientMessage || null,
       stripe_session_id: stripeSessionId,
-      months_prepaid: 12,
+      // 12 = 1-year gift; 216 (= 18×12) = Entire Childhood gift. The tier is
+      // carried by this number — redeemGiftCode branches on >= 216.
+      months_prepaid: monthsPrepaid && monthsPrepaid >= 216 ? 216 : 12,
       status: 'purchased',
       expires_at: expiresAt.toISOString(),
       delivery_method: resolvedMethod,
@@ -232,38 +235,52 @@ async function redeemGiftCode({ code, email, domain }) {
     customerName: gift.recipient_name || null,
   });
 
-  // 5. Create Stripe customer and subscription with trial
+  // 5. Create Stripe customer and provision access.
+  //    months_prepaid >= 216 → Entire Childhood gift: a one-time, 18-year
+  //    plan with NO recurring subscription (mirrors a direct Childhood
+  //    purchase — nothing ever re-bills). Otherwise → 1-year gift: a
+  //    subscription whose trial covers the gifted months, then auto-renews
+  //    at $49.99/yr (as disclosed on the gift page).
+  const isChildhoodGift = (gift.months_prepaid || 12) >= 216;
   const { stripe } = require('../config/stripe');
   if (stripe) {
     try {
       const customer = await stripe.customers.create({ email, metadata: { family_id: family.id } });
 
-      // The gift year runs from when the recipient REDEEMS — not from when
-      // the gift was purchased — so a gift bought well in advance still
-      // gives the recipient a full year. months_prepaid is the gifted
-      // length (12). redeemGiftCode runs at redemption time, so "now" is
-      // exactly the moment the recipient claimed the gift.
-      const trialEnd = new Date();
-      trialEnd.setMonth(trialEnd.getMonth() + gift.months_prepaid);
+      if (isChildhoodGift) {
+        // No subscription — the buyer already paid $450 in full for all 18 years.
+        await familyService.update(family.id, {
+          stripe_customer_id: customer.id,
+          subscription_status: 'active',
+          billing_period: 'childhood',
+          plan: 'paid',
+        });
+      } else {
+        // The gift year runs from when the recipient REDEEMS — not from when
+        // the gift was purchased — so a gift bought well in advance still
+        // gives the recipient a full year. months_prepaid is the gifted
+        // length (12). redeemGiftCode runs at redemption time, so "now" is
+        // exactly the moment the recipient claimed the gift.
+        const trialEnd = new Date();
+        trialEnd.setMonth(trialEnd.getMonth() + gift.months_prepaid);
 
-      // Gift recipients are explicitly told on the gift page that the post-
-      // gift-year auto-renew is $49.99/yr — so use STRIPE_PRICE_ANNUAL.
-      // (Earlier code preferred MONTHLY which would have rebilled at $4.99/mo,
-      // contradicting the disclosure on the gift page.)
-      const subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ price: process.env.STRIPE_PRICE_ANNUAL }],
-        trial_end: Math.floor(trialEnd.getTime() / 1000),
-        payment_behavior: 'default_incomplete',
-        payment_settings: { save_default_payment_method: 'on_subscription' },
-      });
+        // Gift recipients are explicitly told on the gift page that the post-
+        // gift-year auto-renew is $49.99/yr — so use STRIPE_PRICE_ANNUAL.
+        const subscription = await stripe.subscriptions.create({
+          customer: customer.id,
+          items: [{ price: process.env.STRIPE_PRICE_ANNUAL }],
+          trial_end: Math.floor(trialEnd.getTime() / 1000),
+          payment_behavior: 'default_incomplete',
+          payment_settings: { save_default_payment_method: 'on_subscription' },
+        });
 
-      await familyService.update(family.id, {
-        stripe_customer_id: customer.id,
-        stripe_subscription_id: subscription.id,
-        subscription_status: 'active',
-        billing_period: 'annual',
-      });
+        await familyService.update(family.id, {
+          stripe_customer_id: customer.id,
+          stripe_subscription_id: subscription.id,
+          subscription_status: 'active',
+          billing_period: 'annual',
+        });
+      }
     } catch (stripeErr) {
       console.error('Gift redemption Stripe setup error:', stripeErr.message);
       // Still continue — family and book are created

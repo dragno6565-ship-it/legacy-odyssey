@@ -7,7 +7,7 @@ const router = Router();
 // POST /api/stripe/create-checkout
 router.post('/create-checkout', async (req, res, next) => {
   try {
-    const { email, domain, period, subdomain: legacySubdomain, book_type } = req.body;
+    const { email, domain, period, subdomain: legacySubdomain, book_type, ref } = req.body;
 
     // Support both new domain flow and legacy subdomain flow
     const subdomain = domain
@@ -29,6 +29,7 @@ router.post('/create-checkout', async (req, res, next) => {
       domain: domain || null,
       period: resolvedPeriod,
       bookType: resolvedBookType,
+      ref: ref || null,
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });
@@ -51,6 +52,7 @@ router.post('/create-gift-checkout', async (req, res, next) => {
       giftMessage,
       deliveryMethod,
       scheduledDate,
+      plan,
     } = req.body;
 
     if (!buyerEmail) {
@@ -74,6 +76,7 @@ router.post('/create-gift-checkout', async (req, res, next) => {
       message: message || giftMessage,
       deliveryMethod,
       scheduledDate,
+      plan: plan === 'childhood' ? 'childhood' : 'annual',
       successUrl: `https://${appDomain}/gift/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}/gift`,
     });
@@ -114,7 +117,7 @@ router.post('/redeem-gift', async (req, res, next) => {
 // POST /api/stripe/create-founder-checkout
 router.post('/create-founder-checkout', async (req, res, next) => {
   try {
-    const { email, domain, subdomain: legacySubdomain, book_type } = req.body;
+    const { email, domain, subdomain: legacySubdomain, book_type, ref } = req.body;
 
     const subdomain = domain
       ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -132,6 +135,7 @@ router.post('/create-founder-checkout', async (req, res, next) => {
       subdomain,
       domain: domain || null,
       bookType: resolvedBookType,
+      ref: ref || null,
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });
@@ -174,6 +178,39 @@ router.post('/create-founder-page-checkout', async (req, res, next) => {
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       // Cancel returns them to the hidden founder page, not the public home
       cancelUrl: `https://${appDomain}/preview/founder`,
+    });
+
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/stripe/create-childhood-checkout — Childhood Plan ($450 / 18 years, one-time)
+router.post('/create-childhood-checkout', async (req, res, next) => {
+  try {
+    const { email, domain, subdomain: legacySubdomain, ref } = req.body;
+
+    const subdomain = domain
+      ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
+      : legacySubdomain;
+
+    if (!email) {
+      return res.status(400).json({ error: 'email is required' });
+    }
+    if (!domain && !subdomain) {
+      return res.status(400).json({ error: 'domain is required' });
+    }
+
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    const session = await stripeService.createChildhoodCheckoutSession({
+      email,
+      subdomain,
+      domain: domain || null,
+      bookType: 'baby_book',
+      ref: ref || null,
+      successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `https://${appDomain}`,
     });
 
     res.json({ url: session.url, sessionId: session.id });
