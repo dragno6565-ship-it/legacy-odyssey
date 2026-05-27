@@ -333,6 +333,32 @@
         $('gcDetailsStep').style.display = 'block';
         var cb = $('gcContinueBtn'); cb.disabled = false; cb.textContent = 'Continue to Payment →';
       });
+
+      // ----- Prefill from the /gift form handoff (single data entry on cutover) -----
+      (function () {
+        var raw;
+        try { raw = sessionStorage.getItem('lo_gift'); sessionStorage.removeItem('lo_gift'); } catch (e) { raw = null; }
+        if (!raw) return;
+        var d; try { d = JSON.parse(raw); } catch (e) { return; }
+        if (!d) return;
+        var planRadio = document.querySelector('input[name="gcPlan"][value="' + (d.plan === 'childhood' ? 'childhood' : 'annual') + '"]');
+        if (planRadio) planRadio.checked = true;
+        syncPlan();
+        if (d.buyerEmail) $('gcBuyerEmail').value = d.buyerEmail;
+        if (d.buyerName) $('gcBuyerName').value = d.buyerName;
+        if (d.recipientName) $('gcRecipientName').value = d.recipientName;
+        if (d.recipientEmail) $('gcRecipientEmail').value = d.recipientEmail;
+        if (d.giftMessage) $('gcMessage').value = d.giftMessage;
+        var dm = d.deliveryMethod || 'email_now';
+        var dr = document.querySelector('input[name="gcDelivery"][value="' + dm + '"]');
+        if (dr) dr.checked = true;
+        syncDelivery();
+        if (d.scheduledDate) $('gcScheduledDate').value = d.scheduledDate;
+        // Auto-advance straight to payment when the handed-off details are complete.
+        if (d.buyerEmail && d.recipientName && (dm === 'print' || d.recipientEmail)) {
+          $('gcContinueBtn').click();
+        }
+      })();
     })();
   </script>
   <% } %>

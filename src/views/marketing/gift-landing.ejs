@@ -1071,24 +1071,12 @@
         if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: amt, currency: 'USD' });
       } catch (e) {}
 
-      try {
-        const res = await fetch('/api/stripe/create-gift-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Something went wrong');
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error('No checkout session URL returned');
-        }
-      } catch (err) {
-        errorEl.textContent = err.message;
-        btn.disabled = false;
-        btn.textContent = giftButtonLabel();
-      }
+      // Cut over to the on-brand embedded checkout (Payment Element): carry the
+      // details the buyer just entered to /gift/checkout so they don't re-type
+      // them, then land straight on the branded payment step. (Replaces the old
+      // hosted Stripe Checkout redirect.)
+      try { sessionStorage.setItem('lo_gift', JSON.stringify(payload)); } catch (e) {}
+      window.location.href = '/gift/checkout';
     });
   </script>
 
