@@ -21,6 +21,29 @@ const REWARD_AMOUNT_CENTS = 4999; // $49.99 — one free renewal year
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no ambiguous 0/O/1/I/L
 const CODE_LENGTH = 6;
 
+// Self-disable guard: the referral columns (migration 023) may not be applied
+// yet in a given environment. The first query that hits a "column does not
+// exist" error trips this flag so we stop firing doomed queries (no log spam,
+// no wasted round-trips). It resets on process start, so once the migration is
+// applied and the server redeploys/restarts, referrals re-enable automatically.
+let referralSchemaMissing = false;
+
+function noteSchema(error) {
+  // SELECT on a missing column → Postgres 42703 ("column ... does not exist").
+  // INSERT/UPDATE on a missing column → PostgREST PGRST204 ("Could not find the
+  // '...' column ... in the schema cache"). Catch both.
+  const msg = (error && error.message) || '';
+  if (error && (error.code === '42703' || error.code === 'PGRST204' ||
+                /does not exist/i.test(msg) || /schema cache/i.test(msg))) {
+    if (!referralSchemaMissing) {
+      console.warn('[referral] referral columns absent (migration 023 not applied) — referral features disabled until applied + redeployed');
+    }
+    referralSchemaMissing = true;
+    return true;
+  }
+  return false;
+}
+
 function normalizeCode(raw) {
   return (raw || '').toString().trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
 }
@@ -37,14 +60,16 @@ function randomCode() {
  * Find the family that owns a referral code. Returns null if none.
  */
 async function findByReferralCode(code) {
+  if (referralSchemaMissing) return null;
   const normalized = normalizeCode(code);
   if (!normalized) return null;
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('families')
     .select('*')
     .eq('referral_code', normalized)
     .limit(1)
     .maybeSingle();
+  if (error) { noteSchema(error); return null; }
   return data || null;
 }
 
@@ -53,6 +78,7 @@ async function findByReferralCode(code) {
  * Retries on the (rare) unique-index collision.
  */
 async function getOrCreateCodeForFamily(family) {
+  if (referralSchemaMissing) return null;
   if (!family) return null;
   if (family.referral_code) return family.referral_code;
 
@@ -65,6 +91,7 @@ async function getOrCreateCodeForFamily(family) {
       .is('referral_code', null) // don't clobber a code set by a concurrent request
       .select('referral_code')
       .maybeSingle();
+    if (error && noteSchema(error)) return null; // columns missing — bail, don't retry
     if (!error && data && data.referral_code) {
       family.referral_code = data.referral_code;
       return data.referral_code;
@@ -87,6 +114,7 @@ async function getOrCreateCodeForFamily(family) {
  * code is missing, invalid, self-referral, or the family is already attributed.
  */
 async function attributeSignup(newFamily, rawCode) {
+  if (referralSchemaMissing) return null;
   const code = normalizeCode(rawCode);
   if (!newFamily || !code) return null;
   if (newFamily.referred_by) return newFamily.referred_by; // already attributed
@@ -161,18 +189,20 @@ async function grantEarnedCredits(referrer) {
  * the referrer's qualified count and grants any newly-earned credits.
  */
 async function recordQualifiedReferral(referredFamily) {
+  if (referralSchemaMissing) return;
   if (!referredFamily || !referredFamily.referred_by) return;
   if (referredFamily.referral_counted_at) return; // already counted
 
   // Atomically claim the count: only the request that flips counted_at from
   // NULL proceeds, so concurrent webhook retries can't double-increment.
-  const { data: claimed } = await supabaseAdmin
+  const { data: claimed, error: claimErr } = await supabaseAdmin
     .from('families')
     .update({ referral_counted_at: new Date().toISOString() })
     .eq('id', referredFamily.id)
     .is('referral_counted_at', null)
     .select('id')
     .maybeSingle();
+  if (claimErr) { noteSchema(claimErr); return; }
   if (!claimed) return; // someone else already counted it
   referredFamily.referral_counted_at = new Date().toISOString();
 

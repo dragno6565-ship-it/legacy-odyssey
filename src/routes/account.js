@@ -316,7 +316,7 @@ router.get('/dashboard', async (req, res) => {
   try {
     const { data: family, error } = await supabaseAdmin
       .from('families')
-      .select('id, email, display_name, subscription_status, billing_period, stripe_customer_id, stripe_subscription_id, custom_domain, subdomain, archived_at, auth_user_id, referral_code, referral_qualified_count, referral_credits_granted')
+      .select('*')
       .eq('id', familyId)
       .single();
     if (error || !family) {
