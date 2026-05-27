@@ -286,60 +286,11 @@ router.post('/stripe/webhook', async (req, res) => {
         const pi = event.data.object;
         if (pi.metadata?.type === 'gift') {
           const giftService = require('../services/giftService');
-          const { supabaseAdmin } = require('../config/supabase');
-          const { sendGiftPurchaseEmail, sendGiftNotificationEmail } = require('../services/emailService');
-
-          const deliveryMethod = pi.metadata.delivery_method || 'email_now';
-          const scheduledDate = pi.metadata.scheduled_date || null;
-          const giftPlan = pi.metadata.gift_plan === 'childhood' ? 'childhood' : 'annual';
-          const monthsPrepaid = giftPlan === 'childhood' ? 216 : 12;
-          const buyerEmail = pi.metadata.buyer_email || pi.receipt_email || null;
-
-          const gift = await giftService.createGiftCode({
-            buyerEmail,
-            buyerName: pi.metadata.buyer_name,
-            recipientName: pi.metadata.recipient_name || null,
-            recipientEmail: pi.metadata.recipient_email,
-            recipientMessage: pi.metadata.gift_message,
-            stripeSessionId: pi.id, // PI id is the idempotency key for the embedded-checkout path
-            deliveryMethod,
-            scheduledDate,
-            monthsPrepaid,
-          });
-
-          if (gift._alreadyExisted) {
-            console.log(`[webhook] gift PI ${pi.id} already processed (gift ${gift.code}) — skipping duplicate emails`);
-            break;
-          }
-
-          const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
-          const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
-          const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;
-
-          await sendGiftPurchaseEmail({
-            to: gift.buyer_email,
-            buyerName: gift.buyer_name,
-            giftCode: gift.code,
-            redeemUrl,
-            certificateUrl,
-            recipientName: gift.recipient_name,
-            deliveryMethod: gift.delivery_method,
-            deliverAt: gift.deliver_at,
-            monthsPrepaid: gift.months_prepaid,
-          });
-
-          if (gift.recipient_email && gift.delivery_method === 'email_now') {
-            await sendGiftNotificationEmail({
-              to: gift.recipient_email,
-              buyerName: gift.buyer_name,
-              message: gift.recipient_message,
-              redeemUrl,
-              monthsPrepaid: gift.months_prepaid,
-            });
-            await supabaseAdmin
-              .from('gift_codes')
-              .update({ recipient_email_sent_at: new Date().toISOString() })
-              .eq('id', gift.id);
+          const { gift, alreadyExisted } = await giftService.fulfillGiftForPaymentIntent(pi);
+          if (alreadyExisted) {
+            console.log(`[webhook] gift PI ${pi.id} already processed (gift ${gift?.code}) — skipping duplicate emails`);
+          } else if (gift) {
+            console.log(`[webhook] fulfilled gift ${gift.code} from PI ${pi.id}`);
           }
         }
         break;

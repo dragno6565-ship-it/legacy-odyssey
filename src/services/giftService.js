@@ -338,9 +338,80 @@ async function redeemGiftCode({ code, email, domain }) {
   return { family, tempPassword, setPasswordUrl, domain, gift };
 }
 
+/**
+ * Fulfill a gift purchase from a succeeded Stripe PaymentIntent (the embedded
+ * Payment Element checkout path). Creates the gift code and sends the buyer's
+ * confirmation + (if applicable) the recipient's notification.
+ *
+ * Idempotent: createGiftCode dedups on the PaymentIntent id (stored in
+ * gift_codes.stripe_session_id, unique index migration 017), so this is safe to
+ * call from BOTH the `payment_intent.succeeded` webhook AND the /gift/thank-you
+ * redirect. Whichever runs first creates the row + sends emails; the second
+ * sees `_alreadyExisted` and skips the emails. This belt-and-suspenders design
+ * means a gift is still fulfilled even if the webhook event isn't enabled.
+ *
+ * Returns { gift, alreadyExisted }. No-op (null gift) for non-gift PIs.
+ */
+async function fulfillGiftForPaymentIntent(pi) {
+  if (!pi || pi.metadata?.type !== 'gift') return { gift: null, alreadyExisted: false };
+  const { sendGiftPurchaseEmail, sendGiftNotificationEmail } = require('./emailService');
+
+  const m = pi.metadata || {};
+  const giftPlan = m.gift_plan === 'childhood' ? 'childhood' : 'annual';
+  const monthsPrepaid = giftPlan === 'childhood' ? 216 : 12;
+  const buyerEmail = m.buyer_email || pi.receipt_email || null;
+
+  const gift = await createGiftCode({
+    buyerEmail,
+    buyerName: m.buyer_name,
+    recipientName: m.recipient_name || null,
+    recipientEmail: m.recipient_email,
+    recipientMessage: m.gift_message,
+    stripeSessionId: pi.id,
+    deliveryMethod: m.delivery_method || 'email_now',
+    scheduledDate: m.scheduled_date || null,
+    monthsPrepaid,
+  });
+
+  if (gift._alreadyExisted) return { gift, alreadyExisted: true };
+
+  const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+  const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+  const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;
+
+  await sendGiftPurchaseEmail({
+    to: gift.buyer_email,
+    buyerName: gift.buyer_name,
+    giftCode: gift.code,
+    redeemUrl,
+    certificateUrl,
+    recipientName: gift.recipient_name,
+    deliveryMethod: gift.delivery_method,
+    deliverAt: gift.deliver_at,
+    monthsPrepaid: gift.months_prepaid,
+  });
+
+  if (gift.recipient_email && gift.delivery_method === 'email_now') {
+    await sendGiftNotificationEmail({
+      to: gift.recipient_email,
+      buyerName: gift.buyer_name,
+      message: gift.recipient_message,
+      redeemUrl,
+      monthsPrepaid: gift.months_prepaid,
+    });
+    await supabaseAdmin
+      .from('gift_codes')
+      .update({ recipient_email_sent_at: new Date().toISOString() })
+      .eq('id', gift.id);
+  }
+
+  return { gift, alreadyExisted: false };
+}
+
 module.exports = {
   generateGiftCode,
   createGiftCode,
   findByCode,
   redeemGiftCode,
+  fulfillGiftForPaymentIntent,
 };

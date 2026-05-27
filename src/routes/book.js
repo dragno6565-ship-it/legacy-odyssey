@@ -721,10 +721,26 @@ router.get('/gift/checkout', (req, res) => {
   });
 });
 
-// Post-payment confirmation for the embedded checkout. Fulfillment (gift code
-// + emails) happens in the payment_intent.succeeded webhook, so this page just
-// reassures the buyer — it never needs to race the gift-code lookup.
-router.get('/gift/thank-you', (req, res) => {
+// Post-payment confirmation for the embedded checkout. Fulfillment normally
+// happens in the payment_intent.succeeded webhook, but we ALSO finalize it here
+// as a belt-and-suspenders fallback (idempotent) so a gift is fulfilled even if
+// that webhook event isn't enabled on the Stripe endpoint. confirmPayment
+// appends ?payment_intent=...&redirect_status=succeeded to the return_url.
+router.get('/gift/thank-you', async (req, res) => {
+  const { stripe } = require('../config/stripe');
+  const piId = req.query.payment_intent;
+  if (stripe && piId && req.query.redirect_status === 'succeeded') {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(piId);
+      if (pi && pi.status === 'succeeded' && pi.metadata?.type === 'gift') {
+        const giftService = require('../services/giftService');
+        await giftService.fulfillGiftForPaymentIntent(pi); // idempotent with the webhook
+      }
+    } catch (err) {
+      console.error('[gift/thank-you] fallback fulfillment failed:', err.message);
+      // Non-fatal — the webhook is the primary path; still show the thank-you page.
+    }
+  }
   res.render('marketing/gift-thank-you', {
     appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
   });
