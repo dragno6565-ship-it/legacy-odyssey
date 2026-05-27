@@ -721,6 +721,27 @@ router.get('/gift/checkout', (req, res) => {
   });
 });
 
+// On-brand embedded SIGNUP checkout (Stripe Payment Element). Preview/isolated:
+// the live hosted signup (founder modal -> hosted Checkout) is unchanged. Needs
+// STRIPE_PUBLISHABLE_KEY on the server. Accepts ?domain= & ?plan= to prefill.
+router.get('/start/checkout', (req, res) => {
+  const plan = ['monthly', 'annual', 'childhood'].includes(req.query.plan) ? req.query.plan : 'annual';
+  res.render('marketing/signup-checkout', {
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+    initialPlan: plan,
+    initialDomain: typeof req.query.domain === 'string' ? req.query.domain : '',
+  });
+});
+
+// Post-payment welcome for the embedded signup. Provisioning (account + book +
+// domain) runs in the webhook; this page just reassures + points to email.
+router.get('/start/welcome', (req, res) => {
+  res.render('marketing/signup-welcome', {
+    appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+  });
+});
+
 // Post-payment confirmation for the embedded checkout. Fulfillment normally
 // happens in the payment_intent.succeeded webhook, but we ALSO finalize it here
 // as a belt-and-suspenders fallback (idempotent) so a gift is fulfilled even if

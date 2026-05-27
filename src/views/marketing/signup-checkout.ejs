@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Get Your Child's Website · Legacy Odyssey</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Jost', system-ui, sans-serif; background: #faf7f2; color: #2c2416; line-height: 1.5; }
+    a { color: #b08e4a; }
+    .gc-nav { height: 60px; display: flex; align-items: center; justify-content: center; background: #1a1510; }
+    .gc-nav a { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: #faf7f2; text-decoration: none; letter-spacing: 0.5px; }
+    .gc-nav a span { color: #c8a96e; }
+    .gc-wrap { max-width: 880px; margin: 0 auto; padding: 40px 20px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    @media (max-width: 760px) { .gc-wrap { grid-template-columns: 1fr; gap: 28px; } }
+    .gc-card { background: #fff; border: 1px solid #e0d5c4; border-radius: 14px; padding: 30px 28px; box-shadow: 0 20px 50px rgba(26,21,16,0.08); }
+    .gc-eyebrow { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #c8a96e; font-weight: 600; margin-bottom: 10px; }
+    .gc-h { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 500; margin: 0 0 6px; color: #1a1510; }
+    .gc-sub { font-size: 14px; color: #5e564a; margin: 0 0 22px; }
+    .gc-summary-row { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0; border-bottom: 1px solid #f0e8dc; }
+    .gc-summary-label { font-size: 14px; color: #2c2416; font-weight: 500; }
+    .gc-summary-hint { font-size: 12px; color: #8a7e6b; }
+    .gc-summary-price { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #1a1510; }
+    .gc-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 14px; padding-top: 16px; border-top: 2px solid #1a1510; }
+    .gc-total-num { font-family: 'Cormorant Garamond', serif; font-size: 34px; color: #1a1510; }
+    .gc-after { font-size: 12px; color: #8a7e6b; margin-top: 6px; text-align: right; }
+    .gc-includes { list-style: none; padding: 0; margin: 22px 0 0; }
+    .gc-includes li { display: flex; gap: 10px; font-size: 13.5px; color: #5e564a; padding: 6px 0; }
+    .gc-includes svg { width: 16px; height: 16px; color: #c8a96e; flex-shrink: 0; margin-top: 2px; }
+    .gc-plans { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    @media (max-width: 520px) { .gc-plans { grid-template-columns: 1fr; } }
+    .gc-plan { position: relative; cursor: pointer; border: 1px solid #e0d5c4; border-radius: 10px; padding: 12px 10px; transition: all .15s; text-align: center; }
+    .gc-plan:hover { border-color: #c8a96e; }
+    .gc-plan.checked { border-color: #c8a96e; background: rgba(200,169,110,0.08); }
+    .gc-plan input { position: absolute; opacity: 0; }
+    .gc-plan-name { font-size: 12px; font-weight: 600; color: #1a1510; }
+    .gc-plan-price { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #b08e4a; margin-top: 2px; }
+    .gc-field { margin-bottom: 14px; }
+    .gc-field label { display: block; font-size: 12px; letter-spacing: 0.4px; text-transform: uppercase; color: #8a7e6b; font-weight: 500; margin-bottom: 6px; }
+    .gc-field input { width: 100%; padding: 11px 13px; background: #fff; border: 1px solid #e0d5c4; border-radius: 6px; color: #2c2416; font-family: 'Jost', sans-serif; font-size: 14px; }
+    .gc-field input:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 1px #c8a96e; }
+    .gc-btn { width: 100%; padding: 15px; background: #c8a96e; color: #1a1510; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: background .2s; margin-top: 8px; font-family: inherit; }
+    .gc-btn:hover { background: #d4bb8a; }
+    .gc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .gc-msg { color: #c0392b; font-size: 13px; min-height: 16px; margin: 10px 0 0; }
+    .gc-trust { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; color: #8a7e6b; font-size: 12px; }
+    .gc-trust svg { width: 14px; height: 14px; }
+    .gc-back { display: inline-block; margin-top: 14px; font-size: 13px; color: #8a7e6b; background: none; border: none; cursor: pointer; text-decoration: underline; }
+    #gcPaymentStep { display: none; }
+    #gcPaymentElement { margin: 8px 0 4px; }
+    .gc-notice { background: rgba(200,169,110,0.1); border: 1px solid rgba(200,169,110,0.4); border-radius: 10px; padding: 18px 20px; font-size: 14px; color: #5e564a; }
+  </style>
+</head>
+<body>
+  <nav class="gc-nav"><a href="/">Legacy <span>Odyssey</span></a></nav>
+
+  <% if (!publishableKey) { %>
+    <div class="gc-wrap" style="grid-template-columns:1fr;max-width:560px;">
+      <div class="gc-card gc-notice">Our on-brand checkout isn't switched on yet. Please use the <a href="/#pricing">standard signup</a> for now.</div>
+    </div>
+  <% } else { %>
+
+  <div class="gc-wrap">
+    <!-- LEFT: order summary -->
+    <div class="gc-card">
+      <div class="gc-eyebrow">Your plan</div>
+      <h1 class="gc-h">Order summary</h1>
+      <p class="gc-sub">Your child's name as a real .com, with a beautifully designed digital baby book.</p>
+
+      <div class="gc-plans">
+        <label class="gc-plan" data-plan="monthly"><input type="radio" name="scPlan" value="monthly"><div class="gc-plan-name">Monthly</div><div class="gc-plan-price">$4.99</div></label>
+        <label class="gc-plan checked" data-plan="annual"><input type="radio" name="scPlan" value="annual" checked><div class="gc-plan-name">Annual</div><div class="gc-plan-price">$29</div></label>
+        <label class="gc-plan" data-plan="childhood"><input type="radio" name="scPlan" value="childhood"><div class="gc-plan-name">Childhood</div><div class="gc-plan-price">$450</div></label>
+      </div>
+
+      <div class="gc-summary-row">
+        <div>
+          <div class="gc-summary-label" id="gcSummaryName">Annual Plan — first year</div>
+          <div class="gc-summary-hint" id="gcSummaryHint">Introductory price</div>
+        </div>
+        <div class="gc-summary-price" id="gcSummaryPrice">$29</div>
+      </div>
+      <div class="gc-total">
+        <div class="gc-summary-label">Due today</div>
+        <div class="gc-total-num" id="gcTotal">$29</div>
+      </div>
+      <div class="gc-after" id="gcAfter">Then $49.99/year</div>
+
+      <ul class="gc-includes">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Your child's own real .com domain</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>A beautifully designed digital baby book</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>iOS &amp; Android apps + web editor</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Private &amp; password-protected</li>
+      </ul>
+    </div>
+
+    <!-- RIGHT: details -> payment -->
+    <div class="gc-card">
+      <div id="gcDetailsStep">
+        <div class="gc-eyebrow">Step 1 of 2</div>
+        <h2 class="gc-h">Your details</h2>
+        <p class="gc-sub">We'll set up the account and register the domain after payment.</p>
+        <div class="gc-field"><label for="gcEmail">Your email</label><input type="email" id="gcEmail" placeholder="you@example.com" required></div>
+        <div class="gc-field"><label for="gcDomain">Your child's website (.com)</label><input type="text" id="gcDomain" placeholder="yourchildsname.com" required></div>
+        <button type="button" class="gc-btn" id="gcContinueBtn">Continue to Payment →</button>
+        <p class="gc-msg" id="gcDetailsMsg"></p>
+      </div>
+
+      <div id="gcPaymentStep">
+        <div class="gc-eyebrow">Step 2 of 2</div>
+        <h2 class="gc-h">Payment</h2>
+        <p class="gc-sub" id="gcPaySub">Due today: <strong id="gcPayAmount">$29</strong></p>
+        <div id="gcPaymentElement"></div>
+        <button type="button" class="gc-btn" id="gcPayBtn">Pay <span id="gcPayBtnAmount">$29</span></button>
+        <p class="gc-msg" id="gcPayMsg"></p>
+        <div class="gc-trust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secured by Stripe</div>
+        <button type="button" class="gc-back" id="gcBackBtn">← Edit details</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var PUBLISHABLE_KEY = <%- JSON.stringify(publishableKey) %>;
+      var APP_DOMAIN = <%- JSON.stringify(appDomain) %>;
+      var INITIAL_PLAN = <%- JSON.stringify(initialPlan) %>;
+      var INITIAL_DOMAIN = <%- JSON.stringify(initialDomain) %>;
+
+      var stripe = Stripe(PUBLISHABLE_KEY);
+      var elements = null;
+      function $(id) { return document.getElementById(id); }
+      function currentPlan() { var c = document.querySelector('input[name="scPlan"]:checked'); return c ? c.value : 'annual'; }
+
+      // Plan → display copy
+      var PLANS = {
+        monthly:   { name: 'Monthly Plan',          hint: '$4.99/mo + $5.99 one-time setup', price: '$4.99', dueToday: '$10.98', after: 'Then $4.99/month' },
+        annual:    { name: 'Annual Plan — first year', hint: 'Introductory price',            price: '$29',   dueToday: '$29',    after: 'Then $49.99/year' },
+        childhood: { name: 'Entire Childhood',       hint: 'All 18 years · no renewals',      price: '$450',  dueToday: '$450',   after: 'No renewals — ever' },
+      };
+      function syncPlan() {
+        var p = currentPlan(); var info = PLANS[p];
+        document.querySelectorAll('.gc-plan').forEach(function (el) { el.classList.toggle('checked', el.querySelector('input').checked); });
+        $('gcSummaryName').textContent = info.name;
+        $('gcSummaryHint').textContent = info.hint;
+        $('gcSummaryPrice').textContent = info.price;
+        $('gcTotal').textContent = info.dueToday;
+        $('gcAfter').textContent = info.after;
+        $('gcPayAmount').textContent = info.dueToday;
+        $('gcPayBtnAmount').textContent = info.dueToday;
+      }
+      document.querySelectorAll('input[name="scPlan"]').forEach(function (r) { r.addEventListener('change', syncPlan); });
+      if (PLANS[INITIAL_PLAN]) { var pr = document.querySelector('input[name="scPlan"][value="' + INITIAL_PLAN + '"]'); if (pr) pr.checked = true; }
+      if (INITIAL_DOMAIN) { $('gcDomain').value = INITIAL_DOMAIN; }
+      syncPlan();
+
+      $('gcContinueBtn').addEventListener('click', async function () {
+        var msg = $('gcDetailsMsg'); msg.textContent = '';
+        var email = $('gcEmail').value.trim();
+        var domain = $('gcDomain').value.trim().toLowerCase();
+        if (!email) { msg.textContent = 'Please enter your email.'; return; }
+        if (!domain) { msg.textContent = "Please enter your child's .com."; return; }
+        if (domain.indexOf('.') === -1) { domain += '.com'; $('gcDomain').value = domain; }
+
+        var btn = $('gcContinueBtn'); btn.disabled = true; btn.textContent = 'Preparing…';
+        var plan = currentPlan();
+        try {
+          if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { currency: 'USD', content_category: 'signup' });
+        } catch (e) {}
+        try {
+          var res = await fetch('/api/stripe/create-signup-intent', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, domain: domain, period: plan }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Could not start checkout.');
+          if (!data.clientSecret) throw new Error('No payment secret returned.');
+
+          var appearance = {
+            theme: 'flat',
+            variables: { colorPrimary: '#c8a96e', colorBackground: '#ffffff', colorText: '#2c2416', colorTextSecondary: '#8a7e6b', colorDanger: '#c0392b', fontFamily: 'Jost, system-ui, sans-serif', borderRadius: '6px', spacingUnit: '4px' },
+            rules: {
+              '.Label': { color: '#8a7e6b', fontWeight: '500', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.4px' },
+              '.Input': { borderColor: '#e0d5c4', boxShadow: 'none', padding: '11px 13px' },
+              '.Input:focus': { borderColor: '#c8a96e', boxShadow: '0 0 0 1px #c8a96e' },
+              '.Tab': { borderColor: '#e0d5c4' }, '.Tab:hover': { borderColor: '#c8a96e' },
+              '.Tab--selected': { borderColor: '#c8a96e', boxShadow: '0 0 0 1px #c8a96e' },
+            },
+          };
+          elements = stripe.elements({ clientSecret: data.clientSecret, appearance: appearance, fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap' }] });
+          var paymentElement = elements.create('payment', { defaultValues: { billingDetails: { email: email } } });
+          paymentElement.mount('#gcPaymentElement');
+          $('gcDetailsStep').style.display = 'none';
+          $('gcPaymentStep').style.display = 'block';
+        } catch (err) {
+          msg.textContent = err.message;
+          btn.disabled = false; btn.textContent = 'Continue to Payment →';
+        }
+      });
+
+      $('gcPayBtn').addEventListener('click', async function () {
+        if (!elements) return;
+        var btn = $('gcPayBtn'); var msg = $('gcPayMsg'); msg.textContent = '';
+        btn.disabled = true; btn.textContent = 'Processing…';
+        var result = await stripe.confirmPayment({ elements: elements, confirmParams: { return_url: 'https://' + APP_DOMAIN + '/start/welcome' } });
+        if (result.error) {
+          msg.textContent = result.error.message || 'Payment could not be completed.';
+          btn.disabled = false; btn.textContent = 'Pay ' + PLANS[currentPlan()].dueToday;
+        }
+      });
+
+      $('gcBackBtn').addEventListener('click', function () {
+        $('gcPaymentStep').style.display = 'none';
+        $('gcDetailsStep').style.display = 'block';
+        var cb = $('gcContinueBtn'); cb.disabled = false; cb.textContent = 'Continue to Payment →';
+      });
+    })();
+  </script>
+  <% } %>
+</body>
+</html>

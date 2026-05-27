@@ -584,6 +584,180 @@ async function cancelSubscriptionAtPeriodEnd(family) {
   };
 }
 
+// ─── EMBEDDED (Payment Element) SIGNUP FLOW ──────────────────────────────────
+// Built behind preview routes; the live hosted-Checkout signup (handleCheckout
+// complete) is intentionally left untouched. All three creators tag metadata
+// with signup_flow='embedded' so the webhook provisions them via
+// provisionEmbeddedSignup WITHOUT colliding with the hosted path.
+
+/**
+ * Create a Subscription for the embedded signup (monthly or annual). Uses
+ * default_incomplete so the browser confirms the first invoice's PaymentIntent
+ * via the Payment Element. Annual gets the intro coupon ($29 first year);
+ * monthly adds the one-time setup fee to the first invoice.
+ */
+async function createSignupSubscription({ email, subdomain, domain, period, ref }) {
+  if (!stripe) throw new Error('Stripe not configured');
+  const resolvedPeriod = period === 'annual' ? 'annual' : 'monthly';
+
+  const customer = await stripe.customers.create({ email });
+
+  const priceId = resolvedPeriod === 'annual'
+    ? (PRICES.subscription.annualIntro || PRICES.subscription.annual)
+    : PRICES.subscription.monthly;
+  if (!priceId) throw new Error(`No price configured for period="${resolvedPeriod}"`);
+
+  const params = {
+    customer: customer.id,
+    items: [{ price: priceId }],
+    payment_behavior: 'default_incomplete',
+    payment_settings: { save_default_payment_method: 'on_subscription' },
+    expand: ['latest_invoice.payment_intent'],
+    metadata: {
+      signup_flow: 'embedded',
+      email: email || '',
+      subdomain: subdomain || '',
+      domain: domain || '',
+      period: resolvedPeriod,
+      book_type: 'baby_book',
+      ref: ref || '',
+    },
+  };
+  // Annual: intro coupon ($20.99 off the first invoice → $29 first year).
+  if (resolvedPeriod === 'annual' && PRICES.annualIntroCoupon) {
+    params.discounts = [{ coupon: PRICES.annualIntroCoupon }];
+  }
+  // Monthly: one-time $5.99 setup fee on the first invoice.
+  if (resolvedPeriod === 'monthly' && PRICES.setupFee) {
+    params.add_invoice_items = [{ price: PRICES.setupFee }];
+  }
+
+  const subscription = await stripe.subscriptions.create(params);
+  const pi = subscription.latest_invoice && subscription.latest_invoice.payment_intent;
+  return {
+    clientSecret: pi ? pi.client_secret : null,
+    subscriptionId: subscription.id,
+    customerId: customer.id,
+    period: resolvedPeriod,
+  };
+}
+
+/**
+ * Create a one-time PaymentIntent for the embedded Childhood signup ($450, 18
+ * years, no subscription). Creates a Customer so provisioning has a
+ * stripe_customer_id, mirroring createChildhoodCheckoutSession's
+ * customer_creation:'always'.
+ */
+async function createSignupChildhoodIntent({ email, subdomain, domain, ref }) {
+  if (!stripe) throw new Error('Stripe not configured');
+  const customer = await stripe.customers.create({ email });
+  const pi = await stripe.paymentIntents.create({
+    amount: 45000,
+    currency: 'usd',
+    customer: customer.id,
+    automatic_payment_methods: { enabled: true },
+    receipt_email: email || undefined,
+    description: 'Legacy Odyssey — Entire Childhood Plan (18 years)',
+    metadata: {
+      signup_flow: 'embedded',
+      type: 'signup_childhood',
+      email: email || '',
+      subdomain: subdomain || '',
+      domain: domain || '',
+      period: 'childhood',
+      book_type: 'baby_book',
+      ref: ref || '',
+    },
+  });
+  return { clientSecret: pi.client_secret, paymentIntentId: pi.id, customerId: customer.id, period: 'childhood' };
+}
+
+/**
+ * Provisioning for the embedded signup flow — account + book + domain purchase.
+ * Mirrors handleCheckoutComplete but is driven by explicit args (from a
+ * Subscription or PaymentIntent) instead of a Checkout Session, and is kept
+ * SEPARATE so the live hosted path is untouched while this is in preview.
+ * Idempotent: an already-paid family short-circuits, and the domain order is
+ * keyed on provisioningRef. (Dedupe with handleCheckoutComplete once primary.)
+ */
+async function provisionEmbeddedSignup({ email, customerName, subdomain, domain, period, bookType, referralCode, stripeCustomerId, stripeSubscriptionId, provisioningRef }) {
+  if (!email) throw new Error('provisionEmbeddedSignup: email required');
+  const { supabaseAdmin } = require('../config/supabase');
+  bookType = bookType || 'baby_book';
+
+  const creditReferral = async (family) => {
+    if (!referralCode || !family) return;
+    try {
+      const referralService = require('./referralService');
+      const fresh = await familyService.findById(family.id) || family;
+      await referralService.attributeSignup(fresh, referralCode);
+      await referralService.recordQualifiedReferral(fresh);
+    } catch (e) { console.error('[referral] attribution failed:', e.message); }
+  };
+  const genRecovery = async () => {
+    try {
+      const { data } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery', email,
+        options: { redirectTo: 'https://legacyodyssey.com/set-password' },
+      });
+      return data?.properties?.action_link || null;
+    } catch (e) { console.error('recovery link failed:', e.message); return null; }
+  };
+  const startDomain = async (familyId) => {
+    if (!domain) return;
+    try {
+      const domainService = require('./domainService');
+      const order = await domainService.createDomainOrder({ familyId, domain, stripeSessionId: provisioningRef, price: null });
+      domainService.purchaseAndSetupDomain(order.id).catch(err => console.error(`Background domain setup failed for ${domain}:`, err.message));
+    } catch (err) { console.error(`Failed to create domain order for ${domain}:`, err.message); }
+  };
+
+  const existingFamily = await familyService.findByEmail(email);
+  if (existingFamily && (existingFamily.plan !== 'paid' || existingFamily.subscription_status === 'canceled')) {
+    await familyService.update(existingFamily.id, {
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: stripeSubscriptionId || null,
+      subscription_status: 'active',
+      billing_period: period,
+      plan: 'paid',
+      cancelled_at: null,
+      data_retain_until: null,
+      ...(customerName ? { customer_name: customerName } : {}),
+    });
+    const setPasswordUrl = await genRecovery();
+    await startDomain(existingFamily.id);
+    await creditReferral(existingFamily);
+    return { family: existingFamily, setPasswordUrl, domain, alreadyProvisioned: false };
+  }
+  // Already paid → idempotent no-op (webhook retry or duplicate event).
+  if (existingFamily && existingFamily.plan === 'paid') {
+    return { family: existingFamily, setPasswordUrl: null, domain, alreadyProvisioned: true };
+  }
+
+  const tempPassword = require('crypto').randomBytes(16).toString('hex');
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({ email, password: tempPassword, email_confirm: true });
+  if (authError) throw authError;
+  const setPasswordUrl = await genRecovery();
+
+  const family = await familyService.create({
+    email, authUserId: authData.user.id, subdomain,
+    displayName: `The ${subdomain} Family`,
+    stripeCustomerId, customerName, plan: 'paid', bookType,
+  });
+  await familyService.update(family.id, {
+    stripe_subscription_id: stripeSubscriptionId || null,
+    subscription_status: 'active', billing_period: period, plan: 'paid',
+  });
+  await bookService.createBookWithDefaults(family.id);
+  try {
+    const { sendWelcomeEmail } = require('./emailService');
+    await sendWelcomeEmail({ to: email, displayName: family.display_name || subdomain, setPasswordUrl, bookPassword: family.book_password, subdomain, customDomain: domain || null });
+  } catch (e) { console.error('welcome email failed:', e.message); }
+  await startDomain(family.id);
+  await creditReferral(family);
+  return { family, setPasswordUrl, domain, alreadyProvisioned: false };
+}
+
 module.exports = {
   PRICES,
   createCheckoutSession,
@@ -592,6 +766,9 @@ module.exports = {
   createChildhoodCheckoutSession,
   createGiftCheckoutSession,
   createGiftPaymentIntent,
+  createSignupSubscription,
+  createSignupChildhoodIntent,
+  provisionEmbeddedSignup,
   createAdditionalSiteCheckout,
   handleCheckoutComplete,
   cancelSubscriptionAtPeriodEnd,

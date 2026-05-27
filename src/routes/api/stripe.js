@@ -128,6 +128,43 @@ router.post('/create-gift-payment-intent', async (req, res, next) => {
   }
 });
 
+// POST /api/stripe/create-signup-intent
+// Embedded (Payment Element) signup. Monthly/Annual -> default_incomplete
+// subscription; Childhood -> one-time PaymentIntent. Returns clientSecret +
+// publishable key. Provisioning (account + book + domain) happens in the
+// webhook, guarded by signup_flow='embedded'. Preview flow — does NOT touch the
+// live hosted signup.
+router.post('/create-signup-intent', async (req, res, next) => {
+  try {
+    const { email, domain, subdomain, period, ref } = req.body;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+    const sub = (domain ? String(domain).split('.')[0] : subdomain) || '';
+    if (!sub) return res.status(400).json({ error: 'domain or subdomain is required' });
+
+    const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+      return res.status(503).json({ error: 'Embedded checkout is not configured yet (missing publishable key).' });
+    }
+
+    const resolved = period === 'childhood' ? 'childhood' : (period === 'annual' ? 'annual' : 'monthly');
+    let result;
+    if (resolved === 'childhood') {
+      result = await stripeService.createSignupChildhoodIntent({ email, subdomain: sub, domain: domain || null, ref });
+    } else {
+      result = await stripeService.createSignupSubscription({ email, subdomain: sub, domain: domain || null, period: resolved, ref });
+    }
+
+    res.json({
+      clientSecret: result.clientSecret,
+      publishableKey,
+      period: resolved,
+      mode: resolved === 'childhood' ? 'payment' : 'subscription',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/stripe/redeem-gift
 router.post('/redeem-gift', async (req, res, next) => {
   try {

@@ -220,6 +220,34 @@ router.post('/stripe/webhook', async (req, res) => {
       }
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object;
+        // Embedded signup (Payment Element): the FIRST invoice of a subscription
+        // created via the embedded flow. Provision account + book + domain.
+        // Guarded by signup_flow==='embedded' on the subscription metadata, so
+        // hosted-Checkout subscriptions (which provision via
+        // checkout.session.completed) are untouched. Idempotent.
+        if (invoice.billing_reason === 'subscription_create' && invoice.subscription) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+            if (sub.metadata && sub.metadata.signup_flow === 'embedded') {
+              const m = sub.metadata;
+              const r = await stripeService.provisionEmbeddedSignup({
+                email: m.email || invoice.customer_email,
+                customerName: null,
+                subdomain: m.subdomain,
+                domain: m.domain || null,
+                period: m.period || 'annual',
+                bookType: m.book_type || 'baby_book',
+                referralCode: m.ref || null,
+                stripeCustomerId: invoice.customer,
+                stripeSubscriptionId: invoice.subscription,
+                provisioningRef: invoice.subscription,
+              });
+              console.log(`[webhook] embedded signup provisioned (sub ${invoice.subscription}) family ${r.family && r.family.id} alreadyProvisioned=${r.alreadyProvisioned}`);
+            }
+          } catch (err) {
+            console.error('[webhook] embedded signup provisioning failed:', err.message);
+          }
+        }
         if (invoice.customer) {
           await stripeService.syncSubscriptionStatus(invoice.customer, 'active');
         }
@@ -291,6 +319,26 @@ router.post('/stripe/webhook', async (req, res) => {
             console.log(`[webhook] gift PI ${pi.id} already processed (gift ${gift?.code}) — skipping duplicate emails`);
           } else if (gift) {
             console.log(`[webhook] fulfilled gift ${gift.code} from PI ${pi.id}`);
+          }
+        } else if (pi.metadata?.type === 'signup_childhood' && pi.metadata?.signup_flow === 'embedded') {
+          // Embedded Childhood signup ($450 one-time). Provision account + domain.
+          try {
+            const m = pi.metadata;
+            const r = await stripeService.provisionEmbeddedSignup({
+              email: m.email || pi.receipt_email,
+              customerName: null,
+              subdomain: m.subdomain,
+              domain: m.domain || null,
+              period: 'childhood',
+              bookType: m.book_type || 'baby_book',
+              referralCode: m.ref || null,
+              stripeCustomerId: pi.customer || null,
+              stripeSubscriptionId: null,
+              provisioningRef: pi.id,
+            });
+            console.log(`[webhook] embedded childhood signup provisioned (pi ${pi.id}) family ${r.family && r.family.id} alreadyProvisioned=${r.alreadyProvisioned}`);
+          } catch (err) {
+            console.error('[webhook] embedded childhood provisioning failed:', err.message);
           }
         }
         break;
