@@ -15,11 +15,29 @@
   <meta property="og:url" content="https://legacyodyssey.com/gift">
   <meta property="og:title" content="Give the Baby Their Own .com — A Digital Baby Book Gift">
   <meta property="og:description" content="A unique baby shower gift: we register the baby's name as a real .com and unlock a beautifully designed digital baby book. $29 introductory price, one-time.">
+  <meta property="og:image" content="https://legacyodyssey.com/images/gift-demo/01-welcome.jpg">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Give the Baby Their Own .com — A Digital Baby Book Gift">
   <meta name="twitter:description" content="A unique baby shower gift: a real .com domain and a beautifully designed digital baby book. $29 introductory.">
+  <meta name="twitter:image" content="https://legacyodyssey.com/images/gift-demo/01-welcome.jpg">
+
+  <!-- FAQ structured data (rich-snippet eligible) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "What if I don't know the baby's name yet?", "acceptedAnswer": { "@type": "Answer", "text": "No problem — the recipient picks their own .com when they redeem the code. You don't need to know the name, the spelling, or whether they've decided yet." } },
+      { "@type": "Question", "name": "Can I make sure they get this on the day of the shower?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. At checkout, choose Schedule the email and pick the date. We hold the gift email and send it on the morning you choose." } },
+      { "@type": "Question", "name": "Can I print something to hand them?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — every gift purchase comes with a printable PDF certificate, emailed to you the moment your purchase clears. Fold it into a card, wrap it, or hand it over in person." } },
+      { "@type": "Question", "name": "What if they don't redeem the gift?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing bad happens. Gift codes don't expire, and nobody is charged anything more unless the recipient personally redeems and adds their own card after the gift period." } },
+      { "@type": "Question", "name": "What happens after the gift period?", "acceptedAnswer": { "@type": "Answer", "text": "After a one-year gift, the recipient can continue at $49.99/year by adding their own card. The Entire Childhood gift covers all 18 years with no renewals at all. If a one-year gift isn't continued, no one is charged." } },
+      { "@type": "Question", "name": "Can I give more than one?", "acceptedAnswer": { "@type": "Answer", "text": "Of course — many people gift one to each new baby in their family. Each gift is its own code, redeemable for one .com and one book." } }
+    ]
+  }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,7 +85,7 @@
     }
     .lg-hero-photo {
       position: absolute; inset: 0;
-      background-image: url('https://images.unsplash.com/photo-1470116945706-e6bf5d5a53ca?w=1600&h=1000&fit=crop&crop=faces,center&auto=format&q=85');
+      background-image: url('/img/landing/hero.jpg');
       background-size: cover; background-position: center;
       filter: brightness(0.45);
     }
@@ -428,6 +446,65 @@
     .lg-footer-links a { color: rgba(250,247,242,0.65); text-decoration: none; font-size: 13px; }
     .lg-footer-links a:hover { color: #c8a96e; }
     .lg-footer-copy { font-size: 12px; color: rgba(250,247,242,0.4); }
+
+    /* ---------- TESTIMONIALS ---------- */
+    .lg-testi { background: #fbf6ee; }
+    .lg-testi-inner { max-width: 1100px; margin: 0 auto; }
+    .lg-testi-header { text-align: center; margin-bottom: 48px; }
+    .lg-testi-header .lg-section-sub { margin-left: auto; margin-right: auto; text-align: center; }
+    .lg-testi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    @media (max-width: 920px) { .lg-testi-grid { grid-template-columns: 1fr; } }
+    .lg-testi-card { background: #fff; border: 1px solid #e0d5c4; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; gap: 18px; }
+    .lg-testi-stars span { color: #c8a96e; font-size: 16px; }
+    .lg-testi-quote { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: #2c2416; line-height: 1.6; flex: 1; margin: 0; }
+    .lg-testi-author { display: flex; align-items: center; gap: 14px; padding-top: 14px; border-top: 1px solid #f0e8dc; }
+    .lg-testi-avatar { width: 44px; height: 44px; border-radius: 50%; background: #f0e8dc; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #b5963e; }
+    .lg-testi-name { font-weight: 600; font-size: 14px; color: #2c2416; }
+    .lg-testi-meta { font-size: 13px; color: #8a7e6b; }
+
+    /* ---------- PLAN TOGGLE (gift tier selector in buy card) ---------- */
+    .lg-plan-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    @media (max-width: 480px) { .lg-plan-toggle { grid-template-columns: 1fr; } }
+    .lg-plan-opt {
+      display: block; cursor: pointer; position: relative;
+      border: 1px solid rgba(250,247,242,0.18); border-radius: 8px; padding: 14px 14px 13px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .lg-plan-opt:hover { border-color: rgba(200,169,110,0.5); }
+    .lg-plan-opt.checked { border-color: #c8a96e; background: rgba(200,169,110,0.08); }
+    .lg-plan-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .lg-plan-opt-name { font-size: 13px; font-weight: 600; color: #faf7f2; letter-spacing: 0.3px; }
+    .lg-plan-opt-price { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #c8a96e; line-height: 1.1; margin-top: 4px; }
+    .lg-plan-opt-hint { font-size: 11px; color: rgba(250,247,242,0.55); margin-top: 3px; line-height: 1.4; }
+    .lg-plan-opt-tag { position: absolute; top: -9px; right: 12px; background: #c8a96e; color: #1a1510; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 10px; }
+
+    /* ---------- PAYMENT TRUST CUES ---------- */
+    .lg-pay-trust { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .lg-pay-trust svg { width: 14px; height: 14px; color: rgba(250,247,242,0.6); }
+    .lg-pay-trust-text { font-size: 12px; color: rgba(250,247,242,0.55); }
+    .lg-pay-trust-cards { font-size: 12px; color: rgba(250,247,242,0.45); letter-spacing: 0.3px; }
+
+    /* ---------- STICKY MOBILE CTA ---------- */
+    .lg-sticky-cta {
+      display: none;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+      background: rgba(26,21,16,0.96); backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(200,169,110,0.3);
+      padding: 12px 16px; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .lg-sticky-cta-text { font-size: 13px; color: rgba(250,247,242,0.85); font-weight: 500; line-height: 1.3; }
+    .lg-sticky-cta-text strong { color: #c8a96e; }
+    .lg-sticky-cta a {
+      flex-shrink: 0; background: #c8a96e; color: #1a1510; text-decoration: none;
+      padding: 11px 18px; border-radius: 6px; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.4px; text-transform: uppercase;
+    }
+    @media (max-width: 720px) { .lg-sticky-cta { display: flex; } .lg-page { padding-bottom: 84px; } }
+
+    /* ---------- SCROLL REVEAL ---------- */
+    .lg-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .lg-reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .lg-reveal { opacity: 1; transform: none; transition: none; } }
   </style>
 
   <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
@@ -560,8 +637,40 @@
     </div>
   </section>
 
+  <!-- ====== COMPARISON ====== -->
+  <section class="lg-section lg-compare lg-reveal">
+    <div class="lg-compare-inner">
+      <div class="lg-compare-header">
+        <div class="lg-section-eyebrow">Not another onesie</div>
+        <h2 class="lg-section-headline">Most baby gifts fade.<br>This one <em>grows up with them.</em></h2>
+      </div>
+      <div class="lg-compare-grid">
+        <div class="lg-compare-col lg-compare-col-other">
+          <div class="lg-compare-tag">The usual gifts</div>
+          <h3 class="lg-compare-h">Sweet for a season</h3>
+          <ul class="lg-compare-list">
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Outgrown in a few months</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>One of several near-identical gifts at the shower</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ends up in a donation box within a year</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Nothing to look back on later</li>
+          </ul>
+        </div>
+        <div class="lg-compare-col lg-compare-col-us">
+          <div class="lg-compare-tag">Their own .com</div>
+          <h3 class="lg-compare-h">A keepsake for the whole childhood</h3>
+          <ul class="lg-compare-list">
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Captures the first year — and keeps growing after</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>One-of-a-kind — only one of their .com can ever exist</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>A private website with photos, milestones &amp; letters</li>
+            <li><svg class="lg-compare-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Something they'll still treasure years from now</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ====== WHY PARENTS LOVE IT ====== -->
-  <section class="lg-section lg-why">
+  <section class="lg-section lg-why lg-reveal">
     <div class="lg-why-inner">
       <div class="lg-why-header">
         <div class="lg-section-eyebrow">Why parents love it</div>
@@ -586,7 +695,7 @@
   </section>
 
   <!-- ====== HOW IT WORKS ====== -->
-  <section class="lg-section" id="how">
+  <section class="lg-section lg-reveal" id="how">
     <div class="lg-how-inner">
       <div class="lg-how-header">
         <div class="lg-section-eyebrow">Three steps</div>
@@ -613,7 +722,7 @@
   </section>
 
   <!-- ====== DELIVERY OPTIONS ====== -->
-  <section class="lg-section lg-delivery">
+  <section class="lg-section lg-delivery lg-reveal">
     <div class="lg-delivery-inner">
       <div class="lg-delivery-header">
         <div class="lg-section-eyebrow">Your timing</div>
@@ -646,31 +755,77 @@
     </div>
   </section>
 
+  <!-- ====== TESTIMONIALS ====== -->
+  <section class="lg-section lg-testi lg-reveal">
+    <div class="lg-testi-inner">
+      <div class="lg-testi-header">
+        <div class="lg-section-eyebrow">Loved by parents</div>
+        <h2 class="lg-section-headline">What families <em>are saying</em></h2>
+        <p class="lg-section-sub">Real words from parents using Legacy Odyssey.</p>
+      </div>
+      <div class="lg-testi-grid">
+        <div class="lg-testi-card">
+          <div class="lg-testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="lg-testi-quote">“From now on I will give this as a gift for every baby shower I go to. She loved it!”</p>
+          <div class="lg-testi-author"><div class="lg-testi-avatar">JC</div><div><div class="lg-testi-name">Janet Cullen</div><div class="lg-testi-meta">Gave it as a gift</div></div></div>
+        </div>
+        <div class="lg-testi-card">
+          <div class="lg-testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="lg-testi-quote">“I had planned to do a baby book for my daughters when they were born, but didn't stick with it. Since all my pictures are on my phone, it was easy for me to go back and create my Legacy Odyssey baby book website for both of my kids. I was able to take my time, catch up, and now I keep adding to them every holiday.”</p>
+          <div class="lg-testi-author"><div class="lg-testi-avatar">LC</div><div><div class="lg-testi-name">Lindsey Cherry</div><div class="lg-testi-meta">Parent of two</div></div></div>
+        </div>
+        <div class="lg-testi-card">
+          <div class="lg-testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p class="lg-testi-quote">“Love it! It's so easy to use, and looks great!”</p>
+          <div class="lg-testi-author"><div class="lg-testi-avatar">AT</div><div><div class="lg-testi-name">Ashlee Tatler</div><div class="lg-testi-meta">Verified customer</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ====== BUY ====== -->
-  <section class="lg-section lg-buy" id="buy">
+  <section class="lg-section lg-buy lg-reveal" id="buy">
     <div class="lg-buy-inner">
       <div class="lg-buy-left">
         <div class="lg-section-eyebrow">Give the gift</div>
-        <h2 class="lg-section-headline"><em>$29</em> introductory price.<br>One full year for them.</h2>
+        <h2 class="lg-section-headline">Choose how long<br>the gift <em>lasts.</em></h2>
         <p class="lg-section-sub">
-          One-time. No subscription on you. The recipient redeems whenever they're ready.
+          Give one full year for $29, or the entire childhood — all 18 years — for $450. One-time either way. No subscription on you, and the recipient redeems whenever they're ready.
         </p>
         <ul class="lg-buy-points">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>The recipient picks their own .com when they're ready</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>Choose to email them now or schedule for a date you pick</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>You also get a printable certificate to hand them in person</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>No card on you after this — they manage their own renewal next year</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>No card stays on you — the recipient manages everything from there</span></li>
         </ul>
       </div>
 
       <div class="lg-buy-card">
-        <div class="lg-buy-card-badge">Introductory Offer</div>
+        <div class="lg-buy-card-badge" id="lgBadge">Introductory Offer</div>
         <div class="lg-buy-card-tag">One-time gift</div>
-        <div class="lg-buy-card-price">
-          <div class="lg-buy-card-price-num">$29</div>
-          <div class="lg-buy-card-price-period">one-time</div>
+
+        <!-- Gift tier selector -->
+        <div class="lg-plan-toggle">
+          <label class="lg-plan-opt checked" data-plan="annual">
+            <input type="radio" name="giftPlan" value="annual" checked>
+            <div class="lg-plan-opt-name">One Year</div>
+            <div class="lg-plan-opt-price">$29</div>
+            <div class="lg-plan-opt-hint">One full year, introductory price</div>
+          </label>
+          <label class="lg-plan-opt" data-plan="childhood">
+            <span class="lg-plan-opt-tag">Best value</span>
+            <input type="radio" name="giftPlan" value="childhood">
+            <div class="lg-plan-opt-name">Entire Childhood</div>
+            <div class="lg-plan-opt-price">$450</div>
+            <div class="lg-plan-opt-hint">All 18 years · no renewals ever</div>
+          </label>
         </div>
-        <div class="lg-buy-card-renewal">Introductory price · Includes one full year. After that, the recipient adds their own card to keep going at $49.99/year — or lets it lapse with no charges to anyone.</div>
+
+        <div class="lg-buy-card-price">
+          <div class="lg-buy-card-price-num" id="lgPriceNum">$29</div>
+          <div class="lg-buy-card-price-period" id="lgPricePeriod">one-time · one year</div>
+        </div>
+        <div class="lg-buy-card-renewal" id="lgRenewalNote">Introductory price · Includes one full year. After that, the recipient adds their own card to keep going at $49.99/year — or lets it lapse with no charges to anyone.</div>
 
         <form class="lg-form" id="lgGiftForm" novalidate>
           <div class="lg-form-row">
@@ -728,14 +883,20 @@
           </div>
           <button type="submit" class="lg-form-submit" id="lgGiftBtn">Give the Gift — $29</button>
           <p class="lg-form-error" id="lgGiftError"></p>
-          <p style="font-size:12px;color:rgba(250,247,242,0.4);margin:6px 0 0;text-align:center;">You'll be sent to Stripe to complete payment. We never store your card on our side.</p>
+          <p id="lgUrgency" style="font-size:12px;color:#d4bb8a;margin:8px 0 0;text-align:center;font-weight:600;letter-spacing:0.3px;">$29 introductory pricing — locked in for the recipient's full first year.</p>
+          <div class="lg-pay-trust">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span class="lg-pay-trust-text">Secure checkout via Stripe</span>
+            <span class="lg-pay-trust-cards">· Visa · Mastercard · Amex · Discover</span>
+          </div>
+          <p style="font-size:12px;color:rgba(250,247,242,0.4);margin:8px 0 0;text-align:center;">We never store your card on our side.</p>
         </form>
       </div>
     </div>
   </section>
 
   <!-- ====== FAQ ====== -->
-  <section class="lg-section" id="faq" style="background:#fbf6ee;">
+  <section class="lg-section lg-reveal" id="faq" style="background:#fbf6ee;">
     <div class="lg-faq-inner">
       <div class="lg-faq-header">
         <div class="lg-section-eyebrow">Common questions</div>
@@ -763,8 +924,8 @@
       </details>
 
       <details class="lg-faq-item">
-        <summary>What happens after the first year?</summary>
-        <p class="lg-faq-answer">After the gift year, the recipient adds their own card to continue at $49.99/year (about $4.17/month). If they choose not to, no one is charged — the book goes private and the domain stays registered through its registration year. They can re-activate any time later.</p>
+        <summary>What happens after the gift period?</summary>
+        <p class="lg-faq-answer">It depends which gift you give. With the <em>Entire Childhood</em> gift, one payment covers all 18 years — there's nothing to renew, ever. With the <em>one-year</em> gift, the recipient can add their own card after the first year to continue at $49.99/year (about $4.17/month). If they choose not to, no one is charged — the book goes private and the domain stays registered through its registration year. They can re-activate any time.</p>
       </details>
 
       <details class="lg-faq-item">
@@ -775,7 +936,7 @@
   </section>
 
   <!-- ====== FINAL CTA ====== -->
-  <section class="lg-section" style="background:#1a1510;color:#faf7f2;text-align:center;">
+  <section class="lg-section lg-reveal" style="background:#1a1510;color:#faf7f2;text-align:center;">
     <div style="max-width:720px;margin:0 auto;">
       <div class="lg-section-eyebrow" style="color:rgba(200,169,110,0.7);">Ready?</div>
       <h2 class="lg-section-headline" style="color:#faf7f2;">Give the baby their<br>own <em>.com.</em></h2>
@@ -783,6 +944,12 @@
       <a href="#buy" class="lg-hero-cta">Give the Gift — $29 →</a>
     </div>
   </section>
+
+  <!-- ====== STICKY MOBILE CTA ====== -->
+  <div class="lg-sticky-cta">
+    <div class="lg-sticky-cta-text">Their own .com — a gift they keep.<br><strong>From $29 · one-time</strong></div>
+    <a href="#buy">Give the Gift</a>
+  </div>
 
   <!-- ====== FOOTER ====== -->
   <footer class="lg-footer">
@@ -823,6 +990,49 @@
     radios.forEach(r => r.addEventListener('change', syncDeliveryUI));
     syncDeliveryUI();
 
+    // ----- Gift tier (plan) selector: One Year ($29) vs Entire Childhood ($450) -----
+    const planRadios = document.querySelectorAll('input[name="giftPlan"]');
+    function currentGiftPlan() {
+      const checked = document.querySelector('input[name="giftPlan"]:checked');
+      return checked ? checked.value : 'annual';
+    }
+    function giftButtonLabel() {
+      return currentGiftPlan() === 'childhood' ? 'Give the Gift — $450' : 'Give the Gift — $29';
+    }
+    function syncPlanUI() {
+      const isChildhood = currentGiftPlan() === 'childhood';
+      document.querySelectorAll('.lg-plan-opt').forEach(el => {
+        el.classList.toggle('checked', el.querySelector('input').checked);
+      });
+      document.getElementById('lgPriceNum').textContent = isChildhood ? '$450' : '$29';
+      document.getElementById('lgPricePeriod').textContent = isChildhood ? 'one-time · 18 years' : 'one-time · one year';
+      document.getElementById('lgBadge').textContent = isChildhood ? 'Best Value' : 'Introductory Offer';
+      document.getElementById('lgRenewalNote').innerHTML = isChildhood
+        ? 'One payment covers all 18 years of childhood — <strong>no renewals, ever.</strong> The recipient picks their own .com when they redeem.'
+        : 'Introductory price · Includes one full year. After that, the recipient adds their own card to keep going at $49.99/year — or lets it lapse with no charges to anyone.';
+      document.getElementById('lgUrgency').textContent = isChildhood
+        ? 'One payment now — never another charge across all 18 years.'
+        : "$29 introductory pricing — locked in for the recipient's full first year.";
+      document.getElementById('lgGiftBtn').textContent = giftButtonLabel();
+    }
+    planRadios.forEach(r => r.addEventListener('change', syncPlanUI));
+    syncPlanUI();
+
+    // ----- Scroll reveal -----
+    (function () {
+      const els = document.querySelectorAll('.lg-reveal');
+      if (!('IntersectionObserver' in window) || !els.length) {
+        els.forEach(el => el.classList.add('in'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(el => io.observe(el));
+    })();
+
     // Form submit
     document.getElementById('lgGiftForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -833,6 +1043,7 @@
       btn.textContent = 'Processing…';
 
       const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+      const plan = currentGiftPlan();
       const payload = {
         buyerEmail: document.getElementById('lgBuyerEmail').value,
         buyerName: document.getElementById('lgBuyerName').value,
@@ -841,7 +1052,15 @@
         giftMessage: document.getElementById('lgGiftMessage').value,
         deliveryMethod: deliveryMethod,
         scheduledDate: deliveryMethod === 'email_scheduled' ? document.getElementById('lgScheduledDate').value : null,
+        plan: plan,
       };
+
+      // Conversion tracking — gift checkout initiated (gated by consent via tracking partial)
+      try {
+        const amt = plan === 'childhood' ? 450 : 29;
+        if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: amt, currency: 'USD', content_category: 'gift' });
+        if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: amt, currency: 'USD' });
+      } catch (e) {}
 
       try {
         const res = await fetch('/api/stripe/create-gift-checkout', {
@@ -859,7 +1078,7 @@
       } catch (err) {
         errorEl.textContent = err.message;
         btn.disabled = false;
-        btn.textContent = 'Give the Gift — $29';
+        btn.textContent = giftButtonLabel();
       }
     });
   </script>
