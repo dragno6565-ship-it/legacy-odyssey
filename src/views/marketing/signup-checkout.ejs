@@ -32,7 +32,7 @@
     .gc-includes { list-style: none; padding: 0; margin: 22px 0 0; }
     .gc-includes li { display: flex; gap: 10px; font-size: 13.5px; color: #5e564a; padding: 6px 0; }
     .gc-includes svg { width: 16px; height: 16px; color: #c8a96e; flex-shrink: 0; margin-top: 2px; }
-    .gc-plans { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    .gc-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     @media (max-width: 520px) { .gc-plans { grid-template-columns: 1fr; } }
     .gc-plan { position: relative; cursor: pointer; border: 1px solid #e0d5c4; border-radius: 10px; padding: 12px 10px; transition: all .15s; text-align: center; }
     .gc-plan:hover { border-color: #c8a96e; }
@@ -73,9 +73,8 @@
       <p class="gc-sub">Your child's name as a real .com, with a beautifully designed digital baby book.</p>
 
       <div class="gc-plans">
-        <label class="gc-plan" data-plan="monthly"><input type="radio" name="scPlan" value="monthly"><div class="gc-plan-name">Monthly</div><div class="gc-plan-price">$4.99</div></label>
         <label class="gc-plan checked" data-plan="annual"><input type="radio" name="scPlan" value="annual" checked><div class="gc-plan-name">Annual</div><div class="gc-plan-price">$29</div></label>
-        <label class="gc-plan" data-plan="childhood"><input type="radio" name="scPlan" value="childhood"><div class="gc-plan-name">Childhood</div><div class="gc-plan-price">$450</div></label>
+        <label class="gc-plan" data-plan="childhood"><input type="radio" name="scPlan" value="childhood"><div class="gc-plan-name">Entire Childhood</div><div class="gc-plan-price">$450</div></label>
       </div>
 
       <div class="gc-summary-row">
@@ -138,9 +137,8 @@
 
       // Plan → display copy
       var PLANS = {
-        monthly:   { name: 'Monthly Plan',          hint: '$4.99/mo + $5.99 one-time setup', price: '$4.99', dueToday: '$10.98', after: 'Then $4.99/month' },
-        annual:    { name: 'Annual Plan — first year', hint: 'Introductory price',            price: '$29',   dueToday: '$29',    after: 'Then $49.99/year' },
-        childhood: { name: 'Entire Childhood',       hint: 'All 18 years · no renewals',      price: '$450',  dueToday: '$450',   after: 'No renewals — ever' },
+        annual:    { name: 'Annual Plan — first year', hint: 'Introductory price',       price: '$29',  dueToday: '$29',  after: 'Then $49.99/year' },
+        childhood: { name: 'Entire Childhood',          hint: 'All 18 years · no renewals', price: '$450', dueToday: '$450', after: 'No renewals — ever' },
       };
       function syncPlan() {
         var p = currentPlan(); var info = PLANS[p];

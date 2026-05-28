@@ -725,7 +725,7 @@ router.get('/gift/checkout', (req, res) => {
 // the live hosted signup (founder modal -> hosted Checkout) is unchanged. Needs
 // STRIPE_PUBLISHABLE_KEY on the server. Accepts ?domain= & ?plan= to prefill.
 router.get('/start/checkout', (req, res) => {
-  const plan = ['monthly', 'annual', 'childhood'].includes(req.query.plan) ? req.query.plan : 'annual';
+  const plan = ['annual', 'childhood'].includes(req.query.plan) ? req.query.plan : 'annual';
   res.render('marketing/signup-checkout', {
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
     appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
