@@ -166,7 +166,8 @@ router.get('/gifts', requireAdmin, async (req, res, next) => {
       const is_unredeemed = g.status === 'purchased';
       const is_stale = is_unredeemed && days_since_purchase !== null && days_since_purchase >= 30;
       const is_expired_now = !!(expires && expires < now && is_unredeemed);
-      return { ...g, days_since_purchase, is_unredeemed, is_stale, is_expired_now };
+      const is_comp = (g.stripe_session_id || '').startsWith('comp_'); // free influencer/promo gift
+      return { ...g, days_since_purchase, is_unredeemed, is_stale, is_expired_now, is_comp };
     });
 
     const stats = {
@@ -192,7 +193,100 @@ router.get('/gifts', requireAdmin, async (req, res, next) => {
       filteredGifts = annotated.filter((g) => g.status === 'expired');
     } // else 'all' — keep everything
 
-    res.render('admin/gifts', { gifts: filteredGifts, stats, filter, admin: req.admin });
+    res.render('admin/gifts', {
+      gifts: filteredGifts,
+      stats,
+      filter,
+      admin: req.admin,
+      compCode: req.query.comp || null,
+      compError: req.query.comp_error || null,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── COMP GIFT (influencer / promo giveaway) ─────────────────────────────────
+// Mint a FREE gift code with NO Stripe charge. In every downstream respect it
+// behaves like a paid 1-year gift: the recipient redeems it, gets a full free
+// year (the trial), WE register + pay for their .com for that year, and after
+// the year they can add their own card to renew at $49.99/yr (or let it lapse,
+// charging no one). The ONLY difference vs a paid gift is no $29 charge to us.
+//
+// Admin-only (requireAdmin). Tagged stripe_session_id='comp_…' so these are
+// identifiable in the table and are never matched by the charge.refunded
+// handler (there is no charge to refund). Fires the exact same emails the gift
+// webhook fires.
+router.post('/gifts/comp', requireAdmin, async (req, res, next) => {
+  try {
+    const crypto = require('crypto');
+    const giftService = require('../services/giftService');
+
+    const recipientName = (req.body.recipientName || '').trim();
+    const recipientEmail = (req.body.recipientEmail || '').trim();
+    const recipientMessage = (req.body.recipientMessage || '').trim();
+    const scheduledDate = req.body.scheduledDate || null;
+    const method = ['email_now', 'email_scheduled', 'print'].includes(req.body.deliveryMethod)
+      ? req.body.deliveryMethod : 'email_now';
+    // Buyer = us. Defaults to the logged-in admin's email; this address receives
+    // the confirmation + printable certificate (handy to forward to the influencer).
+    const buyerEmail = (req.body.buyerEmail || req.user?.email || process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com').trim();
+    const buyerName = (req.body.buyerName || 'Legacy Odyssey').trim();
+
+    if (method !== 'print' && !recipientEmail) {
+      return res.redirect('/admin/gifts?comp_error=' + encodeURIComponent('A recipient email is required unless you choose "I\'ll give it to them myself".'));
+    }
+
+    const gift = await giftService.createGiftCode({
+      buyerEmail,
+      buyerName,
+      recipientName: recipientName || null,
+      recipientEmail: method === 'print' ? null : (recipientEmail || null),
+      recipientMessage: recipientMessage || null,
+      stripeSessionId: 'comp_' + crypto.randomBytes(9).toString('hex'),
+      deliveryMethod: method,
+      scheduledDate: method === 'email_scheduled' ? scheduledDate : null,
+      monthsPrepaid: 12, // 1 free year (same as a standard gift)
+    });
+
+    // Fire the SAME emails the gift webhook fires.
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+    const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;
+    try {
+      await emailService.sendGiftPurchaseEmail({
+        to: gift.buyer_email,
+        buyerName: gift.buyer_name,
+        giftCode: gift.code,
+        redeemUrl,
+        certificateUrl,
+        recipientName: gift.recipient_name,
+        deliveryMethod: gift.delivery_method,
+        deliverAt: gift.deliver_at,
+        monthsPrepaid: gift.months_prepaid,
+      });
+      // Recipient email now only for email_now; email_scheduled is handled by
+      // the giftDeliveries cron (which is payment-agnostic, so comps work too).
+      if (gift.recipient_email && gift.delivery_method === 'email_now') {
+        await emailService.sendGiftNotificationEmail({
+          to: gift.recipient_email,
+          buyerName: gift.buyer_name,
+          message: gift.recipient_message,
+          redeemUrl,
+          monthsPrepaid: gift.months_prepaid,
+        });
+        await supabaseAdmin
+          .from('gift_codes')
+          .update({ recipient_email_sent_at: new Date().toISOString() })
+          .eq('id', gift.id);
+      }
+    } catch (mailErr) {
+      console.error('[admin comp gift] email send failed:', mailErr.message);
+      // Non-fatal: the code exists; admin can copy it from the table.
+    }
+
+    console.log(`[admin] comp gift ${gift.code} minted by ${req.user?.email} for ${gift.recipient_email || gift.recipient_name || 'self/print'} (delivery=${gift.delivery_method})`);
+    res.redirect('/admin/gifts?comp=' + encodeURIComponent(gift.code));
   } catch (err) {
     next(err);
   }

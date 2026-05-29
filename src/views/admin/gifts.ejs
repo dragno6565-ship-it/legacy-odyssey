@@ -66,6 +66,31 @@
       font-style: italic;
       font-size: 0.85rem;
     }
+    .badge-comp { background: #ede7f6; color: #5e35b1; border: 1px solid #d1c4e9; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+
+    /* Comp gift form */
+    .comp-panel { background: #fff; border: 1px solid #e0d5c4; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; }
+    .comp-panel summary { cursor: pointer; padding: 1rem 1.25rem; font-weight: 600; color: #2c2416; list-style: none; display: flex; align-items: center; gap: 0.5rem; background: #fdf8f0; }
+    .comp-panel summary::-webkit-details-marker { display: none; }
+    .comp-panel summary::after { content: '+'; margin-left: auto; color: #b08e4a; font-size: 1.2rem; }
+    .comp-panel[open] summary::after { content: '\2013'; }
+    .comp-body { padding: 1.25rem; }
+    .comp-intro { font-size: 0.85rem; color: var(--ink-mid); margin: 0 0 1rem; line-height: 1.5; }
+    .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+    @media (max-width: 640px) { .comp-grid { grid-template-columns: 1fr; } }
+    .comp-field label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ink-mid); font-weight: 600; margin-bottom: 0.35rem; }
+    .comp-field input, .comp-field select, .comp-field textarea {
+      width: 100%; padding: 0.6rem 0.7rem; border: 1px solid #e0d5c4; border-radius: 6px;
+      font-family: 'Jost', sans-serif; font-size: 0.9rem; color: #2c2416; background: #fff;
+    }
+    .comp-field textarea { min-height: 60px; resize: vertical; }
+    .comp-field-full { grid-column: 1 / -1; }
+    .comp-actions { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; }
+    .comp-banner { padding: 0.95rem 1.15rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.9rem; }
+    .comp-banner-ok { background: #e8f5e9; border: 1px solid #b2dfdb; border-left: 4px solid #2e7d32; color: #1b5e20; }
+    .comp-banner-err { background: #fdecea; border: 1px solid #f5c6cb; border-left: 4px solid #c0392b; color: #922; }
+    .comp-banner code { background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; font-size: 0.85rem; }
+    #compScheduledRow { display: none; }
   </style>
 </head>
 <body>
@@ -101,6 +126,63 @@
         <h1>Gift Codes</h1>
         <p>All gift purchases — redeemed and pending</p>
       </div>
+
+      <% if (typeof compCode !== 'undefined' && compCode) { %>
+        <div class="comp-banner comp-banner-ok">
+          &#127881; Free gift minted — code <code><%= compCode %></code>. It's in the table below, and the emails have gone out just like a paid gift.
+        </div>
+      <% } %>
+      <% if (typeof compError !== 'undefined' && compError) { %>
+        <div class="comp-banner comp-banner-err">&#9888; <%= compError %></div>
+      <% } %>
+
+      <!-- Comp gift (influencer / promo giveaway) -->
+      <details class="comp-panel" <%= (typeof compError !== 'undefined' && compError) ? 'open' : '' %>>
+        <summary>&#127873; Give a free gift (influencer / promo)</summary>
+        <div class="comp-body">
+          <p class="comp-intro">
+            Mints a <strong>free</strong> 1-year gift — no charge to us beyond the domain. The recipient redeems it,
+            gets a full free year, we register their <strong>.com</strong>, and after the year they can add their own
+            card to renew at $49.99/yr (or let it lapse — no one is charged). Fires the same emails as a paid gift.
+          </p>
+          <form action="/admin/gifts/comp" method="POST" id="compForm">
+            <div class="comp-grid">
+              <div class="comp-field">
+                <label for="recipientName">Recipient name</label>
+                <input type="text" id="recipientName" name="recipientName" placeholder="e.g. Jordan Lee" required>
+              </div>
+              <div class="comp-field">
+                <label for="recipientEmail">Recipient email</label>
+                <input type="email" id="recipientEmail" name="recipientEmail" placeholder="them@example.com">
+              </div>
+              <div class="comp-field">
+                <label for="deliveryMethod">Delivery</label>
+                <select id="deliveryMethod" name="deliveryMethod" onchange="compSyncDelivery()">
+                  <option value="email_now">Email them now</option>
+                  <option value="email_scheduled">Schedule the email</option>
+                  <option value="print">I'll give it to them myself</option>
+                </select>
+              </div>
+              <div class="comp-field" id="compScheduledRow">
+                <label for="scheduledDate">Send on</label>
+                <input type="date" id="scheduledDate" name="scheduledDate">
+              </div>
+              <div class="comp-field">
+                <label for="buyerEmail">Confirmation copy to</label>
+                <input type="email" id="buyerEmail" name="buyerEmail" value="<%= admin.email %>" placeholder="you@legacyodyssey.com">
+              </div>
+              <div class="comp-field comp-field-full">
+                <label for="recipientMessage">Personal note (optional)</label>
+                <textarea id="recipientMessage" name="recipientMessage" placeholder="A note they'll see when they redeem…"></textarea>
+              </div>
+            </div>
+            <div class="comp-actions">
+              <button type="submit" class="btn btn-primary" id="compSubmit">Mint free gift &rarr;</button>
+              <span style="font-size:0.8rem;color:var(--ink-light);">No charge — recipient gets a full free year.</span>
+            </div>
+          </form>
+        </div>
+      </details>
 
       <!-- KPI Cards -->
       <div class="kpi-grid">
@@ -204,6 +286,7 @@
               <tr class="<%= gift.is_stale ? 'row-stale' : '' %>" data-search="<%= (gift.code || '').toLowerCase() %> <%= (gift.buyer_email || '').toLowerCase() %> <%= (gift.buyer_name || '').toLowerCase() %> <%= (gift.recipient_name || '').toLowerCase() %> <%= (gift.recipient_email || '').toLowerCase() %>">
                 <td>
                   <span class="code-badge"><%= gift.code %></span>
+                  <% if (gift.is_comp) { %><span class="badge-comp" title="Free influencer / promo gift — no charge">COMP</span><% } %>
                 </td>
                 <td>
                   <span class="badge badge-<%= gift.status %>"><%= gift.status %></span>
@@ -278,6 +361,22 @@
         row.style.display = text.includes(query) ? '' : 'none';
       });
     }
+
+    // Comp form: toggle the scheduled-date field; require recipient email
+    // unless delivery is "I'll give it to them myself".
+    function compSyncDelivery() {
+      var method = document.getElementById('deliveryMethod').value;
+      document.getElementById('compScheduledRow').style.display = (method === 'email_scheduled') ? '' : 'none';
+      document.getElementById('recipientEmail').required = (method !== 'print');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.getElementById('deliveryMethod')) compSyncDelivery();
+      var f = document.getElementById('compForm');
+      if (f) f.addEventListener('submit', function () {
+        var b = document.getElementById('compSubmit');
+        b.disabled = true; b.textContent = 'Minting…';
+      });
+    });
   </script>
 </body>
 </html>
