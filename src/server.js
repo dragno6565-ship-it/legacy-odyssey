@@ -49,6 +49,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SESSION_SECRET));
 
+// X-Robots-Tag: noindex on customer book domains only (never the marketing
+// site). Defense-in-depth alongside robots.txt + per-page <meta robots>.
+app.use(require('./middleware/customerNoindex'));
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
