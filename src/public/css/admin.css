@@ -738,17 +738,55 @@ a:hover { color: var(--gold); text-decoration: underline; }
 }
 
 @media (max-width: 768px) {
+  /* Stack the layout and turn the fixed sidebar into a compact top bar so the
+     admin nav is still reachable on a phone (it used to display:none, leaving
+     no navigation at all). */
+  .admin-layout { flex-direction: column; }
   .admin-sidebar {
-    display: none;
+    position: static;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 10px 16px;
+    bottom: auto;
   }
+  .sidebar-brand { padding: 0; border-bottom: none; flex: 1 1 auto; }
+  .sidebar-brand h2 { font-size: 1.2rem; margin: 0; }
+  .sidebar-brand span { display: none; }
+  .sidebar-footer { padding: 0; border-top: none; order: 2; display: flex; align-items: center; }
+  .sidebar-footer .admin-email { display: none; }
+  .sidebar-nav {
+    order: 3;
+    flex: 1 1 100%;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sidebar-nav a {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    gap: 6px;
+    border-radius: 6px;
+  }
+  .sidebar-nav a.active { border-right: none; background: rgba(184,147,90,0.2); }
+
   .admin-main {
     margin-left: 0;
-    padding: 20px;
+    padding: 20px 16px;
   }
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .form-row {
-    grid-template-columns: 1fr;
-  }
+  .page-header h1 { font-size: 1.5rem; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .kpi-card { padding: 16px; }
+  .form-row { grid-template-columns: 1fr; }
+  /* .table-container already scrolls horizontally; shrink cell padding/text so
+     more fits before a swipe is needed. */
+  .data-table { font-size: 0.82rem; }
+  .data-table thead th, .data-table tbody td { padding: 10px 12px; }
+}
+
+@media (max-width: 460px) {
+  .kpi-grid { grid-template-columns: 1fr; }
 }
