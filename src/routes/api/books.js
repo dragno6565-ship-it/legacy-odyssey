@@ -769,6 +769,64 @@ router.delete('/mine/celebration-photos/:photoId', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ─── Your Birth Day photo gallery (migration 024) ──────────────────────────
+// App-side parity with the web /account/book/birthday editor. Defensive: if the
+// table doesn't exist yet, GET returns []. (POST/PUT/DELETE will error clearly.)
+router.get('/mine/birthday', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    let photos = [];
+    try {
+      const { data } = await _sb.from('birthday_photos').select('*').eq('book_id', book.id).order('sort_order');
+      photos = (data || []).map(p => ({ ...p, photo_path: resolvePhoto(p.photo_path) }));
+    } catch (_) { photos = []; }
+    res.json({ photos });
+  } catch (err) { next(err); }
+});
+
+router.post('/mine/birthday/photos', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { photo_path, caption } = req.body;
+    if (!photo_path) return res.status(400).json({ error: 'photo_path is required' });
+    const { data: existing } = await _sb.from('birthday_photos').select('sort_order').eq('book_id', book.id).order('sort_order', { ascending: false }).limit(1);
+    const nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+    const { data, error } = await _sb.from('birthday_photos').insert({ book_id: book.id, photo_path, caption: caption || null, sort_order: nextSort }).select().single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) { next(err); }
+});
+
+router.put('/mine/birthday-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: photo } = await _sb.from('birthday_photos').select('id, book_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo || photo.book_id !== book.id) return res.status(403).json({ error: 'Not authorized' });
+    const patch = { updated_at: new Date().toISOString() };
+    if (req.body.caption !== undefined) patch.caption = req.body.caption;
+    if (req.body.sort_order !== undefined) patch.sort_order = req.body.sort_order;
+    if (req.body.photo_path !== undefined) patch.photo_path = req.body.photo_path;
+    const { data, error } = await _sb.from('birthday_photos').update(patch).eq('id', req.params.photoId).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) { next(err); }
+});
+
+router.delete('/mine/birthday-photos/:photoId', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    const { data: photo } = await _sb.from('birthday_photos').select('id, book_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo || photo.book_id !== book.id) return res.status(403).json({ error: 'Not authorized' });
+    const { error } = await _sb.from('birthday_photos').delete().eq('id', req.params.photoId);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 // ─── Recipes (full CRUD + photo gallery) ───────────────────────────────────
 
 function recipeSlug(title, sortOrder) {
