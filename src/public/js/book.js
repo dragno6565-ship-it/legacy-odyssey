@@ -279,21 +279,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') closeLightbox();
   });
 
-  // Event delegation: click any book image to open lightbox
-  // (Excludes month-photo and family-photo which have their own card click handlers)
+  // Event delegation: click ANY book content photo to open the lightbox.
+  // Generic (covers every section) instead of a per-class allowlist that kept
+  // missing sections. We only EXCLUDE images that live inside something with
+  // its own click behavior (month/family cards open detail views; nav, links,
+  // buttons do their own thing) and tiny icons.
   document.addEventListener('click', function(e) {
-    const img = e.target;
-    if (img.tagName !== 'IMG') return;
+    const img = e.target.closest('img');
+    if (!img || !img.src || img.src === window.location.href) return;
 
-    const isBookImage = img.closest(
-      '.before-card-photo, .perspective-photo, .month-modal-photo, ' +
-      '.holiday-photo, .recipe-photo, .fdetail-photo-item'
-    );
+    // Skip images that belong to an element with its own click handling.
+    if (img.closest('.month-card, .family-card, .nav-item, a, button, .book-lightbox, #bookLightbox')) return;
 
-    if (isBookImage && img.src && img.src !== window.location.href) {
-      e.stopPropagation();
-      openLightbox(img.src, img.alt);
-    }
+    // Only enlarge images inside the actual book content / its overlays
+    // (skips the sidebar, header chrome, ads, etc.).
+    if (!img.closest('#main-content, .month-modal, #month-modal, .family-detail, #family-detail')) return;
+
+    // Skip tiny images (icons, badges).
+    if (img.naturalWidth && img.naturalWidth < 60) return;
+
+    e.stopPropagation();
+    openLightbox(img.src, img.alt || '');
   });
 
   // Show welcome page by default

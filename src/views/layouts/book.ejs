@@ -375,7 +375,12 @@
   </div>
   <% } %>
 
-  <script src="/js/book.js"></script>
+  <style>
+    /* Content photos are click-to-enlarge; cards that open their own detail view keep the normal pointer. */
+    #main-content img, #month-modal img, #family-detail img { cursor: zoom-in; }
+    .month-card img, .family-card img, .nav-item img { cursor: pointer; }
+  </style>
+  <script src="/js/book.js?v=20260527"></script>
   <!-- Render Lucide icons placed by sidebar.ejs / book sections -->
   <script>
     if (window.lucide) lucide.createIcons();
