@@ -64,7 +64,25 @@
       font-size: 0.65rem; cursor: pointer; display: none; align-items: center; justify-content: center;
     }
     .photo-zone-sm.has-photo .photo-remove-sm { display: flex; }
+    /* Rotate button — only shown when there's a photo */
+    .photo-rotate-sm {
+      position: absolute; top: 0.25rem; left: 0.25rem;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 50%; width: 20px; height: 20px;
+      font-size: 0.7rem; cursor: pointer; display: none; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .photo-zone-sm.has-photo .photo-rotate-sm { display: flex; }
     .uploading-sm { font-size: 0.75rem; color: #c8a96e; margin-top: 0.25rem; display: none; text-align: center; }
+
+    /* Make "remove card" unmistakable (was a faint ✕ that was easy to miss) */
+    .card-delete {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: #fdf2f2; border: 1px solid #e8c4c4; color: #c0392b;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      padding: 0.35rem 0.7rem; border-radius: 6px; font-family: 'Jost', sans-serif;
+    }
+    .card-delete:hover { background: #f8d7d7; color: #a93226; }
 
     /* Add card */
     .btn-add { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #fff; border: 2px dashed #c8a96e; border-radius: 10px; color: #c8a96e; font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; justify-content: center; transition: background 0.2s; margin-top: 0.5rem; }
@@ -106,7 +124,7 @@
           <div class="card-header">
             <span class="drag-handle">⠿</span>
             <span class="card-num">Card <%= i + 1 %></span>
-            <button type="button" class="card-delete" onclick="deleteCard(this)" title="Remove card">✕</button>
+            <button type="button" class="card-delete" onclick="deleteCard(this)" title="Remove this card">✕ Remove card</button>
           </div>
           <div class="card-row">
             <div>
@@ -119,6 +137,7 @@
                   <div class="hint"><strong>Upload</strong></div>
                 <% } %>
                 <input type="hidden" class="photo-path" value="<%= card.photo_path || '' %>">
+                <button type="button" class="photo-rotate-sm" onclick="rotatePhoto(event,this)" title="Rotate 90°">↻</button>
                 <button type="button" class="photo-remove-sm" onclick="removeCardPhoto(event,this)">✕</button>
               </div>
               <div class="uploading-sm">Uploading…</div>
@@ -182,7 +201,7 @@
         <div class="card-header">
           <span class="drag-handle">⠿</span>
           <span class="card-num">Card</span>
-          <button type="button" class="card-delete" onclick="deleteCard(this)" title="Remove card">✕</button>
+          <button type="button" class="card-delete" onclick="deleteCard(this)" title="Remove this card">✕ Remove card</button>
         </div>
         <div class="card-row">
           <div>
@@ -191,6 +210,7 @@
               <div style="font-size:1.3rem;">📷</div>
               <div class="hint"><strong>Upload</strong></div>
               <input type="hidden" class="photo-path" value="">
+              <button type="button" class="photo-rotate-sm" onclick="rotatePhoto(event,this)" title="Rotate 90°">↻</button>
               <button type="button" class="photo-remove-sm" onclick="removeCardPhoto(event,this)">✕</button>
             </div>
             <div class="uploading-sm">Uploading…</div>
@@ -255,6 +275,61 @@
       } finally {
         uploadingEl.style.display = 'none';
         input.value = '';
+      }
+    }
+
+    // ── Rotate photo 90° (client-side canvas → re-upload baked file) ─────────────
+    // Bakes the rotation into a new JPEG so it renders correctly everywhere
+    // (the website doesn't honor EXIF orientation). Supabase serves open CORS,
+    // so we can read the cross-origin image into a canvas.
+    async function rotatePhoto(e, btn) {
+      e.stopPropagation();
+      const zone = btn.closest('.photo-zone-sm');
+      const img = zone.querySelector('img');
+      const pathInput = zone.querySelector('.photo-path');
+      const cardRow = zone.closest('.card-item').querySelector('.card-row > div');
+      const uploadingEl = cardRow.querySelector('.uploading-sm');
+      if (!img || !img.src || img.style.display === 'none') return;
+
+      uploadingEl.textContent = 'Rotating…';
+      uploadingEl.style.display = 'block';
+      try {
+        // Force a fresh CORS-enabled fetch (an already-cached non-CORS copy
+        // would taint the canvas).
+        const baseSrc = img.src.split('?')[0];
+        const loader = new Image();
+        loader.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+          loader.onload = resolve;
+          loader.onerror = () => reject(new Error('load'));
+          loader.src = baseSrc + '?cb=' + Date.now();
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = loader.naturalHeight;   // swap dims for 90°
+        canvas.height = loader.naturalWidth;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(Math.PI / 2); // 90° clockwise
+        ctx.drawImage(loader, -loader.naturalWidth / 2, -loader.naturalHeight / 2);
+
+        const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.9));
+        if (!blob) throw new Error('blob');
+
+        const fd = new FormData();
+        fd.append('file', blob, 'rotated.jpg');
+        fd.append('section', 'before-arrived');
+        const res = await fetch('/account/upload', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error('upload');
+        const data = await res.json();
+
+        pathInput.value = data.path;
+        img.src = data.url + '?cb=' + Date.now();
+      } catch (err) {
+        alert('Could not rotate the photo. Please try again.');
+      } finally {
+        uploadingEl.style.display = 'none';
+        uploadingEl.textContent = 'Uploading…';
       }
     }
 
