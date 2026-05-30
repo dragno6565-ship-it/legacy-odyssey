@@ -486,6 +486,8 @@ router.get('/book/birth-story', requireAccountSession, async (req, res, next) =>
       birthStory: birthStory || {},
       momPhotoUrl: birthStory?.mom_photo_1 ? getPublicUrl(birthStory.mom_photo_1) : null,
       dadPhotoUrl: birthStory?.dad_photo_1 ? getPublicUrl(birthStory.dad_photo_1) : null,
+      momPhoto2Url: birthStory?.mom_photo_2 ? getPublicUrl(birthStory.mom_photo_2) : null,
+      dadPhoto2Url: birthStory?.dad_photo_2 ? getPublicUrl(birthStory.dad_photo_2) : null,
       success: req.query.success || null,
       error: req.query.error || null,
     });
@@ -505,6 +507,8 @@ router.post('/book/birth-story', requireAccountSession, async (req, res, next) =
       dad_narrative: sanitizeBookHtml(req.body.dad_narrative),
       mom_photo_1: req.body.mom_photo_1 || null,
       dad_photo_1: req.body.dad_photo_1 || null,
+      mom_photo_2: req.body.mom_photo_2 || null,
+      dad_photo_2: req.body.dad_photo_2 || null,
     });
     res.redirect('/account/book/birth-story?success=1');
   } catch (err) {

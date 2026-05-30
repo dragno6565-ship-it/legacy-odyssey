@@ -152,6 +152,19 @@
             </div>
             <div class="photo-uploading" id="momUploading">Uploading…</div>
             <input type="file" id="momFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','momPhotoPath','momPhotoZone','momPreview','momUploading')">
+
+            <input type="hidden" name="mom_photo_2" id="momPhoto2Path" value="<%= birthStory.mom_photo_2 || '' %>">
+            <div class="photo-zone <%= momPhoto2Url ? 'has-photo' : '' %>" id="momPhoto2Zone" onclick="document.getElementById('momFile2Input').click()" style="margin-top:0.6rem;">
+              <% if (momPhoto2Url) { %>
+                <img src="<%= momPhoto2Url %>" alt="Second photo" id="momPreview2">
+              <% } else { %>
+                <img src="" alt="" id="momPreview2" style="display:none;">
+                <div class="photo-zone-hint"><strong>+ Add a 2nd photo</strong></div>
+              <% } %>
+              <button type="button" class="photo-remove" onclick="removePhoto(event,'momPhoto2Path','momPhoto2Zone','momPreview2')">✕</button>
+            </div>
+            <div class="photo-uploading" id="momUploading2">Uploading…</div>
+            <input type="file" id="momFile2Input" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','momPhoto2Path','momPhoto2Zone','momPreview2','momUploading2')">
           </div>
           <div class="photo-side">
             <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
@@ -191,6 +204,19 @@
             </div>
             <div class="photo-uploading" id="dadUploading">Uploading…</div>
             <input type="file" id="dadFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','dadPhotoPath','dadPhotoZone','dadPreview','dadUploading')">
+
+            <input type="hidden" name="dad_photo_2" id="dadPhoto2Path" value="<%= birthStory.dad_photo_2 || '' %>">
+            <div class="photo-zone <%= dadPhoto2Url ? 'has-photo' : '' %>" id="dadPhoto2Zone" onclick="document.getElementById('dadFile2Input').click()" style="margin-top:0.6rem;">
+              <% if (dadPhoto2Url) { %>
+                <img src="<%= dadPhoto2Url %>" alt="Second photo" id="dadPreview2">
+              <% } else { %>
+                <img src="" alt="" id="dadPreview2" style="display:none;">
+                <div class="photo-zone-hint"><strong>+ Add a 2nd photo</strong></div>
+              <% } %>
+              <button type="button" class="photo-remove" onclick="removePhoto(event,'dadPhoto2Path','dadPhoto2Zone','dadPreview2')">✕</button>
+            </div>
+            <div class="photo-uploading" id="dadUploading2">Uploading…</div>
+            <input type="file" id="dadFile2Input" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','dadPhoto2Path','dadPhoto2Zone','dadPreview2','dadUploading2')">
           </div>
           <div class="photo-side">
             <div class="form-group" style="margin-bottom:0.75rem;flex:1;">

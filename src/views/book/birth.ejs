@@ -51,6 +51,11 @@
           <img src="<%= imageUrl(bs.mom_photo_1) %>" alt="<%= p1Label %>'s birth photo" loading="lazy" style="<%= photoPos(bs.mom_photo_1) %>">
         </div>
       <% } %>
+      <% if (bs.mom_photo_2) { %>
+        <div class="perspective-photo">
+          <img src="<%= imageUrl(bs.mom_photo_2) %>" alt="<%= p1Label %>'s birth photo" loading="lazy" style="<%= photoPos(bs.mom_photo_2) %>">
+        </div>
+      <% } %>
     </div>
     <% } %>
     <% if (showP2) { %>
@@ -61,6 +66,11 @@
       <% if (bs.dad_photo_1) { %>
         <div class="perspective-photo">
           <img src="<%= imageUrl(bs.dad_photo_1) %>" alt="<%= p2Label %>'s birth photo" loading="lazy" style="<%= photoPos(bs.dad_photo_1) %>">
+        </div>
+      <% } %>
+      <% if (bs.dad_photo_2) { %>
+        <div class="perspective-photo">
+          <img src="<%= imageUrl(bs.dad_photo_2) %>" alt="<%= p2Label %>'s birth photo" loading="lazy" style="<%= photoPos(bs.dad_photo_2) %>">
         </div>
       <% } %>
     </div>
