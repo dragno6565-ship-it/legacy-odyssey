@@ -7,6 +7,7 @@ import {
   Linking,
   SafeAreaView,
 } from 'react-native';
+import { BookOpen, ArrowLeft } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 
 export default function AdditionalDomainScreen({ navigation }) {
@@ -18,7 +19,7 @@ export default function AdditionalDomainScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.brandingContainer}>
-          <Text style={styles.brandIcon}>📖</Text>
+          <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Add Another Book</Text>
         </View>
 
@@ -47,9 +48,10 @@ export default function AdditionalDomainScreen({ navigation }) {
           style={styles.linkContainer}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.linkText}>
-            <Text style={styles.linkBold}>← Back</Text>
-          </Text>
+          <View style={styles.backRow}>
+            <ArrowLeft size={16} color={colors.gold} strokeWidth={2} />
+            <Text style={[styles.linkText, styles.linkBold, styles.backLabel]}>Back</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -133,5 +135,12 @@ const styles = StyleSheet.create({
   linkBold: {
     color: colors.gold,
     fontWeight: typography.weights.semibold,
+  },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backLabel: {
+    marginLeft: 4,
   },
 });

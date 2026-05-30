@@ -10,6 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { Mail, Lock } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import api from '../api/client';
 
@@ -42,7 +43,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.brandingContainer}>
-            <Text style={styles.brandIcon}>&#9993;</Text>
+            <Mail size={48} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
             <Text style={styles.brandTitle}>Check Your Email</Text>
             <Text style={styles.brandSubtitle}>
               If an account exists for {email}, we've sent a password reset link. Check your inbox and follow the instructions.
@@ -85,7 +86,7 @@ export default function ForgotPasswordScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.brandingContainer}>
-          <Text style={styles.brandIcon}>&#128274;</Text>
+          <Lock size={48} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Reset Password</Text>
           <Text style={styles.brandSubtitle}>
             Enter the email address associated with your account and we'll send you a link to reset your password.
@@ -160,10 +161,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   brandTitle: {
-    fontFamily: typography.families?.serif || undefined,
-    fontSize: typography.sizes.xxl || 28,
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.xxl,
     fontWeight: typography.weights.semibold,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: spacing.xs,
     textAlign: 'center',
   },
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card || colors.white,
     borderRadius: borderRadius.lg,
     padding: spacing.xl,
-    ...shadows.md,
+    ...shadows.card,
   },
   label: {
     fontSize: typography.sizes.sm,
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     padding: spacing.md,
     fontSize: typography.sizes.md,
-    color: colors.text,
+    color: colors.textPrimary,
     marginBottom: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border || '#E5E5E5',

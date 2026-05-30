@@ -192,11 +192,8 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
   // ──── Photos ────
   async function handleAddPhoto() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant photo library access to add photos.');
-      return;
-    }
+    // Use the system photo picker (no permission needed) — avoids the Google
+    // Photos picker's "Search disabled" behavior. See PhotoPicker.js note.
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.85,

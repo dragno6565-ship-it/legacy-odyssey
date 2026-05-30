@@ -66,7 +66,7 @@ export default function HelpScreen({ navigation }) {
             value={name}
             onChangeText={setName}
             placeholder="Jane Smith"
-            placeholderTextColor={colors.textLight}
+            placeholderTextColor={colors.placeholder}
           />
         </View>
 
@@ -77,7 +77,7 @@ export default function HelpScreen({ navigation }) {
             value={email}
             onChangeText={setEmail}
             placeholder="jane@example.com"
-            placeholderTextColor={colors.textLight}
+            placeholderTextColor={colors.placeholder}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -107,7 +107,7 @@ export default function HelpScreen({ navigation }) {
             value={message}
             onChangeText={setMessage}
             placeholder="Tell us what's going on..."
-            placeholderTextColor={colors.textLight}
+            placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
           />
@@ -143,29 +143,32 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   heading: {
-    ...typography.h2,
-    color: colors.text,
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.xxl,
+    fontWeight: typography.weights.bold,
+    color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   subtext: {
-    ...typography.body,
-    color: colors.textLight,
+    fontSize: typography.sizes.md,
+    color: colors.textSecondary,
     marginBottom: spacing.xl,
   },
   field: {
     marginBottom: spacing.lg,
   },
   label: {
-    ...typography.label,
-    color: colors.text,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.inputBg,
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    ...typography.body,
-    color: colors.text,
+    fontSize: typography.sizes.md,
+    color: colors.textPrimary,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -180,23 +183,23 @@ const styles = StyleSheet.create({
   },
   topicChip: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.round,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.inputBg,
   },
   topicChipActive: {
     backgroundColor: colors.gold,
     borderColor: colors.gold,
   },
   topicChipText: {
-    ...typography.small,
-    color: colors.textLight,
+    fontSize: typography.sizes.sm,
+    color: colors.textPrimary,
   },
   topicChipTextActive: {
-    color: '#fff',
-    fontWeight: '600',
+    color: colors.white,
+    fontWeight: typography.weights.semibold,
   },
   submitButton: {
     backgroundColor: colors.gold,
@@ -204,15 +207,15 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     alignItems: 'center',
     marginTop: spacing.sm,
-    ...shadows.sm,
+    ...shadows.button,
   },
   submitButtonDisabled: {
     opacity: 0.6,
   },
   submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.white,
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   divider: {
     height: 1,
@@ -220,16 +223,15 @@ const styles = StyleSheet.create({
     marginVertical: spacing.xl,
   },
   orText: {
-    ...typography.body,
-    color: colors.textLight,
+    fontSize: typography.sizes.md,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: spacing.sm,
   },
   emailLink: {
-    ...typography.body,
     color: colors.gold,
     textAlign: 'center',
-    fontWeight: '600',
-    fontSize: 18,
+    fontWeight: typography.weights.semibold,
+    fontSize: typography.sizes.lg,
   },
 });

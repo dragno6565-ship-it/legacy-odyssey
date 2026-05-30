@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { post, get, setToken, clearToken, getToken, setActiveFamilyId, getActiveFamilyId } from '../api/client';
+import { post, get, setToken, clearToken, getToken, setActiveFamilyId, getActiveFamilyId, setDemoMode } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -236,6 +236,7 @@ export function AuthProvider({ children }) {
   }, [families]);
 
   const enterDemoMode = useCallback(() => {
+    setDemoMode(true); // short-circuit all API calls — no auth headers sent
     setTokenState('demo');
     setUser({ displayName: 'Demo User', email: 'demo@example.com', token: 'demo', isDemo: true });
     setFamilies([]);
@@ -243,6 +244,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     if (user?.isDemo) {
+      setDemoMode(false);
       setTokenState(null);
       setUser(null);
       setFamilies([]);

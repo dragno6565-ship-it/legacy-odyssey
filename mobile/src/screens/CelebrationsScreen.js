@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { PartyPopper } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, del } from '../api/client';
 
@@ -148,7 +149,7 @@ export default function CelebrationsScreen({ navigation }) {
             onLongPress={canDelete ? () => handleDeleteYear(label) : undefined}
           >
             <View style={styles.yearRowInner}>
-              <Text style={styles.yearIcon}>🎉</Text>
+              <PartyPopper size={28} color={colors.gold} strokeWidth={1.5} style={styles.yearIcon} />
               <View style={styles.yearTextWrap}>
                 <Text style={styles.yearLabel}>{label}</Text>
                 <Text style={styles.yearHint}>

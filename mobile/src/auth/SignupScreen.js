@@ -7,6 +7,7 @@ import {
   Linking,
   SafeAreaView,
 } from 'react-native';
+import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 
 export default function SignupScreen({ navigation }) {
@@ -19,7 +20,7 @@ export default function SignupScreen({ navigation }) {
       <View style={styles.content}>
         {/* Branding */}
         <View style={styles.brandingContainer}>
-          <Text style={styles.brandIcon}>📖</Text>
+          <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Legacy Odyssey</Text>
           <Text style={styles.brandSubtitle}>Your family's story, beautifully told</Text>
         </View>

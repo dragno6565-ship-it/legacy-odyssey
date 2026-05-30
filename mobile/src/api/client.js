@@ -34,6 +34,14 @@ const client = axios.create({
   },
 });
 
+// Demo mode flag — set true to short-circuit all API calls with empty responses.
+// Avoids "Missing or invalid authorization header" errors in Browse Demo mode.
+let _isDemoMode = false;
+
+export function setDemoMode(enabled) {
+  _isDemoMode = enabled;
+}
+
 // Track whether a refresh is in progress to avoid concurrent refresh calls
 let isRefreshing = false;
 let refreshSubscribers = [];
@@ -46,6 +54,20 @@ function onTokenRefreshed(newToken) {
 function addRefreshSubscriber(cb) {
   refreshSubscribers.push(cb);
 }
+
+// Demo mode interceptor — short-circuits all API calls with empty responses.
+client.interceptors.request.use(
+  (config) => {
+    if (_isDemoMode) {
+      // Return a cancelled request that resolves as empty data.
+      // We abuse the adapter override pattern to return a mock response.
+      config.adapter = () =>
+        Promise.resolve({ data: {}, status: 200, statusText: 'OK', headers: {}, config });
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Request interceptor to attach Bearer token and active family ID.
 // Uses in-memory cache first to avoid Hardware Keystore reads on every call.

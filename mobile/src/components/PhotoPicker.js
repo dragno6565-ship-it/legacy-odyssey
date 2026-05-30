@@ -45,12 +45,11 @@ export default function PhotoPicker({ currentPhoto, onPhotoSelected }) {
   }
 
   async function pickImage() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please grant photo library access to choose photos.');
-      return;
-    }
-
+    // No media-library permission request: launchImageLibraryAsync uses the
+    // system photo picker (Android Photo Picker / iOS picker), which runs
+    // out-of-process and needs no permission. Requesting READ_MEDIA permission
+    // routed Android to the Google Photos picker, where "Search" is disabled —
+    // the system picker avoids that.
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: false,

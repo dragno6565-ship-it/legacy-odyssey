@@ -1,0 +1,216 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { colors, spacing, typography, shadows, borderRadius } from '../theme';
+import client, { get, post, put, del, BASE_URL } from '../api/client';
+import { useSavedToast } from '../components/SavedToast';
+
+// "Your Birth Day" — a captioned photo gallery (parity with the web editor).
+// Multi-select up to 20 at once; caption / remove each. Backed by
+// /api/books/mine/birthday* (needs migration 024's birthday_photos table).
+export default function BirthDayScreen({ navigation }) {
+  const headerHeight = useHeaderHeight();
+  const { showToast, ToastComponent } = useSavedToast();
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [photos, setPhotos] = useState([]);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await get('/api/books/mine/birthday');
+        setPhotos((res.data && res.data.photos) || []);
+      } catch (err) {
+        if (err.status !== 404) setError(err.message || 'Failed to load photos.');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  function photoUri(path) {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return `${BASE_URL}/${path.replace(/^\//, '')}`;
+  }
+
+  async function handleAddPhotos() {
+    // System photo picker, multi-select up to 20 (no permission prompt — see PhotoPicker note).
+    const picked = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 20,
+      quality: 0.85,
+    });
+    if (picked.canceled || !picked.assets || picked.assets.length === 0) return;
+
+    setUploading(true);
+    const added = [];
+    try {
+      for (const asset of picked.assets) {
+        const formData = new FormData();
+        const filename = asset.uri.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+        formData.append('file', { uri: asset.uri, name: filename, type });
+        const upRes = await client.post('/api/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        const photoPath = upRes.data.url || upRes.data.path || upRes.data.storagePath;
+        if (!photoPath) continue;
+        const created = await post('/api/books/mine/birthday/photos', { photo_path: photoPath, caption: null });
+        added.push(created.data);
+      }
+      if (added.length) setPhotos((prev) => [...prev, ...added]);
+    } catch (err) {
+      Alert.alert('Upload failed', err.message || 'Could not add photos.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function updateCaption(photoId, caption) {
+    setPhotos((prev) => prev.map((p) => (p.id === photoId ? { ...p, caption } : p)));
+  }
+
+  async function saveCaption(photo) {
+    try {
+      await put(`/api/books/mine/birthday-photos/${photo.id}`, { caption: photo.caption || null });
+      showToast('Caption saved.');
+    } catch (err) {
+      Alert.alert('Could not save caption', err.message || 'Please try again.');
+    }
+  }
+
+  function confirmRemove(photo) {
+    Alert.alert('Remove this photo?', null, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await del(`/api/books/mine/birthday-photos/${photo.id}`);
+            setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+          } catch (err) {
+            Alert.alert('Could not remove', err.message || 'Please try again.');
+          }
+        },
+      },
+    ]);
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={colors.gold} />
+      </View>
+    );
+  }
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={headerHeight}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.pageTitle}>Your Birth Day</Text>
+        <Text style={styles.pageSubtitle}>
+          The day you arrived — who was there, the hospital, the doctor, your first moments.
+        </Text>
+
+        {error ? (
+          <View style={styles.errorContainer}><Text style={styles.errorText}>{error}</Text></View>
+        ) : null}
+
+        {photos.map((photo) => (
+          <View key={photo.id} style={styles.card}>
+            {photoUri(photo.photo_path) ? (
+              <Image source={{ uri: photoUri(photo.photo_path) }} style={styles.photo} resizeMode="cover" />
+            ) : null}
+            <Text style={styles.label}>Caption</Text>
+            <TextInput
+              style={styles.input}
+              value={photo.caption || ''}
+              onChangeText={(val) => updateCaption(photo.id, val)}
+              onBlur={() => saveCaption(photo)}
+              placeholder="e.g. The doctor who delivered you"
+              placeholderTextColor={colors.placeholder}
+            />
+            <View style={styles.cardActions}>
+              <TouchableOpacity onPress={() => saveCaption(photo)}>
+                <Text style={styles.saveLink}>Save caption</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => confirmRemove(photo)}>
+                <Text style={styles.removeLink}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+
+        {photos.length === 0 ? (
+          <Text style={styles.emptyText}>No photos yet — add several at once below.</Text>
+        ) : null}
+
+        <TouchableOpacity
+          style={[styles.addButton, uploading && styles.addButtonDisabled]}
+          onPress={handleAddPhotos}
+          disabled={uploading}
+          activeOpacity={0.8}
+        >
+          {uploading ? (
+            <View style={styles.uploadingRow}>
+              <ActivityIndicator color={colors.gold} size="small" />
+              <Text style={styles.addButtonText}>Uploading…</Text>
+            </View>
+          ) : (
+            <Text style={styles.addButtonText}>+ Add photos (up to 20)</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+      {ToastComponent}
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
+  scrollContent: { padding: spacing.lg, paddingBottom: 150 },
+  pageTitle: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.xl, fontWeight: typography.weights.bold, color: colors.textPrimary },
+  pageSubtitle: { fontSize: typography.sizes.sm, color: colors.textSecondary, marginBottom: spacing.lg, fontStyle: 'italic' },
+  errorContainer: { backgroundColor: colors.errorLight, borderRadius: borderRadius.sm, padding: spacing.md, marginBottom: spacing.md },
+  errorText: { color: colors.error, fontSize: typography.sizes.sm, textAlign: 'center' },
+  card: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.lg, ...shadows.card },
+  photo: { width: '100%', height: 220, borderRadius: borderRadius.md, marginBottom: spacing.sm },
+  label: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginBottom: spacing.xs },
+  input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.md, fontSize: typography.sizes.md, color: colors.textPrimary },
+  cardActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.sm },
+  saveLink: { color: colors.gold, fontSize: typography.sizes.sm, fontWeight: typography.weights.semibold },
+  removeLink: { color: colors.error, fontSize: typography.sizes.sm, fontWeight: typography.weights.medium },
+  emptyText: { fontSize: typography.sizes.sm, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.md },
+  addButton: { borderWidth: 2, borderColor: colors.gold, borderStyle: 'dashed', borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginTop: spacing.sm },
+  addButtonDisabled: { opacity: 0.6 },
+  addButtonText: { color: colors.gold, fontSize: typography.sizes.md, fontWeight: typography.weights.semibold },
+  uploadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+});

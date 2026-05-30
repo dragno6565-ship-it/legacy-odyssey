@@ -22,6 +22,7 @@ import {
   Sparkles,
   Heart,
   BookOpen,
+  Camera,
   Compass,
   Home,
   Calendar,
@@ -37,12 +38,13 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react-native';
 
-const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'journey', 'manageSections', 'help', 'settings']);
+const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'birthday', 'journey', 'manageSections', 'help', 'settings']);
 
 const SECTIONS = [
   { key: 'childInfo',      title: 'Welcome / Child Info', icon: Sparkles,        screen: 'ChildInfo' },
   { key: 'before',         title: 'Before You Arrived',   icon: Heart,           screen: 'BeforeArrived' },
   { key: 'birth',          title: 'Birth Story',          icon: BookOpen,        screen: 'BirthStory' },
+  { key: 'birthday',       title: 'Your Birth Day',       icon: Camera,          screen: 'BirthDay' },
   { key: 'journey',        title: 'Your Journey to Us',   icon: Compass,         screen: 'Journey' },
   { key: 'comingHome',     title: 'Coming Home',          icon: Home,            screen: 'ComingHome' },
   { key: 'months',         title: 'Month by Month',       icon: Calendar,        screen: 'Months' },
@@ -58,10 +60,13 @@ const SECTIONS = [
   { key: 'settings',       title: 'Settings',             icon: SettingsIcon,    screen: 'Settings' },
 ];
 
+const DEMO_BOOK = { child: { first_name: 'Sophia', last_name: 'Smith' }, subdomain: 'sophiasmith', custom_domain: null };
+
 export default function DashboardScreen({ navigation }) {
   const { user, families, activeFamilyId, switchFamily, refreshFamilies } = useAuth();
-  const [book, setBook] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const isDemo = user?.isDemo;
+  const [book, setBook] = useState(isDemo ? DEMO_BOOK : null);
+  const [loading, setLoading] = useState(!isDemo);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [showSwitcher, setShowSwitcher] = useState(false);
@@ -72,6 +77,7 @@ export default function DashboardScreen({ navigation }) {
   const isFree = activeFamily ? (activeFamily.plan !== 'paid' && activeFamily.subscription_status !== 'active') : false;
 
   async function fetchBook() {
+    if (isDemo) return; // Demo mode — no real API calls
     try {
       setError('');
       const res = await get('/api/books/mine');
@@ -83,17 +89,19 @@ export default function DashboardScreen({ navigation }) {
 
   // Fetch on mount
   useEffect(() => {
+    if (isDemo) return;
     fetchBook().finally(() => setLoading(false));
   }, []);
 
   // Refetch on focus (returning from an editor) or when active family changes
   useFocusEffect(
     useCallback(() => {
-      fetchBook();
+      if (!isDemo) fetchBook();
     }, [activeFamilyId])
   );
 
   async function onRefresh() {
+    if (isDemo) return;
     setRefreshing(true);
     await fetchBook();
     await refreshFamilies();
@@ -122,8 +130,8 @@ export default function DashboardScreen({ navigation }) {
 
   function showUpgradePrompt(sectionTitle) {
     Alert.alert(
-      '✨ Upgrade to Unlock',
-      `${sectionTitle} is available on the paid plan.\n\nUpgrade starting at $4.99/month to unlock all sections, add unlimited photos, and get your own custom domain.`,
+      'Upgrade to Unlock',
+      `${sectionTitle} is available on the paid plan.\n\nUpgrade for $29 your first year to unlock all sections, add unlimited photos, and get your own custom domain.`,
       [
         { text: 'Not Now', style: 'cancel' },
         {
@@ -144,8 +152,10 @@ export default function DashboardScreen({ navigation }) {
   }
 
   function getBookDomain() {
+    if (book?.custom_domain) return book.custom_domain;
     if (user?.custom_domain) return user.custom_domain;
-    if (user?.subdomain) return `${user.subdomain}.legacyodyssey.com`;
+    const sub = book?.subdomain || user?.subdomain;
+    if (sub) return `${sub}.legacyodyssey.com`;
     return '';
   }
 
@@ -220,7 +230,10 @@ export default function DashboardScreen({ navigation }) {
             onPress={() => Linking.openURL('https://legacyodyssey.com/#pricing')}
             activeOpacity={0.8}
           >
-            <Text style={styles.upgradeBarText}>✨ Free Plan — Tap to upgrade for full access</Text>
+            <View style={styles.upgradeBarRow}>
+              <Sparkles size={13} color={colors.gold} strokeWidth={1.5} />
+              <Text style={[styles.upgradeBarText, styles.upgradeBarLabel]}>Free Plan — Tap to upgrade for full access</Text>
+            </View>
           </TouchableOpacity>
         ) : null}
       </View>
@@ -374,10 +387,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     alignItems: 'center',
   },
+  upgradeBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   upgradeBarText: {
     color: colors.gold,
     fontSize: typography.sizes.xs,
     fontWeight: typography.weights.semibold,
+  },
+  upgradeBarLabel: {
+    marginLeft: 5,
   },
   switchButton: {
     flexDirection: 'row',

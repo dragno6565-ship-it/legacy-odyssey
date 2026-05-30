@@ -11,6 +11,7 @@ import {
   Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { PartyPopper } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post } from '../api/client';
 import { BASE_URL } from '../api/client';
@@ -129,7 +130,7 @@ export default function CelebrationYearScreen({ navigation, route }) {
               {uri ? (
                 <Image source={{ uri }} style={styles.thumbImg} />
               ) : (
-                <Text style={styles.thumbEmpty}>🎉</Text>
+                <PartyPopper size={24} color={colors.gold} strokeWidth={1.5} />
               )}
             </View>
             <View style={styles.rowInfo}>

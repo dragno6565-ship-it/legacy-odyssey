@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Linking,
 } from 'react-native';
+import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useAuth } from './AuthContext';
 
@@ -49,7 +50,7 @@ export default function LoginScreen({ navigation }) {
       >
         {/* Branding Header */}
         <View style={styles.brandingContainer}>
-          <Text style={styles.brandIcon}>&#128214;</Text>
+          <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Legacy Odyssey</Text>
           <Text style={styles.brandSubtitle}>Your family's story, beautifully told</Text>
         </View>

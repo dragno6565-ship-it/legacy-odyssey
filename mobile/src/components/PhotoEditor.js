@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Image } from 'react-native';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { RotateCcw, RotateCw } from 'lucide-react-native';
 import { colors, spacing, typography, borderRadius } from '../theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -177,12 +178,12 @@ export default function PhotoEditor({ visible, photoUri, initialPos, onSave, onC
             <Text style={styles.rotSub}>Use this to fix sideways photos. The full-size photo will be re-saved rotated.</Text>
             <View style={styles.rotButtons}>
               <TouchableOpacity style={styles.rotBtn} onPress={rotateLeft} disabled={processing}>
-                <Text style={styles.rotBtnIcon}>↺</Text>
+                <RotateCcw size={28} color={colors.gold} strokeWidth={1.5} style={styles.rotBtnIcon} />
                 <Text style={styles.rotBtnLabel}>Rotate Left</Text>
               </TouchableOpacity>
               <View style={styles.rotDivider} />
               <TouchableOpacity style={styles.rotBtn} onPress={rotateRight} disabled={processing}>
-                <Text style={styles.rotBtnIcon}>↻</Text>
+                <RotateCw size={28} color={colors.gold} strokeWidth={1.5} style={styles.rotBtnIcon} />
                 <Text style={styles.rotBtnLabel}>Rotate Right</Text>
               </TouchableOpacity>
             </View>

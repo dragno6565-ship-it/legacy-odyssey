@@ -11,6 +11,7 @@ import {
   Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Folder } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, BASE_URL } from '../api/client';
 
@@ -110,7 +111,7 @@ export default function KeepsakesScreen({ navigation }) {
               {uri ? (
                 <Image source={{ uri }} style={styles.thumbImg} />
               ) : (
-                <Text style={styles.thumbEmpty}>📂</Text>
+                <Folder size={24} color={colors.gold} strokeWidth={1.5} />
               )}
             </View>
             <View style={styles.rowInfo}>
