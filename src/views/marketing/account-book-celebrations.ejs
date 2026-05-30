@@ -24,6 +24,12 @@
     .year-count { font-size: 0.75rem; color: #8a7e6b; letter-spacing: 0.04em; text-transform: uppercase; }
     .year-delete { background: none; border: 1px solid #e0d5c4; color: #8a7e6b; font-size: 0.75rem; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
     .year-delete:hover { color: #c0392b; border-color: #e0b4b4; background: #fdf2f2; }
+    .year-edit { background: none; border: 1px solid #e0d5c4; color: #8a7e6b; font-size: 0.75rem; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .year-edit:hover { color: #c8a96e; border-color: #c8a96e; background: #fdf9f3; }
+    .year-rename-form { display: flex; gap: 0.5rem; align-items: center; margin: -0.4rem 0 1rem; }
+    .year-rename-form input[type="text"] { padding: 0.45rem 0.7rem; border: 1.5px solid #c8a96e; border-radius: 6px; font-family: 'Jost', sans-serif; font-size: 0.95rem; }
+    .btn-rename-save { background: #c8a96e; color: #fff; border: none; padding: 0.45rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-rename-cancel { background: none; border: 1px solid #e0d5c4; color: #8a7e6b; padding: 0.45rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: 'Jost', sans-serif; }
 
     .celebration-row {
       display: flex; align-items: center; gap: 1rem;
@@ -81,6 +87,7 @@
         <div class="year-header">
           <div class="year-title"><%= year.label %></div>
           <span class="year-count"><%= year.celebrations.length %> celebration<%= year.celebrations.length === 1 ? '' : 's' %></span>
+          <button type="button" class="year-edit" onclick="startRenameYear(this)">Rename</button>
           <% if (years.length > 1) { %>
             <form method="POST" action="/account/book/celebrations/year/delete"
                   onsubmit="return confirm('Delete \'<%= year.label %>\' and all <%= year.celebrations.length %> celebration(s) inside it? This cannot be undone.');"
@@ -90,6 +97,12 @@
             </form>
           <% } %>
         </div>
+        <form method="POST" action="/account/book/celebrations/year/edit" class="year-rename-form" style="display:none;">
+          <input type="hidden" name="old_label" value="<%= year.label %>">
+          <input type="text" name="new_label" value="<%= year.label %>" placeholder="e.g. 2025" required>
+          <button type="submit" class="btn-rename-save">Save</button>
+          <button type="button" class="btn-rename-cancel" onclick="cancelRenameYear(this)">Cancel</button>
+        </form>
 
         <% if (year.celebrations.length === 0) { %>
           <div class="empty-state-year">No celebrations in this year yet.</div>
@@ -137,5 +150,23 @@
       <a class="btn-back" href="/account/book">← Back to my book</a>
     </div>
   </div>
+
+  <script>
+    // Rename a year: swap the title row for the inline rename form.
+    function startRenameYear(btn) {
+      var header = btn.closest('.year-header');
+      var form = header.nextElementSibling; // the .year-rename-form
+      header.style.display = 'none';
+      form.style.display = 'flex';
+      var input = form.querySelector('input[name="new_label"]');
+      input.focus(); input.select();
+    }
+    function cancelRenameYear(btn) {
+      var form = btn.closest('.year-rename-form');
+      var header = form.previousElementSibling; // the .year-header
+      form.style.display = 'none';
+      header.style.display = 'flex';
+    }
+  </script>
 </body>
 </html>

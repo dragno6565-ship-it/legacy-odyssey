@@ -913,6 +913,31 @@ function celebrationSlug(title, sortOrder) {
   return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('celebration-' + (sortOrder || 0));
 }
 
+// The default label for a book's first celebration year: the child's birth
+// YEAR when we know it (e.g. "2025"), else the legacy "Your First Year".
+function defaultCelebrationYear(book) {
+  if (book && book.birth_date) {
+    const y = new Date(book.birth_date).getFullYear();
+    if (!isNaN(y)) return String(y);
+  }
+  return 'Your First Year';
+}
+
+// The effective list of year labels for a book, non-disruptively:
+//   1. explicit book.celebration_years if set
+//   2. else the distinct year_labels already on existing celebrations
+//   3. else a single seeded default (birth year)
+// `cards` may be passed to avoid a re-query.
+async function effectiveCelebrationYears(book, cards) {
+  if (book.celebration_years && book.celebration_years.length) return book.celebration_years;
+  if (!cards) {
+    const { data } = await supabaseAdmin.from('celebrations').select('year_label').eq('book_id', book.id);
+    cards = data || [];
+  }
+  const existing = [...new Set((cards || []).map(c => c.year_label).filter(Boolean))];
+  return existing.length ? existing : [defaultCelebrationYear(book)];
+}
+
 // ─── Celebrations: index (year + celebration tree) ───────────────────────
 router.get('/book/celebrations', requireAccountSession, async (req, res, next) => {
   try {
@@ -939,16 +964,18 @@ router.get('/book/celebrations', requireAccountSession, async (req, res, next) =
       photo_count: (photoCounts[c.id] || 0) + (c.photo_path && !photoCounts[c.id] ? 1 : 0),
     }));
 
-    // Group by year_label, preserving book.celebration_years order
-    const yearLabels = book.celebration_years || ['Your First Year'];
+    // Group by year_label. Default the first year to the birth year for fresh
+    // books, without disrupting existing data (derive from existing rows first).
+    const fallbackYear = defaultCelebrationYear(book);
+    const yearLabels = await effectiveCelebrationYears(book, cards);
     const grouped = yearLabels.map((label) => ({
       label,
-      celebrations: cardsWithMeta.filter(c => (c.year_label || 'Your First Year') === label),
+      celebrations: cardsWithMeta.filter(c => (c.year_label || fallbackYear) === label),
     }));
-    // Orphan years (rows whose year_label isn't in book.celebration_years)
+    // Orphan years (rows whose year_label isn't in the effective list)
     const seen = new Set(yearLabels);
     for (const c of cardsWithMeta) {
-      const y = c.year_label || 'Your First Year';
+      const y = c.year_label || fallbackYear;
       if (!seen.has(y)) {
         seen.add(y);
         grouped.push({ label: y, celebrations: cardsWithMeta.filter(x => (x.year_label || 'Your First Year') === y) });
@@ -972,7 +999,7 @@ router.post('/book/celebrations/year/add', requireAccountSession, async (req, re
     if (!book) return res.redirect('/account/book');
     const label = (req.body.label || '').toString().trim();
     if (!label) return res.redirect('/account/book/celebrations?error=year_label_required');
-    const years = book.celebration_years || ['Your First Year'];
+    const years = await effectiveCelebrationYears(book);
     if (years.includes(label)) return res.redirect('/account/book/celebrations?error=year_exists');
     const updated = [...years, label];
     await bookService.updateBook(book.id, { celebration_years: updated });
@@ -988,13 +1015,36 @@ router.post('/book/celebrations/year/delete', requireAccountSession, async (req,
     const label = (req.body.label || '').toString().trim();
     if (!label) return res.redirect('/account/book/celebrations?error=year_label_required');
     // Don't allow deleting the only remaining year.
-    const years = book.celebration_years || ['Your First Year'];
+    const years = await effectiveCelebrationYears(book);
     if (years.length <= 1) return res.redirect('/account/book/celebrations?error=cannot_delete_last_year');
     const updated = years.filter((y) => y !== label);
     // Cascade-delete celebrations in this year (celebration_photos cascades via FK)
     await supabaseAdmin.from('celebrations').delete().eq('book_id', book.id).eq('year_label', label);
     await bookService.updateBook(book.id, { celebration_years: updated });
     res.redirect('/account/book/celebrations?success=year_deleted');
+  } catch (err) { next(err); }
+});
+
+// ─── Celebration years: rename / relabel ──────────────────────────────────
+// Lets the user put in the actual year (e.g. "2025") instead of a generic label.
+// Updates the year in the book's list AND relabels every celebration in it.
+router.post('/book/celebrations/year/edit', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const oldLabel = (req.body.old_label || '').toString().trim();
+    const newLabel = (req.body.new_label || '').toString().trim();
+    if (!oldLabel || !newLabel) return res.redirect('/account/book/celebrations?error=year_label_required');
+    if (oldLabel === newLabel) return res.redirect('/account/book/celebrations?success=year_renamed');
+
+    const years = await effectiveCelebrationYears(book);
+    if (years.includes(newLabel)) return res.redirect('/account/book/celebrations?error=year_exists');
+
+    const updated = years.includes(oldLabel) ? years.map((y) => (y === oldLabel ? newLabel : y)) : [...years, newLabel];
+    // Relabel every celebration that was filed under the old year.
+    await supabaseAdmin.from('celebrations').update({ year_label: newLabel }).eq('book_id', book.id).eq('year_label', oldLabel);
+    await bookService.updateBook(book.id, { celebration_years: updated });
+    res.redirect('/account/book/celebrations?success=year_renamed');
   } catch (err) { next(err); }
 });
 
@@ -1055,7 +1105,7 @@ router.get('/book/celebrations/edit/:id', requireAccountSession, async (req, res
     const photosWithUrls = photos.map(p => ({ ...p, url: getPublicUrl(p.photo_path) }));
 
     // Available years for the year-picker dropdown
-    const years = book.celebration_years || ['Your First Year'];
+    const years = book.celebration_years || [defaultCelebrationYear(book)];
 
     res.render('marketing/account-book-celebration-detail', {
       family: req.family,
