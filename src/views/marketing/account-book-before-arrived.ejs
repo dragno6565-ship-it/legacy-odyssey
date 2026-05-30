@@ -95,6 +95,16 @@
     .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
     .btn-back:hover { color: #2c2416; }
     .empty-state { text-align: center; padding: 2.5rem; background: #fff; border-radius: 12px; border: 1px dashed #e0d5c4; color: #8a7e6b; font-size: 0.9rem; margin-bottom: 0.75rem; }
+
+    /* Getting-Ready Checklist */
+    .checklist-block { background: #fff; border: 1px solid #f0ebe3; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1.25rem; margin-top: 1.5rem; }
+    .checklist-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .checklist-desc { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1rem; }
+    .checklist-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.55rem; }
+    .checklist-row .cl-check { width: 18px; height: 18px; accent-color: #c8a96e; flex-shrink: 0; cursor: pointer; }
+    .checklist-row .cl-label { flex: 1; }
+    .cl-del { background: none; border: none; color: #c8a898; font-size: 1rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; flex-shrink: 0; }
+    .cl-del:hover { color: #c0392b; background: #fdf2f2; }
   </style>
 </head>
 <body>
@@ -114,6 +124,7 @@
 
     <form method="POST" action="/account/book/before-arrived" id="theForm">
       <input type="hidden" name="cards_json" id="cardsJson">
+      <input type="hidden" name="checklist_json" id="checklistJson">
 
       <div id="cardsList">
         <% if (!cards || cards.length === 0) { %>
@@ -163,6 +174,22 @@
       </div>
 
       <button type="button" class="btn-add" onclick="addCard()">+ Add Card</button>
+
+      <!-- Getting-Ready Checklist (parity with the app's Before You Arrived screen) -->
+      <div class="checklist-block">
+        <h2 class="checklist-title">Getting-Ready Checklist</h2>
+        <p class="checklist-desc">The little things you did to prepare. Check off what's done — shows as a checklist on your published book.</p>
+        <div id="checklistList">
+          <% (checklist || []).forEach(function(item) { %>
+            <div class="checklist-row">
+              <input type="checkbox" class="cl-check" <%= item.is_checked ? 'checked' : '' %>>
+              <input type="text" class="cl-label" value="<%= item.label || '' %>" placeholder="e.g. Pack the hospital bag">
+              <button type="button" class="cl-del" onclick="deleteChecklistItem(this)" title="Remove item">✕</button>
+            </div>
+          <% }); %>
+        </div>
+        <button type="button" class="btn-add" onclick="addChecklistItem()">+ Add Checklist Item</button>
+      </div>
 
       <div class="save-bar">
         <button type="submit" class="btn-save">Save Changes</button>
@@ -347,6 +374,21 @@
       if (hint) hint.style.display = 'block';
     }
 
+    // ── Checklist add / delete ───────────────────────────────────────────────────
+    function addChecklistItem() {
+      const row = document.createElement('div');
+      row.className = 'checklist-row';
+      row.innerHTML =
+        '<input type="checkbox" class="cl-check">' +
+        '<input type="text" class="cl-label" placeholder="e.g. Pack the hospital bag">' +
+        '<button type="button" class="cl-del" onclick="deleteChecklistItem(this)" title="Remove item">✕</button>';
+      document.getElementById('checklistList').appendChild(row);
+      row.querySelector('.cl-label').focus();
+    }
+    function deleteChecklistItem(btn) {
+      btn.closest('.checklist-row').remove();
+    }
+
     // ── Serialize on submit ──────────────────────────────────────────────────────
     document.getElementById('theForm').addEventListener('submit', function() {
       const cards = [];
@@ -359,6 +401,13 @@
         });
       });
       document.getElementById('cardsJson').value = JSON.stringify(cards);
+
+      const checklist = [];
+      document.querySelectorAll('#checklistList .checklist-row').forEach(row => {
+        const label = row.querySelector('.cl-label').value.trim();
+        if (label) checklist.push({ label: label, is_checked: row.querySelector('.cl-check').checked });
+      });
+      document.getElementById('checklistJson').value = JSON.stringify(checklist);
     });
 
     renumber();

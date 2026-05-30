@@ -667,8 +667,10 @@ router.get('/book/before-arrived', requireAccountSession, async (req, res, next)
     const cardsWithUrls = (cards || []).map(c => ({
       ...c, photoUrl: c.photo_path ? getPublicUrl(c.photo_path) : null,
     }));
+    const { data: checklist } = await supabaseAdmin
+      .from('before_arrived_checklist').select('*').eq('book_id', book.id).order('sort_order');
     res.render('marketing/account-book-before-arrived', {
-      family: req.family, book: book || {}, cards: cardsWithUrls,
+      family: req.family, book: book || {}, cards: cardsWithUrls, checklist: checklist || [],
       success: req.query.success || null, error: req.query.error || null,
     });
   } catch (err) { next(err); }
@@ -686,6 +688,15 @@ router.post('/book/before-arrived', requireAccountSession, async (req, res, next
       photo_path: c.photo_path || null,
     }));
     await bookService.updateSectionCards('before_arrived_cards', book.id, cleaned);
+
+    // Getting-Ready Checklist (parity with the app's Before screen).
+    let checklist = [];
+    try { checklist = JSON.parse(req.body.checklist_json || '[]'); } catch (e) {}
+    const cleanedChecklist = checklist
+      .filter(it => (it.label || '').trim())
+      .map(it => ({ label: (it.label || '').trim(), is_checked: !!it.is_checked }));
+    await bookService.updateSectionCards('before_arrived_checklist', book.id, cleanedChecklist);
+
     res.redirect('/account/book/before-arrived?success=1');
   } catch (err) {
     console.error('Before arrived save error:', err.message);
