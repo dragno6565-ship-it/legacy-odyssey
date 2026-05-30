@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Your Birth Day — layout options (preview)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', system-ui, sans-serif; background: #faf7f2; color: #2c2416; line-height: 1.6; }
+    .pv-bar { background: #1a1510; color: #faf7f2; padding: 18px 24px; text-align: center; }
+    .pv-bar h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 26px; }
+    .pv-bar p { font-size: 13px; color: rgba(250,247,242,0.7); margin-top: 4px; }
+    .pv-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    .pv-option { background: #fff; border: 1px solid #e0d5c4; border-radius: 14px; padding: 28px; margin-bottom: 40px; box-shadow: 0 10px 40px rgba(26,21,16,0.06); }
+    .pv-tag { display: inline-block; background: #c8a96e; color: #1a1510; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; }
+    .pv-option h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 30px; margin: 14px 0 6px; }
+    .pv-desc { font-size: 15px; color: #5e564a; margin-bottom: 26px; max-width: 640px; }
+
+    /* shared section header look (matches the book) */
+    .bk-eyebrow { font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #c8a96e; text-align: center; }
+    .bk-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 400; text-align: center; margin: 6px 0 28px; }
+    .bk-title em { font-style: italic; color: #b08e4a; }
+
+    /* ---- MODEL A: card-per-photo ---- */
+    .a-card { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: center; background: #faf7f2; border: 1px solid #ece4d6; border-radius: 12px; overflow: hidden; margin-bottom: 18px; }
+    @media (max-width: 620px) { .a-card { grid-template-columns: 1fr; } }
+    .a-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .a-card-body { padding: 8px 24px 8px 0; }
+    @media (max-width: 620px) { .a-card-body { padding: 0 20px 22px; } }
+    .a-card-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #c8a96e; font-weight: 600; }
+    .a-card-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; margin: 4px 0 8px; }
+    .a-card-text { font-size: 15px; color: #5e564a; }
+
+    /* ---- MODEL B: captioned gallery ---- */
+    .b-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 760px) { .b-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 460px) { .b-grid { grid-template-columns: 1fr; } }
+    .b-item { background: #faf7f2; border: 1px solid #ece4d6; border-radius: 10px; overflow: hidden; }
+    .b-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .b-cap { padding: 10px 12px; font-size: 14px; color: #2c2416; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="pv-bar">
+    <h1>Your Birth Day — two layout options</h1>
+    <p>Preview only · placeholder photos &amp; labels · pick A or B</p>
+  </div>
+
+  <div class="pv-wrap">
+
+    <!-- OPTION A -->
+    <div class="pv-option">
+      <span class="pv-tag">Option A</span>
+      <h2>Card-per-photo with a label</h2>
+      <p class="pv-desc">Each photo is its own card with a headline and an optional little story. Best when you want to say something about each photo. (This is how your “Before You Arrived” section looks.)</p>
+
+      <div class="bk-eyebrow">The day you arrived</div>
+      <h3 class="bk-title">Your <em>Birth Day</em></h3>
+
+      <div class="a-card">
+        <img src="/images/gift-demo/01-welcome.jpg" alt="">
+        <div class="a-card-body">
+          <div class="a-card-label">Your first moments</div>
+          <div class="a-card-title">Hello, world</div>
+          <div class="a-card-text">The very first photo, minutes after you arrived.</div>
+        </div>
+      </div>
+      <div class="a-card">
+        <img src="/images/gift-demo/02-birth-story.jpg" alt="">
+        <div class="a-card-body">
+          <div class="a-card-label">Who was there</div>
+          <div class="a-card-title">Grandma's first hold</div>
+          <div class="a-card-text">She drove through the night to be there for you.</div>
+        </div>
+      </div>
+      <div class="a-card">
+        <img src="/images/gift-demo/03-month-by-month.jpg" alt="">
+        <div class="a-card-body">
+          <div class="a-card-label">At the hospital</div>
+          <div class="a-card-title">The doctor who delivered you</div>
+          <div class="a-card-text">Add a short note about each photo here.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION B -->
+    <div class="pv-option">
+      <span class="pv-tag">Option B</span>
+      <h2>Captioned gallery</h2>
+      <p class="pv-desc">All the photos from the day in a grid, each with a short caption underneath. Best for lots of photos from one day. (This is how the photos inside a Celebration look.)</p>
+
+      <div class="bk-eyebrow">The day you arrived</div>
+      <h3 class="bk-title">Your <em>Birth Day</em></h3>
+
+      <div class="b-grid">
+        <div class="b-item"><img src="/images/gift-demo/01-welcome.jpg" alt=""><div class="b-cap">Mom &amp; you</div></div>
+        <div class="b-item"><img src="/images/gift-demo/02-birth-story.jpg" alt=""><div class="b-cap">Grandma's first hold</div></div>
+        <div class="b-item"><img src="/images/gift-demo/03-month-by-month.jpg" alt=""><div class="b-cap">The doctor</div></div>
+        <div class="b-item"><img src="/images/gift-demo/04-letters.jpg" alt=""><div class="b-cap">In the hospital room</div></div>
+        <div class="b-item"><img src="/images/gift-demo/01-welcome.jpg" alt=""><div class="b-cap">Dad meeting you</div></div>
+        <div class="b-item"><img src="/images/gift-demo/02-birth-story.jpg" alt=""><div class="b-cap">Your first photo</div></div>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:#8a7e6b;font-size:14px;">Reply with <strong>A</strong> or <strong>B</strong> and I'll build it (multi-select up to 20 photos, label after).</p>
+  </div>
+</body>
+</html>

@@ -134,6 +134,12 @@ router.get('/preview/gift-landing', (req, res) => {
   res.render('marketing/gift-landing');
 });
 
+// Preview of the two "Your Birth Day" layout options (A: card-per-photo,
+// B: captioned gallery). Review-only mockup — no DB, placeholder photos/labels.
+router.get('/preview/birthday-models', (req, res) => {
+  res.render('marketing/preview-birthday-models');
+});
+
 // Hidden "founder" landing page — shared privately with friends and early
 // supporters. Posts to /api/stripe/create-founder-page-checkout which uses
 // STRIPE_PRICE_FOUNDER ($29/yr flat, no coupon). NOT linked from anywhere
