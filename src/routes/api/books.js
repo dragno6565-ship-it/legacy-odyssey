@@ -97,7 +97,7 @@ router.put('/mine/sections', async (req, res, next) => {
     const book = await bookService.getBookByFamilyId(req.family.id);
     if (!book) return res.status(404).json({ error: 'No book found' });
 
-    const VALID_KEYS = ['before', 'birth', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
+    const VALID_KEYS = ['before', 'birth', 'birthday', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
     const current = book.visible_sections || {};
 
     for (const [key, value] of Object.entries(req.body)) {

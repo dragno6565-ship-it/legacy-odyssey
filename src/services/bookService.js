@@ -273,12 +273,16 @@ function computeVisibleSections(data) {
     (j.photos && j.photos.length > 0)
   ));
 
+  // Your Birth Day: a captioned gallery — visible once it has any photos.
+  const birthday = (data.birthdayPhotos || []).length > 0;
+
   // Use manual overrides from visible_sections column if it exists on the book
   const overrides = data.book?.visible_sections || {};
 
   return {
     before: overrides.before !== undefined ? overrides.before : before,
     birth: overrides.birth !== undefined ? overrides.birth : birth,
+    birthday: overrides.birthday !== undefined ? overrides.birthday : birthday,
     journey: overrides.journey !== undefined ? overrides.journey : journey,
     home: overrides.home !== undefined ? overrides.home : home,
     months: overrides.months !== undefined ? overrides.months : months,
@@ -321,6 +325,7 @@ async function getFullBook(familyId) {
     { data: keepsakes },
     { data: vaultItems },
     { data: journeyStoryRow },
+    { data: birthdayPhotos },
   ] = await Promise.all([
     supabaseAdmin.from('before_arrived_cards').select('*').eq('book_id', book.id).order('sort_order'),
     supabaseAdmin.from('before_arrived_checklist').select('*').eq('book_id', book.id).order('sort_order'),
@@ -338,6 +343,9 @@ async function getFullBook(familyId) {
     supabaseAdmin.from('vault_items').select('*').eq('book_id', book.id).order('created_at'),
     // journey_story is new (migration 020) — one row per book, may not exist.
     supabaseAdmin.from('journey_story').select('*').eq('book_id', book.id).maybeSingle().then(r => r).catch(() => ({ data: null })),
+    // birthday_photos is new (migration 024) — captioned gallery for "Your Birth
+    // Day". Defensive: missing table → empty, section just shows nothing.
+    supabaseAdmin.from('birthday_photos').select('*').eq('book_id', book.id).order('sort_order').then(r => r).catch(() => ({ data: [] })),
   ]);
 
   // Load celebration_photos for every celebration on this book. The table
@@ -454,6 +462,7 @@ async function getFullBook(familyId) {
     keepsakes: (keepsakes || []).map((k) => withResolvedKeepsake(k, photosByKeepsake[k.id])),
     vaultItems: vaultItems || [],
     journeyStory: withResolvedJourney(journeyStoryRow, journeyPhotos),
+    birthdayPhotos: birthdayPhotos || [],
   };
 
   result.visibleSections = computeVisibleSections(result);

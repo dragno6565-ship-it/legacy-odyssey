@@ -639,7 +639,7 @@ router.get('/book/sections', requireAccountSession, async (req, res, next) => {
 router.post('/book/sections', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
-    const KEYS = ['before', 'birth', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
+    const KEYS = ['before', 'birth', 'birthday', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
     // Each row posts a checkbox (sec_<key>, present only when on) and a hidden
     // auto_<key> carrying the content-based default. Store an override only
     // when the chosen state differs from that default, keeping the map minimal.
@@ -1261,6 +1261,87 @@ router.post('/book/celebrations/photo/:photoId/replace', requireAccountSession, 
     console.error('Celebration photo replace failed:', err.message);
     next(err);
   }
+});
+
+// ─── Your Birth Day (captioned photo gallery, migration 024) ──────────────
+router.get('/book/birthday', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    let photos = [];
+    try {
+      const { data } = await supabaseAdmin.from('birthday_photos').select('*').eq('book_id', book.id).order('sort_order');
+      photos = data || [];
+    } catch (_) { photos = []; } // table may not exist yet (pre-migration-024)
+    const photosWithUrls = photos.map(p => ({ ...p, url: getPublicUrl(p.photo_path) }));
+    res.render('marketing/account-book-birthday', {
+      family: req.family, book: book || {}, photos: photosWithUrls,
+      success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+// Add one OR many photos at once (multi-select, up to 20). Each becomes a gallery item.
+router.post('/book/birthday/photo', requireAccountSession, upload.array('file', 20), async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const files = req.files || [];
+    if (!files.length) return res.redirect('/account/book/birthday?error=no_file');
+    const { data: existing } = await supabaseAdmin.from('birthday_photos')
+      .select('sort_order').eq('book_id', book.id).order('sort_order', { ascending: false }).limit(1);
+    let nextSort = ((existing && existing[0] && existing[0].sort_order) || 0) + (existing && existing.length ? 1 : 0);
+    for (const f of files) {
+      const ident = 'bd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      const result = await photoService.upload(req.family.id, 'birthday', ident, f.buffer, f.mimetype);
+      await supabaseAdmin.from('birthday_photos').insert({ book_id: book.id, photo_path: result.path, caption: null, sort_order: nextSort++ });
+    }
+    res.redirect('/account/book/birthday?success=photos_added');
+  } catch (err) {
+    console.error('Birthday photo upload failed:', err.message);
+    res.redirect('/account/book/birthday?error=upload_failed');
+  }
+});
+
+router.post('/book/birthday/photo/:photoId/edit', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('birthday_photos').select('id, book_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo || photo.book_id !== book.id) return res.redirect('/account/book/birthday?error=not_authorized');
+    await supabaseAdmin.from('birthday_photos')
+      .update({ caption: (req.body.caption || '').toString().trim() || null, updated_at: new Date().toISOString() })
+      .eq('id', req.params.photoId);
+    res.redirect('/account/book/birthday?success=caption_saved');
+  } catch (err) { next(err); }
+});
+
+router.post('/book/birthday/photo/:photoId/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('birthday_photos').select('id, book_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo || photo.book_id !== book.id) return res.redirect('/account/book/birthday?error=not_authorized');
+    await supabaseAdmin.from('birthday_photos').delete().eq('id', req.params.photoId);
+    res.redirect('/account/book/birthday?success=photo_deleted');
+  } catch (err) { next(err); }
+});
+
+// Replace the image (used by "Replace" + client-side "Rotate").
+router.post('/book/birthday/photo/:photoId/replace', requireAccountSession, upload.single('file'), async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('birthday_photos').select('id, book_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo || photo.book_id !== book.id) return res.redirect('/account/book/birthday?error=not_authorized');
+    if (!req.file) return res.redirect('/account/book/birthday?error=no_file');
+    const ident = 'bd-' + Date.now();
+    const result = await photoService.upload(req.family.id, 'birthday', ident, req.file.buffer, req.file.mimetype);
+    await supabaseAdmin.from('birthday_photos')
+      .update({ photo_path: result.path, updated_at: new Date().toISOString() })
+      .eq('id', req.params.photoId);
+    res.redirect('/account/book/birthday?success=photo_replaced');
+  } catch (err) { console.error('Birthday photo replace failed:', err.message); next(err); }
 });
 
 // ─── Letters ──────────────────────────────────────────────────────────────────

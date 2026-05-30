@@ -1,0 +1,53 @@
+<section id="page-birthday" class="page-section">
+  <div class="page-header">
+    <div class="page-header-eyebrow">The day you arrived</div>
+    <h2 class="page-header-title">Your <em>Birth Day</em></h2>
+    <p class="page-header-sub">The people, the place, and the first moments of the day you were born.</p>
+  </div>
+  <div class="page-body">
+    <% if (birthdayPhotos && birthdayPhotos.length) { %>
+      <div class="birthday-gallery">
+        <% birthdayPhotos.forEach(function(p) { %>
+          <figure class="birthday-photo">
+            <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || 'Birth day photo' %>" loading="lazy" style="<%= photoPos(p.photo_path) %>">
+            <% if (p.caption) { %><figcaption><%= p.caption %></figcaption><% } %>
+          </figure>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<style>
+  /* Your Birth Day — captioned gallery (inline so it's never served stale). */
+  .birthday-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  @media (max-width: 760px) { .birthday-gallery { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
+  @media (max-width: 440px) { .birthday-gallery { grid-template-columns: 1fr; } }
+  .birthday-photo {
+    margin: 0;
+    background: #fff;
+    border: 1px solid #e0d5c4;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 22px rgba(26,21,16,0.08);
+  }
+  .birthday-photo img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+  }
+  .birthday-photo figcaption {
+    padding: 12px 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: #2c2416;
+    text-align: center;
+  }
+</style>

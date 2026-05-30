@@ -238,6 +238,9 @@
       <% if (visibleSections.birth) { %>
         <%- include('../book/birth', { book, birthStory, imageUrl, photoPos }) %>
       <% } %>
+      <% if (visibleSections.birthday) { %>
+        <%- include('../book/birthday', { birthdayPhotos, imageUrl, photoPos }) %>
+      <% } %>
       <% if (visibleSections.journey) { %>
         <%- include('../book/journey', { journeyStory, imageUrl, photoPos }) %>
       <% } %>

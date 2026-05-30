@@ -34,6 +34,12 @@
       <span class="nav-label">Birth Story</span>
     </a>
     <% } %>
+    <% if (visibleSections.birthday) { %>
+    <a class="nav-item" onclick="showPage('birthday')">
+      <span class="nav-icon"><i data-lucide="camera"></i></span>
+      <span class="nav-label">Your Birth Day</span>
+    </a>
+    <% } %>
     <% if (visibleSections.journey) { %>
     <a class="nav-item" onclick="showPage('journey')">
       <span class="nav-icon"><i data-lucide="route"></i></span>

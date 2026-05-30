@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Birth Day – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 1.5rem; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+
+    .card { background: #fff; border-radius: 12px; border: 1px solid #f0ebe3; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .card-sub { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1rem; }
+
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .photo-card { background: #faf7f2; border: 1px solid #e0d5c4; border-radius: 8px; overflow: hidden; padding: 0.65rem; }
+    .photo-card-img { aspect-ratio: 4/3; border-radius: 4px; overflow: hidden; background: #ece4d6; margin-bottom: 0.5rem; }
+    .photo-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-caption-form { display: flex; flex-direction: column; gap: 0.4rem; }
+    .photo-caption-form input { font-size: 0.85rem; padding: 0.4rem 0.55rem; border: 1.5px solid #e0d5c4; border-radius: 6px; font-family: 'Jost', sans-serif; }
+    .btn-photo-save { width: 100%; background: #c8a96e; color: #fff; border: none; padding: 0.45rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-save:hover { background: #b08e4a; }
+    .photo-card-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+    .btn-photo-act { flex: 1; min-width: 60px; background: #fff; color: #2c2416; border: 1px solid #e0d5c4; padding: 0.4rem; border-radius: 6px; font-size: 0.74rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-act:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .btn-photo-del { flex: 1; min-width: 60px; background: #fff; color: #c0392b; border: 1px solid #e0b4b4; padding: 0.4rem; border-radius: 6px; font-size: 0.74rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-del:hover { background: #fdf2f2; }
+
+    .photo-add { border: 2px dashed #c8a96e; border-radius: 8px; padding: 1rem; aspect-ratio: 4/3; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: #fff; text-align: center; }
+    .photo-add:hover { background: #fdf9f3; }
+    .photo-add input[type="file"] { display: none; }
+    .photo-add-label { color: #c8a96e; font-weight: 600; font-size: 0.95rem; }
+    .photo-add-hint { color: #b8a898; font-size: 0.72rem; margin-top: 0.35rem; }
+    .uploading-note { display: none; font-size: 0.85rem; color: #c8a96e; margin-top: 0.75rem; }
+
+    .empty-state { text-align: center; padding: 2rem; color: #8a7e6b; font-size: 0.9rem; }
+    .save-bar { margin-top: 1.5rem; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back:hover { color: #2c2416; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp;
+      <a href="/account/book">My Book</a> &nbsp;/&nbsp;
+      Your Birth Day
+    </div>
+
+    <h1>Your Birth Day</h1>
+    <p class="section-desc">A photo gallery of the day your child arrived — who was there, the hospital (or wherever they were born), the doctor, the first moments. Add several photos at once, then give each a caption.</p>
+
+    <% if (success) { %><div class="flash flash-success">✓ Saved.</div><% } %>
+    <% if (error) { %><div class="flash flash-error">Something went wrong (<%= error %>).</div><% } %>
+
+    <div class="card">
+      <div class="card-title">Photos</div>
+      <div class="card-sub">Select up to 20 at once. Each gets its own caption — add captions any time.</div>
+
+      <% if (!photos || photos.length === 0) { %>
+        <div class="empty-state">No photos yet — use "+ Add photos" below to upload several at once.</div>
+      <% } %>
+
+      <div class="photo-grid">
+        <% (photos || []).forEach(function(p) { %>
+          <div class="photo-card">
+            <div class="photo-card-img"><img src="<%= p.url %>" alt="" id="bdImg<%= p.id %>"></div>
+            <form method="POST" action="/account/book/birthday/photo/<%= p.id %>/edit" class="photo-caption-form">
+              <input type="text" name="caption" value="<%= p.caption || '' %>" placeholder="Caption (e.g. The doctor)">
+              <button type="submit" class="btn-photo-save">Save caption</button>
+            </form>
+            <div class="photo-card-actions">
+              <button type="button" class="btn-photo-act" onclick="rotateBdPhoto('<%= p.id %>', this)">↻ Rotate</button>
+              <button type="button" class="btn-photo-act" onclick="document.getElementById('bdReplace<%= p.id %>').click()">Replace</button>
+              <button type="button" class="btn-photo-del" onclick="if(confirm('Delete this photo? This cannot be undone.')){document.getElementById('bdDel<%= p.id %>').submit();}">Delete</button>
+            </div>
+            <form method="POST" action="/account/book/birthday/photo/<%= p.id %>/replace" enctype="multipart/form-data" style="display:none;">
+              <input type="file" name="file" accept="image/*" id="bdReplace<%= p.id %>" onchange="this.form.submit()">
+            </form>
+            <form id="bdDel<%= p.id %>" method="POST" action="/account/book/birthday/photo/<%= p.id %>/delete" style="display:none;"></form>
+          </div>
+        <% }); %>
+
+        <label class="photo-add">
+          <form method="POST" action="/account/book/birthday/photo" enctype="multipart/form-data" style="display:contents;" id="bdAddForm">
+            <input type="file" name="file" accept="image/*" multiple onchange="bdStartUpload(this)">
+            <span class="photo-add-label">+ Add photos</span>
+            <span class="photo-add-hint">Pick up to 20 at once</span>
+          </form>
+        </label>
+      </div>
+      <div class="uploading-note" id="bdUploading">Uploading your photos… this can take a moment.</div>
+    </div>
+
+    <div class="save-bar">
+      <a class="btn-back" href="/account/book">← Back to my book</a>
+    </div>
+  </div>
+
+  <script>
+    function bdStartUpload(input) {
+      if (!input.files || !input.files.length) return;
+      document.getElementById('bdUploading').style.display = 'block';
+      input.form.submit();
+    }
+
+    // Rotate a photo 90° client-side and re-upload via /replace (Supabase serves
+    // open CORS, so the cross-origin image reads into a canvas). Reloads on success.
+    async function rotateBdPhoto(photoId, btn) {
+      var img = document.getElementById('bdImg' + photoId);
+      if (!img || !img.src) return;
+      var original = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Rotating…';
+      try {
+        var baseSrc = img.src.split('?')[0];
+        var loader = new Image();
+        loader.crossOrigin = 'anonymous';
+        await new Promise(function (resolve, reject) {
+          loader.onload = resolve; loader.onerror = function () { reject(new Error('load')); };
+          loader.src = baseSrc + '?cb=' + Date.now();
+        });
+        var canvas = document.createElement('canvas');
+        canvas.width = loader.naturalHeight; canvas.height = loader.naturalWidth;
+        var ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(loader, -loader.naturalWidth / 2, -loader.naturalHeight / 2);
+        var blob = await new Promise(function (res) { canvas.toBlob(res, 'image/jpeg', 0.9); });
+        if (!blob) throw new Error('blob');
+        var fd = new FormData(); fd.append('file', blob, 'rotated.jpg');
+        var res = await fetch('/account/book/birthday/photo/' + photoId + '/replace', { method: 'POST', body: fd });
+        if (!res.ok && !res.redirected) throw new Error('upload');
+        window.location.reload();
+      } catch (e) {
+        alert('Could not rotate the photo. Please try again.');
+        btn.disabled = false; btn.textContent = original;
+      }
+    }
+  </script>
+</body>
+</html>
