@@ -381,6 +381,45 @@
     .month-card img, .family-card img, .nav-item img { cursor: pointer; }
   </style>
   <script src="/js/book.js?v=20260527"></script>
+  <script>
+    // Self-contained photo lightbox — defined inline (server-rendered, never
+    // cached) and INDEPENDENT of book.js, so a JS error or a stale cached
+    // book.js can't stop photos from enlarging. Click any content photo to open.
+    (function () {
+      function openLB(src, alt) {
+        var lb = document.getElementById('bookLightbox');
+        var img = document.getElementById('lightboxImg');
+        if (!lb || !img) return;
+        img.src = src; img.alt = alt || '';
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeLB() {
+        var lb = document.getElementById('bookLightbox');
+        if (lb) { lb.classList.remove('open'); }
+        document.body.style.overflow = '';
+      }
+      // Expose for any inline onclick="" handlers / the close button.
+      window.openLightbox = openLB;
+      window.closeLightbox = closeLB;
+
+      document.addEventListener('click', function (e) {
+        var lb = document.getElementById('bookLightbox');
+        // Click on the backdrop (or close button) closes it.
+        if (lb && lb.classList.contains('open') && (e.target === lb || (e.target.closest && e.target.closest('.book-lightbox-close')))) {
+          closeLB(); return;
+        }
+        var img = e.target.closest && e.target.closest('img');
+        if (!img || !img.src) return;
+        // Skip images that have their own behavior, the lightbox image, and chrome.
+        if (img.closest('.book-lightbox, #bookLightbox, .month-card, .family-card, .nav-item, a, button')) return;
+        // Only enlarge real book photos (content + the month/family overlays).
+        if (!img.closest('#main-content, #month-modal, .month-modal, #family-detail, .family-detail')) return;
+        openLB(img.src, img.alt || '');
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLB(); });
+    })();
+  </script>
   <!-- Render Lucide icons placed by sidebar.ejs / book sections -->
   <script>
     if (window.lucide) lucide.createIcons();
