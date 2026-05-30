@@ -47,11 +47,13 @@
     .photo-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .photo-caption-form { display: flex; flex-direction: column; gap: 0.4rem; }
     .photo-caption-form input { font-size: 0.85rem; padding: 0.4rem 0.55rem; }
-    .photo-card-actions { display: flex; gap: 0.4rem; margin-top: 0.3rem; }
-    .btn-photo-save { flex: 1; background: #c8a96e; color: #fff; border: none; padding: 0.4rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .photo-card-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+    .btn-photo-save { width: 100%; background: #c8a96e; color: #fff; border: none; padding: 0.45rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
     .btn-photo-save:hover { background: #b08e4a; }
-    .btn-photo-delete { background: #fff; color: #c0392b; border: 1px solid #e0b4b4; padding: 0.4rem 0.65rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; font-family: 'Jost', sans-serif; }
-    .btn-photo-delete:hover { background: #fdf2f2; }
+    .btn-photo-act { flex: 1; min-width: 64px; background: #fff; color: #2c2416; border: 1px solid #e0d5c4; padding: 0.4rem; border-radius: 6px; font-size: 0.76rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-act:hover { border-color: #c8a96e; background: #fdf9f3; }
+    .btn-photo-del { flex: 1; min-width: 64px; background: #fff; color: #c0392b; border: 1px solid #e0b4b4; padding: 0.4rem; border-radius: 6px; font-size: 0.76rem; font-weight: 600; cursor: pointer; font-family: 'Jost', sans-serif; }
+    .btn-photo-del:hover { background: #fdf2f2; }
 
     .photo-add { border: 2px dashed #c8a96e; border-radius: 8px; padding: 1rem; aspect-ratio: 4/5; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: background 0.15s; }
     .photo-add:hover { background: #fdf9f3; }
@@ -158,17 +160,24 @@
       <div class="photo-grid">
         <% photos.forEach(function(p) { %>
           <div class="photo-card">
-            <div class="photo-card-img"><img src="<%= p.url %>" alt=""></div>
+            <div class="photo-card-img"><img src="<%= p.url %>" alt="" id="celebImg<%= p.id %>"></div>
             <% if (p.id) { %>
               <form method="POST" action="/account/book/celebrations/photo/<%= p.id %>/edit" class="photo-caption-form">
                 <input type="text" name="caption" value="<%= p.caption || '' %>" placeholder="Caption (optional)">
-                <div class="photo-card-actions">
-                  <button type="submit" class="btn-photo-save">Save</button>
-                  <button type="button" class="btn-photo-delete"
-                          onclick="if(confirm('Remove this photo?')) { this.closest('.photo-card').querySelector('.delete-form').submit(); }">×</button>
-                </div>
+                <button type="submit" class="btn-photo-save">Save caption</button>
               </form>
-              <form method="POST" action="/account/book/celebrations/photo/<%= p.id %>/delete" class="delete-form" style="display:none;"></form>
+              <div class="photo-card-actions">
+                <button type="button" class="btn-photo-act" onclick="rotateCelebPhoto('<%= p.id %>', this)">↻ Rotate</button>
+                <button type="button" class="btn-photo-act" onclick="document.getElementById('celebReplace<%= p.id %>').click()">Replace</button>
+                <button type="button" class="btn-photo-del"
+                        onclick="if(confirm('Delete this photo? This cannot be undone.')) { document.getElementById('celebDel<%= p.id %>').submit(); }">Delete</button>
+              </div>
+              <!-- Replace: hidden file input + form (full-page submit) -->
+              <form method="POST" action="/account/book/celebrations/photo/<%= p.id %>/replace" enctype="multipart/form-data" style="display:none;">
+                <input type="file" name="file" accept="image/*" id="celebReplace<%= p.id %>" onchange="this.form.submit()">
+              </form>
+              <!-- Delete form -->
+              <form id="celebDel<%= p.id %>" method="POST" action="/account/book/celebrations/photo/<%= p.id %>/delete" style="display:none;"></form>
             <% } else { %>
               <div class="card-sub" style="font-size:0.75rem;">Legacy photo (re-upload to caption)</div>
             <% } %>
@@ -188,5 +197,43 @@
     <!-- Hidden delete-celebration form -->
     <form method="POST" action="/account/book/celebrations/delete/<%= celebration.id %>" id="deleteForm" style="display:none;"></form>
   </div>
+
+  <script>
+    // Rotate a gallery photo 90° client-side and re-upload via the /replace
+    // route (Supabase serves open CORS, so the cross-origin image reads into a
+    // canvas fine). On success the page reloads to show the rotated image.
+    async function rotateCelebPhoto(photoId, btn) {
+      const img = document.getElementById('celebImg' + photoId);
+      if (!img || !img.src) return;
+      const original = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Rotating…';
+      try {
+        const baseSrc = img.src.split('?')[0];
+        const loader = new Image();
+        loader.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+          loader.onload = resolve; loader.onerror = () => reject(new Error('load'));
+          loader.src = baseSrc + '?cb=' + Date.now();
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width = loader.naturalHeight;
+        canvas.height = loader.naturalWidth;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(loader, -loader.naturalWidth / 2, -loader.naturalHeight / 2);
+        const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.9));
+        if (!blob) throw new Error('blob');
+        const fd = new FormData();
+        fd.append('file', blob, 'rotated.jpg');
+        const res = await fetch('/account/book/celebrations/photo/' + photoId + '/replace', { method: 'POST', body: fd });
+        if (!res.ok && !res.redirected) throw new Error('upload');
+        window.location.reload();
+      } catch (err) {
+        alert('Could not rotate the photo. Please try again.');
+        btn.disabled = false; btn.textContent = original;
+      }
+    }
+  </script>
 </body>
 </html>

@@ -1178,6 +1178,30 @@ router.post('/book/celebrations/photo/:photoId/delete', requireAccountSession, a
   } catch (err) { next(err); }
 });
 
+// ─── Celebration photo: replace the image (used by "Replace" + client-side "Rotate") ──
+router.post('/book/celebrations/photo/:photoId/replace', requireAccountSession, upload.single('file'), async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/book');
+    const { data: photo } = await supabaseAdmin.from('celebration_photos').select('id, celebration_id').eq('id', req.params.photoId).maybeSingle();
+    if (!photo) return res.redirect('/account/book/celebrations?error=photo_not_found');
+    const { data: c } = await supabaseAdmin.from('celebrations').select('id').eq('id', photo.celebration_id).eq('book_id', book.id).maybeSingle();
+    if (!c) return res.redirect('/account/book/celebrations?error=not_authorized');
+    if (!req.file) return res.redirect('/account/book/celebrations/edit/' + c.id + '?error=no_file');
+
+    const ident = c.id + '-' + Date.now();
+    const result = await photoService.upload(req.family.id, 'celebrations', ident, req.file.buffer, req.file.mimetype);
+    await supabaseAdmin.from('celebration_photos')
+      .update({ photo_path: result.path, updated_at: new Date().toISOString() })
+      .eq('id', req.params.photoId);
+
+    res.redirect('/account/book/celebrations/edit/' + c.id + '?success=photo_replaced');
+  } catch (err) {
+    console.error('Celebration photo replace failed:', err.message);
+    next(err);
+  }
+});
+
 // ─── Letters ──────────────────────────────────────────────────────────────────
 
 router.get('/book/letters', requireAccountSession, async (req, res, next) => {
