@@ -185,13 +185,12 @@
         <% }); %>
 
         <label class="photo-add">
-          <form method="POST" action="/account/book/celebrations/<%= celebration.id %>/photo" enctype="multipart/form-data" style="display:contents;">
-            <input type="file" name="file" accept="image/*" onchange="this.form.submit()">
-            <span class="photo-add-label">+ Add photo</span>
-            <span class="photo-add-hint">JPG or PNG. Click to upload.</span>
-          </form>
+          <input type="file" name="file" accept="image/*" multiple onchange="addCelebPhotos(this)">
+          <span class="photo-add-label">+ Add photos</span>
+          <span class="photo-add-hint">JPG or PNG. Pick one or many — up to 20 at a time.</span>
         </label>
       </div>
+      <div id="celebUploadProgress" style="display:none; text-align:center; font-size:0.88rem; color:#c8a96e; margin-top:0.85rem;"></div>
     </div>
 
     <!-- Hidden delete-celebration form -->
@@ -199,6 +198,37 @@
   </div>
 
   <script>
+    // Add one OR many photos to this celebration's gallery. The server route
+    // takes one file per request, so we upload sequentially (showing progress),
+    // then reload once to render the new captionable cards.
+    async function addCelebPhotos(input) {
+      if (!input.files || !input.files.length) return;
+      let files = Array.from(input.files);
+      if (files.length > 20) {
+        alert('You can add up to 20 photos at a time. The first 20 will be added.');
+        files = files.slice(0, 20);
+      }
+      const progress = document.getElementById('celebUploadProgress');
+      progress.style.display = 'block';
+      let done = 0, failed = 0;
+      for (const file of files) {
+        progress.textContent = `Uploading ${done + failed + 1} of ${files.length}…`;
+        const fd = new FormData();
+        fd.append('file', file);
+        try {
+          const res = await fetch('/account/book/celebrations/<%= celebration.id %>/photo', { method: 'POST', body: fd });
+          if (!res.ok && !res.redirected) throw new Error('upload');
+          done++;
+        } catch (e) {
+          failed++;
+        }
+      }
+      progress.textContent = failed
+        ? `Added ${done}, ${failed} failed — reloading…`
+        : `Added ${done} photo${done === 1 ? '' : 's'} — reloading…`;
+      window.location.reload();
+    }
+
     // Rotate a gallery photo 90° client-side and re-upload via the /replace
     // route (Supabase serves open CORS, so the cross-origin image reads into a
     // canvas fine). On success the page reloads to show the rotated image.
