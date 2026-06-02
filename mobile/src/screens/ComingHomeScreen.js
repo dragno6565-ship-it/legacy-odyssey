@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { pickAndUploadPhotos } from '../utils/multiPhoto';
 import { useSavedToast } from '../components/SavedToast';
 
 const BLANK_CARD = () => ({ photo_path: '', title: '', subtitle: '', body: '' });
@@ -25,6 +27,8 @@ export default function ComingHomeScreen({ navigation }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [cards, setCards] = useState([BLANK_CARD()]);
+  const [addingPhotos, setAddingPhotos] = useState(false);
+  const [photoProgress, setPhotoProgress] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -65,6 +69,31 @@ export default function ComingHomeScreen({ navigation }) {
 
   function removeCard(index) {
     setCards((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  // Pick several photos at once → one card per photo (label them after).
+  async function addMultiplePhotos() {
+    setError('');
+    setAddingPhotos(true);
+    setPhotoProgress('');
+    try {
+      const { canceled, paths } = await pickAndUploadPhotos({
+        limit: 20,
+        onProgress: (done, total) => setPhotoProgress(`Uploading ${Math.min(done + 1, total)} of ${total}…`),
+      });
+      if (canceled || paths.length === 0) return;
+      const newCards = paths.map((p) => ({ photo_path: p, title: '', subtitle: '', body: '' }));
+      setCards((prev) => {
+        // Drop a single leading blank starter card so we don't leave an empty one on top.
+        const base = prev.length === 1 && !prev[0].photo_path && !prev[0].title && !prev[0].subtitle && !prev[0].body ? [] : prev;
+        return [...base, ...newCards];
+      });
+    } catch (err) {
+      Alert.alert('Upload failed', err.message || 'Could not add photos.');
+    } finally {
+      setAddingPhotos(false);
+      setPhotoProgress('');
+    }
   }
 
   async function handleSave() {
@@ -163,6 +192,22 @@ export default function ComingHomeScreen({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity
+          style={[styles.addButton, addingPhotos && styles.saveButtonDisabled]}
+          onPress={addMultiplePhotos}
+          disabled={addingPhotos}
+          activeOpacity={0.8}
+        >
+          {addingPhotos ? (
+            <View style={styles.uploadingRow}>
+              <ActivityIndicator color={colors.gold} size="small" />
+              <Text style={styles.addButtonText}>{photoProgress || 'Uploading…'}</Text>
+            </View>
+          ) : (
+            <Text style={styles.addButtonText}>+ Add multiple photos</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
           onPress={handleSave}
           disabled={saving}
@@ -194,6 +239,7 @@ const styles = StyleSheet.create({
   removeText: { fontSize: typography.sizes.sm, color: colors.error },
   addButton: { borderWidth: 1.5, borderColor: colors.gold, borderStyle: 'dashed', borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginBottom: spacing.md },
   addButtonText: { color: colors.gold, fontSize: typography.sizes.md, fontWeight: typography.weights.semibold },
+  uploadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   label: { fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, color: colors.textPrimary, marginBottom: spacing.xs, marginTop: spacing.sm },
   input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.md, fontSize: typography.sizes.md, color: colors.textPrimary },
   bodyInput: { minHeight: 100, paddingTop: spacing.md },

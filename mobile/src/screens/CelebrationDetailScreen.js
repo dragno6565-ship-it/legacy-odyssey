@@ -17,6 +17,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, put, post, del, BASE_URL } from '../api/client';
+import { pickAndUploadPhotos } from '../utils/multiPhoto';
 import { useSavedToast } from '../components/SavedToast';
 
 /**
@@ -43,6 +44,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
   const [celebrationDate, setCelebrationDate] = useState('');
   const [photos, setPhotos] = useState([]); // [{ id, photo_path, caption }]
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoProgress, setPhotoProgress] = useState('');
 
   useEffect(() => {
     navigation.setOptions({ title: route.params?.title || 'Celebration' });
@@ -135,39 +137,29 @@ export default function CelebrationDetailScreen({ navigation, route }) {
   }
 
   async function handleAddPhoto() {
-    // Use the system photo picker (no permission needed) — avoids the Google
-    // Photos picker's "Search disabled" behavior. See PhotoPicker.js note.
-    const picked = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 0.85,
-    });
-    if (picked.canceled || !picked.assets || picked.assets.length === 0) return;
-    const asset = picked.assets[0];
-
     setUploadingPhoto(true);
+    setPhotoProgress('');
     try {
-      // 1) Upload the raw file
-      const formData = new FormData();
-      const filename = asset.uri.split('/').pop() || 'photo.jpg';
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
-      formData.append('file', { uri: asset.uri, name: filename, type });
-      const upRes = await client.post('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      // Pick several at once → upload each, then attach to this celebration.
+      const { canceled, paths } = await pickAndUploadPhotos({
+        limit: 20,
+        onProgress: (done, total) => setPhotoProgress(`Uploading ${Math.min(done + 1, total)} of ${total}…`),
       });
-      const photoPath = upRes.data.url || upRes.data.path || upRes.data.storagePath;
-      if (!photoPath) throw new Error('Upload did not return a photo path.');
-
-      // 2) Attach to the celebration
-      const created = await post(
-        `/api/books/mine/celebrations/${celebrationId}/photos`,
-        { photo_path: photoPath, caption: null }
-      );
-      setPhotos((prev) => [...prev, created.data]);
+      if (canceled || paths.length === 0) return;
+      const created = [];
+      for (const photoPath of paths) {
+        const res = await post(
+          `/api/books/mine/celebrations/${celebrationId}/photos`,
+          { photo_path: photoPath, caption: null }
+        );
+        created.push(res.data);
+      }
+      if (created.length) setPhotos((prev) => [...prev, ...created]);
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photo.');
+      Alert.alert('Upload failed', err.message || 'Could not add photos.');
     } finally {
       setUploadingPhoto(false);
+      setPhotoProgress('');
     }
   }
 
@@ -379,9 +371,12 @@ export default function CelebrationDetailScreen({ navigation, route }) {
             activeOpacity={0.8}
           >
             {uploadingPhoto ? (
-              <ActivityIndicator color={colors.gold} />
+              <View style={styles.uploadingRow}>
+                <ActivityIndicator color={colors.gold} size="small" />
+                <Text style={styles.addPhotoText}>{photoProgress || 'Uploading…'}</Text>
+              </View>
             ) : (
-              <Text style={styles.addPhotoText}>+ Add Photo</Text>
+              <Text style={styles.addPhotoText}>+ Add Photos</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -524,6 +519,7 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.semibold,
   },
+  uploadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   // Save / Delete
   saveButton: {
     backgroundColor: colors.gold,
