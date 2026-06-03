@@ -19,11 +19,23 @@
 - Video egress is 10–100× photos. Serving from Supabase public bucket ($0.09/GB uncached) would threaten $29–50/yr unit economics. Stream serves off CF CDN instead.
 - Current upload path can't handle video anyway: multer **10MB cap** + `memoryStorage()` in BOTH `src/routes/api/upload.js:9` and `src/routes/account.js:19` → big files would OOM Railway. Video must upload **direct to Cloudflare**, bypassing Express.
 
-## BLOCKED ON (Dan's action — billing/account, can't be done by Claude)
-1. Enable **Cloudflare Stream** subscription (CF dashboard → Stream; ~$5/1,000 min stored + $1/1,000 min delivered).
-2. Create an **API token** scoped to Account → Stream → Edit.
-3. Get the **Cloudflare Account ID**.
-4. Add to **Railway env**: `CLOUDFLARE_STREAM_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`. (Token goes in Railway directly, never in chat.)
+## ✅ UNBLOCKED 2026-06-03 — Cloudflare Stream live & verified
+- Stream enabled/subscribed; API token (Stream:Edit + Account Analytics:Read, all-accounts) created.
+- Railway env set: `CLOUDFLARE_ACCOUNT_ID=bc2ebc94444d987c7a78809a1d9449cb`, `CLOUDFLARE_STREAM_API_TOKEN` (secret in Railway).
+- Verified end-to-end: `GET /api/videos/health` → `{configured:true, reachable:true, error:null}`.
+- Migrations 026 (videos) + 027 (book_content_stats view) RUN in prod. Foundation complete.
+
+## ▶️ NEXT — build the functional feature (testable now)
+- P1: mint direct-upload endpoint (web + app) w/ caps (2-min clip, 1000-min site, family one-per-member) + Stream webhook → flip status/duration/poster.
+- P2: viewer player (Video Moments section + Celebration + Family contexts) in book.ejs.
+- P3: web editors — Video Moments page, Celebration videos, Family member video.
+- P4: app screens (combined EAS build with the gallery-reposition parity).
+  - **Background upload (Dan, 2026-06-03):** user starts the upload and can leave the screen / use the app
+    while it uploads. Global persistent "Uploading video… NN%" banner (live progress via
+    expo-file-system `uploadAsync` progress callback; iOS background URLSession so it survives backgrounding).
+    On done → "✓ Video added" + appears in Video Moments; on fail → "Upload failed — tap to retry".
+    Direct-to-Cloudflare (bytes never hit Railway). Needs app JWT endpoints (mirror of the web /account/book/videos*).
+- P5: caps polish + swap "No storage limits" landing copy + FAQ.
 
 ## Build plan / file touchpoints
 - **Migration `026_videos.sql`** (025 = birthday_photos RLS; 023 referrals still unapplied). **RLS ON from the start.**
@@ -43,6 +55,11 @@
 - **Web editor** — `src/views/marketing/account-book-moments.ejs` + routes. Ships live, no app build.
 - **Mobile** — `mobile/src/screens/MomentsScreen.js` (reuse picker pattern, `mediaTypes:['videos']`, upload direct to CF), App.js nav, Dashboard card, ManageSections toggle. Next EAS build.
 - **Copy** — replace "No storage limits" on `src/views/marketing/landing.ejs:183` with the metered story.
+
+## ✅ Already built (scaffold, committed, inert until Cloudflare configured)
+- `026_videos.sql` (RLS on, polymorphic, family one-per-member DB guard) — NOT YET RUN.
+- `cloudflareStreamService.js` — mint upload URL, status, delete, getDeliveredMinutes (analytics).
+- `videoUsageMonitor.js` — weekly storage + delivery cost report/alert (registered in server.js, deployed `7ad7899`).
 
 ## Phased rollout
 - P0 decisions ✅ (above) — confirm section placement.
