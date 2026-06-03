@@ -128,6 +128,53 @@ router.get('/', requireAdmin, async (req, res, next) => {
   }
 });
 
+// Per-site content analytics — photos, videos, sections, text, last activity.
+// Reads the scalable book_content_stats view (one query). Falls back gracefully
+// if the view hasn't been created yet (migration 027).
+router.get('/analytics', requireAdmin, async (req, res, next) => {
+  try {
+    const families = await familyService.listAll();
+    const statsByFamily = {};
+    let viewMissing = false;
+    const { data: rows, error } = await supabaseAdmin.from('book_content_stats').select('*');
+    if (error) {
+      viewMissing = true;
+      console.warn('[admin/analytics] book_content_stats not available (run migration 027):', error.message);
+    } else {
+      for (const s of rows || []) statsByFamily[s.family_id] = s;
+    }
+
+    const sites = families.map((f) => {
+      const s = statsByFamily[f.id] || {};
+      const videoMin = Math.round((s.video_seconds || 0) / 60);
+      return {
+        id: f.id,
+        label: f.custom_domain || f.subdomain || f.display_name || f.email || f.id,
+        status: f.archived_at ? 'archived' : (f.subscription_status || '—'),
+        photos: s.photo_count || 0,
+        videoCount: s.video_count || 0,
+        videoMin,
+        videoPct: Math.min(100, Math.round((videoMin / 1000) * 100)),
+        sections: s.sections_filled || 0,
+        letters: s.letters_count || 0,
+        firsts: s.firsts_count || 0,
+        lastActivity: s.last_activity || null,
+      };
+    }).sort((a, b) => (b.photos + b.videoCount) - (a.photos + a.videoCount));
+
+    const totals = {
+      sites: sites.length,
+      photos: sites.reduce((n, s) => n + s.photos, 0),
+      videos: sites.reduce((n, s) => n + s.videoCount, 0),
+      videoMin: sites.reduce((n, s) => n + s.videoMin, 0),
+    };
+
+    res.render('admin/analytics', { sites, totals, viewMissing, admin: req.admin });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Health check page — runs every block's checks live and renders results.
 // (Admin-only. Each render triggers a fresh check pass — typically 5-15s.)
 router.get('/health', requireAdmin, async (req, res, next) => {

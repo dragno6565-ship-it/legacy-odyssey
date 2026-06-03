@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Legacy Odyssey Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css?v=20260529">
+  <style>
+    .an-table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05); font-size:0.9rem; }
+    .an-table th { text-align:left; padding:0.7rem 0.85rem; background:#f0e8dc; color:#6b5d49; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; font-weight:600; }
+    .an-table td { padding:0.7rem 0.85rem; border-top:1px solid #f0ebe3; }
+    .an-table tr:hover td { background:#fdf9f3; }
+    .an-site { font-weight:600; color:#2c2416; }
+    .an-num { text-align:right; font-variant-numeric:tabular-nums; }
+    .an-badge { display:inline-block; font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:20px; background:#eef7ee; color:#2e7d32; }
+    .an-badge.archived { background:#f3f0ea; color:#8a7e6b; }
+    .an-badge.canceled { background:#fdf2f2; color:#c0392b; }
+    .an-bar { height:6px; background:#ece4d6; border-radius:4px; overflow:hidden; margin-top:3px; }
+    .an-bar > span { display:block; height:100%; background:#c8a96e; }
+    .an-bar.warn > span { background:#c0392b; }
+    .an-muted { color:#b8a898; }
+    .an-warnrow td { background:#fdf6f0 !important; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><h2>&#10022; Legacy Odyssey</h2><span>Admin Portal</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin"><span class="nav-icon">&#128202;</span> Dashboard</a>
+        <a href="/admin/analytics" class="active"><span class="nav-icon">&#128200;</span> Analytics</a>
+        <a href="/admin/gifts"><span class="nav-icon">&#127873;</span> Gift Codes</a>
+        <a href="/admin/health"><span class="nav-icon">&#128300;</span> Health</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-email"><%= admin.email %></div>
+        <form action="/admin/logout" method="POST" style="display:inline;">
+          <button type="submit" class="logout-btn">&#x2192; Sign Out</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <div class="page-header"><div><h1>Analytics</h1><p>What each customer has added to their site</p></div></div>
+
+      <% if (viewMissing) { %>
+        <div style="background:#fdf2f2;border:1px solid #e0b4b4;color:#c0392b;padding:0.9rem 1.1rem;border-radius:8px;margin-bottom:1.25rem;font-size:0.9rem;">
+          The <code>book_content_stats</code> view isn't created yet — run <strong>migration 027</strong> in the Supabase SQL editor to populate this page.
+        </div>
+      <% } %>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Sites</div><div class="kpi-value"><%= totals.sites %></div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Photos</div><div class="kpi-value"><%= totals.photos.toLocaleString() %></div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Videos</div><div class="kpi-value"><%= totals.videos.toLocaleString() %></div></div>
+        <div class="kpi-card"><div class="kpi-label">Video Minutes</div><div class="kpi-value"><%= totals.videoMin.toLocaleString() %></div></div>
+      </div>
+
+      <div style="margin-top:1.75rem;overflow-x:auto;">
+        <table class="an-table">
+          <thead>
+            <tr>
+              <th>Site</th><th>Status</th>
+              <th class="an-num">Photos</th>
+              <th class="an-num">Videos</th>
+              <th>Video usage (cap 1,000 min)</th>
+              <th class="an-num">Sections</th>
+              <th class="an-num">Letters</th>
+              <th class="an-num">Firsts</th>
+              <th>Last activity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sites.forEach(function (s) { %>
+              <tr class="<%= s.videoPct >= 80 ? 'an-warnrow' : '' %>">
+                <td><a class="an-site" href="/admin/families/<%= s.id %>" style="text-decoration:none;color:inherit;"><%= s.label %></a></td>
+                <td><span class="an-badge <%= s.status === 'archived' ? 'archived' : (s.status === 'canceled' ? 'canceled' : '') %>"><%= s.status %></span></td>
+                <td class="an-num"><%= s.photos.toLocaleString() %></td>
+                <td class="an-num"><%= s.videoCount %></td>
+                <td>
+                  <% if (s.videoCount > 0) { %>
+                    <%= s.videoMin %> / 1,000 min
+                    <div class="an-bar <%= s.videoPct >= 80 ? 'warn' : '' %>"><span style="width:<%= s.videoPct %>%"></span></div>
+                  <% } else { %><span class="an-muted">—</span><% } %>
+                </td>
+                <td class="an-num"><%= s.sections %> / 13</td>
+                <td class="an-num"><%= s.letters %></td>
+                <td class="an-num"><%= s.firsts %></td>
+                <td class="an-muted"><%= s.lastActivity ? new Date(s.lastActivity).toISOString().slice(0,10) : '—' %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
