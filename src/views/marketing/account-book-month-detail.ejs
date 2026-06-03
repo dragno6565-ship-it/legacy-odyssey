@@ -57,6 +57,8 @@
     }
     .photo-zone.has-photo .photo-remove { display: flex; }
     .photo-uploading { font-size: 0.82rem; color: #c8a96e; margin-top: 0.5rem; display: none; }
+    .btn-reposition { margin-top: 0.75rem; background: #fff; border: 1.5px solid #c8a96e; color: #c8a96e; border-radius: 8px; padding: 0.55rem 1.1rem; font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+    .btn-reposition:hover { background: #fdf9f3; }
 
     /* Nav between months */
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
@@ -145,6 +147,10 @@
         <div class="photo-uploading" id="photoUploading">Uploading…</div>
         <input type="file" id="photoFileInput" accept="image/*" style="display:none"
           onchange="uploadPhoto(this,'months','photoPath','photoZone','photoPreview','photoUploading')">
+        <button type="button" class="btn-reposition" id="repositionBtn" style="<%= photoUrl ? '' : 'display:none;' %>"
+          onclick="openReposition({ url: document.getElementById('photoPreview').src, path: document.getElementById('photoPath').value, imgEl: document.getElementById('photoPreview') })">
+          ⤢ Reposition photo (fix cropping)
+        </button>
       </div>
 
       <div class="card">
@@ -185,6 +191,8 @@
         if (placeholder) placeholder.style.display = 'none';
         const icon = zone.querySelector('div[style*="font-size:2rem"]');
         if (icon) icon.style.display = 'none';
+        const rb = document.getElementById('repositionBtn');
+        if (rb) rb.style.display = 'inline-block';
       } catch (e) {
         alert('Upload failed. Please try again.');
       } finally {
@@ -197,7 +205,11 @@
       document.getElementById('photoPath').value = '';
       document.getElementById('photoPreview').style.display = 'none';
       document.getElementById('photoZone').classList.remove('has-photo');
+      const rb = document.getElementById('repositionBtn');
+      if (rb) rb.style.display = 'none';
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>

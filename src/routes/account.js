@@ -414,6 +414,41 @@ router.post('/upload', requireAccountSession, upload.single('file'), async (req,
   }
 });
 
+// ─── Reposition a photo (focal point) ────────────────────────────────────────
+// Web twin of the app's PUT /api/books/mine/photo-position. Saves an
+// object-position focal point (x%, y%) into books.photo_positions (JSONB,
+// keyed by storage path), which the viewer already honors via photoPos().
+// Lets web customers stop heads being cropped out of cover-fit photos.
+router.post('/book/photo-position', requireAccountSession, async (req, res, next) => {
+  try {
+    let { storagePath, x, y } = req.body;
+    if (!storagePath || x === undefined || y === undefined) {
+      return res.status(400).json({ error: 'storagePath, x, and y are required' });
+    }
+    // Normalize a full public URL down to the storage path the viewer keys on.
+    if (typeof storagePath === 'string' && storagePath.startsWith('http')) {
+      const idx = storagePath.indexOf('/photos/');
+      if (idx !== -1) storagePath = storagePath.substring(idx + '/photos/'.length);
+    }
+    const cx = Math.max(0, Math.min(100, Number(x)));
+    const cy = Math.max(0, Math.min(100, Number(y)));
+
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.json({ success: true, storagePath, x: cx, y: cy });
+
+    const current = book.photo_positions || {};
+    current[storagePath] = { x: cx, y: cy };
+    const { error } = await supabaseAdmin
+      .from('books')
+      .update({ photo_positions: current })
+      .eq('id', book.id);
+    if (error) throw error;
+    res.json({ success: true, storagePath, x: cx, y: cy });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── Book section overview ────────────────────────────────────────────────────
 
 router.get('/book', requireAccountSession, async (req, res, next) => {

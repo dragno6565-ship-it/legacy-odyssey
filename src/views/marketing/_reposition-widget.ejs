@@ -1,0 +1,134 @@
+<!--
+  Reusable "Reposition photo" widget (web editors).
+  Include once near the end of an editor <body>, then on any photo add a button:
+      <button type="button" onclick="openReposition({ url: '<img src>', path: '<storage path or url>', imgEl: <editor preview img> })">Reposition</button>
+  Saves a focal point (x%,y%) to books.photo_positions via POST /account/book/photo-position,
+  which the public book viewer already honors through photoPos(). Self-contained,
+  id-namespaced (rp-*), no external deps.
+-->
+<div id="rp-overlay" class="rp-overlay" aria-hidden="true">
+  <div class="rp-modal" role="dialog" aria-label="Reposition photo">
+    <h3 class="rp-title">Reposition photo</h3>
+    <p class="rp-help">Drag the dot onto the most important part of the photo — like the face. The preview shows how it will look on your website.</p>
+
+    <div class="rp-pickwrap">
+      <div class="rp-pick" id="rp-pick">
+        <img id="rp-pickimg" src="" alt="" draggable="false">
+        <div id="rp-dot" class="rp-dot"></div>
+      </div>
+      <div class="rp-previewcol">
+        <div class="rp-previewlabel">Preview on your site</div>
+        <div class="rp-preview"><img id="rp-previewimg" src="" alt=""></div>
+      </div>
+    </div>
+
+    <div class="rp-actions">
+      <button type="button" class="rp-btn rp-cancel" onclick="closeReposition()">Cancel</button>
+      <button type="button" class="rp-btn rp-save" id="rp-save" onclick="saveReposition()">Save position</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .rp-overlay { display:none; position:fixed; inset:0; background:rgba(26,21,16,0.6); z-index:9999; align-items:center; justify-content:center; padding:1rem; }
+  .rp-overlay.open { display:flex; }
+  .rp-modal { background:#faf7f2; border-radius:14px; padding:1.5rem; max-width:680px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3); font-family:'Jost',sans-serif; color:#2c2416; }
+  .rp-title { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600; margin:0 0 0.25rem; }
+  .rp-help { font-size:0.88rem; color:#8a7e6b; margin:0 0 1.1rem; line-height:1.5; }
+  .rp-pickwrap { display:flex; gap:1.25rem; flex-wrap:wrap; align-items:flex-start; }
+  .rp-pick { position:relative; flex:1; min-width:240px; max-width:380px; line-height:0; cursor:crosshair; user-select:none; touch-action:none; }
+  .rp-pick img { width:100%; height:auto; max-height:360px; object-fit:contain; border-radius:10px; display:block; background:#ece4d6; }
+  .rp-dot { position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px; border:3px solid #fff; border-radius:50%; background:rgba(200,169,110,0.85); box-shadow:0 0 0 2px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.4); pointer-events:none; }
+  .rp-previewcol { width:160px; }
+  .rp-previewlabel { font-size:0.72rem; font-weight:600; color:#8a7e6b; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.4rem; text-align:center; }
+  .rp-preview { width:160px; height:120px; border-radius:10px; overflow:hidden; border:1px solid #e0d5c4; background:#ece4d6; }
+  .rp-preview img { width:100%; height:100%; object-fit:cover; display:block; }
+  .rp-actions { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1.35rem; }
+  .rp-btn { padding:0.7rem 1.5rem; border-radius:8px; font-family:'Jost',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; border:none; }
+  .rp-cancel { background:#fff; border:1.5px solid #e0d5c4; color:#2c2416; }
+  .rp-cancel:hover { border-color:#c8a96e; }
+  .rp-save { background:#c8a96e; color:#fff; }
+  .rp-save:hover { background:#b08e4a; }
+  .rp-save:disabled { opacity:0.6; cursor:default; }
+  @media (max-width:560px){ .rp-previewcol{ width:100%; } .rp-preview{ width:160px; margin:0 auto; } }
+</style>
+
+<script>
+(function () {
+  var state = { path: null, imgEl: null, x: 50, y: 50 };
+
+  function el(id){ return document.getElementById(id); }
+  function clamp(n){ return Math.max(0, Math.min(100, n)); }
+
+  function applyPreview() {
+    el('rp-dot').style.left = state.x + '%';
+    el('rp-dot').style.top = state.y + '%';
+    el('rp-previewimg').style.objectPosition = state.x + '% ' + state.y + '%';
+  }
+
+  // Map a pointer event to x%,y% of the displayed image (not the letterbox).
+  function pointToPercent(ev) {
+    var img = el('rp-pickimg');
+    var r = img.getBoundingClientRect();
+    var px = (ev.clientX - r.left) / r.width * 100;
+    var py = (ev.clientY - r.top) / r.height * 100;
+    state.x = Math.round(clamp(px));
+    state.y = Math.round(clamp(py));
+    applyPreview();
+  }
+
+  var dragging = false;
+  function bindPick() {
+    var pick = el('rp-pick');
+    pick.addEventListener('pointerdown', function (e) { dragging = true; pick.setPointerCapture(e.pointerId); pointToPercent(e); });
+    pick.addEventListener('pointermove', function (e) { if (dragging) pointToPercent(e); });
+    pick.addEventListener('pointerup', function () { dragging = false; });
+    pick.addEventListener('pointercancel', function () { dragging = false; });
+  }
+
+  window.openReposition = function (opts) {
+    if (!opts || !opts.url || !opts.path) return;
+    state.path = opts.path;
+    state.imgEl = opts.imgEl || null;
+    state.x = (opts.current && typeof opts.current.x === 'number') ? opts.current.x : 50;
+    state.y = (opts.current && typeof opts.current.y === 'number') ? opts.current.y : 50;
+    el('rp-pickimg').src = opts.url;
+    el('rp-previewimg').src = opts.url;
+    applyPreview();
+    el('rp-overlay').classList.add('open');
+    el('rp-overlay').setAttribute('aria-hidden', 'false');
+  };
+
+  window.closeReposition = function () {
+    el('rp-overlay').classList.remove('open');
+    el('rp-overlay').setAttribute('aria-hidden', 'true');
+  };
+
+  window.saveReposition = async function () {
+    var btn = el('rp-save');
+    btn.disabled = true;
+    try {
+      const res = await fetch('/account/book/photo-position', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storagePath: state.path, x: state.x, y: state.y }),
+      });
+      if (!res.ok) throw new Error();
+      // Reflect the new position in the editor's own preview so the user sees it.
+      if (state.imgEl) state.imgEl.style.objectPosition = state.x + '% ' + state.y + '%';
+      closeReposition();
+    } catch (e) {
+      alert('Could not save the photo position. Please try again.');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  // Close on backdrop click + Esc.
+  document.addEventListener('click', function (e) { if (e.target === el('rp-overlay')) closeReposition(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeReposition(); });
+
+  if (document.getElementById('rp-pick')) bindPick();
+  else document.addEventListener('DOMContentLoaded', bindPick);
+})();
+</script>
