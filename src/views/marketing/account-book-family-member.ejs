@@ -157,6 +157,7 @@
             <div class="profile-photo-hint"><strong>Click</strong> to upload</div>
             <input type="file" id="photoFileInput" accept="image/*" style="display:none"
               onchange="uploadPhoto(this,'family','photoPath','photoZone','photoPreview','photoUploading')">
+            <button type="button" class="rp-btn-trigger" onclick="openReposition({ url: document.getElementById('photoPreview').src, path: document.getElementById('photoPath').value, imgEl: document.getElementById('photoPreview') })">⤢ Reposition (fix cropping)</button>
           </div>
           <div class="profile-side">
             <div class="form-group" style="margin-bottom:0;">
@@ -446,5 +447,7 @@
       document.getElementById(zoneId).classList.remove('has-photo');
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>

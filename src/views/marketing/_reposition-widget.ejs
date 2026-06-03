@@ -30,6 +30,17 @@
 </div>
 
 <style>
+  /* Shared reposition trigger buttons (so editors only add markup, no JS/CSS each).
+     .rp-btn-trigger auto-shows only when its photo zone has a photo (.has-photo
+     sibling); .rp-btn is always visible (gallery photos always exist). */
+  .rp-btn-trigger, .rp-btn {
+    background:#fff; border:1.5px solid #c8a96e; color:#c8a96e; border-radius:8px;
+    padding:0.5rem 1rem; font-family:'Jost',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; margin-top:0.6rem;
+  }
+  .rp-btn-trigger:hover, .rp-btn:hover { background:#fdf9f3; }
+  .rp-btn-trigger { display:none; }
+  .has-photo ~ .rp-btn-trigger { display:inline-block; }
+
   .rp-overlay { display:none; position:fixed; inset:0; background:rgba(26,21,16,0.6); z-index:9999; align-items:center; justify-content:center; padding:1rem; }
   .rp-overlay.open { display:flex; }
   .rp-modal { background:#faf7f2; border-radius:14px; padding:1.5rem; max-width:680px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3); font-family:'Jost',sans-serif; color:#2c2416; }

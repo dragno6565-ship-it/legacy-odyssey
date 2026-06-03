@@ -152,6 +152,7 @@
             </div>
             <div class="photo-uploading" id="momUploading">Uploading…</div>
             <input type="file" id="momFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','momPhotoPath','momPhotoZone','momPreview','momUploading')">
+            <button type="button" id="rp-btn-momPreview" class="rp-btn" style="<%= momPhotoUrl ? '' : 'display:none;' %>" onclick="openReposition({ url: document.getElementById('momPreview').src, path: document.getElementById('momPhotoPath').value, imgEl: document.getElementById('momPreview') })">⤢ Reposition</button>
 
             <input type="hidden" name="mom_photo_2" id="momPhoto2Path" value="<%= birthStory.mom_photo_2 || '' %>">
             <div class="photo-zone <%= momPhoto2Url ? 'has-photo' : '' %>" id="momPhoto2Zone" onclick="document.getElementById('momFile2Input').click()" style="margin-top:0.6rem;">
@@ -165,6 +166,7 @@
             </div>
             <div class="photo-uploading" id="momUploading2">Uploading…</div>
             <input type="file" id="momFile2Input" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','momPhoto2Path','momPhoto2Zone','momPreview2','momUploading2')">
+            <button type="button" id="rp-btn-momPreview2" class="rp-btn" style="<%= momPhoto2Url ? '' : 'display:none;' %>" onclick="openReposition({ url: document.getElementById('momPreview2').src, path: document.getElementById('momPhoto2Path').value, imgEl: document.getElementById('momPreview2') })">⤢ Reposition</button>
           </div>
           <div class="photo-side">
             <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
@@ -204,6 +206,7 @@
             </div>
             <div class="photo-uploading" id="dadUploading">Uploading…</div>
             <input type="file" id="dadFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','dadPhotoPath','dadPhotoZone','dadPreview','dadUploading')">
+            <button type="button" id="rp-btn-dadPreview" class="rp-btn" style="<%= dadPhotoUrl ? '' : 'display:none;' %>" onclick="openReposition({ url: document.getElementById('dadPreview').src, path: document.getElementById('dadPhotoPath').value, imgEl: document.getElementById('dadPreview') })">⤢ Reposition</button>
 
             <input type="hidden" name="dad_photo_2" id="dadPhoto2Path" value="<%= birthStory.dad_photo_2 || '' %>">
             <div class="photo-zone <%= dadPhoto2Url ? 'has-photo' : '' %>" id="dadPhoto2Zone" onclick="document.getElementById('dadFile2Input').click()" style="margin-top:0.6rem;">
@@ -217,6 +220,7 @@
             </div>
             <div class="photo-uploading" id="dadUploading2">Uploading…</div>
             <input type="file" id="dadFile2Input" accept="image/*" style="display:none" onchange="uploadPhoto(this,'birth-story','dadPhoto2Path','dadPhoto2Zone','dadPreview2','dadUploading2')">
+            <button type="button" id="rp-btn-dadPreview2" class="rp-btn" style="<%= dadPhoto2Url ? '' : 'display:none;' %>" onclick="openReposition({ url: document.getElementById('dadPreview2').src, path: document.getElementById('dadPhoto2Path').value, imgEl: document.getElementById('dadPreview2') })">⤢ Reposition</button>
           </div>
           <div class="photo-side">
             <div class="form-group" style="margin-bottom:0.75rem;flex:1;">
@@ -313,6 +317,8 @@
         if (hint) hint.style.display = 'none';
         const icon = zone.querySelector('div[style*="font-size:1.5rem"]');
         if (icon) icon.style.display = 'none';
+        const rb = document.getElementById('rp-btn-' + previewId);
+        if (rb) rb.style.display = 'inline-block';
       } catch (err) {
         alert('Upload failed. Please try again.');
       } finally {
@@ -326,7 +332,11 @@
       document.getElementById(pathInputId).value = '';
       document.getElementById(previewId).style.display = 'none';
       document.getElementById(zoneId).classList.remove('has-photo');
+      const rb = document.getElementById('rp-btn-' + previewId);
+      if (rb) rb.style.display = 'none';
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>

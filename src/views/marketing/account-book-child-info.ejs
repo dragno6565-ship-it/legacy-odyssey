@@ -206,6 +206,7 @@
         </div>
         <div class="photo-uploading" id="heroUploading">Uploading photo…</div>
         <input type="file" id="heroFileInput" accept="image/*" style="display:none" onchange="uploadPhoto(this, 'hero', 'heroImagePath', 'heroPhotoZone', 'heroPreview', 'heroUploading')">
+        <button type="button" class="rp-btn-trigger" onclick="openReposition({ url: document.getElementById('heroPreview').src, path: document.getElementById('heroImagePath').value, imgEl: document.getElementById('heroPreview') })">⤢ Reposition photo (fix cropping)</button>
       </div>
 
       <!-- Parent Quote -->
@@ -275,5 +276,7 @@
       document.getElementById('heroPhotoZone').classList.remove('has-photo');
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>
