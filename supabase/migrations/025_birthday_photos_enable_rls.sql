@@ -1,0 +1,11 @@
+-- 025_birthday_photos_enable_rls.sql
+-- SECURITY FIX (2026-06-02): migration 024 created birthday_photos WITHOUT
+-- Row-Level Security ("Run without RLS" was chosen), leaving it the ONLY public
+-- table reachable by the anon key. Supabase Security Advisor flagged it
+-- (rls_disabled_in_public, critical): anon could read/update/DELETE all rows.
+--
+-- Verified safe to enable: the server reads/writes birthday_photos via the
+-- service-role client (supabaseAdmin), which BYPASSES RLS; no client uses the
+-- anon key for this table. Enabling RLS with no policies = deny-all to anon,
+-- exactly matching every other table (celebration_photos, recipe_photos, etc.).
+alter table public.birthday_photos enable row level security;
