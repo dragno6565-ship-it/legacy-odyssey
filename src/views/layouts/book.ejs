@@ -241,6 +241,9 @@
       <% if (visibleSections.birthday) { %>
         <%- include('../book/birthday', { birthdayPhotos, imageUrl, photoPos }) %>
       <% } %>
+      <% if (visibleSections.moments) { %>
+        <%- include('../book/video-moments', { momentsVideos }) %>
+      <% } %>
       <% if (visibleSections.journey) { %>
         <%- include('../book/journey', { journeyStory, imageUrl, photoPos }) %>
       <% } %>

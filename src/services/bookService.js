@@ -276,6 +276,9 @@ function computeVisibleSections(data) {
   // Your Birth Day: a captioned gallery — visible once it has any photos.
   const birthday = (data.birthdayPhotos || []).length > 0;
 
+  // Video Moments: visible once there's a ready video clip.
+  const moments = (data.momentsVideos || []).length > 0;
+
   // Use manual overrides from visible_sections column if it exists on the book
   const overrides = data.book?.visible_sections || {};
 
@@ -283,6 +286,7 @@ function computeVisibleSections(data) {
     before: overrides.before !== undefined ? overrides.before : before,
     birth: overrides.birth !== undefined ? overrides.birth : birth,
     birthday: overrides.birthday !== undefined ? overrides.birthday : birthday,
+    moments: overrides.moments !== undefined ? overrides.moments : moments,
     journey: overrides.journey !== undefined ? overrides.journey : journey,
     home: overrides.home !== undefined ? overrides.home : home,
     months: overrides.months !== undefined ? overrides.months : months,
@@ -326,6 +330,7 @@ async function getFullBook(familyId) {
     { data: vaultItems },
     { data: journeyStoryRow },
     { data: birthdayPhotos },
+    { data: allVideos },
   ] = await Promise.all([
     supabaseAdmin.from('before_arrived_cards').select('*').eq('book_id', book.id).order('sort_order'),
     supabaseAdmin.from('before_arrived_checklist').select('*').eq('book_id', book.id).order('sort_order'),
@@ -346,6 +351,9 @@ async function getFullBook(familyId) {
     // birthday_photos is new (migration 024) — captioned gallery for "Your Birth
     // Day". Defensive: missing table → empty, section just shows nothing.
     supabaseAdmin.from('birthday_photos').select('*').eq('book_id', book.id).order('sort_order').then(r => r).catch(() => ({ data: [] })),
+    // videos is new (migration 026) — Cloudflare Stream clips. Only show ready
+    // ones on the public site. Defensive: missing table → empty.
+    supabaseAdmin.from('videos').select('*').eq('book_id', book.id).eq('status', 'ready').order('sort_order').then(r => r).catch(() => ({ data: [] })),
   ]);
 
   // Load celebration_photos for every celebration on this book. The table
@@ -463,6 +471,8 @@ async function getFullBook(familyId) {
     vaultItems: vaultItems || [],
     journeyStory: withResolvedJourney(journeyStoryRow, journeyPhotos),
     birthdayPhotos: birthdayPhotos || [],
+    videos: allVideos || [],
+    momentsVideos: (allVideos || []).filter((v) => v.context === 'moments'),
   };
 
   result.visibleSections = computeVisibleSections(result);

@@ -1,0 +1,53 @@
+<section id="page-moments" class="page-section">
+  <div class="page-header">
+    <div class="page-header-eyebrow">In motion</div>
+    <h2 class="page-header-title">Video <em>Moments</em></h2>
+    <p class="page-header-sub">The clips words can't capture — first steps, first words, the laugh.</p>
+  </div>
+  <div class="page-body">
+    <% if (momentsVideos && momentsVideos.length) { %>
+      <div class="vm-gallery">
+        <% momentsVideos.forEach(function (v) { %>
+          <figure class="vm-item">
+            <div class="vm-frame">
+              <iframe src="https://iframe.cloudflarestream.com/<%= v.stream_uid %>"
+                      loading="lazy"
+                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                      allowfullscreen></iframe>
+            </div>
+            <% if (v.caption) { %><figcaption><%= v.caption %></figcaption><% } %>
+          </figure>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<style>
+  /* Video Moments — Cloudflare Stream player gallery (inline so it's never stale). */
+  .vm-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  @media (max-width: 720px) { .vm-gallery { grid-template-columns: 1fr; gap: 16px; } }
+  .vm-item {
+    margin: 0;
+    background: #fff;
+    border: 1px solid #e0d5c4;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 22px rgba(26,21,16,0.08);
+  }
+  .vm-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #1a1510; }
+  .vm-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .vm-item figcaption {
+    padding: 12px 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: #2c2416;
+    text-align: center;
+  }
+</style>
