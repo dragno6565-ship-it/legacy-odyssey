@@ -140,7 +140,7 @@
   // prefers an explicit .photo-path input, else the image URL (the server
   // normalizes a URL to the storage key, same as the viewer's photoPos()).
   window.repositionCard = function (btn) {
-    var box = btn.closest('.card-item, .photo-card') || btn.parentElement || document;
+    var box = btn.closest('.card-item, .photo-card, .jphoto') || btn.parentElement || document;
     var img = box.querySelector('.photo-zone-sm img') || box.querySelector('.photo-card-img img') || box.querySelector('img');
     var pathEl = box.querySelector('.photo-path') || box.querySelector('input[name="photo_path"]');
     var path = (pathEl && pathEl.value) || (img && img.src);

@@ -184,6 +184,7 @@
           <form method="POST" action="/account/book/journey/photo/<%= p.id %>/delete" onsubmit="return confirm('Remove this photo?');">
             <button type="submit" class="ph-del" aria-label="Delete photo">&times;</button>
           </form>
+          <button type="button" class="rp-btn" style="position:absolute;left:6px;bottom:6px;font-size:0.72rem;padding:0.3rem 0.6rem;margin:0;background:rgba(255,255,255,0.92);" onclick="repositionCard(this)">⤢ Reposition</button>
         </div>
         <% }); %>
       </div>
@@ -217,5 +218,7 @@
       if (!list.querySelector('.milestone-row')) addMilestone();
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>
