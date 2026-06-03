@@ -167,6 +167,7 @@
                 <button type="submit" class="btn-photo-save">Save caption</button>
               </form>
               <div class="photo-card-actions">
+                <button type="button" class="btn-photo-act" onclick="openReposition({ url: '<%= p.url %>', path: '<%= p.url %>', imgEl: document.getElementById('celebImg<%= p.id %>') })">⤢ Reposition</button>
                 <button type="button" class="btn-photo-act" onclick="rotateCelebPhoto('<%= p.id %>', this)">↻ Rotate</button>
                 <button type="button" class="btn-photo-act" onclick="document.getElementById('celebReplace<%= p.id %>').click()">Replace</button>
                 <button type="button" class="btn-photo-del"
@@ -265,5 +266,7 @@
       }
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>

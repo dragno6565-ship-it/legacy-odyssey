@@ -246,6 +246,7 @@
                 <input type="text" name="caption" value="<%= p.caption || '' %>" placeholder="Caption (optional)">
                 <div class="photo-card-actions">
                   <button type="submit" class="btn-photo-save">Save</button>
+                  <button type="button" class="btn-photo-save" style="background:#fff;border:1.5px solid #c8a96e;color:#c8a96e;" onclick="repositionCard(this)">⤢ Reposition</button>
                   <button type="button" class="btn-photo-delete"
                           onclick="if(confirm('Remove this photo?')) { this.closest('.photo-card').querySelector('.delete-form').submit(); }">×</button>
                 </div>
@@ -313,5 +314,7 @@
       renumberDirections();
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>

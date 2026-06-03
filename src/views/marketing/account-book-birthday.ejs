@@ -80,6 +80,7 @@
               <button type="submit" class="btn-photo-save">Save caption</button>
             </form>
             <div class="photo-card-actions">
+              <button type="button" class="btn-photo-act" onclick="openReposition({ url: '<%= p.url %>', path: '<%= p.url %>', imgEl: document.getElementById('bdImg<%= p.id %>') })">⤢ Reposition</button>
               <button type="button" class="btn-photo-act" onclick="rotateBdPhoto('<%= p.id %>', this)">↻ Rotate</button>
               <button type="button" class="btn-photo-act" onclick="document.getElementById('bdReplace<%= p.id %>').click()">Replace</button>
               <button type="button" class="btn-photo-del" onclick="if(confirm('Delete this photo? This cannot be undone.')){document.getElementById('bdDel<%= p.id %>').submit();}">Delete</button>
@@ -147,5 +148,7 @@
       }
     }
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>
