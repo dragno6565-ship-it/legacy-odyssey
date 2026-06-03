@@ -81,10 +81,38 @@ async function deleteVideo(uid) {
   }
 }
 
+/**
+ * Best-effort: total Stream minutes DELIVERED (viewed) since `sinceDate`
+ * (YYYY-MM-DD), via Cloudflare's GraphQL Analytics API. Used by the usage
+ * monitor to watch bandwidth cost. Returns a number, or null if it can't be
+ * read (e.g. the token lacks Analytics:Read — non-fatal, the monitor still
+ * reports storage). Note: GraphQL analytics may require the token to also have
+ * Account Analytics → Read in addition to Stream → Edit.
+ * @returns {Promise<number|null>}
+ */
+async function getDeliveredMinutes(sinceDate) {
+  if (!isConfigured()) return null;
+  const query = `query($tag:string!,$since:string!){viewer{accounts(filter:{accountTag:$tag}){streamMinutesViewedAdaptiveGroups(filter:{date_geq:$since},limit:1){sum{minutesViewed}}}}}`;
+  try {
+    const res = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ query, variables: { tag: ACCOUNT_ID, since: sinceDate } }),
+    });
+    const json = await res.json().catch(() => ({}));
+    const groups = json?.data?.viewer?.accounts?.[0]?.streamMinutesViewedAdaptiveGroups;
+    if (!Array.isArray(groups) || !groups[0]) return 0;
+    return Number(groups[0].sum?.minutesViewed || 0);
+  } catch (_) {
+    return null;
+  }
+}
+
 module.exports = {
   isConfigured,
   createDirectUpload,
   getVideo,
   deleteVideo,
+  getDeliveredMinutes,
   MAX_DURATION_SECONDS,
 };

@@ -173,6 +173,11 @@ const server = app.listen(PORT, () => {
   // retention window (interim stand-in for the #38 auto-purge job).
   const { startDataRetentionReminderScheduler } = require('./jobs/dataRetentionReminder');
   startDataRetentionReminderScheduler();
+
+  // Weekly: video usage/cost monitor (Cloudflare Stream storage + delivery).
+  // Inert until the videos table (migration 026) + Stream env vars exist.
+  const { startVideoUsageMonitorScheduler } = require('./jobs/videoUsageMonitor');
+  startVideoUsageMonitorScheduler();
 });
 
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).
