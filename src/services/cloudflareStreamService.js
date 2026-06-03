@@ -108,11 +108,27 @@ async function getDeliveredMinutes(sinceDate) {
   }
 }
 
+/**
+ * Lightweight connectivity check: confirms the env vars exist AND the token can
+ * actually authenticate against the Stream API (lists 1 video). Returns booleans
+ * + an error summary only — never leaks the token or any data.
+ */
+async function verify() {
+  if (!isConfigured()) return { configured: false, reachable: false, error: 'CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_STREAM_API_TOKEN not set' };
+  try {
+    await cf('?limit=1', { headers: authHeaders() });
+    return { configured: true, reachable: true, error: null };
+  } catch (err) {
+    return { configured: true, reachable: false, error: err.message };
+  }
+}
+
 module.exports = {
   isConfigured,
   createDirectUpload,
   getVideo,
   deleteVideo,
   getDeliveredMinutes,
+  verify,
   MAX_DURATION_SECONDS,
 };
