@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Moments – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #c8a96e; text-decoration: none; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 1rem; }
+    .cap { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .cap .bar { height: 7px; background: #ece4d6; border-radius: 4px; overflow: hidden; margin-top: 4px; max-width: 320px; }
+    .cap .bar > span { display: block; height: 100%; background: #c8a96e; }
+    .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
+    .vid-card { background: #fff; border: 1px solid #f0ebe3; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1rem; margin-bottom: 1rem; }
+    .vid-frame { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: #1a1510; margin-bottom: 0.75rem; }
+    .vid-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .vid-processing { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #d4bb8a; font-size: 0.9rem; }
+    .vid-row { display: flex; gap: 0.6rem; align-items: center; }
+    .vid-row input[type=text] { flex: 1; padding: 0.55rem 0.75rem; border: 1.5px solid #e0d5c4; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 0.9rem; color: #2c2416; }
+    .btn-sm { padding: 0.5rem 0.9rem; border-radius: 7px; font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: 1.5px solid #c8a96e; background: #fff; color: #c8a96e; }
+    .btn-sm:hover { background: #fdf9f3; }
+    .btn-del { border-color: #e0b4b4; color: #c0392b; }
+    .btn-del:hover { background: #fdf2f2; }
+    .add-zone { border: 2px dashed #c8a96e; border-radius: 12px; padding: 1.75rem; text-align: center; cursor: pointer; background: #fff; color: #c8a96e; font-weight: 600; }
+    .add-zone:hover { background: #fdf9f3; }
+    .add-zone.disabled { opacity: 0.5; cursor: not-allowed; border-color: #ccc; color: #999; }
+    .progress { display: none; text-align: center; font-size: 0.9rem; color: #c8a96e; margin-top: 0.85rem; }
+    .save-bar { margin-top: 1.5rem; }
+    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .empty { text-align: center; color: #8a7e6b; font-size: 0.9rem; padding: 1rem 0 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/account/dashboard">Account</a> &nbsp;/&nbsp; <a href="/account/book">My Book</a> &nbsp;/&nbsp; Video Moments
+    </div>
+    <h1>Video Moments</h1>
+    <p class="section-desc">Short video clips of the moments you'll want to relive — first steps, first words, the laugh. Up to <%= Math.round(maxClipSec/60*10)/10 %> minutes each.</p>
+
+    <% var pct = Math.min(100, Math.round(totalMin / capMin * 100)); %>
+    <div class="cap">
+      <%= totalMin %> of <%= capMin.toLocaleString() %> minutes used
+      <div class="bar"><span style="width:<%= pct %>%"></span></div>
+    </div>
+
+    <% if (error) { %><div class="flash flash-error"><%= error %></div><% } %>
+
+    <div id="videoList">
+      <% if (!videos || videos.length === 0) { %>
+        <div class="empty" id="emptyState">No videos yet — add your first clip below.</div>
+      <% } %>
+      <% (videos || []).forEach(function (v) { %>
+        <div class="vid-card" data-id="<%= v.id %>">
+          <div class="vid-frame">
+            <% if (v.status === 'ready') { %>
+              <iframe src="https://iframe.cloudflarestream.com/<%= v.stream_uid %>" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe>
+            <% } else { %>
+              <div class="vid-processing">Processing… refresh in a moment.</div>
+            <% } %>
+          </div>
+          <div class="vid-row">
+            <input type="text" value="<%= v.caption || '' %>" placeholder="Caption (optional)" onblur="saveCaption('<%= v.id %>', this.value)">
+            <button type="button" class="btn-sm btn-del" onclick="deleteVideo('<%= v.id %>')">Delete</button>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="add-zone <%= totalMin >= capMin ? 'disabled' : '' %>" id="addZone" onclick="<%= totalMin >= capMin ? '' : "document.getElementById('vidInput').click()" %>">
+      <%= totalMin >= capMin ? 'Video limit reached — delete a clip to add more.' : '+ Add a video (up to ' + (Math.round(maxClipSec/60*10)/10) + ' min)' %>
+    </div>
+    <input type="file" id="vidInput" accept="video/*" style="display:none" onchange="handleVideo(this)">
+    <div class="progress" id="progress"></div>
+
+    <div class="save-bar"><a href="/account/book" class="btn-back">← Back to My Book</a></div>
+  </div>
+
+  <script>
+    var MAX_CLIP_SEC = <%= maxClipSec %>;
+
+    function getDuration(file) {
+      return new Promise(function (resolve) {
+        var v = document.createElement('video');
+        v.preload = 'metadata';
+        v.onloadedmetadata = function () { URL.revokeObjectURL(v.src); resolve(v.duration || 0); };
+        v.onerror = function () { resolve(0); };
+        v.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function handleVideo(input) {
+      var file = input.files && input.files[0];
+      input.value = '';
+      if (!file) return;
+      var prog = document.getElementById('progress');
+
+      var dur = await getDuration(file);
+      if (dur && dur > MAX_CLIP_SEC + 1) {
+        alert('That clip is ' + Math.round(dur) + ' seconds. Please choose a video up to ' + MAX_CLIP_SEC + ' seconds (' + (MAX_CLIP_SEC/60) + ' minutes).');
+        return;
+      }
+
+      prog.style.display = 'block';
+      prog.textContent = 'Preparing upload…';
+      try {
+        // 1) Mint a direct-upload URL
+        var mint = await fetch('/account/book/videos', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context: 'moments' })
+        }).then(function (r) { return r.json(); });
+        if (mint.error) { alert(mint.error); prog.style.display = 'none'; return; }
+
+        // 2) Upload the file straight to Cloudflare
+        prog.textContent = 'Uploading your video…';
+        var fd = new FormData(); fd.append('file', file);
+        var up = await fetch(mint.uploadURL, { method: 'POST', body: fd });
+        if (!up.ok) throw new Error('upload');
+
+        // 3) Finalize + wait for Cloudflare to finish processing
+        prog.textContent = 'Processing… this can take a moment.';
+        var ready = false;
+        for (var i = 0; i < 20 && !ready; i++) {
+          await new Promise(function (r) { setTimeout(r, 3000); });
+          var v = await fetch('/account/book/videos/' + mint.videoId + '/finalize', { method: 'POST' }).then(function (r) { return r.json(); });
+          if (v && v.status === 'ready') ready = true;
+          if (v && v.status === 'error') throw new Error('processing');
+        }
+        prog.textContent = ready ? 'Done!' : 'Uploaded — still processing; refresh shortly.';
+        location.reload();
+      } catch (e) {
+        alert('Sorry, that upload didn\'t work. Please try again.');
+        prog.style.display = 'none';
+      }
+    }
+
+    async function saveCaption(id, caption) {
+      try {
+        await fetch('/account/book/videos/' + id + '/caption', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ caption: caption })
+        });
+      } catch (e) {}
+    }
+
+    async function deleteVideo(id) {
+      if (!confirm('Delete this video? This cannot be undone.')) return;
+      try {
+        await fetch('/account/book/videos/' + id + '/delete', { method: 'POST' });
+        location.reload();
+      } catch (e) { alert('Could not delete. Please try again.'); }
+    }
+  </script>
+</body>
+</html>

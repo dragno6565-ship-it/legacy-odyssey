@@ -4,6 +4,7 @@ const sanitizeHtml = require('sanitize-html');
 const { supabaseAnon, supabaseAdmin } = require('../config/supabase');
 const familyService = require('../services/familyService');
 const bookService = require('../services/bookService');
+const videoService = require('../services/videoService');
 const photoService = require('../services/photoService');
 const stripeService = require('../services/stripeService');
 const { getPublicUrl } = require('../utils/imageUrl');
@@ -447,6 +448,65 @@ router.post('/book/photo-position', requireAccountSession, async (req, res, next
   } catch (err) {
     next(err);
   }
+});
+
+// ─── Video uploads (Cloudflare Stream) — web AJAX ────────────────────────────
+async function resolveBookId(req) {
+  const b = await bookService.getBookByFamilyId(req.family.id);
+  return b ? b.id : null;
+}
+
+// Mint a direct-upload URL + create the pending video row.
+router.post('/book/videos', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    if (!bid) return res.status(400).json({ error: 'No book found.' });
+    const { context, celebrationId, familyMemberId } = req.body;
+    const r = await videoService.createUpload(bid, { context, celebrationId, familyMemberId });
+    res.json({ uploadURL: r.uploadURL, videoId: r.video.id });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    next(err);
+  }
+});
+
+// Called after the client finishes uploading — pull status/duration/poster from CF.
+router.post('/book/videos/:id/finalize', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    const v = await videoService.getOne(bid, req.params.id);
+    if (!v) return res.status(404).json({ error: 'Not found.' });
+    res.json(await videoService.refresh(bid, v));
+  } catch (err) { next(err); }
+});
+
+router.post('/book/videos/:id/caption', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    res.json(await videoService.setCaption(bid, req.params.id, req.body.caption));
+  } catch (err) { next(err); }
+});
+
+router.post('/book/videos/:id/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await videoService.remove(bid, req.params.id);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// Video Moments editor page.
+router.get('/book/video-moments', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    const videos = bid ? await videoService.listByContext(bid, { context: 'moments' }) : [];
+    const totalMin = bid ? Math.round((await videoService.totalSeconds(bid)) / 60) : 0;
+    res.render('marketing/account-book-video-moments', {
+      videos, totalMin, capMin: Math.round(videoService.SITE_CAP_SECONDS / 60),
+      maxClipSec: 120,
+      success: req.query.success, error: req.query.error,
+    });
+  } catch (err) { next(err); }
 });
 
 // ─── Book section overview ────────────────────────────────────────────────────
