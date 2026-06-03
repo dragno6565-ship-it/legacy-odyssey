@@ -5,8 +5,13 @@
 > ✅ Phase 2 "Your Birth Day" WEB shipped (`7ed876a`).
 > ✅ Your Birth Day APP side built (`BirthDayScreen` + nav + Dashboard card + ManageSections + API `d97a519`).
 > ✅ **Migration 024 RUN** (birthday_photos table live in Supabase).
-> ✅ **v1.0.13 BUILT + SUBMITTED (May 30, 2026):** iOS build 27 Waiting for Review; Android versionCode 26 in Google review. Mobile batch committed `808cecf`.
-> ⏳ STILL TODO: Phase 1 (multi-select on existing Before/Coming Home/Celebrations web editors) + Phase 3 app parity (dynamic cards + multi-select in Before/ComingHome/CelebrationDetail screens).
+> ✅ **v1.0.13 RELEASED (May 31, 2026)** on both stores. Mobile batch `808cecf`.
+> ✅ **Phase 1 (web multi-select)** shipped `0b3bf65` — Before, Coming Home, Celebrations editors.
+> ✅ **Phase 3 (app multi-select)** built `6edae96` → **v1.0.14**: shared `pickAndUploadPhotos` util;
+>    Before now dynamic cards + multi-add; Coming Home multi-add; Celebration detail multi-select gallery.
+>    Building via EAS (Android `991b005d…`, iOS `f4dc2c00…`); submitting after builds finish.
+> ✅ Book viewer: gallery lightbox prev/next arrows + keyboard (`f4009bb`) — Birth Day & all galleries.
+> ⏳ STILL OPTIONAL: focal-point/reposition parity on web editors; web rotate control on the rest of the editors.
 
 ## ▶️ BUILD + SUBMIT RUNBOOK (Dan runs — Claude can't: needs EAS/Apple/Google creds + cloud build)
 1. **FIRST run migration 024** in the Supabase SQL editor (birthday_photos table) or the section stays empty everywhere.
