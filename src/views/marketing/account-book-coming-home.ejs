@@ -123,6 +123,7 @@
               </div>
               <div class="uploading-sm">Uploading…</div>
               <input type="file" accept="image/*" style="display:none" onchange="uploadCardPhoto(this)">
+            <button type="button" class="rp-btn-trigger" onclick="repositionCard(this)">⤢ Reposition</button>
             </div>
             <div class="card-fields">
               <div class="field-group">
@@ -198,6 +199,7 @@
             </div>
             <div class="uploading-sm">Uploading…</div>
             <input type="file" accept="image/*" style="display:none" onchange="uploadCardPhoto(this)">
+            <button type="button" class="rp-btn-trigger" onclick="repositionCard(this)">⤢ Reposition</button>
           </div>
           <div class="card-fields">
             <div class="field-group">
@@ -346,5 +348,7 @@
 
     renumber();
   </script>
+
+  <%- include('_reposition-widget') %>
 </body>
 </html>

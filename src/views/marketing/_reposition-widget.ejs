@@ -135,6 +135,16 @@
     }
   };
 
+  // Relative opener for card/gallery editors where photos have no unique ids:
+  // finds the photo's img + .photo-path within the button's own container.
+  window.repositionCard = function (btn) {
+    var box = btn.parentElement || document;
+    var img = box.querySelector('.photo-zone-sm img') || box.querySelector('img');
+    var pathEl = box.querySelector('.photo-path') || box.querySelector('input[name="photo_path"]');
+    if (!img || !pathEl || !pathEl.value) { alert('Add a photo first, then reposition it.'); return; }
+    openReposition({ url: img.src, path: pathEl.value, imgEl: img });
+  };
+
   // Close on backdrop click + Esc.
   document.addEventListener('click', function (e) { if (e.target === el('rp-overlay')) closeReposition(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeReposition(); });
