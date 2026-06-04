@@ -80,6 +80,12 @@ router.get('/preview/landing-v2-cro', (req, res) => {
   res.render('marketing/landing-v2-cro', { landingVariant: 'v2-cro' });
 });
 
+// Preview route for the "what is it" headline test (Option 6).
+// Hero leads with the product definition instead of the .com question.
+router.get('/preview/option6', (req, res) => {
+  res.render('marketing/landing-option6', { landingVariant: 'option6' });
+});
+
 // Side-by-side comparison: original landing-v2 (left) vs CRO revision (right),
 // each rendered in its own iframe at the real preview routes above.
 router.get('/preview/cro-compare', (req, res) => {
