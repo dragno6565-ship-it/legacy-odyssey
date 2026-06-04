@@ -734,7 +734,7 @@ router.get('/book/sections', requireAccountSession, async (req, res, next) => {
 router.post('/book/sections', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
-    const KEYS = ['before', 'birth', 'birthday', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
+    const KEYS = ['before', 'birth', 'birthday', 'moments', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
     // Each row posts a checkbox (sec_<key>, present only when on) and a hidden
     // auto_<key> carrying the content-based default. Store an override only
     // when the chosen state differs from that default, keeping the map minimal.
