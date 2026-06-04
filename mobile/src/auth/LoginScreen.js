@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.brandingContainer}>
           <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Legacy Odyssey</Text>
-          <Text style={styles.brandSubtitle}>Your family's story, beautifully told</Text>
+          <Text style={styles.brandSubtitle}>Your child's story, beautifully told</Text>
         </View>
 
         {/* Login Form */}

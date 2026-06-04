@@ -379,7 +379,7 @@ async function sendOnboardingEmail({ to, subject, preheader, heading, body, ctaT
           </td></tr></table>` : ''}
         </td></tr>
         <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
-          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your family's story, beautifully told</p>
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your child's story, beautifully told</p>
           <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
           ${unsubscribeFooter}
         </td></tr>
@@ -452,7 +452,7 @@ async function sendDay3Email({ to, displayName, familyId }) {
   const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
-    subject: `Your family's story is waiting to be told`,
+    subject: `Your child's story is waiting to be told`,
     preheader: 'Add milestones, letters, and memories to your Legacy Odyssey book.',
     heading: `${firstName}, there's so much to capture`,
     body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you preserve the moments that matter most. Pick one and start filling it in today.`,
@@ -640,7 +640,7 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
           </p>
         </td></tr>
         <tr><td style="padding:20px 32px;border-top:1px solid #f0ece6;text-align:center;">
-          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your family's story, beautifully told</p>
+          <p style="font-size:12px;color:#999;margin:0;">Legacy Odyssey &mdash; Your child's story, beautifully told</p>
           <p style="font-size:12px;color:#999;margin:4px 0 0;"><a href="mailto:help@legacyodyssey.com" style="color:#c8a96e;">help@legacyodyssey.com</a></p>
         </td></tr>
       </table>

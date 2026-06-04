@@ -213,7 +213,7 @@ export default function DashboardScreen({ navigation }) {
             {childName ? (
               <Text style={styles.headerSubtitle}>{childName}'s Book</Text>
             ) : (
-              <Text style={styles.headerSubtitle}>Your Family's Story</Text>
+              <Text style={styles.headerSubtitle}>Your Child's Story</Text>
             )}
           </View>
           <TouchableOpacity
