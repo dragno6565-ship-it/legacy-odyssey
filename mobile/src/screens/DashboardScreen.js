@@ -23,6 +23,7 @@ import {
   Heart,
   BookOpen,
   Camera,
+  Video,
   Compass,
   Home,
   Calendar,
@@ -38,13 +39,14 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react-native';
 
-const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'birthday', 'journey', 'manageSections', 'help', 'settings']);
+const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'birthday', 'moments', 'journey', 'manageSections', 'help', 'settings']);
 
 const SECTIONS = [
   { key: 'childInfo',      title: 'Welcome / Child Info', icon: Sparkles,        screen: 'ChildInfo' },
   { key: 'before',         title: 'Before You Arrived',   icon: Heart,           screen: 'BeforeArrived' },
   { key: 'birth',          title: 'Birth Story',          icon: BookOpen,        screen: 'BirthStory' },
   { key: 'birthday',       title: 'Your Birth Day',       icon: Camera,          screen: 'BirthDay' },
+  { key: 'moments',        title: 'Video Moments',        icon: Video,           screen: 'Moments' },
   { key: 'journey',        title: 'Your Journey to Us',   icon: Compass,         screen: 'Journey' },
   { key: 'comingHome',     title: 'Coming Home',          icon: Home,            screen: 'ComingHome' },
   { key: 'months',         title: 'Month by Month',       icon: Calendar,        screen: 'Months' },

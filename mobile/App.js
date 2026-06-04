@@ -35,6 +35,8 @@ import ChildInfoScreen from './src/screens/ChildInfoScreen';
 import BeforeScreen from './src/screens/BeforeScreen';
 import BirthStoryScreen from './src/screens/BirthStoryScreen';
 import BirthDayScreen from './src/screens/BirthDayScreen';
+import MomentsScreen from './src/screens/MomentsScreen';
+import { UploadProvider } from './src/upload/UploadContext';
 import JourneyScreen from './src/screens/JourneyScreen';
 import ComingHomeScreen from './src/screens/ComingHomeScreen';
 import MonthsScreen from './src/screens/MonthsScreen';
@@ -106,6 +108,7 @@ function AppNavigator() {
       <AppStack.Screen name="BeforeArrived" component={BeforeScreen} options={{ title: 'Before You Arrived' }} />
       <AppStack.Screen name="BirthStory" component={BirthStoryScreen} options={{ title: 'Birth Story' }} />
       <AppStack.Screen name="BirthDay" component={BirthDayScreen} options={{ title: 'Your Birth Day' }} />
+      <AppStack.Screen name="Moments" component={MomentsScreen} options={{ title: 'Video Moments' }} />
       <AppStack.Screen name="Journey" component={JourneyScreen} options={{ title: 'Your Journey to Us' }} />
       <AppStack.Screen name="ComingHome" component={ComingHomeScreen} options={{ title: 'Coming Home' }} />
       <AppStack.Screen name="Months" component={MonthsScreen} options={{ title: 'Month by Month' }} />
@@ -164,6 +167,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <UploadProvider>
       <NavigationContainer
         theme={{
           dark: false,
@@ -186,6 +190,7 @@ export default function App() {
         <StatusBar style="light" />
         <RootNavigator />
       </NavigationContainer>
+      </UploadProvider>
     </AuthProvider>
   );
 }
