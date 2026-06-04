@@ -295,7 +295,7 @@
     <%- include('../book/sidebar', { book, family, visibleSections, isFree, isDemoDomain, celebrationsByYear, activeCelebration: celebration, recipes: typeof recipesList !== 'undefined' ? recipesList : [], activeRecipe: null, keepsakes: typeof keepsakesList !== 'undefined' ? keepsakesList : [], activeKeepsake: null }) %>
 
     <div id="main-content">
-      <%- include('../book/celebration-detail', { celebration, yearLabel, prevCelebration, nextCelebration, imageUrl, photoPos }) %>
+      <%- include('../book/celebration-detail', { celebration, yearLabel, prevCelebration, nextCelebration, imageUrl, photoPos, celebrationVideos }) %>
     </div>
   </div>
 

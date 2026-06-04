@@ -1,0 +1,107 @@
+<!--
+  Reusable video uploader + list (Celebrations + Family). Include once per page.
+  Params (locals): videos[], context ('celebration'|'family_member'), contextId,
+                   maxClipSec, single (bool — cap at 1 video).
+  Uses the same /account/book/videos* endpoints + direct-to-Cloudflare upload.
+-->
+<div class="vb-block">
+  <h2 class="vb-title">Videos</h2>
+  <p class="vb-desc">Short clips, up to <%= Math.round(maxClipSec/60*10)/10 %> minutes each.<% if (single) { %> One video here.<% } %></p>
+
+  <div id="vbList">
+    <% (videos || []).forEach(function (v) { %>
+      <div class="vb-card" data-id="<%= v.id %>">
+        <div class="vb-frame">
+          <% if (v.status === 'ready') { %>
+            <iframe src="https://iframe.cloudflarestream.com/<%= v.stream_uid %>" loading="lazy" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe>
+          <% } else { %>
+            <div class="vb-proc">Processing… refresh in a moment.</div>
+          <% } %>
+        </div>
+        <div class="vb-row">
+          <input type="text" value="<%= v.caption || '' %>" placeholder="Caption (optional)" onblur="vbCaption('<%= v.id %>', this.value)">
+          <button type="button" class="vb-del" onclick="vbDelete('<%= v.id %>')">Delete</button>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+
+  <% var atLimit = single && (videos || []).length >= 1; %>
+  <div class="vb-add <%= atLimit ? 'disabled' : '' %>" id="vbAdd" onclick="<%= atLimit ? '' : "document.getElementById('vbInput').click()" %>">
+    <%= atLimit ? 'One video here — delete it to replace.' : '+ Add a video' %>
+  </div>
+  <input type="file" id="vbInput" accept="video/*" style="display:none" onchange="vbHandle(this)">
+  <div class="vb-progress" id="vbProgress"></div>
+</div>
+
+<style>
+  .vb-block { background:#fff; border:1px solid #f0ebe3; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); padding:1.25rem; margin-top:1.25rem; }
+  .vb-title { font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:600; margin:0 0 0.2rem; }
+  .vb-desc { font-size:0.82rem; color:#8a7e6b; margin:0 0 1rem; }
+  .vb-card { border:1px solid #f0ebe3; border-radius:10px; overflow:hidden; margin-bottom:0.85rem; }
+  .vb-frame { position:relative; width:100%; aspect-ratio:16/9; background:#1a1510; }
+  .vb-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .vb-proc { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#d4bb8a; font-size:0.85rem; }
+  .vb-row { display:flex; gap:0.5rem; align-items:center; padding:0.6rem; }
+  .vb-row input { flex:1; padding:0.5rem 0.7rem; border:1.5px solid #e0d5c4; border-radius:7px; font-family:'Jost',sans-serif; font-size:0.88rem; color:#2c2416; }
+  .vb-del { padding:0.45rem 0.8rem; border:1.5px solid #e0b4b4; color:#c0392b; background:#fff; border-radius:7px; font-family:'Jost',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; }
+  .vb-add { border:2px dashed #c8a96e; border-radius:10px; padding:1.1rem; text-align:center; cursor:pointer; color:#c8a96e; font-weight:600; font-size:0.9rem; }
+  .vb-add:hover { background:#fdf9f3; }
+  .vb-add.disabled { opacity:0.55; cursor:not-allowed; border-color:#ccc; color:#999; }
+  .vb-progress { display:none; text-align:center; font-size:0.88rem; color:#c8a96e; margin-top:0.7rem; }
+</style>
+
+<script>
+  (function () {
+    var CTX = '<%= context %>';
+    var CTXID = '<%= contextId || '' %>';
+    var MAXSEC = <%= maxClipSec %>;
+
+    function durationOf(file) {
+      return new Promise(function (resolve) {
+        var v = document.createElement('video'); v.preload = 'metadata';
+        v.onloadedmetadata = function () { URL.revokeObjectURL(v.src); resolve(v.duration || 0); };
+        v.onerror = function () { resolve(0); };
+        v.src = URL.createObjectURL(file);
+      });
+    }
+
+    window.vbHandle = async function (input) {
+      var file = input.files && input.files[0]; input.value = '';
+      if (!file) return;
+      var prog = document.getElementById('vbProgress');
+      var dur = await durationOf(file);
+      if (dur && dur > MAXSEC + 1) { alert('That clip is ' + Math.round(dur) + ' seconds. Please choose one up to ' + MAXSEC + ' seconds.'); return; }
+      prog.style.display = 'block'; prog.textContent = 'Preparing upload…';
+      try {
+        var body = { context: CTX };
+        if (CTX === 'celebration') body.celebrationId = CTXID;
+        if (CTX === 'family_member') body.familyMemberId = CTXID;
+        var mint = await fetch('/account/book/videos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(function (r) { return r.json(); });
+        if (mint.error) { alert(mint.error); prog.style.display = 'none'; return; }
+        prog.textContent = 'Uploading your video…';
+        var fd = new FormData(); fd.append('file', file);
+        var up = await fetch(mint.uploadURL, { method: 'POST', body: fd });
+        if (!up.ok) throw new Error('upload');
+        prog.textContent = 'Processing… this can take a moment.';
+        var ready = false;
+        for (var i = 0; i < 20 && !ready; i++) {
+          await new Promise(function (r) { setTimeout(r, 3000); });
+          var v = await fetch('/account/book/videos/' + mint.videoId + '/finalize', { method: 'POST' }).then(function (r) { return r.json(); });
+          if (v && v.status === 'ready') ready = true;
+          if (v && v.status === 'error') throw new Error('processing');
+        }
+        location.reload();
+      } catch (e) { alert('Sorry, that upload didn\'t work. Please try again.'); prog.style.display = 'none'; }
+    };
+
+    window.vbCaption = async function (id, caption) {
+      try { await fetch('/account/book/videos/' + id + '/caption', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caption: caption }) }); } catch (e) {}
+    };
+
+    window.vbDelete = async function (id) {
+      if (!confirm('Delete this video? This cannot be undone.')) return;
+      try { await fetch('/account/book/videos/' + id + '/delete', { method: 'POST' }); location.reload(); } catch (e) { alert('Could not delete. Please try again.'); }
+    };
+  })();
+</script>

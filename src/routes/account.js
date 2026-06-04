@@ -1202,12 +1202,20 @@ router.get('/book/celebrations/edit/:id', requireAccountSession, async (req, res
     // Available years for the year-picker dropdown
     const years = book.celebration_years || [defaultCelebrationYear(book)];
 
+    // Videos attached to this celebration.
+    const celebVideos = await videoService.listByContext(book.id, { context: 'celebration', celebrationId: c.id });
+
     res.render('marketing/account-book-celebration-detail', {
       family: req.family,
       book: book || {},
       celebration: c,
       photos: photosWithUrls,
       years,
+      videos: celebVideos,
+      videoContext: 'celebration',
+      videoContextId: c.id,
+      videoSingle: false,
+      maxClipSec: 120,
       success: req.query.success || null,
       error: req.query.error || null,
     });

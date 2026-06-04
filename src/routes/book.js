@@ -945,6 +945,7 @@ router.get('/celebrations/:yearSlug/:celebrationSlug', resolveFamily, requireBoo
       isDemoDomain: isDemoBookDomain(req.hostname),
       imageUrl: getPublicUrl,
       photoPos: makePhotoPos(data.book && data.book.photo_positions),
+      celebrationVideos: (data.videos || []).filter((v) => v.context === 'celebration' && v.celebration_id === celebration.id),
     });
   } catch (err) {
     next(err);
