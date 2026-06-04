@@ -36,6 +36,8 @@ import BeforeScreen from './src/screens/BeforeScreen';
 import BirthStoryScreen from './src/screens/BirthStoryScreen';
 import BirthDayScreen from './src/screens/BirthDayScreen';
 import MomentsScreen from './src/screens/MomentsScreen';
+import GalleriesScreen from './src/screens/GalleriesScreen';
+import GalleryDetailScreen from './src/screens/GalleryDetailScreen';
 import { UploadProvider } from './src/upload/UploadContext';
 import JourneyScreen from './src/screens/JourneyScreen';
 import ComingHomeScreen from './src/screens/ComingHomeScreen';
@@ -109,6 +111,8 @@ function AppNavigator() {
       <AppStack.Screen name="BirthStory" component={BirthStoryScreen} options={{ title: 'Birth Story' }} />
       <AppStack.Screen name="BirthDay" component={BirthDayScreen} options={{ title: 'Your Birth Day' }} />
       <AppStack.Screen name="Moments" component={MomentsScreen} options={{ title: 'Video Moments' }} />
+      <AppStack.Screen name="Galleries" component={GalleriesScreen} options={{ title: 'Custom Galleries' }} />
+      <AppStack.Screen name="GalleryDetail" component={GalleryDetailScreen} options={{ title: 'Gallery' }} />
       <AppStack.Screen name="Journey" component={JourneyScreen} options={{ title: 'Your Journey to Us' }} />
       <AppStack.Screen name="ComingHome" component={ComingHomeScreen} options={{ title: 'Coming Home' }} />
       <AppStack.Screen name="Months" component={MonthsScreen} options={{ title: 'Month by Month' }} />

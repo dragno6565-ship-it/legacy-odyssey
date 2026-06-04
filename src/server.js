@@ -122,6 +122,7 @@ app.use('/api/families', require('./routes/api/families'));
 app.use('/api/contact', require('./routes/api/contact'));
 app.use('/api/waitlist', require('./routes/api/waitlist'));
 app.use('/api/videos', require('./routes/api/videos'));
+app.use('/api/galleries', require('./routes/api/galleries'));
 
 // Web routes (SSR — book viewing)
 app.use('/', require('./routes/book'));
