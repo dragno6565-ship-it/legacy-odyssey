@@ -355,7 +355,11 @@
           { img: fm.album_1_path ? imageUrl(fm.album_1_path) : null, caption: fm.album_1_caption },
           { img: fm.album_2_path ? imageUrl(fm.album_2_path) : null, caption: fm.album_2_caption },
           { img: fm.album_3_path ? imageUrl(fm.album_3_path) : null, caption: fm.album_3_caption },
-        ].filter(p => p.img || p.caption)
+        ].filter(p => p.img || p.caption),
+        videoUid: (function () {
+          var vid = (typeof videos !== 'undefined' ? videos : []).find(function (v) { return v.context === 'family_member' && v.family_member_id === fm.id && v.status === 'ready'; });
+          return vid ? vid.stream_uid : null;
+        })()
       }]))
     ) %>;
     <% } else { %>
@@ -415,7 +419,7 @@
       .book-lightbox-caption { font-size: 1.1rem; bottom: 16px; }
     }
   </style>
-  <script src="/js/book.js?v=20260527"></script>
+  <script src="/js/book.js?v=20260603"></script>
   <script>
     // Self-contained photo lightbox — defined inline (server-rendered, never
     // cached) and INDEPENDENT of book.js, so a JS error or a stale cached

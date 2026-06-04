@@ -175,6 +175,14 @@ document.addEventListener('DOMContentLoaded', () => {
       '</div>'
     ).join('');
 
+    // Video (one per member, if present + ready)
+    const videoEl = document.getElementById('fdetail-video');
+    if (videoEl) {
+      videoEl.innerHTML = m.videoUid
+        ? '<div class="fdetail-video-frame"><iframe src="https://iframe.cloudflarestream.com/' + m.videoUid + '" loading="lazy" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>'
+        : '';
+    }
+
     // Show panel
     const panel = document.getElementById('family-detail');
     panel.classList.add('open');

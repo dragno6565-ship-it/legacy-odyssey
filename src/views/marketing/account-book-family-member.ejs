@@ -291,6 +291,12 @@
       </div>
 
     </form>
+
+    <% if (videoContextId) { %>
+      <%- include('_video-block', { videos, context: videoContext, contextId: videoContextId, single: videoSingle, maxClipSec }) %>
+    <% } else { %>
+      <div style="background:#fff;border:1px dashed #e0d5c4;border-radius:12px;padding:1rem;margin-top:1.25rem;font-size:0.85rem;color:#8a7e6b;text-align:center;">Save this family member first, then you can add a video.</div>
+    <% } %>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>

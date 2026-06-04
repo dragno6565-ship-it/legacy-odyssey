@@ -909,6 +909,10 @@ router.get('/book/family/:key', requireAccountSession, async (req, res, next) =>
     const book = await bookService.getBookByFamilyId(req.family.id);
     const { data: member } = await supabaseAdmin
       .from('family_members').select('*').eq('book_id', book.id).eq('member_key', req.params.key).maybeSingle();
+    // One video per family member (only if the member row exists yet).
+    const memberVideos = (member && member.id)
+      ? await videoService.listByContext(book.id, { context: 'family_member', familyMemberId: member.id })
+      : [];
     res.render('marketing/account-book-family-member', {
       family: req.family, book: book || {},
       member: member || { member_key: req.params.key },
@@ -916,6 +920,11 @@ router.get('/book/family/:key', requireAccountSession, async (req, res, next) =>
       album1Url: member?.album_1_path ? getPublicUrl(member.album_1_path) : null,
       album2Url: member?.album_2_path ? getPublicUrl(member.album_2_path) : null,
       album3Url: member?.album_3_path ? getPublicUrl(member.album_3_path) : null,
+      videos: memberVideos,
+      videoContext: 'family_member',
+      videoContextId: (member && member.id) || null,
+      videoSingle: true,
+      maxClipSec: 120,
       success: req.query.success || null, error: req.query.error || null,
     });
   } catch (err) { next(err); }
