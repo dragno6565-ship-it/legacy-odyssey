@@ -244,6 +244,9 @@
       <% if (visibleSections.moments) { %>
         <%- include('../book/video-moments', { momentsVideos }) %>
       <% } %>
+      <% if (visibleSections.galleries) { %>
+        <%- include('../book/galleries', { customGalleries, imageUrl, photoPos }) %>
+      <% } %>
       <% if (visibleSections.journey) { %>
         <%- include('../book/journey', { journeyStory, imageUrl, photoPos }) %>
       <% } %>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= gallery.title || 'Gallery' %> – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Jost',sans-serif; background:#faf7f2; color:#2c2416; min-height:100vh; padding:2rem 1rem 5rem; }
+    .wrap { max-width:760px; margin:0 auto; }
+    .breadcrumb { font-size:0.82rem; color:#8a7e6b; margin-bottom:1.5rem; }
+    .breadcrumb a { color:#c8a96e; text-decoration:none; }
+    .title-row { display:flex; gap:0.6rem; align-items:center; margin-bottom:0.3rem; }
+    .title-row input { flex:1; font-family:'Cormorant Garamond',serif; font-size:1.85rem; font-weight:600; border:none; border-bottom:2px solid transparent; background:transparent; color:#2c2416; padding:0.1rem 0; }
+    .title-row input:focus { outline:none; border-bottom-color:#c8a96e; }
+    .count { font-size:0.85rem; color:#8a7e6b; margin-bottom:1.5rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; }
+    .pcard { background:#fff; border:1px solid #e0d5c4; border-radius:10px; overflow:hidden; }
+    .pcard-img { aspect-ratio:1; background:#ece4d6; }
+    .pcard-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    .pcard input { width:100%; border:none; border-top:1px solid #f0ebe3; padding:0.45rem 0.55rem; font-family:'Jost',sans-serif; font-size:0.82rem; color:#2c2416; }
+    .pcard input:focus { outline:none; background:#fdf9f3; }
+    .pcard-del { width:100%; background:#fff; border:none; border-top:1px solid #f0ebe3; color:#c0392b; font-size:0.78rem; font-weight:600; padding:0.4rem; cursor:pointer; font-family:'Jost',sans-serif; }
+    .pcard-del:hover { background:#fdf2f2; }
+    .add { border:2px dashed #c8a96e; border-radius:10px; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; color:#c8a96e; font-weight:600; text-align:center; padding:0.5rem; }
+    .add:hover { background:#fdf9f3; }
+    .add.disabled { opacity:0.5; cursor:not-allowed; border-color:#ccc; color:#999; }
+    .progress { display:none; text-align:center; color:#c8a96e; font-size:0.9rem; margin-top:1rem; }
+    .actions { margin-top:2rem; display:flex; justify-content:space-between; align-items:center; }
+    .btn-back { color:#8a7e6b; text-decoration:none; font-size:0.9rem; }
+    .btn-delete { background:none; border:1px solid #e0b4b4; color:#c0392b; padding:0.6rem 1.1rem; border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:'Jost',sans-serif; }
+    .btn-delete:hover { background:#fdf2f2; }
+    .flash { background:#f0faf0; border:1px solid #a8d5a8; color:#2e7d32; padding:0.7rem 1rem; border-radius:8px; font-size:0.88rem; margin-bottom:1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb"><a href="/account/book">My Book</a> &nbsp;/&nbsp; <a href="/account/book/galleries">Custom Galleries</a> &nbsp;/&nbsp; <%= gallery.title || 'Gallery' %></div>
+
+    <% if (success) { %><div class="flash">✓ Saved.</div><% } %>
+
+    <form class="title-row" method="POST" action="/account/book/galleries/<%= gallery.id %>/rename">
+      <input type="text" name="title" value="<%= gallery.title || '' %>" placeholder="Gallery name" maxlength="80" onblur="this.form.submit()">
+    </form>
+    <div class="count"><span id="photoCount"><%= photos.length %></span> of <%= maxPhotos %> photos</div>
+
+    <div class="grid" id="grid">
+      <% photos.forEach(function (p) { %>
+        <div class="pcard" data-id="<%= p.id %>">
+          <div class="pcard-img"><img src="<%= p.url %>" alt=""></div>
+          <input type="text" value="<%= p.caption || '' %>" placeholder="Label / caption" onblur="saveCaption('<%= p.id %>', this.value)">
+          <button type="button" class="pcard-del" onclick="deletePhoto('<%= p.id %>')">Remove</button>
+        </div>
+      <% }); %>
+      <div class="add <%= photos.length >= maxPhotos ? 'disabled' : '' %>" id="addTile" onclick="<%= photos.length >= maxPhotos ? '' : "document.getElementById('galInput').click()" %>">
+        <div style="font-size:1.6rem;">＋</div>
+        <div><%= photos.length >= maxPhotos ? 'Full (21)' : 'Add photos' %></div>
+      </div>
+    </div>
+    <input type="file" id="galInput" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
+    <div class="progress" id="progress"></div>
+
+    <div class="actions">
+      <a href="/account/book/galleries" class="btn-back">← All galleries</a>
+      <button type="button" class="btn-delete" onclick="if(confirm('Delete this whole gallery and its photos? This cannot be undone.')){document.getElementById('delForm').submit();}">Delete gallery</button>
+    </div>
+    <form id="delForm" method="POST" action="/account/book/galleries/<%= gallery.id %>/delete" style="display:none;"></form>
+  </div>
+
+  <script>
+    var MAX = <%= maxPhotos %>;
+    var COUNT = <%= photos.length %>;
+
+    async function addPhotos(input) {
+      var files = Array.from(input.files || []); input.value = '';
+      if (!files.length) return;
+      var room = MAX - COUNT;
+      if (room <= 0) { alert('This gallery is full (21 photos).'); return; }
+      if (files.length > room) { alert('Only ' + room + ' more photo' + (room === 1 ? '' : 's') + ' will fit — adding the first ' + room + '.'); files = files.slice(0, room); }
+      var prog = document.getElementById('progress'); prog.style.display = 'block';
+      var paths = [];
+      try {
+        for (var i = 0; i < files.length; i++) {
+          prog.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '…';
+          var fd = new FormData(); fd.append('file', files[i]); fd.append('section', 'galleries');
+          var res = await fetch('/account/upload', { method: 'POST', body: fd });
+          if (!res.ok) throw new Error('upload');
+          var data = await res.json();
+          paths.push(data.path);
+        }
+        await fetch('/account/book/galleries/<%= gallery.id %>/photos', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paths: paths })
+        });
+        location.reload();
+      } catch (e) { alert('Upload failed. Please try again.'); prog.style.display = 'none'; }
+    }
+
+    async function saveCaption(id, caption) {
+      try { await fetch('/account/book/galleries/photo/' + id + '/caption', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caption: caption }) }); } catch (e) {}
+    }
+    async function deletePhoto(id) {
+      if (!confirm('Remove this photo?')) return;
+      try { await fetch('/account/book/galleries/photo/' + id + '/delete', { method: 'POST' }); location.reload(); } catch (e) { alert('Could not remove. Please try again.'); }
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 const { supabaseAdmin } = require('../config/supabase');
 const seedData = require('../utils/seedData');
+const galleryService = require('./galleryService');
 
 // --- Helpers ---
 
@@ -279,6 +280,9 @@ function computeVisibleSections(data) {
   // Video Moments: visible once there's a ready video clip.
   const moments = (data.momentsVideos || []).length > 0;
 
+  // Custom galleries: visible once any gallery has a photo.
+  const galleries = (data.customGalleries || []).some((g) => g.photos && g.photos.length > 0);
+
   // Use manual overrides from visible_sections column if it exists on the book
   const overrides = data.book?.visible_sections || {};
 
@@ -287,6 +291,7 @@ function computeVisibleSections(data) {
     birth: overrides.birth !== undefined ? overrides.birth : birth,
     birthday: overrides.birthday !== undefined ? overrides.birthday : birthday,
     moments: overrides.moments !== undefined ? overrides.moments : moments,
+    galleries: overrides.galleries !== undefined ? overrides.galleries : galleries,
     journey: overrides.journey !== undefined ? overrides.journey : journey,
     home: overrides.home !== undefined ? overrides.home : home,
     months: overrides.months !== undefined ? overrides.months : months,
@@ -473,7 +478,11 @@ async function getFullBook(familyId) {
     birthdayPhotos: birthdayPhotos || [],
     videos: allVideos || [],
     momentsVideos: (allVideos || []).filter((v) => v.context === 'moments'),
+    customGalleries: [],
   };
+
+  // Custom galleries (migration 028) — defensive: missing table → none.
+  try { result.customGalleries = await galleryService.listGalleries(book.id); } catch (_) { result.customGalleries = []; }
 
   result.visibleSections = computeVisibleSections(result);
   return result;

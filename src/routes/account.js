@@ -5,6 +5,7 @@ const { supabaseAnon, supabaseAdmin } = require('../config/supabase');
 const familyService = require('../services/familyService');
 const bookService = require('../services/bookService');
 const videoService = require('../services/videoService');
+const galleryService = require('../services/galleryService');
 const photoService = require('../services/photoService');
 const stripeService = require('../services/stripeService');
 const { getPublicUrl } = require('../utils/imageUrl');
@@ -509,6 +510,85 @@ router.get('/book/video-moments', requireAccountSession, async (req, res, next) 
   } catch (err) { next(err); }
 });
 
+// ─── Custom galleries ────────────────────────────────────────────────────────
+// Hub: list all of this book's custom galleries.
+router.get('/book/galleries', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    const galleries = bid ? await galleryService.listGalleries(bid) : [];
+    const withUrls = galleries.map((g) => ({
+      ...g,
+      coverUrl: g.photos[0] ? getPublicUrl(g.photos[0].photo_path) : null,
+      photoCount: g.photos.length,
+    }));
+    res.render('marketing/account-book-galleries', { galleries: withUrls, success: req.query.success || null, error: req.query.error || null });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/galleries', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    if (!bid) return res.redirect('/account/book');
+    const g = await galleryService.createGallery(bid, req.body.title);
+    res.redirect('/account/book/galleries/' + g.id);
+  } catch (err) { next(err); }
+});
+
+router.get('/book/galleries/:id', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    const g = await galleryService.getGallery(bid, req.params.id);
+    if (!g) return res.redirect('/account/book/galleries');
+    const photos = g.photos.map((p) => ({ ...p, url: getPublicUrl(p.photo_path) }));
+    res.render('marketing/account-book-gallery-detail', {
+      gallery: g, photos, maxPhotos: galleryService.MAX_PHOTOS,
+      success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/galleries/:id/rename', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await galleryService.renameGallery(bid, req.params.id, req.body.title);
+    res.redirect('/account/book/galleries/' + req.params.id + '?success=1');
+  } catch (err) { next(err); }
+});
+
+router.post('/book/galleries/:id/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await galleryService.deleteGallery(bid, req.params.id);
+    res.redirect('/account/book/galleries');
+  } catch (err) { next(err); }
+});
+
+// Attach already-uploaded photo paths (client uploaded each via /account/upload). Caps at 21.
+router.post('/book/galleries/:id/photos', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    const paths = Array.isArray(req.body.paths) ? req.body.paths : [];
+    const added = await galleryService.addPhotos(bid, req.params.id, paths);
+    res.json({ added: added.length });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/galleries/photo/:pid/caption', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await galleryService.setCaption(bid, req.params.pid, req.body.caption);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+router.post('/book/galleries/photo/:pid/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await galleryService.deletePhoto(bid, req.params.pid);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 // ─── Book section overview ────────────────────────────────────────────────────
 
 router.get('/book', requireAccountSession, async (req, res, next) => {
@@ -734,7 +814,7 @@ router.get('/book/sections', requireAccountSession, async (req, res, next) => {
 router.post('/book/sections', requireAccountSession, async (req, res, next) => {
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
-    const KEYS = ['before', 'birth', 'birthday', 'moments', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
+    const KEYS = ['before', 'birth', 'birthday', 'moments', 'galleries', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'letters', 'recipes', 'keepsakes', 'vault'];
     // Each row posts a checkbox (sec_<key>, present only when on) and a hidden
     // auto_<key> carrying the content-based default. Store an override only
     // when the chosen state differs from that default, keeping the map minimal.
