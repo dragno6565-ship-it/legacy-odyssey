@@ -14,12 +14,14 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import VideoBlock from '../components/VideoBlock';
 import { useSavedToast } from '../components/SavedToast';
 
 export default function FamilyMemberScreen({ route, navigation }) {
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const { memberKey } = route.params;
+  const [memberId, setMemberId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -51,6 +53,7 @@ export default function FamilyMemberScreen({ route, navigation }) {
         const members = Array.isArray(res.data) ? res.data : [];
         const member = members.find((m) => m.member_key === memberKey);
         if (member) {
+          setMemberId(member.id || null);
           setName(member.name || '');
           setRelation(member.relation || '');
           setEmoji(member.emoji || '');
@@ -228,6 +231,10 @@ export default function FamilyMemberScreen({ route, navigation }) {
             </View>
           ))}
         </View>
+
+        {memberId ? (
+          <VideoBlock context="family_member" familyMemberId={memberId} single />
+        ) : null}
 
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}

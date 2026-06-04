@@ -19,6 +19,8 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, put, post, del, BASE_URL } from '../api/client';
 import { pickAndUploadPhotos } from '../utils/multiPhoto';
 import { useSavedToast } from '../components/SavedToast';
+import VideoBlock from '../components/VideoBlock';
+import RepositionModal from '../components/RepositionModal';
 
 /**
  * Per-celebration editor — fields, multi-photo gallery, delete.
@@ -45,6 +47,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
   const [photos, setPhotos] = useState([]); // [{ id, photo_path, caption }]
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoProgress, setPhotoProgress] = useState('');
+  const [repo, setRepo] = useState(null);
 
   useEffect(() => {
     navigation.setOptions({ title: route.params?.title || 'Celebration' });
@@ -353,6 +356,13 @@ export default function CelebrationDetailScreen({ navigation, route }) {
                     <Text style={styles.smallButtonText}>Save caption</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
+                    style={styles.smallButton}
+                    onPress={() => setRepo({ uri, path: p.photo_path })}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.smallButtonText}>Reposition</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
                     style={[styles.smallButton, styles.smallButtonDanger]}
                     onPress={() => confirmRemovePhoto(p)}
                     activeOpacity={0.8}
@@ -380,6 +390,8 @@ export default function CelebrationDetailScreen({ navigation, route }) {
             )}
           </TouchableOpacity>
         </View>
+
+        <VideoBlock context="celebration" celebrationId={celebrationId} />
 
         {/* Save */}
         <TouchableOpacity
@@ -409,6 +421,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      <RepositionModal visible={!!repo} photoUri={repo && repo.uri} photoPath={repo && repo.path} onClose={() => setRepo(null)} />
       {ToastComponent}
     </KeyboardAvoidingView>
   );

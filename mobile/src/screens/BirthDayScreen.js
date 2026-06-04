@@ -17,6 +17,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, post, put, del, BASE_URL } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
+import RepositionModal from '../components/RepositionModal';
 
 // "Your Birth Day" — a captioned photo gallery (parity with the web editor).
 // Multi-select up to 20 at once; caption / remove each. Backed by
@@ -28,6 +29,7 @@ export default function BirthDayScreen({ navigation }) {
   const [uploading, setUploading] = useState(false);
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState('');
+  const [repoUri, setRepoUri] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -161,6 +163,9 @@ export default function BirthDayScreen({ navigation }) {
               <TouchableOpacity onPress={() => saveCaption(photo)}>
                 <Text style={styles.saveLink}>Save caption</Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={() => setRepoUri({ uri: photoUri(photo.photo_path), path: photo.photo_path })}>
+                <Text style={styles.saveLink}>Reposition</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => confirmRemove(photo)}>
                 <Text style={styles.removeLink}>Remove</Text>
               </TouchableOpacity>
@@ -188,6 +193,7 @@ export default function BirthDayScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </ScrollView>
+      <RepositionModal visible={!!repoUri} photoUri={repoUri && repoUri.uri} photoPath={repoUri && repoUri.path} onClose={() => setRepoUri(null)} />
       {ToastComponent}
     </KeyboardAvoidingView>
   );
