@@ -25,11 +25,12 @@
 - Verified end-to-end: `GET /api/videos/health` → `{configured:true, reachable:true, error:null}`.
 - Migrations 026 (videos) + 027 (book_content_stats view) RUN in prod. Foundation complete.
 
-## ▶️ NEXT — build the functional feature (testable now)
-- P1: mint direct-upload endpoint (web + app) w/ caps (2-min clip, 1000-min site, family one-per-member) + Stream webhook → flip status/duration/poster.
-- P2: viewer player (Video Moments section + Celebration + Family contexts) in book.ejs.
-- P3: web editors — Video Moments page, Celebration videos, Family member video.
-- P4: app screens (combined EAS build with the gallery-reposition parity).
+## ✅ FEATURE BUILT (2026-06-03) — web complete + live, app in EAS build 1.0.15
+- ✅ P1 mint/finalize/list/caption/delete endpoints (web `/account/book/videos*` + app `/api/videos/mine*`), caps enforced (`videoService`). Finalize via polling (no webhook needed).
+- ✅ P2 viewer players: Video Moments section (`book/video-moments`), Celebrations (`book/celebration-detail`), Family member detail (`book.js` client render). All LIVE.
+- ✅ P3 web editors: Video Moments page; reusable `_video-block.ejs` for Celebrations (multi) + Family (single). Hub card + section toggle (`moments` key, web+app).
+- ✅ P4 app: `MomentsScreen` + `UploadProvider` background upload (XHR progress banner) + WebView player. Nav/Dashboard/ManageSections wired. v1.0.15 building on EAS (Android c9431a27, iOS e2831830).
+- ⏳ DEFERRED to a follow-up app build (not blocking): app gallery-photo **reposition** parity (BirthDay/Celebration/Recipe/Keepsake gallery screens) + app **Celebration/Family video** screens (web has all 3 contexts; app currently has Video Moments).
   - **Background upload (Dan, 2026-06-03):** user starts the upload and can leave the screen / use the app
     while it uploads. Global persistent "Uploading video… NN%" banner (live progress via
     expo-file-system `uploadAsync` progress callback; iOS background URLSession so it survives backgrounding).
