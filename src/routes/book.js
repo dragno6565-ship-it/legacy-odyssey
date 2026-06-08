@@ -302,6 +302,17 @@ router.get('/set-password', (req, res) => {
   });
 });
 
+// Back-compat alias: older mobile password-reset emails set the Supabase redirect to
+// /reset-callback, which had no route — customers saw "Cannot GET /reset-callback".
+// Serve the same set-password page so every already-sent recovery link still works.
+// (New reset emails now target /set-password directly — see routes/api/auth.js.)
+router.get('/reset-callback', (req, res) => {
+  res.render('marketing/set-password', {
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+  });
+});
+
 // Domains that show the book as a demo (password bypassed, CTA shown)
 const DEMO_BOOK_DOMAINS = ['your-childs-name.com', 'your-family-photo-album.com'];
 

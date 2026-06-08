@@ -160,7 +160,7 @@ router.post('/reset-password', async (req, res, next) => {
 
     const { supabaseAnon } = require('../../config/supabase');
     const { error } = await supabaseAnon.auth.resetPasswordForEmail(email, {
-      redirectTo: `https://${process.env.APP_DOMAIN || 'legacyodyssey.com'}/reset-callback`,
+      redirectTo: `https://${process.env.APP_DOMAIN || 'legacyodyssey.com'}/set-password`,
     });
 
     if (error) {
