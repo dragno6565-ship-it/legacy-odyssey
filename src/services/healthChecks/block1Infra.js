@@ -18,16 +18,20 @@ module.exports = {
     },
     {
       id: 'zombie-railway',
-      name: 'Zombie Railway service offline',
+      name: 'Legacy zombie service (informational — non-blocking)',
       fn: async () => {
+        // The old legacy-odyssey-production-a9d1 service is BENIGN: nothing in the
+        // traffic path uses it (mobile BASE_URL → legacyodyssey.com since v1.0.5; we're
+        // on 1.0.17). It lives in a separate Railway account Dan is decommissioning, and
+        // teardown is async. Per Dan (2026-06-08) this must NOT warn anymore — report it
+        // as PASS either way so it stops nagging the health dashboard.
         try {
           const r = await axios.get('https://legacy-odyssey-production-a9d1.up.railway.app/health',
             { timeout: 5000, validateStatus: () => true });
-          if (r.status === 200) return warn(`Zombie still alive at v${r.data?.version || '?'} (delete via Railway dashboard once mobile v1.0.5+ has propagated)`);
-          return pass(`Returns ${r.status}`);
+          if (r.status === 200) return pass(`Old instance still up at v${r.data?.version || '?'} — harmless (not in traffic path; being decommissioned)`);
+          return pass(`Returns ${r.status} — effectively gone`);
         } catch (err) {
-          // Connection refused / DNS not found = service is gone, which is what we want
-          return pass('Unreachable (good — service deleted)');
+          return pass('Unreachable — gone (good)');
         }
       },
     },
