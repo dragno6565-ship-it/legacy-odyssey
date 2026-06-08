@@ -490,7 +490,28 @@ async function getFullBook(familyId) {
 
 // --- Write operations ---
 
+// Parents naturally type a decimal in the pounds field ("5.5" = 5½ lbs), but
+// birth_weight_lbs/oz are INTEGER columns, so Postgres 500s ("invalid input
+// syntax for type integer: 5.5", Sentry 09e38426, 2026-06-08). Convert decimal
+// pounds into whole lbs + ounces (5.5 lbs → 5 lbs 8 oz) and round decimal ounces.
+// Shared by the app (PUT /api/books/mine) and the web editor (POST
+// /account/book/child-info) so both behave identically. Mutates `fields`.
+function normalizeBirthWeight(fields) {
+  if (!fields || typeof fields !== 'object') return;
+  const lbsHas = 'birth_weight_lbs' in fields && fields.birth_weight_lbs !== null && fields.birth_weight_lbs !== '';
+  const ozHas = 'birth_weight_oz' in fields && fields.birth_weight_oz !== null && fields.birth_weight_oz !== '';
+  if (!lbsHas && !ozHas) return;
+  const lbsN = lbsHas ? parseFloat(fields.birth_weight_lbs) : 0;
+  const ozN = ozHas ? parseFloat(fields.birth_weight_oz) : 0;
+  if (Number.isNaN(lbsN) || Number.isNaN(ozN)) return;
+  const totalOz = Math.max(0, Math.round(lbsN * 16 + ozN));
+  const remOz = totalOz % 16;
+  if (lbsHas) fields.birth_weight_lbs = Math.floor(totalOz / 16);
+  if (ozHas || (lbsHas && remOz !== 0)) fields.birth_weight_oz = remOz;
+}
+
 async function updateBook(bookId, fields) {
+  normalizeBirthWeight(fields);
   const { data, error } = await supabaseAdmin
     .from('books')
     .update(fields)

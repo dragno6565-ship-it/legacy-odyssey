@@ -174,6 +174,9 @@ router.put('/mine', async (req, res, next) => {
       }
     }
 
+    // (Decimal-pounds normalization — e.g. "5.5" lbs → 5 lbs 8 oz — happens in
+    // bookService.updateBook so the app and web editor behave identically.)
+
     // Handle password field from SettingsScreen
     // (SettingsScreen sends { password } to this endpoint instead of /mine/settings)
     const passwordValue = req.body.password || req.body.book_password;
