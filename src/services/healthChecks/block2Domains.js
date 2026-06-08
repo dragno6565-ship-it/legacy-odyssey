@@ -27,14 +27,26 @@ module.exports = {
 
         if (!families?.length) return pass('No customers with custom domains');
 
-        const broken = [];
-        for (const f of families) {
-          const r = await isFullyServing(f.custom_domain);
-          if (!r.live) {
-            const failed = r.checkedUrls.filter((c) => !c.ok).map((c) => `${c.url}=${c.status || c.error}`);
-            broken.push({ domain: f.custom_domain, email: f.email, failed });
-          }
-        }
+        // Ping every customer's apex+www CONCURRENTLY, each capped at 7s, so the whole
+        // check finishes in ~seconds (well under the framework's 10s cap) instead of
+        // timing out when one of ~16 hostnames is slow. A genuinely-broken domain still
+        // reports as broken — we just no longer false-fail on a sequential timeout.
+        const PER_DOMAIN_MS = 7000;
+        const withTimeout = (p, ms) => Promise.race([
+          p,
+          new Promise((resolve) => setTimeout(
+            () => resolve({ live: false, checkedUrls: [{ url: '(check)', ok: false, error: `timeout after ${ms}ms` }] }),
+            ms)),
+        ]);
+
+        const results = await Promise.all(families.map(async (f) => {
+          const r = await withTimeout(isFullyServing(f.custom_domain), PER_DOMAIN_MS);
+          if (r.live) return null;
+          const failed = r.checkedUrls.filter((c) => !c.ok).map((c) => `${c.url}=${c.status || c.error}`);
+          return { domain: f.custom_domain, email: f.email, failed };
+        }));
+        const broken = results.filter(Boolean);
+
         if (!broken.length) return pass(`All ${families.length} customer domain(s) fully serving`);
         return fail(`${broken.length} of ${families.length} domain(s) half-broken: ${broken.map(b => `${b.domain} (${b.failed.join(', ')})`).join(' | ')}`,
           { broken });
