@@ -336,6 +336,11 @@
                   <% } else { %>
                     <span style="color: var(--ink-light); font-size: 0.8rem;">Not redeemed</span>
                   <% } %>
+                  <% if (gift.is_unredeemed) { %>
+                    <form action="/admin/gifts/<%= gift.id %>/void" method="POST" style="display:inline;" onsubmit="return confirm('Void gift <%= gift.code %>? The code will STOP WORKING immediately — this cannot be undone.');">
+                      <button type="submit" class="btn btn-sm" style="background:#c0392b;color:#fff;border:none;margin-top:4px;cursor:pointer;">Void</button>
+                    </form>
+                  <% } %>
                 </td>
               </tr>
             <% }); %>

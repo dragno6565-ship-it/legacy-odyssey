@@ -175,6 +175,9 @@ async function redeemGiftCode({ code, email, domain }) {
   if (gift.status === 'refunded') {
     throw new Error('This gift code has been refunded and is no longer valid. Please contact the person who sent it to you.');
   }
+  if (gift.status === 'voided' || gift.status === 'cancelled') {
+    throw new Error('This gift code has been cancelled and is no longer valid. Please contact the person who sent it to you.');
+  }
   if (gift.status !== 'purchased') throw new Error('This gift code has already been redeemed.');
   // Gift codes intentionally don't expire (see createGiftCode) — a code stays
   // redeemable whenever the recipient is ready, no matter how long it sat.
@@ -408,10 +411,43 @@ async function fulfillGiftForPaymentIntent(pi) {
   return { gift, alreadyExisted: false };
 }
 
+/**
+ * Void (cancel) an UNREDEEMED gift code so it can never be redeemed. The status
+ * guard (.eq('status','purchased')) makes this a no-op on already-redeemed,
+ * refunded, or already-voided codes — so an admin can't accidentally invalidate
+ * a code someone already used. redeemGiftCode rejects status='voided'.
+ * Returns the updated row, or null if it wasn't an unredeemed code.
+ */
+async function voidGiftCode(giftId) {
+  const { data, error } = await supabaseAdmin
+    .from('gift_codes')
+    .update({ status: 'voided', updated_at: new Date().toISOString() })
+    .eq('id', giftId)
+    .eq('status', 'purchased')
+    .select('*')
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
+/** Save admin-only notes on a gift (any status). Returns the updated row. */
+async function setGiftNotes(giftId, notes) {
+  const { data, error } = await supabaseAdmin
+    .from('gift_codes')
+    .update({ admin_notes: (notes || '').slice(0, 2000) || null, updated_at: new Date().toISOString() })
+    .eq('id', giftId)
+    .select('*')
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
 module.exports = {
   generateGiftCode,
   createGiftCode,
   findByCode,
   redeemGiftCode,
   fulfillGiftForPaymentIntent,
+  voidGiftCode,
+  setGiftNotes,
 };

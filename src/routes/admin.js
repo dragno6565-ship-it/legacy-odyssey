@@ -275,9 +275,11 @@ router.post('/gifts/comp', requireAdmin, async (req, res, next) => {
     const scheduledDate = req.body.scheduledDate || null;
     const method = ['email_now', 'email_scheduled', 'print'].includes(req.body.deliveryMethod)
       ? req.body.deliveryMethod : 'email_now';
-    // Buyer = us. Defaults to the logged-in admin's email; this address receives
-    // the confirmation + printable certificate (handy to forward to the influencer).
-    const buyerEmail = (req.body.buyerEmail || req.user?.email || process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com').trim();
+    // Buyer = us. The confirmation + printable certificate goes here (handy to
+    // forward to the influencer). Defaults to legacyodysseyapp@gmail.com (the shared
+    // ops inbox) rather than the individual admin's login email, unless overridden
+    // by a buyerEmail typed into the form.
+    const buyerEmail = (req.body.buyerEmail || 'legacyodysseyapp@gmail.com').trim();
     const buyerName = (req.body.buyerName || 'Legacy Odyssey').trim();
 
     if (method !== 'print' && !recipientEmail) {
@@ -337,6 +339,29 @@ router.post('/gifts/comp', requireAdmin, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// Void (cancel) an unredeemed gift code so it can never be redeemed. The code
+// stops working immediately — redeemGiftCode rejects status='voided'.
+router.post('/gifts/:id/void', requireAdmin, async (req, res, next) => {
+  try {
+    const giftService = require('../services/giftService');
+    const voided = await giftService.voidGiftCode(req.params.id);
+    if (!voided) {
+      return res.redirect('/admin/gifts?void_error=' + encodeURIComponent('That gift could not be voided — it may already be redeemed, refunded, or voided.'));
+    }
+    console.log(`[admin] gift ${voided.code} VOIDED by ${req.user?.email}`);
+    res.redirect('/admin/gifts?voided=' + encodeURIComponent(voided.code));
+  } catch (err) { next(err); }
+});
+
+// Save admin-only notes on a gift (who it went to, promo context, etc.).
+router.post('/gifts/:id/notes', requireAdmin, async (req, res, next) => {
+  try {
+    const giftService = require('../services/giftService');
+    await giftService.setGiftNotes(req.params.id, req.body.notes || '');
+    res.redirect('/admin/gifts?notes_saved=1');
+  } catch (err) { next(err); }
 });
 
 // Family detail (GET)
