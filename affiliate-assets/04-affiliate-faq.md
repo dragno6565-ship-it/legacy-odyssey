@@ -32,5 +32,8 @@ $29 for the first year. (There are also annual and longer-term options inside ch
 **10. Can customers cancel?**
 Yes, anytime from their account. Their content stays theirs.
 
+**11. Do customers ever get refunded?**
+No. Legacy Odyssey doesn't offer refunds. If a customer wants to stop being charged, they cancel and keep access for the rest of their paid period. This is part of why your commissions are protected — you don't get clawbacks for refund requests.
+
 ---
 *Affiliate commission: 35% of every payment, recurring. 90-day cookie, $50 minimum payout, monthly via PayPal/Wise. Full terms in the affiliate agreement you accepted at signup.*
