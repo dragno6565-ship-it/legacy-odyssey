@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Circles – Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Jost',sans-serif; background:#faf7f2; color:#2c2416; padding:2rem 1rem 5rem; }
+    .wrap { max-width:760px; margin:0 auto; }
+    .breadcrumb { font-size:0.82rem; color:#8a7e6b; margin-bottom:1.25rem; }
+    .breadcrumb a { color:#c8a96e; text-decoration:none; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:600; margin-bottom:0.25rem; }
+    .section-desc { color:#8a7e6b; font-size:0.92rem; margin-bottom:1.5rem; }
+    h2 { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; margin:2rem 0 0.75rem; }
+    .banner { padding:0.7rem 1rem; border-radius:8px; font-size:0.9rem; margin-bottom:1rem; }
+    .banner.ok { background:#eaf4ea; color:#2e6b2e; }
+    .banner.err { background:#fdecea; color:#c0392b; }
+    .card { background:#fff; border:1px solid #f0ebe3; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); padding:1rem 1.1rem; margin-bottom:0.85rem; }
+    label { display:block; font-size:0.78rem; font-weight:600; color:#8a7e6b; text-transform:uppercase; letter-spacing:0.04em; margin:0 0 0.3rem; }
+    input[type=text], input[type=email], input[type=tel] { width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Jost',sans-serif; font-size:0.95rem; color:#2c2416; margin-bottom:0.6rem; }
+    .row { display:flex; gap:0.6rem; flex-wrap:wrap; }
+    .row > div { flex:1; min-width:140px; }
+    .btn { background:#c8a96e; color:#fff; border:none; border-radius:8px; padding:0.55rem 1.1rem; font-family:'Jost',sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; }
+    .btn:hover { background:#b08e4a; }
+    .btn-sm { padding:0.35rem 0.7rem; font-size:0.8rem; }
+    .btn-danger { background:#fff; color:#c0392b; border:1px solid #e6c9c4; }
+    .btn-ghost { background:#f0e8dc; color:#2c2416; }
+    .chips { display:flex; flex-wrap:wrap; gap:0.35rem; margin:0.4rem 0; }
+    .chip { background:#f0e8dc; color:#6b5e44; border-radius:999px; padding:0.15rem 0.6rem; font-size:0.75rem; }
+    .checks { display:flex; flex-wrap:wrap; gap:0.5rem 1rem; margin:0.3rem 0 0.7rem; }
+    .checks label { display:flex; align-items:center; gap:0.35rem; text-transform:none; letter-spacing:0; font-weight:400; color:#2c2416; font-size:0.88rem; margin:0; }
+    .empty { color:#8a7e6b; font-size:0.9rem; padding:0.5rem 0; }
+    .muted { color:#8a7e6b; font-size:0.82rem; }
+    .inline { display:inline; }
+    .contact-head { display:flex; justify-content:space-between; align-items:baseline; gap:0.5rem; }
+    .contact-head strong { font-size:1.05rem; }
+    details summary { cursor:pointer; color:#c8a96e; font-size:0.85rem; margin-top:0.4rem; }
+    .back { display:inline-block; margin-top:1.5rem; color:#8a7e6b; text-decoration:none; font-size:0.9rem; }
+    .note { background:#fbf6ed; border:1px solid #e0d5c4; border-left:4px solid #c8a96e; border-radius:8px; padding:0.7rem 0.9rem; font-size:0.84rem; color:#6b5e44; margin-bottom:1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="breadcrumb"><a href="/account/dashboard">Account</a> &nbsp;/&nbsp; <a href="/account/book">My Book</a> &nbsp;/&nbsp; Your Circles</div>
+    <h1>Your Circles</h1>
+    <p class="section-desc">Keep a private list of the people who can see your book, and organize them into Circles (like “Grandparents” or “Close Family”).</p>
+
+    <% if (success) { %><div class="banner ok">Saved.</div><% } %>
+    <% if (error) { %><div class="banner err"><%= (error === '1') ? 'Something went wrong. Please try again.' : error %></div><% } %>
+
+    <div class="note">Soon you’ll be able to tap “Notify” and let a Circle know when you add something new. For now, build your list — it’ll be ready when notifications go live.</div>
+
+    <!-- ===== CIRCLES ===== -->
+    <h2>Circles</h2>
+    <% if (!circles || circles.length === 0) { %>
+      <div class="empty">No circles yet — create one below (e.g. “Grandparents”).</div>
+    <% } %>
+    <% (circles || []).forEach(function(c) { %>
+      <div class="card">
+        <div class="contact-head">
+          <strong><%= c.name %></strong>
+          <span class="muted"><%= c.member_count %> <%= c.member_count === 1 ? 'person' : 'people' %></span>
+        </div>
+        <details>
+          <summary>Rename or delete</summary>
+          <form action="/account/book/circles/<%= c.id %>/rename" method="POST" class="row" style="margin-top:0.5rem;">
+            <div><input type="text" name="name" value="<%= c.name %>" maxlength="120"></div>
+            <button type="submit" class="btn btn-sm">Rename</button>
+          </form>
+          <form action="/account/book/circles/<%= c.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Delete the “<%= c.name %>” circle? (Your contacts stay — they’re just removed from this circle.)');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete circle</button>
+          </form>
+        </details>
+      </div>
+    <% }); %>
+    <div class="card">
+      <form action="/account/book/circles" method="POST" class="row">
+        <div>
+          <label>New circle name</label>
+          <input type="text" name="name" placeholder="e.g. Grandparents" maxlength="120" required style="margin-bottom:0;">
+        </div>
+        <button type="submit" class="btn" style="align-self:flex-end;">+ Add Circle</button>
+      </form>
+    </div>
+
+    <!-- ===== CONTACTS ===== -->
+    <h2>People</h2>
+    <% if (!contacts || contacts.length === 0) { %>
+      <div class="empty">No contacts yet — add the first person below.</div>
+    <% } %>
+    <% (contacts || []).forEach(function(p) { %>
+      <div class="card">
+        <div class="contact-head">
+          <strong><%= p.name %></strong>
+          <form action="/account/book/circles/contacts/<%= p.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Remove <%= p.name %> from your list? Their view link will stop working.');">
+            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </div>
+        <div class="muted"><%= p.email || 'no email' %><%= p.phone ? ' · ' + p.phone : '' %></div>
+        <% var pc = (circles || []).filter(function(c){ return (p.circle_ids || []).indexOf(c.id) !== -1; }); %>
+        <% if (pc.length) { %><div class="chips"><% pc.forEach(function(c){ %><span class="chip"><%= c.name %></span><% }); %></div><% } %>
+        <details>
+          <summary>Edit</summary>
+          <form action="/account/book/circles/contacts/<%= p.id %>/update" method="POST" style="margin-top:0.5rem;">
+            <div class="row">
+              <div><label>Name</label><input type="text" name="name" value="<%= p.name %>" maxlength="120" required></div>
+              <div><label>Email</label><input type="email" name="email" value="<%= p.email || '' %>"></div>
+              <div><label>Phone</label><input type="tel" name="phone" value="<%= p.phone || '' %>"></div>
+            </div>
+            <% if (circles && circles.length) { %>
+              <label>Circles</label>
+              <div class="checks">
+                <% circles.forEach(function(c){ %>
+                  <label><input type="checkbox" name="circleIds" value="<%= c.id %>" <%= (p.circle_ids||[]).indexOf(c.id)!==-1 ? 'checked' : '' %>> <%= c.name %></label>
+                <% }); %>
+              </div>
+            <% } %>
+            <button type="submit" class="btn btn-sm">Save changes</button>
+          </form>
+        </details>
+      </div>
+    <% }); %>
+
+    <div class="card">
+      <form action="/account/book/circles/contacts" method="POST">
+        <div class="row">
+          <div><label>Name</label><input type="text" name="name" placeholder="Full name" maxlength="120" required></div>
+          <div><label>Email</label><input type="email" name="email" placeholder="them@example.com"></div>
+          <div><label>Phone</label><input type="tel" name="phone" placeholder="optional"></div>
+        </div>
+        <% if (circles && circles.length) { %>
+          <label>Add to circles</label>
+          <div class="checks">
+            <% circles.forEach(function(c){ %>
+              <label><input type="checkbox" name="circleIds" value="<%= c.id %>"> <%= c.name %></label>
+            <% }); %>
+          </div>
+        <% } %>
+        <button type="submit" class="btn">+ Add Person</button>
+      </form>
+    </div>
+
+    <a href="/account/book" class="back">← Back to My Book</a>
+  </div>
+</body>
+</html>
