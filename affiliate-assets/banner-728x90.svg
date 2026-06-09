@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="728" height="90" viewBox="0 0 728 90">
+  <rect width="728" height="90" fill="#faf7f2"/>
+  <rect width="728" height="90" fill="none" stroke="#c8a96e" stroke-width="2"/>
+  
+  <rect x="0" y="0" width="220" height="90" fill="#1a1510"/>
+  <text x="110" y="42" fill="#c8a96e" font-size="22" font-weight="600" text-anchor="middle">Legacy Odyssey</text>
+  <text x="110" y="64" fill="#cbbfa9" font-size="11" letter-spacing="2" text-anchor="middle" class="j">A DIGITAL BABY BOOK</text>
+  <text x="250" y="40" fill="#2c2416" font-size="20" font-weight="600">Your baby's name, as a website.</text>
+  <text x="250" y="66" fill="#8a7e6b" font-size="13" class="j">Milestones, photos &amp; letters at their own .com — $29 first year</text>
+  <rect x="600" y="30" width="108" height="34" rx="8" fill="#c8a96e"/>
+  <text x="654" y="52" fill="#1a1510" font-size="14" font-weight="600" text-anchor="middle" class="j">Start now</text>
+
+  <style>text{font-family:Georgia,'Cormorant Garamond',serif;} .j{font-family:'Jost',Arial,sans-serif;}</style>
+</svg>

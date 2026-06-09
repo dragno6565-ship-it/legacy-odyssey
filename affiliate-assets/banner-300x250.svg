@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="250" viewBox="0 0 300 250">
+  <rect width="300" height="250" fill="#faf7f2"/>
+  <rect width="300" height="250" fill="none" stroke="#c8a96e" stroke-width="2"/>
+  
+  <rect x="0" y="0" width="300" height="78" fill="#1a1510"/>
+  <text x="150" y="40" fill="#c8a96e" font-size="24" font-weight="600" text-anchor="middle">Legacy Odyssey</text>
+  <text x="150" y="62" fill="#cbbfa9" font-size="10" letter-spacing="2" text-anchor="middle" class="j">A DIGITAL BABY BOOK</text>
+  <text x="150" y="120" fill="#2c2416" font-size="22" font-weight="600" text-anchor="middle">Your baby's name,</text>
+  <text x="150" y="148" fill="#2c2416" font-size="22" font-weight="600" text-anchor="middle">as a website.</text>
+  <text x="150" y="178" fill="#8a7e6b" font-size="13" text-anchor="middle" class="j">Milestones, photos &amp; letters</text>
+  <text x="150" y="196" fill="#8a7e6b" font-size="13" text-anchor="middle" class="j">at their own .com domain</text>
+  <rect x="86" y="210" width="128" height="30" rx="8" fill="#c8a96e"/>
+  <text x="150" y="230" fill="#1a1510" font-size="14" font-weight="600" text-anchor="middle" class="j">$29 first year →</text>
+
+  <style>text{font-family:Georgia,'Cormorant Garamond',serif;} .j{font-family:'Jost',Arial,sans-serif;}</style>
+</svg>

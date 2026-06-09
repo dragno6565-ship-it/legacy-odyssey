@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Rewardful affiliate tracking (Friends of Legacy Odyssey) -->
+  <script>(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');</script>
+  <script async src='https://r.wdfl.co/rw.js' data-rewardful='0a0312'></script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Pinterest Domain Verification -->
@@ -1211,6 +1215,7 @@
             trackValue = 29;
           }
           if (_ref) body.ref = _ref;
+          body.referral = (window.Rewardful && window.Rewardful.referral) || null; // Rewardful affiliate attribution
           const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
           const data = await res.json();
           if (data.url) {

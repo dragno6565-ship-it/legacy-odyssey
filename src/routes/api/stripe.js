@@ -7,7 +7,7 @@ const router = Router();
 // POST /api/stripe/create-checkout
 router.post('/create-checkout', async (req, res, next) => {
   try {
-    const { email, domain, period, subdomain: legacySubdomain, book_type, ref } = req.body;
+    const { email, domain, period, subdomain: legacySubdomain, book_type, ref, referral } = req.body;
 
     // Support both new domain flow and legacy subdomain flow
     const subdomain = domain
@@ -30,6 +30,7 @@ router.post('/create-checkout', async (req, res, next) => {
       period: resolvedPeriod,
       bookType: resolvedBookType,
       ref: ref || null,
+      referral: referral || null, // Rewardful affiliate referral
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });
@@ -195,7 +196,7 @@ router.post('/redeem-gift', async (req, res, next) => {
 // POST /api/stripe/create-founder-checkout
 router.post('/create-founder-checkout', async (req, res, next) => {
   try {
-    const { email, domain, subdomain: legacySubdomain, book_type, ref } = req.body;
+    const { email, domain, subdomain: legacySubdomain, book_type, ref, referral } = req.body;
 
     const subdomain = domain
       ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -214,6 +215,7 @@ router.post('/create-founder-checkout', async (req, res, next) => {
       domain: domain || null,
       bookType: resolvedBookType,
       ref: ref || null,
+      referral: referral || null, // Rewardful affiliate referral
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });
@@ -231,7 +233,7 @@ router.post('/create-founder-checkout', async (req, res, next) => {
 // founder price with no coupon.
 router.post('/create-founder-page-checkout', async (req, res, next) => {
   try {
-    const { email, domain, subdomain: legacySubdomain, book_type, founderNote } = req.body;
+    const { email, domain, subdomain: legacySubdomain, book_type, founderNote, referral } = req.body;
 
     const subdomain = domain
       ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -253,6 +255,7 @@ router.post('/create-founder-page-checkout', async (req, res, next) => {
       domain: domain || null,
       bookType: resolvedBookType,
       founderNote: founderNote || null,
+      referral: referral || null, // Rewardful affiliate referral
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       // Cancel returns them to the hidden founder page, not the public home
       cancelUrl: `https://${appDomain}/preview/founder`,
@@ -267,7 +270,7 @@ router.post('/create-founder-page-checkout', async (req, res, next) => {
 // POST /api/stripe/create-childhood-checkout — Childhood Plan ($450 / 18 years, one-time)
 router.post('/create-childhood-checkout', async (req, res, next) => {
   try {
-    const { email, domain, subdomain: legacySubdomain, ref } = req.body;
+    const { email, domain, subdomain: legacySubdomain, ref, referral } = req.body;
 
     const subdomain = domain
       ? domain.split('.')[0].toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -287,6 +290,7 @@ router.post('/create-childhood-checkout', async (req, res, next) => {
       domain: domain || null,
       bookType: 'baby_book',
       ref: ref || null,
+      referral: referral || null, // Rewardful affiliate referral
       successUrl: `https://${appDomain}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}`,
     });

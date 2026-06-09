@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <rect width="1080" height="1080" fill="#faf7f2"/>
+  <rect width="1080" height="1080" fill="none" stroke="#c8a96e" stroke-width="2"/>
+  
+  <rect x="0" y="0" width="1080" height="300" fill="#1a1510"/>
+  <text x="540" y="160" fill="#c8a96e" font-size="76" font-weight="600" text-anchor="middle">Legacy Odyssey</text>
+  <text x="540" y="225" fill="#cbbfa9" font-size="28" letter-spacing="8" text-anchor="middle" class="j">A DIGITAL BABY BOOK</text>
+  <text x="540" y="520" fill="#2c2416" font-size="78" font-weight="600" text-anchor="middle">Your baby's name,</text>
+  <text x="540" y="610" fill="#2c2416" font-size="78" font-weight="600" text-anchor="middle">as a website.</text>
+  <text x="540" y="700" fill="#8a7e6b" font-size="34" text-anchor="middle" class="j">Milestones, photos &amp; letters at</text>
+  <text x="540" y="746" fill="#8a7e6b" font-size="34" text-anchor="middle" class="j">your child's own .com domain.</text>
+  <rect x="380" y="820" width="320" height="80" rx="16" fill="#c8a96e"/>
+  <text x="540" y="872" fill="#1a1510" font-size="34" font-weight="600" text-anchor="middle" class="j">$29 first year →</text>
+  <text x="540" y="980" fill="#8a7e6b" font-size="24" text-anchor="middle" class="j">Password-protected · your-family-photo-album.com</text>
+
+  <style>text{font-family:Georgia,'Cormorant Garamond',serif;} .j{font-family:'Jost',Arial,sans-serif;}</style>
+</svg>

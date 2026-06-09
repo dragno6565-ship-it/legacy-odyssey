@@ -86,6 +86,12 @@ router.get('/preview/option6', (req, res) => {
   res.render('marketing/landing-option6', { landingVariant: 'option6' });
 });
 
+// Public affiliate program landing page (Friends of Legacy Odyssey / Rewardful).
+// Apply CTA points to the Rewardful-hosted signup; tracking snippet is in the view.
+router.get('/affiliates', (req, res) => {
+  res.render('marketing/affiliates');
+});
+
 // Side-by-side comparison: original landing-v2 (left) vs CRO revision (right),
 // each rendered in its own iframe at the real preview routes above.
 router.get('/preview/cro-compare', (req, res) => {
