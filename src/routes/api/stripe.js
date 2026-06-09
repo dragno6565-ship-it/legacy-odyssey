@@ -96,7 +96,7 @@ router.post('/create-gift-payment-intent', async (req, res, next) => {
   try {
     const {
       buyerEmail, buyerName, recipientName, recipientEmail,
-      message, giftMessage, deliveryMethod, scheduledDate, plan,
+      message, giftMessage, deliveryMethod, scheduledDate, plan, referral,
     } = req.body;
 
     if (!buyerEmail) return res.status(400).json({ error: 'buyerEmail is required' });
@@ -116,6 +116,7 @@ router.post('/create-gift-payment-intent', async (req, res, next) => {
       deliveryMethod,
       scheduledDate,
       plan: plan === 'childhood' ? 'childhood' : 'annual',
+      referral: referral || null, // Rewardful affiliate referral
     });
 
     res.json({
@@ -137,7 +138,7 @@ router.post('/create-gift-payment-intent', async (req, res, next) => {
 // live hosted signup.
 router.post('/create-signup-intent', async (req, res, next) => {
   try {
-    const { email, domain, subdomain, period, ref } = req.body;
+    const { email, domain, subdomain, period, ref, referral } = req.body;
     if (!email) return res.status(400).json({ error: 'email is required' });
     const sub = (domain ? String(domain).split('.')[0] : subdomain) || '';
     if (!sub) return res.status(400).json({ error: 'domain or subdomain is required' });
@@ -150,9 +151,9 @@ router.post('/create-signup-intent', async (req, res, next) => {
     const resolved = period === 'childhood' ? 'childhood' : (period === 'annual' ? 'annual' : 'monthly');
     let result;
     if (resolved === 'childhood') {
-      result = await stripeService.createSignupChildhoodIntent({ email, subdomain: sub, domain: domain || null, ref });
+      result = await stripeService.createSignupChildhoodIntent({ email, subdomain: sub, domain: domain || null, ref, referral: referral || null });
     } else {
-      result = await stripeService.createSignupSubscription({ email, subdomain: sub, domain: domain || null, period: resolved, ref });
+      result = await stripeService.createSignupSubscription({ email, subdomain: sub, domain: domain || null, period: resolved, ref, referral: referral || null });
     }
 
     res.json({

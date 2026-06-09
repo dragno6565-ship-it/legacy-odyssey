@@ -251,6 +251,24 @@ router.post('/stripe/webhook', async (req, res) => {
         if (invoice.customer) {
           await stripeService.syncSubscriptionStatus(invoice.customer, 'active');
         }
+        // Rewardful: record affiliate conversion for embedded-signup subscriptions
+        // (PaymentIntent flows can't use client_reference_id). Safe no-op without
+        // REWARDFUL_API_SECRET / a referral. Only on the first invoice.
+        if (invoice.billing_reason === 'subscription_create' && invoice.subscription) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+            const refId = sub.metadata && sub.metadata.rewardful_referral;
+            if (refId) {
+              await require('../services/rewardfulService').recordConversion({
+                referralId: refId,
+                email: (sub.metadata && sub.metadata.email) || invoice.customer_email,
+                stripeCustomerId: invoice.customer,
+                amountCents: invoice.amount_paid,
+                currency: invoice.currency,
+              });
+            }
+          } catch (e) { console.error('[webhook] rewardful conversion (subscription) error:', e.message); }
+        }
         break;
       }
       case 'invoice.payment_failed': {
@@ -340,6 +358,20 @@ router.post('/stripe/webhook', async (req, res) => {
           } catch (err) {
             console.error('[webhook] embedded childhood provisioning failed:', err.message);
           }
+        }
+        // Rewardful: record affiliate conversion for gift + childhood-signup
+        // PaymentIntents (can't use client_reference_id). Safe no-op without
+        // REWARDFUL_API_SECRET / a referral.
+        if (pi.metadata?.rewardful_referral) {
+          try {
+            await require('../services/rewardfulService').recordConversion({
+              referralId: pi.metadata.rewardful_referral,
+              email: pi.metadata.buyer_email || pi.metadata.email || pi.receipt_email,
+              stripeCustomerId: pi.customer || null,
+              amountCents: pi.amount_received || pi.amount,
+              currency: pi.currency,
+            });
+          } catch (e) { console.error('[webhook] rewardful conversion (payment_intent) error:', e.message); }
         }
         break;
       }

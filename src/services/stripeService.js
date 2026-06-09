@@ -468,7 +468,7 @@ async function createGiftCheckoutSession({ buyerEmail, buyerName, recipientName,
  * The PaymentIntent id doubles as the idempotency key for createGiftCode
  * (stored in gift_codes.stripe_session_id), exactly like the session id is.
  */
-async function createGiftPaymentIntent({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, plan }) {
+async function createGiftPaymentIntent({ buyerEmail, buyerName, recipientName, recipientEmail, message, deliveryMethod, scheduledDate, plan, referral }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const isChildhood = plan === 'childhood';
@@ -506,6 +506,10 @@ async function createGiftPaymentIntent({ buyerEmail, buyerName, recipientName, r
       gift_message: message || '',
       delivery_method: method,
       scheduled_date: scheduledIso,
+      // Rewardful affiliate referral — read by the payment_intent.succeeded webhook
+      // to record a conversion via the Rewardful API (PaymentIntent flows can't use
+      // client_reference_id). Empty when there's no affiliate.
+      rewardful_referral: referral || '',
     },
   });
 
@@ -606,7 +610,7 @@ async function cancelSubscriptionAtPeriodEnd(family) {
  * via the Payment Element. Annual gets the intro coupon ($29 first year);
  * monthly adds the one-time setup fee to the first invoice.
  */
-async function createSignupSubscription({ email, subdomain, domain, period, ref }) {
+async function createSignupSubscription({ email, subdomain, domain, period, ref, referral }) {
   if (!stripe) throw new Error('Stripe not configured');
   const resolvedPeriod = period === 'annual' ? 'annual' : 'monthly';
 
@@ -631,6 +635,7 @@ async function createSignupSubscription({ email, subdomain, domain, period, ref 
       period: resolvedPeriod,
       book_type: 'baby_book',
       ref: ref || '',
+      rewardful_referral: referral || '', // Rewardful affiliate referral (webhook records the conversion)
     },
   };
   // Annual: intro coupon ($20.99 off the first invoice → $29 first year).
@@ -674,7 +679,7 @@ async function createSignupSubscription({ email, subdomain, domain, period, ref 
  * stripe_customer_id, mirroring createChildhoodCheckoutSession's
  * customer_creation:'always'.
  */
-async function createSignupChildhoodIntent({ email, subdomain, domain, ref }) {
+async function createSignupChildhoodIntent({ email, subdomain, domain, ref, referral }) {
   if (!stripe) throw new Error('Stripe not configured');
   const customer = await stripe.customers.create({ email });
   const pi = await stripe.paymentIntents.create({
@@ -693,6 +698,7 @@ async function createSignupChildhoodIntent({ email, subdomain, domain, ref }) {
       period: 'childhood',
       book_type: 'baby_book',
       ref: ref || '',
+      rewardful_referral: referral || '', // Rewardful affiliate referral (webhook records the conversion)
     },
   });
   return { clientSecret: pi.client_secret, paymentIntentId: pi.id, customerId: customer.id, period: 'childhood' };
