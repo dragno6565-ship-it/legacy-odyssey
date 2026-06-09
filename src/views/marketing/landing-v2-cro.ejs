@@ -1216,6 +1216,7 @@
             trackValue = 29;
           }
           if (_ref) body.ref = _ref;
+          body.referral = (window.Rewardful && window.Rewardful.referral) || null; // Rewardful affiliate attribution
           const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
           const data = await res.json();
           if (data.url) {

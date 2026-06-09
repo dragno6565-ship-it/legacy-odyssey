@@ -500,7 +500,7 @@
         const res = await fetch('/api/stripe/create-founder-page-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, domain: confirmedDomain, founderNote }),
+          body: JSON.stringify({ email, domain: confirmedDomain, founderNote, referral: (window.Rewardful && window.Rewardful.referral) || null }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Something went wrong.');

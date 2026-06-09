@@ -41,7 +41,7 @@ function resolvePriceId(plan, period) {
   throw new Error(`No Stripe price configured for period="${resolvedPeriod}"`);
 }
 
-async function createCheckoutSession({ email, subdomain, domain, period, bookType, ref, successUrl, cancelUrl }) {
+async function createCheckoutSession({ email, subdomain, domain, period, bookType, ref, referral, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const resolvedPeriod = period || 'monthly';
@@ -72,6 +72,8 @@ async function createCheckoutSession({ email, subdomain, domain, period, bookTyp
     line_items,
     metadata,
     allow_promotion_codes: true,
+    // Rewardful affiliate attribution — only set when present (Stripe rejects an empty value).
+    ...(referral ? { client_reference_id: referral } : {}),
     success_url: successUrl,
     cancel_url: cancelUrl,
   });
@@ -262,7 +264,7 @@ async function createPortalSession(stripeCustomerId, returnUrl) {
 /**
  * Create a Stripe Checkout session for the annual intro plan ($29/yr first year).
  */
-async function createFounderCheckoutSession({ email, subdomain, domain, bookType, ref, successUrl, cancelUrl }) {
+async function createFounderCheckoutSession({ email, subdomain, domain, bookType, ref, referral, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.subscription.annualIntro || PRICES.subscription.founder;
@@ -289,6 +291,9 @@ async function createFounderCheckoutSession({ email, subdomain, domain, bookType
     sessionParams.allow_promotion_codes = true;
   }
 
+  // Rewardful affiliate attribution — only set when present (Stripe rejects an empty value).
+  if (referral) sessionParams.client_reference_id = referral;
+
   const session = await stripe.checkout.sessions.create(sessionParams);
   return session;
 }
@@ -305,7 +310,7 @@ async function createFounderCheckoutSession({ email, subdomain, domain, bookType
  *   - metadata.plan = 'founder' so the webhook + admin reports can
  *     identify founder signups distinctly from annual_intro signups
  */
-async function createFounderPageCheckoutSession({ email, subdomain, domain, bookType, founderNote, successUrl, cancelUrl }) {
+async function createFounderPageCheckoutSession({ email, subdomain, domain, bookType, founderNote, referral, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.subscription.founder;
@@ -330,6 +335,9 @@ async function createFounderPageCheckoutSession({ email, subdomain, domain, book
     cancel_url: cancelUrl,
   };
 
+  // Rewardful affiliate attribution — only set when present (Stripe rejects an empty value).
+  if (referral) sessionParams.client_reference_id = referral;
+
   const session = await stripe.checkout.sessions.create(sessionParams);
   return session;
 }
@@ -347,7 +355,7 @@ async function createFounderPageCheckoutSession({ email, subdomain, domain, book
  * `customer_creation: 'always'` ensures session.customer is populated so the
  * customer can manage billing and qualify for referral credit.
  */
-async function createChildhoodCheckoutSession({ email, subdomain, domain, bookType, ref, successUrl, cancelUrl }) {
+async function createChildhoodCheckoutSession({ email, subdomain, domain, bookType, ref, referral, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.childhood;
@@ -371,6 +379,8 @@ async function createChildhoodCheckoutSession({ email, subdomain, domain, bookTy
     metadata,
     // Mirror the same metadata onto the PaymentIntent for dashboard clarity.
     payment_intent_data: { metadata },
+    // Rewardful affiliate attribution — only set when present (Stripe rejects an empty value).
+    ...(referral ? { client_reference_id: referral } : {}),
     success_url: successUrl,
     cancel_url: cancelUrl,
   });

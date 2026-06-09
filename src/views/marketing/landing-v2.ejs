@@ -928,6 +928,7 @@
             body = { email, domain: _founderSelectedDomain, book_type: _bookType || 'baby_book' };
             trackValue = 29;
           }
+          body.referral = (window.Rewardful && window.Rewardful.referral) || null; // Rewardful affiliate attribution
           const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
