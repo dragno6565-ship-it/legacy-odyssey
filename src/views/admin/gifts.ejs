@@ -275,6 +275,7 @@
               <th>Buyer</th>
               <th>Recipient</th>
               <th>Message</th>
+              <th>Admin notes</th>
               <th>Purchased</th>
               <th>Age</th>
               <th>Expires</th>
@@ -305,6 +306,12 @@
                 </td>
                 <td class="cell-message" title="<%= gift.recipient_message || '' %>">
                   <%= gift.recipient_message || '—' %>
+                </td>
+                <td class="cell-notes">
+                  <form action="/admin/gifts/<%= gift.id %>/notes" method="POST" style="display:flex;gap:4px;align-items:flex-start;">
+                    <textarea name="notes" rows="2" placeholder="Add a note…" style="width:150px;font-size:0.75rem;padding:4px;border:1px solid var(--border,#e0d5c4);border-radius:4px;"><%= gift.admin_notes || '' %></textarea>
+                    <button type="submit" class="btn btn-sm" style="padding:4px 8px;font-size:0.72rem;">Save</button>
+                  </form>
                 </td>
                 <td class="cell-date">
                   <%= gift.created_at ? new Date(gift.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' %>
