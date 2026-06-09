@@ -68,6 +68,7 @@ When you create/touch any entity not yet listed: write its file from the standar
 - [infrastructure/supabase.md](infrastructure/supabase.md) — Postgres + Storage + Auth. Pro plan ($25/mo). Project ref `vesaydfwwdbbajydbzmq`.
 - [infrastructure/stripe.md](infrastructure/stripe.md) — Live mode payments. Account `acct_1T3N7kJk2GIrL5uS`.
 - [infrastructure/resend.md](infrastructure/resend.md) — Outbound transactional email. Sender domain verified.
+- [infrastructure/rewardful.md](infrastructure/rewardful.md) — Affiliate program tracking. Friends of Legacy Odyssey campaign, 35% recurring forever, $49/mo Starter plan.
 - [infrastructure/spacemail.md](infrastructure/spacemail.md) — Inbound mail at `@legacyodyssey.com`. Mailboxes exist; per-mailbox forwarding to gmail not yet set up.
 
 ### Mobile + app stores
