@@ -149,7 +149,7 @@
                 <img src="<%= photoUrl %>" alt="" id="photoPreview">
               <% } else { %>
                 <img src="" alt="" id="photoPreview" style="display:none;">
-                <span class="emoji-placeholder"><%= member.emoji || '👤' %></span>
+                <span class="emoji-placeholder"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#c8a96e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>
               <% } %>
               <button type="button" class="profile-remove" onclick="removeProfilePhoto(event)">✕</button>
             </div>

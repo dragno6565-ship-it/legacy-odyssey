@@ -1093,7 +1093,7 @@ router.post('/book/family/add-new', requireAccountSession, async (req, res, next
       ? existing[0].sort_order : 10;
     const newKey = `custom-${Date.now()}`;
     await bookService.upsertFamilyMember(book.id, newKey, {
-      name: 'New Member', relation: 'Family Member', emoji: '👤',
+      name: 'New Member', relation: 'Family Member',
       sort_order: maxOrder + 1,
     });
     res.redirect(`/account/book/family/${newKey}`);
