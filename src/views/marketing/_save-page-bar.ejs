@@ -1,0 +1,50 @@
+<!-- Shared "Save Page" bar for gallery editors. Saves every caption on the page in
+     one click by submitting each existing per-photo caption form, so no new backend
+     route is needed. Auto-hides on pages that have no caption forms. -->
+<div id="loSaveBar" style="position:fixed;left:0;right:0;bottom:0;z-index:9999;display:none;justify-content:center;padding:0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom,0));background:linear-gradient(to top,rgba(250,247,242,0.98),rgba(250,247,242,0.82));border-top:1px solid #e0d5c4;backdrop-filter:blur(4px);">
+  <button id="loSaveBtn" type="button"
+    style="min-width:240px;padding:0.85rem 1.5rem;background:#c8a96e;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;font-family:'Jost',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(176,142,74,0.35);">
+    Save Page
+  </button>
+</div>
+<script>
+(function () {
+  function captionForms() {
+    return Array.prototype.filter.call(document.querySelectorAll('form'), function (f) {
+      var action = f.getAttribute('action') || '';
+      return f.classList.contains('photo-caption-form')
+        || f.querySelector('[name="caption"]')
+        || /\/photo\/[^/]*\/edit\/?$/.test(action);
+    });
+  }
+  var bar = document.getElementById('loSaveBar');
+  var btn = document.getElementById('loSaveBtn');
+  if (!bar || !btn) return;
+  var forms = captionForms();
+  if (!forms.length) return;            // nothing to save on this page
+  bar.style.display = 'flex';
+  document.body.style.paddingBottom = '5rem'; // keep content clear of the fixed bar
+
+  btn.addEventListener('click', async function () {
+    forms = captionForms();
+    var orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    btn.style.opacity = '0.85';
+    try {
+      await Promise.all(forms.map(function (f) {
+        return fetch(f.getAttribute('action'), { method: 'POST', body: new FormData(f), credentials: 'same-origin' });
+      }));
+      btn.textContent = '✓ Saved';
+      btn.style.background = '#2e7d32';
+      setTimeout(function () { window.location.reload(); }, 650);
+    } catch (e) {
+      btn.textContent = 'Couldn’t save — try again';
+      btn.style.background = '#c0392b';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      setTimeout(function () { btn.textContent = orig; btn.style.background = '#c8a96e'; }, 2500);
+    }
+  });
+})();
+</script>

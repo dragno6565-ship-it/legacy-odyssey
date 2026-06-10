@@ -104,5 +104,6 @@
       try { await fetch('/account/book/galleries/photo/' + id + '/delete', { method: 'POST' }); location.reload(); } catch (e) { alert('Could not remove. Please try again.'); }
     }
   </script>
+  <%- include('_save-page-bar') %>
 </body>
 </html>
