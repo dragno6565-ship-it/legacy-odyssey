@@ -1,0 +1,631 @@
+# Legacy Odyssey — Master Project Context
+
+> **This file is loaded automatically at the start of every session. Read it fully before doing anything.**
+> Last updated: April 28, 2026 (knowledge base added)
+
+---
+
+## ⚠️ MANDATORY at session start
+
+1. **Read `F:\legacy-odyssey\docs\INDEX.md`.** This is the per-entity knowledge base. Every domain, customer, and vendor we've worked with has its own file there. The INDEX is small and gives you a complete map.
+
+2. **Whenever the user mentions a specific domain, customer, or vendor by name, BEFORE responding, open the matching file at `docs/<category>/<entity>.md`.** Read it. Then answer.
+   - Example: user says "your-childs-name.com" → open `docs/domains/your-childs-name.com.md` first
+   - Example: user says "Approximated" → open `docs/infrastructure/approximated.md` first
+   - Example: user says "Kate" or "kateragno" → open `docs/customers/kate-ragno-niece.md` AND `docs/domains/kateragno.com.md`
+
+3. **Whenever you make a meaningful change to an entity, update its file IN THE SAME RESPONSE that does the work.** Bump "Last touched" date, add a History bullet, update Current configuration. Never leave the docs out of sync with reality.
+
+4. **When you create a new entity (new customer, new vendor, new domain we own), write its file from the standard template in `docs/README.md` BEFORE moving on. Add a line to `docs/INDEX.md`.**
+
+This system exists because Claude has previously failed to know what entities are, despite the information being available. The fix is: read the entity file first, every time. Treat skipping it as a process violation.
+
+---
+
+## What Is This Project?
+
+Legacy Odyssey is a **subscription SaaS baby book / family memory platform**. Parents use a React Native mobile app to fill in their baby's story (milestones, photos, recipes, letters, etc.), and family/friends view the finished book at a custom domain (e.g., `kateragno.com`). Every customer gets their own real `.com` domain purchased automatically via the Spaceship API at checkout.
+
+**Status: LIVE and accepting real payments as of March 29, 2026.**
+
+---
+
+## Critical Rules (Read Every Session)
+
+1. **NEVER submit anything to Apple App Store or Google Play without explicit user permission.** Ask first. Wait for "yes" or "please go ahead."
+2. **NEVER click "Submit for Review", "Add for Review", or "Resubmit to App Review" in App Store Connect without explicit confirmation.**
+3. **NEVER use real family names** (Eowyn, Ragno, Kate, Roy, Lindsey, Emma, Jeff, Lachlan, Reese, Daniel, Jeanine) as placeholders, examples, or seed data anywhere a non-developer might see them. The user has flagged this multiple times as a hard rule. Use generic stand-ins (Sophia, Smith, Sam Smith, Sarah Smith, etc.). See `feedback_no_real_names.md` in memory.
+4. **When resuming a session, read `C:\Users\dragn\.claude\projects\E--Claude\memory\project_legacy_odyssey.md` and this file before taking any action.**
+5. **If you lose context about a file path, credential, or decision — read the transcript at `C:\Users\dragn\.claude\projects\E--Claude\50819f15-0eb3-41f8-8f0e-6139a35218b8.jsonl` before asking the user.**
+6. **Write important facts to memory immediately** — file paths, credentials, decisions, status changes. Don't wait.
+7. **The user prefers direct action** — don't ask unnecessary questions, make decisions and drive work forward.
+
+---
+
+## Infrastructure
+
+### Repository
+- **Repo (deploys to Railway):** `github.com/dragno6565-ship-it/legacy-odyssey`
+- **Local git origin:** `github.com/dragno6565-ship-it/legacy-odyssey`
+- **Branch:** `main`
+- **Local path:** `F:\legacy-odyssey`
+- Railway is connected directly to `dragno6565-ship-it/legacy-odyssey` — pushing to origin triggers deploy.
+
+### Railway (Backend Hosting)
+- **Canonical URL (USE THIS):** `https://legacyodyssey.com` — serves the current deploy from this repo. All mobile + web traffic should target this hostname.
+- **Also live at:** `https://www.legacyodyssey.com`
+- **Project ID:** `27622203-293e-4720-b019-9efe8eadfdf4` (project name: "bountiful-expression")
+- **Service ID:** `59190e65-b239-4cf1-842a-3913fabb1838`
+- **Environment ID:** `a9643517-8aad-441a-81c7-55c462f2fea0`
+- **Dashboard:** `https://railway.com/project/27622203-293e-4720-b019-9efe8eadfdf4`
+- **⚠️ Note:** The `.env` `RAILWAY_API_TOKEN` / `RAILWAY_SERVICE_ID` / `RAILWAY_ENVIRONMENT_ID` point to a SECONDARY project (`25a7cbc7` "romantic-creation"). `railwayService.js` cannot add custom domains via API — use the Railway dashboard manually, or generate a new token for project `27622203`.
+- Auto-deploys from `dragno6565-ship-it/legacy-odyssey` (`origin`) on push to main. The `dragno65` remote has been removed — it pointed to a non-existent repo.
+
+#### ⚠️ Stale/zombie Railway service — KNOWN HAZARD (Apr 19 2026)
+- A second Railway service is alive at `https://legacy-odyssey-production-a9d1.up.railway.app` and is NOT tied to this repo's current deploy pipeline. It still responds to API calls (shares the same Supabase DB so logins work) but runs a **stale copy of the backend** (version 2.1.0 vs 2.2.0 on `legacyodyssey.com`).
+- **This caused weeks of broken photos in the mobile app.** The mobile `BASE_URL` was historically hardcoded to the `*.up.railway.app` hostname, so every recent server-side fix we deployed went to `legacyodyssey.com` but the app never saw them.
+- **Fixed in commit `1a495d0` (Apr 19 2026):** mobile `BASE_URL` now falls back to `https://legacyodyssey.com`. Ship 1.0.5 or later to all users.
+- **TODO:** once 1.0.5 has propagated on both stores, delete (or repoint) the zombie service via the Railway dashboard so this can't recur. Do NOT delete it until then — older installed APKs/IPAs still rely on it.
+- Quick detector: `curl -s https://legacyodyssey.com/health` vs `curl -s https://legacy-odyssey-production-a9d1.up.railway.app/health`. If the `version` fields differ, the zombie is still live.
+
+### Supabase (Database + Storage)
+- **Plan:** **Pro** ($25/mo) — upgraded May 13 2026
+- **Project ref:** `vesaydfwwdbbajydbzmq`
+- **Org slug:** `jhstphhofapoxuhtqnrj` (used in /dashboard/org/<slug>/billing)
+- **URL:** `https://vesaydfwwdbbajydbzmq.supabase.co`
+- **Dashboard:** `https://supabase.com/dashboard/project/vesaydfwwdbbajydbzmq`
+- **Billing:** `https://supabase.com/dashboard/org/jhstphhofapoxuhtqnrj/billing`
+- **SQL Editor:** `https://supabase.com/dashboard/project/vesaydfwwdbbajydbzmq/sql`
+- **Account:** dragno6565@gmail.com
+- Region: us-west-2 (pooler: `aws-0-us-west-2.pooler.supabase.com:6543`)
+- **Auth config (May 13 2026):** Email OTP expiry **86400s (24h)** — was 3600s/1h, bumped after Ashley Beine reported broken reset-password flow. Leaked-password protection **enabled** (rejects HaveIBeenPwned breached passwords on signup + password change). RLS enabled on every public-schema table including the new `celebration_photos` + `recipe_photos` from migrations 014/015.
+- Pro tier benefits over Free we now have: daily auto-backups + 7-day PITR; 8 GB DB / 100 GB photo storage / 250 GB bandwidth; no project pausing; standard email support.
+
+### Stripe (Payments — LIVE MODE)
+- **Account:** `acct_1T3N7kJk2GIrL5uS`
+- **Pricing:**
+  - Monthly: $4.99/mo + $5.99 one-time setup fee (`STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_SETUP`)
+  - Annual standard: $49.99/yr, no setup fee (`STRIPE_PRICE_ANNUAL`)
+  - **Annual intro (PRIMARY OFFER):** $29 first year → $49.99/yr renewal
+    - Price: `STRIPE_PRICE_ANNUAL_INTRO` = `price_1TLojVJk2GIrL5uS0oQORYsr` ($49.99/yr base)
+    - Coupon: `STRIPE_ANNUAL_INTRO_COUPON` = `sX2lEPb6` ($20.99 off, duration: once, applies to "Legacy Odyssey Annual" product only)
+  - Additional Domain: $12.99/yr (`STRIPE_PRICE_ADDITIONAL_DOMAIN` = `price_1TDVIAQzzNThrLYKNnMljEkp`)
+- **Checkout:** Annual intro → `POST /api/stripe/create-founder-checkout`; Monthly → `POST /api/stripe/create-checkout`
+
+### Email (Resend)
+- **Domain:** `legacyodyssey.com` — VERIFIED (DKIM, SPF, DMARC)
+- **Forwarding:** ⚠️ catch-all `*@legacyodyssey.com → legacyodysseyapp@gmail.com` is **NOT working** (broken or never set up — confirmed by Dan May 13 2026). Customer replies only reach Dan because outbound emails set `Reply-To: legacyodysseyapp@gmail.com` and well-behaved clients honor that. Mail addressed directly to `hello@legacyodyssey.com`, `help@legacyodyssey.com`, etc. is dropped or bounces. TODO: fix the Spacemail catch-all forwarding so direct addresses also reach Dan.
+- Onboarding drip emails: Day 1, 3, 7, 13
+
+### DNS / Domains
+- **Registrar:** Spaceship (purchased automatically via API)
+- **DNS:** Spaceship Advanced DNS — www CNAME only (root @ does NOT support CNAME)
+- **Spaceship wallet:** $50 funded (auto-renewal enabled, Visa ending 6181)
+
+### Expo / EAS (Mobile Builds)
+- **Account:** `dragno65`
+- **EAS Project ID:** `14daf713-2b41-4ac0-b413-1179afa6e6a9`
+- **Expo project:** `https://expo.dev/accounts/dragno65/projects/legacy-odyssey`
+- **All builds:** `https://expo.dev/accounts/dragno65/projects/legacy-odyssey/builds`
+- iOS build numbers managed remotely via EAS (`appVersionSource: "remote"` in app.json)
+
+---
+
+## App Store Status (as of April 26, 2026)
+
+### iOS — Apple App Store
+- **Apple Team ID:** Y3J2B5YA4N
+- **App ID:** 6760883565
+- **ASC URL:** `https://appstoreconnect.apple.com/apps/6760883565/distribution/ios/version/inflight`
+- **v1.0.1 (Build 11) — Complete ✅**
+- **v1.0.3 (Build 13) — Complete ✅**
+- **v1.0.4 (Build 14) — Ready to Submit ✅** (uploaded Apr 14, 2026 7:07 PM; currently the latest Complete build in TestFlight Build Uploads)
+- **v1.0.5 (Build 15) — Released ✅** (Apr ~22, 2026 — confirmed via iTunes API).
+- **v1.0.6 (Build 16) — ⏳ Waiting for Review** (build ID `ef12b3b7-38f3-4875-a74a-5437c2609759`). Submitted for App Store review Apr 25, 2026 via EAS submit.
+  - Adds Cancel Subscription flow + removes Family Album navigator.
+  - Review password: `TestPass-2026!`.
+- **v1.0.5 included the photo-loading fix** (mobile BASE_URL → `legacyodyssey.com`, commit `1a495d0`) + "Adjust Photo" 404 fix (same root cause).
+- **Screenshot files:** `F:\legacy-odyssey\screenshots\` — screenshot1.png, screenshot2.png, screenshot3.png (6.5" iPhone)
+- **⚠️ ASC rendering bug:** Any scroll/focus blanks the page. Fix: resize window tall, use JS `.click()`, use native value setter (`Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set`) — never call `.focus()` or `.scrollIntoView()`
+
+### Android — Google Play
+- **Developer:** DOR Industries — login as `albumerapp2@gmail.com` (u/2 in Chrome)
+- **Developer ID:** 7255543911428830238 | **App ID:** 4975186349665269659
+- **Console:** `https://play.google.com/console/u/2/developers/7255543911428830238/app/4975186349665269659/app-dashboard`
+- **v1.0.2 (versionCode 9) — In Production ✅**
+- **v1.0.3 (versionCode 10) — In Production ✅** (Apr 13, 2026)
+- **v1.0.5 (versionCode 13) — In Production ✅** (released ~Apr 22, 2026)
+- **v1.0.6 (versionCode 14) — Submitted to production track ⏳** (Apr 25, 2026)
+  - Build ID: `e27db0cd-cba0-4131-b5f5-794e8dfa93fc` (AAB)
+  - Submission ID: `a117abb9-5864-46e5-9def-85cab7bacc2b`
+  - Status: `✔ Submitted your app to Google Play Store!` — awaiting Google review
+  - Service account key: `C:/Users/dragn/Downloads/warm-practice-349716-6414eeb91dbe.json`
+
+---
+
+## Architecture (post Approximated.app migration, Apr 27 2026 evening)
+
+Customer custom-domain traffic flow:
+
+```
+   Visitor → kateragno.com (Spaceship DNS — A record at customer's zone)
+          ↓
+   137.66.1.199 — Approximated proxy cluster ("Legacy Odyssey" cluster)
+          ↓
+   Caddy On-Demand TLS (per-domain Let's Encrypt cert, auto-issued)
+          ↓
+   legacy-odyssey-production.up.railway.app:443 (Railway, NOT through Cloudflare)
+          ↓
+   Railway service (Express server reads Host header, routes to family/book)
+```
+
+**Key points:**
+- Each customer: 2 A records (apex + www) → `137.66.1.199` (Approximated cluster IP). No Cloudflare for SaaS, no per-customer Cloudflare zones.
+- Approximated handles: TLS termination, Host-header preservation, proxy to Railway.
+- Customer DNS authority stays on **Spaceship** (no nameserver change needed for new signups). Roy is the only customer still on Cloudflare nameservers — keep his Cloudflare zone but the DNS records inside it are A → 137.66.1.199.
+- Target is `legacy-odyssey-production.up.railway.app` directly (not `legacyodyssey.com`, which is Cloudflare-fronted and 403s unknown Hosts). This bypasses Cloudflare entirely for customer-domain traffic.
+- Approximated config per vhost: `target_address=legacy-odyssey-production.up.railway.app`, `target_ports=443`, `keep_host=true` (CRITICAL — without this Express sees Host=railway and serves marketing site).
+- Cost: $20/mo plan (paid). Includes 250 hostnames. We're at 16 (8 customers × apex+www).
+
+**Why we ditched Cloudflare for SaaS:** Cloudflare's custom-token UI doesn't expose the account-level Zone:Edit permission needed to programmatically create per-customer zones. Tenants API requires Enterprise sales call. Approximated solves the same problem with one API key, no permission politics.
+
+**Code:**
+- `src/services/approximatedService.js` — wraps Approximated Virtual Hosts API (add/find/delete/status). Replaces `cloudflareService.js`.
+- `src/services/spaceshipService.js setupDns` — writes 2 A records per customer to cluster IP.
+- `src/services/domainService.js processDomainOrder` — calls `approximatedService.addVirtualHost` instead of Cloudflare.
+- `scripts/migrate-customer-to-approximated.js` — idempotent migration script for existing customers.
+- `cloudflareService.js` and the old CF migration scripts still exist but are NOT used by the new signup flow. Safe to delete eventually.
+
+**Env vars (set on Railway):**
+- `APPROXIMATED_API_KEY` (cluster-scoped to "Legacy Odyssey" cluster)
+- `APPROXIMATED_CLUSTER_IP=137.66.1.199`
+- `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_FALLBACK_ORIGIN` — kept around for legacyodyssey.com zone management (DNS, R2 photos), no longer used for customer domains.
+
+**Important Approximated subtleties:**
+- Update API uses field name `current_incoming_address` (not `incoming_address`).
+- `keep_host: false` is the CLUSTER DEFAULT — always set explicitly to `true` on new vhosts.
+- `redirect: true` once set is sticky and not cleanly clearable via update — delete and recreate the vhost if you accidentally enable it.
+- Approximated re-issues cert ON FIRST HIT to a DNS-pointing domain — apex stays `dns_pending` until first request, then 200s within seconds. Don't panic if `getStatus()` says `dns_pending` immediately after migration.
+
+**Status:**
+- ✅ All 8 customers migrated to Approximated (Roy, Eowyn, Emma, Kate, Reese, Lachlan, Jeff, your-family-photo-album).
+- ✅ All 16 hostnames serving 200 with valid TLS (BUT: kateragno.com and your-family-photo-album.com APEX still 404 — Railway custom-domain cap blocks adding apex to Railway. www works for both. Cosmetic — canonical URL we share is www.)
+- ✅ Built-in `/admin/health` reports 38 PASS / 2 WARN / 0 FAIL.
+- ✅ Marketing site, /admin, /account, all APIs verified working post-migration.
+
+---
+
+## Recent Work — Apr 25–27, 2026 Session (E2E testing — Annual ✓ Gift ✓ Monthly pending)
+
+User has been doing live end-to-end purchase testing on their phone with real money: **Annual → Gift → Monthly** (Monthly still TODO). Bugs are fixed and deployed mid-test. Many problems were uncovered; commits below.
+
+### Critical infrastructure findings
+- **Railway custom-domain cap = 20 per service on Pro.** Confirmed via existing Central Station thread. Brody (Railway employee) said they can bump to 30 temporarily on request, but the long-term answer is **Cloudflare for SaaS** (TLS termination + Host-header proxy) so Railway only needs ONE custom domain entry. User filed a private Central Station support ticket Apr 26 asking for the bump. Banner in dashboard: "You have hit the custom domain limit for your plan." Failing all new gift signups until resolved.
+- **Spaceship "URL Redirect" connection** auto-injects locked `group: product` apex A records pointing at parking IPs (15.197.162.184). Cannot remove via API — only via Domain Manager → click domain → URL redirect → Remove connection. Discovered via roypatrickthompson.com Apr 25; documented in BLOCKS.md.
+- **Spaceship's PUT /dns/records is non-destructive.** It appends. To actually replace, must DELETE first. The ad-hoc cleanup scripts (`scripts/repair-apex-dns.js`, `scripts/delete-stale-a-records.js`, `scripts/check-spaceship-dns.js`) handle this.
+
+### Mid-test commits (newest → oldest)
+- **`e38d4a7`** — Auto-disable Spaceship auto-renew when domain order fails post-registration. Stops orphan domains auto-billing. Triggered by legacyodysseytest5/6.com losing $25.98 (already disabled manually too).
+- **`9ad0150`** — Removed real family names from all placeholders (admin add-customer, family-detail, account-book-child-info, account-book-family-member, gift recipient name). Replaced with Sophia/Smith/Sam Smith/Sarah Smith. Memory note `feedback_no_real_names.md` enforces.
+- **`1a65934`** — Customer-initiated reactivation flow. Cancelled families now see a "Reactivate — $49.99/year" card on /account/dashboard. Stripe Checkout → webhook → un-archive + restore Spaceship auto-renew + welcome-back email. All book content preserved. Also added show-password toggle on /account login.
+- **`681d4da`** — `findByAuthUserId` / `findByEmail` prefer non-archived families. Was returning the OLDEST (often cancelled) family for a customer with multiple, so re-signed customers saw their dead account on dashboard.
+- **`58661e8`** — Webhook race fix: cancellation triggered Stripe `customer.subscription.updated` with status='trialing' + cancel_at_period_end=true; old code treated archived+trialing as a reactivation and fired welcome-back email immediately after the cancel email. Now skips reactivation if `cancel_at_period_end=true` OR family was archived <60s ago.
+- **`e2902ed`** — DB migration: drop strict UNIQUE on families.auth_user_id and families.email; replace with partial unique indexes WHERE archived_at IS NULL. Allows cancel→re-signup without violating constraints. Migration `012_partial_unique_families.sql` already applied on Supabase.
+- **`a816441`** + **`82330d4`** — Set-password success page: offer web sign-in alongside the apps; logo now links home.
+- **`bbfc46e`** — Surface real Supabase password-update error instead of generic "Failed to update password" (helped diagnose pwned-password rejection of "Hunter65!"; "Hunter6565!" worked).
+- **`80d4c91`** — Redeem success points "Sign in" to /account (was /login → 404), prompts to set password first via email.
+- **`00a7e40`** — Gift redeem: reuse existing Supabase auth user when email already exists (cancelled customer redeeming a gift); always return JSON errors so client can display them.
+- **`a636b3b`** — `/redeem` got founder-modal-style domain search (Check button + alternatives + auto `.com` append). Also added Gift tier as third side-by-side card on the pricing section (was a standalone button below).
+- **`726c49c`** — Disclose post-gift-year auto-renewal on /gift; fixed bug where post-trial subscription used $4.99/month instead of $49.99/year.
+- **`d5b658e`** + **`e2bf14e`** — Gift price corrected to $29 (display + Stripe charge).
+- **`36f2538`** — Domain pipeline hardening: separate try/catch for www vs apex add (so apex failure no longer marks order `active` silently); `setupDns` re-fetches records and throws if locked product-group records remain; Block 2 health check now uses `isFullyServing` (apex AND www required) instead of `isSiteLive` (either OK).
+- **`131b5ec`** — Editable birth-story headlines (`mom_title` / `dad_title` on `birth_stories`). Migration 011 applied. Mobile UI in v1.0.7+, web edit works now.
+- **`5837950`** — Show/hide password toggle on set-password page; welcome email mentions Settings → Book Password.
+- **`eab5a23`** — Founder modal: Check button hidden on mobile (flex min-width).
+
+### Customer state after this session
+| Family | Status |
+|---|---|
+| Eowyn | apex repaired (was on stale GitHub Pages IPs); now serving |
+| Lindsey/Emma | apex added + serving |
+| Roy | URL Redirect removed in Spaceship; apex in Let's Encrypt CA challenge; serves once issued |
+| Jeff | apex DNS correct; Railway "Waiting for DNS update" UI lag (also affects Kate's working site, so this is a Railway display bug) |
+| Kate | working on both apex + www (UI shows misleading "waiting" status) |
+| `legacyodysseytest5.com` + `legacyodysseytest6.com` | failed gift test domains; Spaceship registered ($25.98 lost) but Railway add hit cap; auto-renew DISABLED so they lapse next year |
+| `lotest1.com` | annual test, cancelled + auto-renew off |
+
+### Open loops
+1. **Apex 404 on kateragno.com + your-family-photo-album.com** — Railway custom-domain cap (20) is full and adding the apex returns "Not available" / "Domain in use". www works for both. Two paths: (a) free up Railway slots by deleting old per-customer entries that Approximated has replaced — Roy's, Eowyn's, etc. www and apex Railway customs are now redundant; (b) re-add a Spaceship URL Redirect for apex → www on those 2 domains (ironic but works).
+2. **Cancel Cloudflare for SaaS subscription** ($7/mo savings — no longer used; only DNS for `legacyodyssey.com` zone needs CF).
+3. **Free up the 14 stale Railway custom-domain slots** for migrated customers — delete `www.eowynhoperagno.com`, `eowynhoperagno.com`, `www.roypatrickthompson.com`, `roypatrickthompson.com`, etc. from Railway. All traffic now flows through Approximated. Once cleaned, we'll have 18 free slots for the 2 stragglers above + future overflow.
+4. **Continue E2E test** with Monthly subscription (Annual + Gift already done).
+5. **Wait for Apple/Google review of v1.0.6** (submitted Apr 25).
+6. **Delete zombie Railway service** at `legacy-odyssey-production-a9d1.up.railway.app` once v1.0.5+ has propagated on both stores.
+7. **Refunded gift codes don't auto-invalidate** — gift_codes.status stays `purchased` even after Stripe refund. Webhook on `charge.refunded` should mark code invalid.
+8. **#6 Store descriptions** update (deferred per user).
+9. **Spacemail per-mailbox forwarding** still working via `replyTo: gmail` safety net.
+
+## Earlier Fixes (Apr 19, 2026 session)
+
+**Photo-loading bug:** Two Railway services existed. `legacyodyssey.com` ran current code; `legacy-odyssey-production-a9d1.up.railway.app` was a zombie running stale code (v2.1.0 vs v2.2.0). Mobile `BASE_URL` fallback was pinned to the zombie, so server-side fixes never reached the app.
+
+**Fix (commit `1a495d0`):** Changed `mobile/src/api/client.js` `BASE_URL` fallback to `legacyodyssey.com`. Bumped to 1.0.5. Detector: compare `/health` `version` field across both hostnames.
+
+**Apple review demo password:** `review@legacyodyssey.com` / `TestPass-2026!` (reset via service-role `supabase.auth.admin.updateUserById`).
+
+## Earlier Fixes (Apr 19, 2026 session)
+
+**Photo-loading bug:** Two Railway services existed. `legacyodyssey.com` ran current code; `legacy-odyssey-production-a9d1.up.railway.app` was a zombie running stale code (v2.1.0 vs v2.2.0). Mobile `BASE_URL` fallback was pinned to the zombie, so server-side fixes never reached the app.
+
+**Fix (commit `1a495d0`):** Changed `mobile/src/api/client.js` `BASE_URL` fallback to `legacyodyssey.com`. Bumped to 1.0.5. Detector: compare `/health` `version` field across both hostnames.
+
+**Apple review demo password:** `review@legacyodyssey.com` / `TestPass-2026!` (reset via service-role `supabase.auth.admin.updateUserById`).
+
+---
+
+## Code Structure
+
+```
+F:\legacy-odyssey\
+├── src/                        # Express API server
+│   ├── server.js               # Entry point
+│   ├── config/                 # DB, Supabase, Stripe, Spaceship configs
+│   ├── middleware/              # Auth, error handling, family resolution
+│   ├── routes/
+│   │   ├── api/
+│   │   │   ├── auth.js         # Sign up, login, JWT — DELETE /account route (lines 167-211)
+│   │   │   ├── books.js        # CRUD for all book content
+│   │   │   ├── stripe.js       # Subscription management
+│   │   │   └── domains.js      # Domain search
+│   │   ├── book.js             # Web book viewer routes
+│   │   ├── admin.js            # Admin panel
+│   │   └── webhooks.js         # Stripe webhook handler
+│   ├── services/
+│   │   ├── spaceshipService.js # Spaceship API wrapper
+│   │   ├── domainService.js    # Domain search + purchase orchestration
+│   │   ├── railwayService.js   # Railway GraphQL API
+│   │   └── stripeService.js    # Stripe checkout
+│   ├── views/
+│   │   ├── book/               # Web book viewer EJS pages
+│   │   ├── layouts/            # Shared layouts
+│   │   ├── admin/              # Admin panel pages
+│   │   └── marketing/          # Landing + success pages
+│   └── public/                 # Static assets
+│
+├── mobile/                     # React Native (Expo)
+│   ├── App.js                  # Root: AuthProvider + NavigationContainer
+│   ├── app.json                # EAS config — NSCameraUsageDescription here
+│   └── src/
+│       ├── screens/
+│       │   ├── SettingsScreen.js   # Account deletion (lines 225-238) + Manage Subscription (lines 199-212)
+│       │   ├── DashboardScreen.js
+│       │   └── [all other screens]
+│       └── api/client.js       # API base URL logic
+│
+├── supabase/migrations/        # SQL migrations
+├── screenshots/                # App Store screenshots (screenshot1-3.png, 6.5" iPhone)
+└── CLAUDE_CONTEXT.md           # Older context file (superseded by this CLAUDE.md)
+```
+
+---
+
+## Mobile App Navigation
+
+**Auth Stack:** Login → Signup
+
+**App Stack (authenticated):**
+| Route | Screen File | Description |
+|-------|-------------|-------------|
+| Dashboard | DashboardScreen.js | Main hub |
+| ChildInfo | ChildInfoScreen.js | Baby info |
+| BeforeArrived | BeforeScreen.js | Pregnancy story |
+| BirthStory | BirthStoryScreen.js | Birth narrative |
+| ComingHome | ComingHomeScreen.js | Coming home story |
+| Months | MonthsScreen.js | Month 1-12 grid |
+| MonthDetail | MonthDetailScreen.js | Individual month |
+| OurFamily | FamilyScreen.js | Family members |
+| FamilyMember | FamilyMemberScreen.js | Add/edit member |
+| YourFirsts | FirstsScreen.js | First smile, word, etc. |
+| Celebrations | CelebrationsScreen.js | Birthday parties, holidays |
+| Letters | LettersScreen.js | Letters to child |
+| FamilyRecipes | RecipesScreen.js | Recipe collection |
+| TheVault | VaultScreen.js | Document storage |
+| Settings | SettingsScreen.js | Account, subscription, delete |
+| Preview | PreviewScreen.js | WebView of book viewer |
+
+Visual screen reference: `F:\legacy-odyssey\app-screen-reference.html`
+Label system: e.g. "3-d" = Child Info card on Dashboard. Open the HTML file to see all labels.
+
+---
+
+## Design System
+
+```javascript
+colors: {
+  background: '#faf7f2',   // Warm cream
+  dark: '#1a1510',          // Near-black
+  gold: '#c8a96e',          // Primary accent
+  goldLight: '#d4bb8a',
+  goldDark: '#b08e4a',
+  textPrimary: '#2c2416',
+  textSecondary: '#8a7e6b',
+  card: '#f0e8dc',
+  white: '#ffffff',
+  error: '#c0392b',
+  border: '#e0d5c4',
+}
+```
+Web viewer fonts: Cormorant Garamond + Jost (Google Fonts).
+
+---
+
+## Key Database Records
+
+### Primary Family (Eowyn's Book — owner's own book)
+- Family ID: `fb16691d-7ea4-4c93-9827-ffe8904ced6b`
+- Book ID: `501e0807-d950-4004-8b4c-9b0f0ce0c910`
+- Subdomain: `eowynragno`
+- Custom Domain: `eowynhoperagno.com`
+- Email: `dragno65@hotmail.com`
+
+### Apple Review Demo Account
+- Email: `review@legacyodyssey.com`
+- Status: ACTIVE
+- Purpose: For App Store reviewers to test the app
+
+### Admin
+- Admin URL: `https://legacy-odyssey-production-a9d1.up.railway.app/admin/login`
+- Admin email: `dragno65@hotmail.com`
+
+---
+
+## Active Customers (as of April 13, 2026)
+- **kateragno Family** — dragno65@gmail.com, kateragno.com, ACTIVE
+- **Eowyn Ragno (owner)** — dragno65@hotmail.com, eowynhoperagno.com, ACTIVE
+- **Lindsey Cherry** — lindsey.e.cherry@gmail.com, emmacherry.com, ACTIVE
+- **Roy Patrick Thompson** — eowynkiller@gmail.com, roypatrickthompson.com, ACTIVE
+- **Apple Review Demo** — review@legacyodyssey.com, ACTIVE (password: "password")
+- **your-family-photo-album** — your-family-photo-album.com, ACTIVE (demo site)
+- Test accounts: John (test@test.com), Preet Rana (preetrana2355@gmail.com)
+
+---
+
+## How to Run Locally
+
+```bash
+# Server
+cd E:/Claude/legacy-odyssey
+npm run dev
+# → http://localhost:3000
+
+# Mobile app (Expo web for testing)
+cd E:/Claude/legacy-odyssey/mobile
+npx expo start --web --port 8082
+# → http://localhost:8082 — click "Browse Demo" to skip auth
+
+# View screen reference
+cd E:/Claude/legacy-odyssey
+python -m http.server 9876
+# → http://localhost:9876/app-screen-reference.html
+```
+
+---
+
+## Pending Tasks (as of April 27, 2026 evening)
+
+1. **Free up Railway custom-domain slots** by deleting per-customer entries (`www.eowynhoperagno.com`, `eowynhoperagno.com`, `www.roypatrickthompson.com`, `roypatrickthompson.com`, etc.) — all traffic flows through Approximated now, the Railway entries are dead weight.
+2. **Add `kateragno.com` and `your-family-photo-album.com` apex** to Railway after slots free up. Or keep them on Approximated apex only, with a Spaceship URL Redirect for apex → www as fallback.
+3. **Update Block 2 health check** to verify each Approximated vhost has `has_ssl=true` and `apx_hit=true`. Current check just curl-tests the URL.
+4. **Cancel Cloudflare for SaaS subscription** — no longer used for customer routing. CF is still needed for `legacyodyssey.com` zone (DNS, R2 photos). Just cancel the SaaS add-on.
+5. **Continue E2E test with Monthly subscription** — paused while we migrated. Annual + Gift already tested with real money + refunded.
+6. **Wait for Apple review of iOS 1.0.6** — submitted Apr 25 (build 16). Check ASC.
+7. **Wait for Google Play review of v1.0.6** — versionCode 14, submission `a117abb9-5864-46e5-9def-85cab7bacc2b`. Submitted Apr 25.
+8. **Refunded gift codes auto-invalidation** — gap: refund a gift in Stripe doesn't change `gift_codes.status`. Webhook on `charge.refunded`.
+9. **Delete zombie Railway service** at `legacy-odyssey-production-a9d1.up.railway.app` — only after v1.0.5+ has propagated on both stores.
+10. **#6 Store descriptions** — deferred per user.
+11. **Spacemail per-mailbox forwarding** — eventual cleanup; current `replyTo: gmail` on every transactional email is the working safety net.
+13. **Delete `cloudflareService.js`, old CF migration scripts** — dead code now that Approximated is the customer-domain layer.
+
+---
+
+## Technical Notes
+
+- **Windows curl:** Always use `--ssl-no-revoke` flag
+- **Chrome extension disconnects** — reconnect via Claude Desktop + Chrome extension same account
+- **Demo mode:** "Browse Demo" on login screen = isAuthenticated true + isDemo true, no real API calls
+- **API base URL:** `EXPO_PUBLIC_API_URL || API_URL || 'https://legacy-odyssey-production-a9d1.up.railway.app'`
+- **Auth:** JWT Bearer tokens in expo-secure-store, axios interceptor auto-attaches
+- **Domain registration is async** — Spaceship returns 202 + operation ID, poll `/async-operations/{id}`
+- **Spaceship rate limits** — 5 req/domain/300s for availability; use bulk endpoint + 5-min cache
+- **Supabase:** Cannot run DDL (ALTER TABLE) from API — use Supabase SQL Editor dashboard
+- **Railway CNAME Target env var:** needed for custom domain setup
+
+
+---
+
+## Most recent state (May 13, 2026 evening — Keepsakes feature shipped)
+
+**Chapter Ten — "Their Keepsakes"** redesign shipped end-to-end. New section for parents to photograph + preserve drawings, awards, certificates, handprints, etc. Categories: Artwork / Schoolwork / Award / Memorabilia.
+
+- **Migration 016** applied May 13 — `keepsakes` + `keepsake_photos` tables. Additive, RLS enabled on both. Rollback documented in the SQL.
+- **Visitor side** (`ed4980d`) — `/keepsakes/:slug` detail pages, overview at `#keepsakes`, sidebar dropdown with nested entries, photo lightbox, category filter chips, drop-cap story styling. CSS uses the same ink/cream/gold palette as the rest of the book.
+- **Owner editor** (`f4f1e83`) — `/account/book/keepsakes` list + per-keepsake detail editor with title, category chips, attribution, age_text, date_made (YYYY-MM-DD validated), story, multi-photo gallery with captions.
+- **Demo site** (`02b70c3`) — your-childs-name.com sample now shows four category cards in the Keepsakes section. (family-album-demo.html unaffected; that product is retired.)
+- **Mobile v1.0.11** (`e9f7571`) — KeepsakesScreen + KeepsakeDetailScreen. Dashboard tile + ManageSections toggle. Routes wired into App.js.
+  - iOS build `bfb9f4d3-4bc2-4187-b1d1-043b5f80d49c` (waiting in EAS queue as of session end)
+  - Android build `d1b6ed4b-570c-40a2-9b0a-6a7b97b0c7f5` (vc 22) — **submitted to Google Play production track May 13 2026 evening**, submission `c59b8216-2664-4e8c-9b72-7d99854e7017`
+
+**TODO when you next session (after iOS clears review, ~24-48h):**
+- Send customer announcement email to the 8 real paying customers (draft approved by Dan May 13; subject: "A new chapter for your book — Their Keepsakes"). Recipients: Lindsey Cherry, Roy Patrick Thompson, Ashlee Tatler, Stone Allen, Jeff Presutti, Jade, Dawn Porter, Ashley Beine. Wait at least 24h between Ashley's earlier apology email and this announcement.
+- Use the same one-shot admin route pattern as the Ashley apology email if Resend key isn't local: deploy a temp `/admin/dev/announce-keepsakes` route, Dan hits it from logged-in admin browser, then revert.
+
+**Backup taken before this work:** `F:\backups\keepsakes-20260513\` (all touched code files + mobile snapshot + Supabase DB dump in `F:\backups\supabase\2026-05-13\`).
+
+---
+
+## Most recent state (May 13, 2026 — password reset bug fix + Supabase Pro)
+
+**Customer Ashley Beine bug** — `/account/reset-password` was broken for all customers using the Forgot Password flow. The page only read `?token_hash=` from `req.query`, but Supabase recovery links redirect with `#access_token=jwt` in the URL hash fragment, which the server never sees. Anyone using Forgot Password landed on "This reset link is invalid or has expired" regardless of whether their link was actually expired. Fixed in commit `9f92d55` — the page now handles both flows (server-side POST for `?token_hash=` links, client-side JS that parses `#access_token=` and PUTs to /auth/v1/user for the hash-fragment flow, same pattern as `/set-password`). Ashley was sent a custom apology email + fresh 24-hour link via Resend (commit `5e8a07e`, removed in `89dfb8c`). Resend confirms delivered.
+
+**Supabase upgrades (May 13 2026):**
+- Plan upgraded from Free → **Pro** ($25/mo) at org level
+- Email OTP expiry bumped to **86400s (24h)** — was 1h. Applies to welcome-email set-password links, forgot-password resets, and any other Supabase email-based OTP
+- **Leaked-password protection** turned on (HaveIBeenPwned API check on signup + password change) — only available on Pro tier
+- RLS enabled on `celebration_photos` and `recipe_photos` (Supabase Advisor flagged these as the only public-schema tables without RLS — backend uses service-role which bypasses RLS, so no policies needed)
+
+## Most recent state (May 11–12, 2026 — Celebrations + Recipes redesign)
+
+> Long monster session `50819f15-…` was migrated here. Full transcript visible at
+> `F:\legacy-odyssey\.tmp\session-replay.html`.
+
+**Web redesigns shipped this session (commits `195d581`, `5924666`, `46ea1d8`):**
+- **Celebrations**: Multi-photo galleries, custom year labels, per-celebration detail pages with location/attendees/gifts/story, nested sidebar dropdown. Migration 014 applied.
+- **Recipes**: Per-recipe detail pages with story/prep/cook/serves/difficulty/notes, structured `{amount, item}` ingredients + numbered `{text}` directions, multi-photo galleries, recipe slugs, nested sidebar dropdown. Migration 015 applied; visitor + owner editors both live.
+- Photo lightbox on celebration + recipe gallery (commits `0072455`, sub-commit of `195d581`).
+- Sidebar nav from detail pages (`92e5858`).
+- Firsts cards now use Lucide icons instead of emoji (`3d59d32`).
+
+**Critical safety patch (commit `c656921`):** Legacy bulk PUT `/api/books/mine/celebrations` and `/api/books/mine/recipes` were destructive (delete-all-then-reinsert), which mobile v1.0.9 calls every save. After migration 014/015 that was a live data-loss bug: any v1.0.9 customer saving on mobile would wipe the rich fields they'd added on the web. Both endpoints now merge-by-sort-order, never delete, and only write fields the client explicitly sent. v1.0.9 stays functional; data is safe.
+
+**Mobile v1.0.10 (commit `1ab53f3`, build queued May 11 2026):**
+- All-new Celebrations flow: year list (custom labels, inline add, long-press delete) → year-of-celebrations list (unlimited, tap to edit) → per-celebration editor with multi-photo gallery + location/attendees/gifts/date/story.
+- All-new Recipes flow: recipe list (tap to edit, inline add) → per-recipe editor with origin/description/story/prep/cook/serves/difficulty/notes, structured ingredients + numbered directions (add/remove rows), multi-photo gallery.
+- Mobile now uses per-item CRUD endpoints exclusively. The bulk PUTs are no longer called from mobile.
+- Backup of v1.0.9 mobile screens at `F:\backups\mobile-v1.0.10-20260511\`.
+- Build IDs: iOS `69073ebb-8fef-425f-9fc4-7779880752be`, Android `9be39eb9-fed8-4081-9787-8dc82f25c4fd` (versionCode 21).
+
+**Stores — Last published versions: both on v1.0.9:**
+- 🍏 iOS 1.0.9 (build 21) — Apple released May 7, 2026
+- 🤖 Android 1.0.9 (vc 20) — Production rollout completed
+- v1.0.10 builds in progress as of session end May 11/12 2026.
+
+**v1.0.9 contents (commit `4e98ade`):** Retired $12.99 additional-domain tier; redirects mobile users to legacyodyssey.com (full subscription rate). Touches DashboardScreen (removed "+ New Website" tile), SettingsScreen (removed "Add Another Book & Domain" button), NewWebsiteScreen + AdditionalDomainScreen (replaced with redirect screens). Stripe `createAdditionalSiteCheckout` route swapped from `$12.99/yr` → `$29 first year / $49.99/yr` w/ `STRIPE_ANNUAL_INTRO_COUPON`. (Commit `fdbc189` signup-form removal was already in v1.0.8.)
+
+**⚠️ EAS iOS submit gotcha (May 6 2026):** The first two `eas submit --platform ios` attempts for v1.0.9 failed with Expo's generic "Something went wrong when submitting your app to Apple App Store Connect." — `error: null` and `logFiles: []` in the GraphQL submission record. Apple's status page was all green at the time. The third attempt (same build, no config changes, just re-running) succeeded immediately. Conclusion: EAS submit's worker pool occasionally fails transiently with no actionable error. **Don't debug; just retry up to 3x before investigating.**
+
+**Landing v2 redesign — A/B test LIVE on / (commit `14a0c6c`, May 6 2026):**
+- File: `src/views/marketing/landing-v2.ejs` (uses `.lo-` CSS prefix).
+- `/` now serves v1 OR v2 via cookie-based 50/50 split (`pickLandingVariant` in `src/routes/book.js`).
+- Cookie `lo_landing` (30-day expiry) keeps each visitor sticky to one variant.
+- Bots/crawlers (Googlebot, Bingbot, facebookexternalhit, Twitterbot, etc.) always get v1 for SEO/canonical stability.
+- Manual override: `?lov=v1` or `?lov=v2` (also sets the cookie).
+- Direct preview routes: `/preview/landing-v1`, `/preview/landing-v2`.
+- GA4 custom dimension `landing_variant` is set on every event via `gtag('set', { 'landing_variant': 'v1'|'v2' })`. **Already registered in GA4 admin** May 6 2026 — name "Landing Variant", scope Event, parameter `landing_variant`. Data is flowing; standard reports populate it within 24–48h of registration.
+- Recent revisions before A/B (commit `43dc0c7`): trust bar swapped "Cancel anytime — no lock-in" → "Setup in minutes — no tech needed"; browser mockup title fixed to "The Story of / Sophia's First Year"; testimonials section removed (FTC §255 risk + placeholder copy).
+- **Picking a winner:** after 1–2 weeks, compare conversion rate (sign-up event count / sessions) by `landing_variant` in GA4. Promote winner to `/` by either deleting the loser branch in `pickLandingVariant` or simply renaming files. Then delete the loser file + its preview route.
+
+**Marketing copy cleanup (commit `948e799`, May 6 2026 evening):**
+- Hard rule established: **never describe the product as a "family book / family's book / family's story / family's site / family's memories"** — it is a digital BABY book about a CHILD. See memory `feedback_no_family_book.md`.
+- Hard rule established: **never analogize the product to a magazine, scrapbook, journal app, or photo album.** It IS a digital baby book. Say that. See memory `feedback_product_is_a_baby_book.md`.
+- 23 instances scrubbed across 12 files: `landing.ejs`, `landing-v2.ejs`, `blog-getting-started.ejs`, `blog-index.ejs`, `blog-what-to-write-in-baby-book.ejs`, `set-password.ejs`, `success.ejs`, `signup.ejs`, `terms.ejs`, `book/password.ejs`, `book/sidebar.ejs`, `layouts/book.ejs`. Founder modal title is now "Start Your Baby's Book" (was "Start Your Family's Book"). v2 FAQ "What does the book actually look like?" was rewritten to lead with "A digital baby book that lives at their own .com — beautifully designed, private, and password-protected" (was "like a personal magazine for your family").
+- Before pushing any new customer-facing copy: `grep -iE "family('s)? book|magazine for|personal magazine|family's (story|site|memor)"` should return 0 hits in `src/views/`.
+
+**Backups:**
+- `F:\backups\backup.py` — nightly Supabase DB dump + photo mirror, scheduled 2:17 AM via Windows Task Scheduler (`LegacyOdyssey-NightlyBackup`).
+- Last backup: see `F:\backups\supabase\` for date-stamped folders.
+
+**Today's commits (May 6 2026 evening, after the v1.0.8-shipped pickup):**
+- `1ee3382` — Bump mobile/app.json 1.0.8 → 1.0.9
+- `14a0c6c` — Cookie-based A/B split between landing v1 and v2 on /
+- `948e799` — Stop calling the product a "family book" or "magazine"
+
+**Gift-giver landing + scheduled delivery + certificate (May 7-9 2026):**
+- New landing at **`/preview/gift-landing`** (commit `8ff0e1b`, revisions `937e0f4`, `1b3d272`, `da52cbc`). Conversion-focused page aimed at gift purchasers — a different audience from the main /. Hero is a close-up of a baby's hand being held; headline "Give the baby their own .com." Form (embedded in the buy section) lets the buyer choose between "Email it now" and "Schedule the email" for recipient delivery. Page is preview-only — not promoted to `/gift` yet, no ad traffic landing on it (Dan reviews and decides when to promote).
+- "Introductory Offer" labeling pushed across all pricing surfaces:
+  - v1 landing: gold-pill badge added to gift card (annual intro card already had one)
+  - v2 landing: annual card "Best Value" badge → "Introductory Offer"; gift card got a new "Introductory Offer" badge + highlighted styling
+  - Minimal /gift form page: added INTRODUCTORY OFFER eyebrow above the price block
+  - Body copy site-wide updated to say "Introductory price · …"
+- **Phase 2 (commit `086f825`, May 9):** Backend now actually honors the form's two new fields.
+  - DB migration `013_gift_scheduled_delivery.sql` adds 4 columns to `gift_codes`: `delivery_method`, `deliver_at`, `recipient_email_sent_at`, `certificate_token` (+ partial index for cron scan). **Migration applied to production via Supabase SQL Editor on May 9.** Backfill stamped existing purchased rows as already-sent so the cron doesn't retroactively re-spam.
+  - `stripeService.createGiftCheckoutSession` accepts `deliveryMethod` + `scheduledDate`, stores in Stripe metadata. Falls back to `email_now` if scheduledDate is missing/past.
+  - Webhook (gift branch in `routes/webhooks.js`) reads metadata, creates the gift via `giftService.createGiftCode`, and:
+    - Always sends buyer confirmation email immediately, with a "View & Print Certificate" CTA box and timing context ("we'll send <recipient> on <date>" or "we've already sent them").
+    - Sends recipient gift email inline only when `delivery_method=email_now`. For `email_scheduled`, the cron picks it up.
+    - Stamps `recipient_email_sent_at` so neither path double-sends.
+  - New cron `jobs/giftDeliveries.js` — runs hourly at :17, finds purchased + email_scheduled + deliver_at <= now() + not-yet-sent + has recipient_email, sends and stamps. Wired in `server.js` next to the other schedulers. **Verified running on production (`cron_runs` table shows successful run on startup).**
+  - New route `GET /gift/certificate/:token` + view `marketing/gift-certificate.ejs` — public (token is the only auth, only the buyer ever sees the link). Print-optimized: gold-bordered card with brand mark, From/For names, optional message, gift code (dashed-border block), redeem URL, expiry note. `@media print` hides the toolbar and forces letter portrait. Browser "Save as PDF" works cleanly.
+- **Phase 2.1 polish (commit `fa99dfe`, May 9):**
+  - `/gift/success` page now shows the printable certificate inline in a gold-on-dark callout, so the buyer can print without waiting for the confirmation email. The headline subtext is now timing-aware ("we've already emailed Sam…" vs. "we'll email Sam on December 25th…").
+  - Bug fix: the "webhook hasn't fired yet" race fallback in the success route was creating gift_codes without passing deliveryMethod / scheduledDate / recipientName — meaning fast-clicking buyers would silently get email_now behavior even if they'd chosen a scheduled date. Now passes everything through.
+  - **`charge.refunded` webhook handler.** Stripe charge → checkout session → gift_code lookup; if the gift hasn't been redeemed yet, marks status='refunded' so the redeem flow rejects it (with a friendly "this gift has been refunded" error instead of the misleading "already redeemed"). If it HAS been redeemed, logs loudly without invalidating to avoid orphaning the recipient's account; manual handling required in that case.
+  - The earlier-deferred "Refunded gift codes don't auto-invalidate" item from the monster-session open-loops list is now closed.
+- **Open follow-ups for next session:**
+  - Promote `/preview/gift-landing` to a real ad-landing URL (suggest `/gift-card` or replace `/gift` once Dan approves)
+  - Update the gift ad campaign's destination URL once promoted
+  - Consider sending the existing "purchased earlier than the migration" gift codes a printable certificate retroactively — they have `certificate_token IS NULL` and the email already went out. Low priority.
+
+**Today's commits this session (May 9 2026, after Phase 2 ship):**
+- `086f825` — Phase 2: gift scheduled-email delivery + printable certificate
+- `fa99dfe` — Gift Phase 2 polish: success page + refund auto-invalidate
+
+**Celebrations redesign — DEPLOYED May 11 2026:**
+
+Schema (migration 014_celebrations_extensions.sql, applied to prod):
+- `celebrations.location`, `attendees`, `gifts`, `celebration_date`, `slug` (all nullable)
+- New `celebration_photos` table (id, celebration_id FK CASCADE, photo_path, caption, sort_order)
+- Backfill: each pre-migration `celebrations.photo_path` copied to celebration_photos as sort_order=0. The legacy `photo_path` column is NOT dropped — bookService falls back to it if a celebration has no celebration_photos rows.
+- All 52 pre-migration rows preserved; all got slugs auto-generated from title.
+- ROLLBACK: documented inline at top of migration file. Backup at `F:\backups\supabase\2026-05-11\` captured pre-state.
+
+Backend changes:
+- `bookService.getFullBook` attaches `.photos[]`, `.coverPhoto`, `.slug` to every celebration. Loads celebration_photos in one batched query; if the table doesn't exist or a celebration has no rows there, synthesizes a single-photo array from the legacy `photo_path` column. Exports new helpers `withResolvedCelebration`, `slugifyYear`.
+- `PUT /api/books/mine/celebrations` (mobile) extended to accept new fields. Backward-compatible: old client payloads still work.
+- NEW JSON API endpoints (auth via requireAuth, for the future mobile v1.0.10):
+  - GET    /api/books/mine/celebrations/:id
+  - POST   /api/books/mine/celebrations
+  - PUT    /api/books/mine/celebrations/:id
+  - DELETE /api/books/mine/celebrations/:id
+  - POST   /api/books/mine/celebrations/:id/photos
+  - PUT    /api/books/mine/celebration-photos/:photoId
+  - DELETE /api/books/mine/celebration-photos/:photoId
+
+Web book viewer (visitor side):
+- Sidebar `book/sidebar.ejs`: "Celebrations" is now a 2-level dropdown — years → individual celebrations. Empty placeholder rows filtered out so the menu only shows celebrations with content.
+- Overview `book/holidays.ejs`: each celebration card is now a clickable link to its detail page; shows photo count badge (+N) on the cover photo; "Read more →" CTA.
+- NEW route `GET /celebrations/:yearSlug/:celebrationSlug` (resolveFamily + requireBookPassword); renders the new detail page.
+- NEW layout `layouts/celebration-detail.ejs` + view `book/celebration-detail.ejs`: hero (eyebrow/title/meta/cover photo) + The Story + Who Was There (pill tags) + Presents (bullet list) + The Album (photo gallery with captions) + prev/next pager. Every section conditional — renders only if user filled it in.
+- Mockup that Dan approved is still live at `/preview/celebration-mockup/{full,sparse,empty}` for reference.
+
+Web account-dashboard editor:
+- `/account/book/celebrations` (was: flat card list) — now shows year tree with celebrations grouped under each year, count badges, photo thumbnails, "Add Celebration" form per year, "Add Year" card at bottom (accepts any custom label).
+- NEW route `GET/POST /account/book/celebrations/edit/:id` with the full per-celebration editor: title, year picker, eyebrow, date, location, attendees (comma-separated), story, presents (one per line), photo gallery with per-photo caption + delete + + Add photo upload.
+- Year management routes:
+  - POST /account/book/celebrations/year/add
+  - POST /account/book/celebrations/year/delete (cascade-deletes celebrations in that year)
+  - POST /account/book/celebrations/new (creates one + redirects to editor)
+  - POST /account/book/celebrations/delete/:id
+- Photo management routes:
+  - POST /account/book/celebrations/:id/photo (multer upload + create celebration_photos row)
+  - POST /account/book/celebrations/photo/:photoId/edit (caption / sort_order)
+  - POST /account/book/celebrations/photo/:photoId/delete
+
+Photo editor parity: mobile uses the existing `PhotoEditor` (focal-point + rotate) — will be extended to the multi-photo gallery in v1.0.10. Web has upload-only on all other sections, so we match that.
+
+Backups before migration (verified intact in F:\backups\supabase\2026-05-11\tables.json.gz):
+- 17 families, 17 books, 52 celebrations (4 with photo_path, 4 with body text)
+- 99 photos mirrored to F:\backups\photos\
+
+Commits (chronological):
+- `d8b044b` — Migration 014 file (not yet applied)
+- `67b2f88` — Backend Phase 2: bookService + API endpoints
+- `8db4efb` — Web viewer Phase 3: sidebar + overview links + detail page
+- `9cacd2f` — Web editor Phase 4: year tree + per-celebration editor + multi-photo gallery
+- Migration 014 applied to production via Supabase SQL Editor (May 11 2026, ~17:43 UTC)
+
+**Open follow-up: mobile v1.0.10** — the existing mobile editor (CelebrationsScreen + CelebrationYearScreen) is unchanged, still has the 3-cap and auto-named years. The backend now accepts unlimited celebrations and the new fields, so when mobile ships v1.0.10 with a new CelebrationDetailScreen + dynamic year list + custom year labels + multi-photo gallery editor, it'll Just Work.
+
+**Unfinished from monster session (deferred):**
+- Free up Railway custom-domain slots (delete stale per-customer entries since traffic now flows through Approximated)
+- Cancel Cloudflare for SaaS subscription ($7/mo savings)
+- Refunded gift codes don't auto-invalidate (`gift_codes.status` doesn't flip on `charge.refunded` webhook)
+- Delete zombie Railway service at `legacy-odyssey-production-a9d1.up.railway.app`
+
+
+
+---
+
+## DO NOT SEND — historical actions completed
+
+- **Welcome email to Reese, Lachlan, Jeff:** ALREADY SENT. Do NOT send another.
+- **kateragno.com:** Dan asked to ignore until he raises it. Do NOT diagnose, repair, mention, or reference unprompted.
