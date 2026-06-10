@@ -37,6 +37,7 @@ import {
   Lock,
   Globe,
   LifeBuoy,
+  Share2,
   Settings as SettingsIcon,
 } from 'lucide-react-native';
 
@@ -59,6 +60,7 @@ const SECTIONS = [
   { key: 'recipes',        title: 'Family Recipes',       icon: UtensilsCrossed, screen: 'FamilyRecipes' },
   { key: 'keepsakes',      title: 'Their Keepsakes',      icon: Archive,         screen: 'Keepsakes' },
   { key: 'vault',          title: 'The Vault',            icon: Lock,            screen: 'TheVault' },
+  { key: 'circles',        title: 'Your Circles',         icon: Share2,          screen: 'Circles' },
   { key: 'manageSections', title: 'Website Sections',     icon: Globe,           screen: 'ManageSections' },
   { key: 'help',           title: 'Help & Support',       icon: LifeBuoy,        screen: 'Help' },
   { key: 'settings',       title: 'Settings',             icon: SettingsIcon,    screen: 'Settings' },
