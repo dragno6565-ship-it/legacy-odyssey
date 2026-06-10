@@ -6,6 +6,7 @@ const familyService = require('../services/familyService');
 const bookService = require('../services/bookService');
 const videoService = require('../services/videoService');
 const galleryService = require('../services/galleryService');
+const contactService = require('../services/contactService');
 const photoService = require('../services/photoService');
 const stripeService = require('../services/stripeService');
 const { getPublicUrl } = require('../utils/imageUrl');
@@ -587,6 +588,77 @@ router.post('/book/galleries/photo/:pid/delete', requireAccountSession, async (r
     await galleryService.deletePhoto(bid, req.params.pid);
     res.json({ success: true });
   } catch (err) { next(err); }
+});
+
+// ─── Circles: contact list + groups (migration 029) ──────────────────────────
+// Phase 1: manage contacts + circles. Notify (Phase 2) comes later.
+router.get('/book/circles', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    const contacts = bid ? await contactService.listContacts(bid) : [];
+    const circles = bid ? await contactService.listCircles(bid) : [];
+    res.render('marketing/account-book-circles', {
+      contacts, circles, success: req.query.success || null, error: req.query.error || null,
+    });
+  } catch (err) { next(err); }
+});
+
+function _circleIds(body) {
+  const v = body.circleIds;
+  return Array.isArray(v) ? v : (v ? [v] : []);
+}
+
+router.post('/book/circles/contacts', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    if (!bid) return res.redirect('/account/book/circles?error=1');
+    const c = await contactService.addContact(bid, req.body);
+    const ids = _circleIds(req.body);
+    if (ids.length) await contactService.setContactCircles(bid, c.id, ids);
+    res.redirect('/account/book/circles?success=1');
+  } catch (err) { res.redirect('/account/book/circles?error=' + encodeURIComponent(err.message || '1')); }
+});
+
+router.post('/book/circles/contacts/:id/update', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await contactService.updateContact(bid, req.params.id, req.body);
+    await contactService.setContactCircles(bid, req.params.id, _circleIds(req.body));
+    res.redirect('/account/book/circles?success=1');
+  } catch (err) { res.redirect('/account/book/circles?error=1'); }
+});
+
+router.post('/book/circles/contacts/:id/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await contactService.archiveContact(bid, req.params.id);
+    res.redirect('/account/book/circles?success=1');
+  } catch (err) { res.redirect('/account/book/circles?error=1'); }
+});
+
+router.post('/book/circles', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    if (!bid) return res.redirect('/account/book/circles?error=1');
+    await contactService.createCircle(bid, req.body.name);
+    res.redirect('/account/book/circles?success=1');
+  } catch (err) { res.redirect('/account/book/circles?error=' + encodeURIComponent(err.message || '1')); }
+});
+
+router.post('/book/circles/:id/rename', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await contactService.renameCircle(bid, req.params.id, req.body.name);
+    res.redirect('/account/book/circles?success=1');
+  } catch (err) { res.redirect('/account/book/circles?error=1'); }
+});
+
+router.post('/book/circles/:id/delete', requireAccountSession, async (req, res, next) => {
+  try {
+    const bid = await resolveBookId(req);
+    await contactService.archiveCircle(bid, req.params.id);
+    res.redirect('/account/book/circles?success=1');
+  } catch (err) { res.redirect('/account/book/circles?error=1'); }
 });
 
 // ─── Book section overview ────────────────────────────────────────────────────

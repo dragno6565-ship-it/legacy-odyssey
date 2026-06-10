@@ -123,6 +123,7 @@ app.use('/api/contact', require('./routes/api/contact'));
 app.use('/api/waitlist', require('./routes/api/waitlist'));
 app.use('/api/videos', require('./routes/api/videos'));
 app.use('/api/galleries', require('./routes/api/galleries'));
+app.use('/api/contacts', require('./routes/api/contacts')); // Circles: contact list + groups
 
 // Web routes (SSR — book viewing)
 app.use('/', require('./routes/book'));
