@@ -183,6 +183,28 @@ const server = app.listen(PORT, () => {
   startVideoUsageMonitorScheduler();
 });
 
+// Graceful shutdown — Railway sends SIGTERM on every deploy cutover. Without
+// this, in-flight requests (e.g. a customer's photo mid-upload) are killed.
+// server.close() stops accepting NEW connections but lets active requests
+// finish; the timeout is a backstop so a hung connection can't block the
+// deploy forever (Railway force-kills after its own grace period anyway).
+let shuttingDown = false;
+function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`${signal} received — draining in-flight requests before exit`);
+  server.close(() => {
+    console.log('All connections drained; exiting.');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.warn('Drain timeout (25s) — forcing exit.');
+    process.exit(0);
+  }, 25_000).unref();
+}
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
 // Silently drop malformed HTTP requests (bots, scanners, incomplete connections).
 // Without this, Node's HTTP parser throws "Parse Error" which Sentry captures as unhandled.
 server.on('clientError', (err, socket) => {

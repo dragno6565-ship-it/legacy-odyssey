@@ -77,6 +77,21 @@
     var MAX = <%= maxPhotos %>;
     var COUNT = <%= photos.length %>;
 
+    // fetch with automatic retries — a blip (deploy cutover, flaky Wi-Fi)
+    // self-heals instead of killing a 50-photo batch. 4xx responses are NOT
+    // retried (a too-big or invalid file won't get better on retry).
+    async function fetchRetry(url, opts, tries) {
+      tries = tries || 3;
+      for (var a = 1; a <= tries; a++) {
+        try {
+          var res = await fetch(url, opts);
+          if (res.ok || (res.status >= 400 && res.status < 500)) return res;
+        } catch (e) { /* network error — retry */ }
+        if (a < tries) await new Promise(function (r) { setTimeout(r, 1000 * a); });
+      }
+      return null;
+    }
+
     async function addPhotos(input) {
       var files = Array.from(input.files || []); input.value = '';
       if (!files.length) return;
@@ -85,26 +100,35 @@
       if (files.length > room) { alert('Only ' + room + ' more photo' + (room === 1 ? '' : 's') + ' will fit — adding the first ' + room + '.'); files = files.slice(0, room); }
       var prog = document.getElementById('progress'); prog.style.display = 'block';
       var paths = [];
-      try {
-        for (var i = 0; i < files.length; i++) {
-          prog.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '…';
-          var fd = new FormData(); fd.append('file', files[i]); fd.append('section', 'galleries');
-          var res = await fetch('/account/upload', { method: 'POST', body: fd });
-          if (!res.ok) throw new Error('upload');
-          var data = await res.json();
-          paths.push(data.path);
+      var failed = [];
+      for (var i = 0; i < files.length; i++) {
+        prog.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '…';
+        var fd = new FormData(); fd.append('file', files[i]); fd.append('section', 'galleries');
+        var res = await fetchRetry('/account/upload', { method: 'POST', body: fd });
+        if (res && res.ok) {
+          try { paths.push((await res.json()).path); } catch (e) { failed.push(files[i].name); }
+        } else {
+          failed.push(files[i].name);
         }
-        await fetch('/account/book/galleries/<%= gallery.id %>/photos', {
+      }
+      // Attach everything that DID upload — a few failures don't throw away the rest.
+      if (paths.length) {
+        var attach = await fetchRetry('/account/book/galleries/<%= gallery.id %>/photos', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paths: paths })
         });
-        // The page reloads to show the new photos — save a typed-but-unsaved
-        // gallery name first so the reload doesn't discard it.
-        var titleForm = document.querySelector('.title-row');
-        if (titleForm && titleForm.querySelector('input[name="title"]').value.trim()) {
-          try { await fetch(titleForm.getAttribute('action'), { method: 'POST', body: new FormData(titleForm), credentials: 'same-origin' }); } catch (e2) {}
-        }
-        location.reload();
-      } catch (e) { alert('Upload failed. Please try again.'); prog.style.display = 'none'; }
+        if (!attach || !attach.ok) { alert('Upload finished but saving to the gallery failed. Please try again.'); prog.style.display = 'none'; return; }
+      }
+      if (failed.length) {
+        alert(paths.length + ' photo' + (paths.length === 1 ? '' : 's') + ' uploaded. ' + failed.length + ' failed — add ' + (failed.length === 1 ? 'it' : 'them') + ' again:\n' + failed.slice(0, 10).join('\n'));
+      }
+      if (!paths.length) { prog.style.display = 'none'; return; }
+      // The page reloads to show the new photos — save a typed-but-unsaved
+      // gallery name first so the reload doesn't discard it.
+      var titleForm = document.querySelector('.title-row');
+      if (titleForm && titleForm.querySelector('input[name="title"]').value.trim()) {
+        try { await fetch(titleForm.getAttribute('action'), { method: 'POST', body: new FormData(titleForm), credentials: 'same-origin' }); } catch (e2) {}
+      }
+      location.reload();
     }
 
     async function saveCaption(id, caption) {
