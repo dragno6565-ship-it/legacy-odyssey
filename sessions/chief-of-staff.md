@@ -8,6 +8,12 @@
 ## Scope
 - Owns the entire `ops/` directory — the business source of truth.
 - Money / legal / vendor / renewal / hardware / unit-economics questions route here.
+- **Does NOT draft marketing/recruitment copy and does NOT redesign live program terms.**
+  (Lesson 2026-06-10: this session drafted affiliate copy at flat-$15 while the affiliates
+  session had 35%-recurring LIVE in Rewardful/ToS. Dan resolved D-010 on 2026-06-11:
+  **35% recurring stands**; the flat-$15 copy is retired.) If a live program's economics
+  look wrong, raise a DECISIONS.md entry + STATUS note for Dan — never produce competing
+  artifacts in another session's lane.
 - End-of-session ritual: update `ops/`, post a state-of-the-business snapshot + top-3
   actions (see `ops/BUSINESS-OPS.md` P3), update this file + a STATUS.md entry.
 
