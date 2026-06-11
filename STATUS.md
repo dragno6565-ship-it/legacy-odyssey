@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-10 (night) — coding
+- Did: **1.0.18 app parity batch BUILT — both EAS production builds FINISHED** (not submitted; awaiting Dan's test + go). App: Circles "Send an Update", galleries create-then-name/reorder/50-cap, family icon+delete+no-emoji, year rename, decimal keyboards. Server: 3 additive API endpoints (family delete, gallery reorder, year rename). Also tonight: galleries web overhaul round 2 (per-gallery pages on the public book, gallery-list menu, rename/reorder/50-cap/create-then-name, lightbox arrows incl. custom galleries), **graceful shutdown on deploys** (in-flight uploads no longer killed) + batch-uploader auto-retry + urlencoded fix for background form saves (gallery names were silently resetting).
+- Others should know: **(all)** deploys no longer interrupt customer uploads (SIGTERM drain). Server now has DELETE family member, PUT gallery reorder, PUT celebration-year rename APIs.
+- Blocked on Dan: (1) install + test the 1.0.18 builds (needs TestFlight/Play internal-testing upload first — see chat); (2) explicit GO for store submission.
+
 ## 2026-06-10 (late PM) — coding
 - Did: **Circles Phase 2 SHIPPED + E2E-tested live** — "Send an Update" emails each opted-in contact a private magic link (`?circle=<token>` opens the book passwordless, archive = revoke), `/circle/unsubscribe/:token` (RFC 8058 one-click), 10-min/book cooldown, audit rows, app API `POST /api/contacts/mine/notify`. Verified on prod: email sent via Resend, curl-proved password bypass + bad-token rejection + unsubscribe + cooldown. Also: **Fraunces+Inter font swap + darker contrast** across all 29 account/editor pages (Dan picked font 1); **Circles entry moved to My Account** (off the book hub); family editor **clean slate** (6 forced default members removed, emojis → SVG icon, all deletable); numbered **Chapter/Section labels removed** from the public book; **Save Page bar** on 7 gallery editors; **decimal weight/length** inputs fixed (19.8 in was rejected).
 - Others should know: **(all)** account/editor pages now use Fraunces/Inter — match in any new account-area views. The public book no longer shows "Chapter X" eyebrows. **(dispatcher)** TODO.md has a new "App parity for the next build" block — every web change today must mirror into 1.0.18.

@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-10 (evening: Circles Phase 2 shipped + E2E tested live; Fraunces/Inter font swap across all 29 account/editor pages; Circles entry moved to My Account; family editor clean slate + no emojis; numbered Chapter/Section labels removed from public book; Save Page bar on gallery editors; decimal weight/length fix)
+**Last session:** 2026-06-10 (night: 1.0.18 parity batch built — BOTH EAS builds FINISHED, awaiting Dan test + submission go; galleries web overhaul; graceful-shutdown deploys)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
