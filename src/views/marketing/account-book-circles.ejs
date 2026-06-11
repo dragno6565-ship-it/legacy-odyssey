@@ -48,9 +48,38 @@
     <p class="section-desc">Keep a private list of the people who can see your book, and organize them into Circles (like “Grandparents” or “Close Family”).</p>
 
     <% if (success) { %><div class="banner ok">Saved.</div><% } %>
+    <% if (typeof sent !== 'undefined' && sent) { %><div class="banner ok">Update sent to <%= sent %> <%= sent === '1' ? 'person' : 'people' %>. They each got their own private link.</div><% } %>
     <% if (error) { %><div class="banner err"><%= (error === '1') ? 'Something went wrong. Please try again.' : error %></div><% } %>
 
-    <div class="note">Soon you’ll be able to tap “Notify” and let a Circle know when you add something new. For now, build your list — it’ll be ready when notifications go live.</div>
+    <% var notifiable = (contacts || []).filter(function(c){ return c.email && c.notify_opt_in !== false && !c.unsubscribed_at; }); %>
+    <% if (notifiable.length) { %>
+    <!-- ===== SEND AN UPDATE (Phase 2) ===== -->
+    <h2 style="margin-top:0.5rem;">Send an Update</h2>
+    <div class="card" style="border:1.5px solid #c8a96e;">
+      <p class="muted" style="margin-bottom:0.7rem;">Let people know there's something new in the book. Each person gets an email with their own private link — no password needed on their end.</p>
+      <form action="/account/book/circles/notify" method="POST"
+        onsubmit="return confirm('Send the update email now? Each person receives their own private link.');">
+        <div class="row">
+          <div>
+            <label>Who</label>
+            <select name="circleId" style="width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416; background:#fff; margin-bottom:0.6rem;">
+              <option value="">Everyone (<%= notifiable.length %>)</option>
+              <% (circles || []).forEach(function(c) { %>
+                <% var n = notifiable.filter(function(p){ return (p.circle_ids || []).indexOf(c.id) !== -1; }).length; %>
+                <option value="<%= c.id %>"><%= c.name %> (<%= n %>)</option>
+              <% }); %>
+            </select>
+          </div>
+          <div style="flex:2;">
+            <label>Add a short note (optional)</label>
+            <input type="text" name="note" maxlength="500" placeholder="e.g. New photos from the first birthday are up!">
+          </div>
+        </div>
+        <button type="submit" class="btn">Send Update</button>
+        <span class="muted" style="margin-left:0.6rem;">One update per 10 minutes, so inboxes stay friendly.</span>
+      </form>
+    </div>
+    <% } %>
 
     <!-- ===== CIRCLES ===== -->
     <h2>Circles</h2>

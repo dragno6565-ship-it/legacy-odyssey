@@ -608,6 +608,28 @@ router.get('/blog/getting-started-guide', (req, res) => {
   res.render('marketing/blog-getting-started-guide');
 });
 
+// Circle update emails — unsubscribe (works on any host: book domains + main
+// domain). GET serves the link in the email footer; POST serves Gmail/Apple
+// one-click (List-Unsubscribe-Post).
+async function circleUnsubscribe(req, res) {
+  const contactService = require('../services/contactService');
+  let ok = false;
+  try { ok = !!(await contactService.unsubscribeByToken(req.params.token)); } catch (e) { /* render generic */ }
+  res.status(ok ? 200 : 404).send(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex"><title>Unsubscribed</title></head>
+<body style="margin:0;background:#faf7f2;font-family:Georgia,serif;color:#2c2416;">
+  <div style="max-width:460px;margin:5rem auto;padding:2.5rem 2rem;background:#fff;border-radius:12px;border:1px solid #e0d5c4;text-align:center;">
+    <h1 style="font-size:1.5rem;margin:0 0 0.75rem;">${ok ? "You're unsubscribed" : 'Link not found'}</h1>
+    <p style="font-size:0.95rem;color:#6b5d47;line-height:1.6;margin:0;">${ok
+      ? "You won't receive any more update emails about this book. Your private view link still works if you'd like to visit."
+      : 'This unsubscribe link is no longer valid.'}</p>
+  </div>
+</body></html>`);
+}
+router.get('/circle/unsubscribe/:token', circleUnsubscribe);
+router.post('/circle/unsubscribe/:token', circleUnsubscribe);
+
 // POST /verify-password
 router.post('/verify-password', resolveFamily, async (req, res) => {
   // If resolveFamily couldn't find the family (e.g. Railway URL, not a subdomain),

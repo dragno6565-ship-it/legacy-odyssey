@@ -162,8 +162,94 @@ async function findContactByToken(token) {
   return data || null;
 }
 
+// ---- Notifications (Phase 2) ----------------------------------------------
+
+const NOTIFY_COOLDOWN_MIN = 10; // one blast per book per N minutes
+
+/** Stop receiving update emails. Used by /circle/unsubscribe/:token (GET + one-click POST). */
+async function unsubscribeByToken(token) {
+  const contact = await findContactByToken(token);
+  if (!contact) return null;
+  await supabaseAdmin
+    .from('book_contacts')
+    .update({ notify_opt_in: false, unsubscribed_at: new Date().toISOString() })
+    .eq('id', contact.id);
+  return contact;
+}
+
+/**
+ * Email every opted-in contact in a circle (or the whole book when circleId is
+ * null) their private magic link. Rate-limited to one blast per book per
+ * NOTIFY_COOLDOWN_MIN minutes; writes a book_update_notifications audit row.
+ * Shared by the web editor and the app API (parity rule).
+ */
+async function notifyCircle({ bookId, circleId = null, note = '', bookUrl, siteLabel, senderName }) {
+  // Rate limit — protects the contacts from accidental double-blasts.
+  const { data: lastBlast } = await supabaseAdmin
+    .from('book_update_notifications')
+    .select('sent_at').eq('book_id', bookId)
+    .order('sent_at', { ascending: false }).limit(1);
+  if (lastBlast && lastBlast[0]) {
+    const ageMin = (Date.now() - new Date(lastBlast[0].sent_at).getTime()) / 60000;
+    if (ageMin < NOTIFY_COOLDOWN_MIN) {
+      throw new Error(`You just sent an update. To avoid flooding inboxes, you can send the next one in ${Math.ceil(NOTIFY_COOLDOWN_MIN - ageMin)} minute(s).`);
+    }
+  }
+
+  // Resolve recipients.
+  let contacts = await listContacts(bookId);
+  let circleName = null;
+  if (circleId) {
+    const circles = await listCircles(bookId);
+    const circle = circles.find((c) => c.id === circleId);
+    if (!circle) throw new Error('That circle no longer exists.');
+    circleName = circle.name;
+    const memberIds = new Set(circle.contact_ids);
+    contacts = contacts.filter((c) => memberIds.has(c.id));
+  }
+  const seen = new Set();
+  const recipients = contacts.filter((c) => {
+    if (!c.email || c.notify_opt_in === false || c.unsubscribed_at) return false;
+    const key = c.email.trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  if (!recipients.length) {
+    throw new Error(circleId
+      ? 'No one in that circle has an email address (or they have unsubscribed).'
+      : 'No one to notify yet — add people with email addresses first.');
+  }
+
+  const { sendOnboardingEmail } = require('./emailService');
+  const safeNote = (note || '').trim().slice(0, 500);
+  const results = await Promise.allSettled(recipients.map((c) => sendOnboardingEmail({
+    to: c.email,
+    subject: `Something new in ${siteLabel}`,
+    preheader: 'Your private link is inside — no password needed.',
+    heading: senderName ? `${senderName} just added something new` : 'Something new was just added',
+    body: `There's something new waiting for you in ${siteLabel}.`
+      + (safeNote ? `<br><br><em>&ldquo;${safeNote.replace(/</g, '&lt;').replace(/>/g, '&gt;')}&rdquo;</em>` : '')
+      + '<br><br>Use your private link below to take a look — no password needed.',
+    ctaText: 'See What’s New',
+    ctaUrl: `${bookUrl}/?circle=${c.access_token}`,
+    unsubscribeUrl: `${bookUrl}/circle/unsubscribe/${c.access_token}`,
+  })));
+  const sent = results.filter((r) => r.status === 'fulfilled' && r.value).length;
+
+  await supabaseAdmin.from('book_update_notifications').insert({
+    book_id: bookId,
+    circle_id: circleId,
+    recipient_count: sent,
+    note: safeNote || null,
+  });
+
+  return { sent, total: recipients.length, circleName };
+}
+
 module.exports = {
   listContacts, addContact, updateContact, archiveContact,
   listCircles, createCircle, renameCircle, archiveCircle,
   setContactCircles, findContactByToken,
+  unsubscribeByToken, notifyCircle,
 };

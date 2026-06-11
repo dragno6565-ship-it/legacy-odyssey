@@ -591,16 +591,43 @@ router.post('/book/galleries/photo/:pid/delete', requireAccountSession, async (r
 });
 
 // ─── Circles: contact list + groups (migration 029) ──────────────────────────
-// Phase 1: manage contacts + circles. Notify (Phase 2) comes later.
+// Phase 1: manage contacts + circles. Phase 2: Notify (magic-link emails).
 router.get('/book/circles', requireAccountSession, async (req, res, next) => {
   try {
     const bid = await resolveBookId(req);
     const contacts = bid ? await contactService.listContacts(bid) : [];
     const circles = bid ? await contactService.listCircles(bid) : [];
     res.render('marketing/account-book-circles', {
-      contacts, circles, success: req.query.success || null, error: req.query.error || null,
+      contacts, circles,
+      success: req.query.success || null, error: req.query.error || null,
+      sent: req.query.sent || null,
     });
   } catch (err) { next(err); }
+});
+
+// Phase 2 — Notify a circle (or Everyone) by email with each person's magic link.
+router.post('/book/circles/notify', requireAccountSession, async (req, res) => {
+  try {
+    const bid = await resolveBookId(req);
+    if (!bid) return res.redirect('/account/book/circles?error=1');
+    const f = req.family;
+    const bookUrl = f.custom_domain
+      ? `https://www.${f.custom_domain}`
+      : `https://${f.subdomain}.legacyodyssey.com`;
+    const { computeSiteLabel } = require('../middleware/requireBookPassword');
+    const siteLabel = await computeSiteLabel(f);
+    const result = await contactService.notifyCircle({
+      bookId: bid,
+      circleId: (req.body.circleId || '').trim() || null,
+      note: req.body.note,
+      bookUrl,
+      siteLabel,
+      senderName: f.display_name || null,
+    });
+    res.redirect('/account/book/circles?sent=' + result.sent);
+  } catch (err) {
+    res.redirect('/account/book/circles?error=' + encodeURIComponent(err.message || '1'));
+  }
 });
 
 function _circleIds(body) {

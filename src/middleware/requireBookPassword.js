@@ -46,6 +46,39 @@ async function requireBookPassword(req, res, next) {
     return res.status(404).render('book/not-found');
   }
 
+  // Circle magic link (?circle=<token>) — a contact's private link opens the
+  // book with no password. Validate the token belongs to THIS family's book,
+  // stamp last_viewed_at, set the same session cookie the password flow uses,
+  // and redirect to a clean URL. Archived contacts' tokens are rejected
+  // (findContactByToken ignores them), so removing a person revokes their link.
+  if (req.query.circle) {
+    try {
+      const contactService = require('../services/contactService');
+      const contact = await contactService.findContactByToken(String(req.query.circle));
+      if (contact) {
+        const { data: book } = await supabaseAdmin
+          .from('books').select('id, family_id').eq('id', contact.book_id).maybeSingle();
+        if (book && book.family_id === req.family.id) {
+          await supabaseAdmin
+            .from('book_contacts')
+            .update({ last_viewed_at: new Date().toISOString() })
+            .eq('id', contact.id);
+          if (req.family.book_password) {
+            res.cookie(`book_${req.family.id}`, hashPassword(req.family.book_password, req.family.id), {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, same as the password flow
+              sameSite: 'lax',
+            });
+          }
+          return res.redirect(req.path || '/');
+        }
+      }
+    } catch (err) {
+      // Invalid/foreign token — fall through to the normal password flow.
+    }
+  }
+
   // If no password is set, allow access without password
   if (!req.family.book_password) {
     return next();

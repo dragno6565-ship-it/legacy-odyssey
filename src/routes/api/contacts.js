@@ -41,6 +41,33 @@ router.put('/mine/contacts/:id/circles', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Notify (Phase 2) — email a circle (or everyone) their magic links.
+// Body: { circleId?: uuid|null, note?: string }. 429 on the per-book cooldown.
+router.post('/mine/notify', async (req, res) => {
+  try {
+    const id = await bid(req);
+    if (!id) return res.status(404).json({ error: 'No book found' });
+    const f = req.family;
+    const bookUrl = f.custom_domain
+      ? `https://www.${f.custom_domain}`
+      : `https://${f.subdomain}.legacyodyssey.com`;
+    const { computeSiteLabel } = require('../../middleware/requireBookPassword');
+    const siteLabel = await computeSiteLabel(f);
+    const result = await contactService.notifyCircle({
+      bookId: id,
+      circleId: (req.body.circleId || '').trim() || null,
+      note: req.body.note,
+      bookUrl,
+      siteLabel,
+      senderName: f.display_name || null,
+    });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    const cooldown = /just sent an update/i.test(err.message || '');
+    res.status(cooldown ? 429 : 400).json({ error: err.message || 'Could not send the update.' });
+  }
+});
+
 // Circles
 router.post('/mine/circles', async (req, res, next) => {
   try { res.json(await contactService.createCircle(await bid(req), req.body.name)); } catch (err) { next(err); }
