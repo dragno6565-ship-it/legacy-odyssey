@@ -1,0 +1,93 @@
+# Decisions Log + Open Questions
+
+> Decisions made (with date, rationale, and who made them) and the open
+> questions awaiting Dan. New entries at the top. Other sessions: if you
+> change a vendor, plan, or compliance posture, add a row here so it's not
+> lost when context compacts.
+
+Last updated: 2026-06-04
+
+---
+
+## ❓ Open questions for Dan (in priority order)
+
+### D-001 — LLC formation: confirm EIN, op agreement, banking separation
+- **Partial update 2026-06-04:** Formation state is **AZ (Mesa)** — confirmed
+  from the live Privacy Policy. Still open:
+  1. ~~Formation state~~ → AZ (confirmed)
+  2. EIN (or "no, I never got one")
+  3. Operating Agreement (or "no, never drafted one")
+  4. Registered agent on file (or "I am, at my home address")
+  5. Whether business banking is separate from personal
+- **Why it still matters:** without EIN + op agreement + separated banking,
+  the AZ LLC may not shield Dan personally.
+- **Owner:** Dan. ~20 minutes to dig out / confirm.
+
+### D-009 — Verify REAL Stripe sales count (HIGH — underpins all funnel work)
+- **Why:** GA4 shows only **$14.97 revenue / 3 key events** over 28 days, while
+  Meta claimed ~3 purchases. We don't know the TRUE number of paying customers
+  or the true conversion rate. Everything in SALES-BLOCKERS rests on this.
+- **Action:** pull lifetime + last-30d real sales from Stripe (and reconcile vs
+  the ~9 customers in docs/INDEX.md). Chief-of-staff can do this on Dan's go.
+- **Owner:** Dan to greenlight; Claude executes.
+
+### D-010 — Affiliate commission amount (MEDIUM)
+- Affiliate recruitment copy is drafted (given to Dan 2026-06-10) with a
+  `[$X]` placeholder. **Recommendation: flat $15 per paid signup** (a % of a
+  $29 product is too small to motivate creators; flat is easy to track).
+  Note: the affiliates session runs Rewardful at **35% recurring** for some
+  creator tiers — reconcile the two so the offer is consistent.
+- **Owner:** Dan picks the number; then the copy + Rewardful settings get locked.
+
+### D-002 — Privacy Policy / ToS: ✅ RESOLVED 2026-06-04
+- **Outcome:** Both live and substantive. /privacy (May 25 2026, 167 lines)
+  and /terms (Mar 21 2026, 120 lines). Cookie banner active with EU/UK
+  gating. G1–G6 + G8 all materially closed. See FILINGS.md §4 for the
+  verified table and the 9 follow-up gaps (C-001 through C-009) that
+  surfaced during the audit. Not nearly as urgent as I initially flagged.
+
+### D-003 — Marketing spend: is Meta still on?
+- **Why it's open:** Memory says "Active campaign $50/day as of May 6 2026."
+  That's $1,500/mo. If it's still on, it's by far the largest controllable
+  expense and we should see the SUBSCRIPTIONS file reflect it.
+- **What I need from Dan:** current daily spend + which ads are live.
+
+### D-004 — Apple Developer Program renewal date
+- **Why it's open:** $99/yr; if it lapses, apps get pulled.
+- **What I need from Dan:** the renewal date from `developer.apple.com` —
+  add to CALENDAR.md.
+
+### D-005 — Insurance: ready to bind?
+- **Why it's open:** Recommended P0 in FILINGS.md. Quote takes 15 min via
+  Vouch / Embroker. ~$50–150/mo.
+- **What I need from Dan:** "yes get quotes" or "wait."
+
+### D-006 — Trademark filing
+- **Why it's open:** ~$500. Worth doing before ad spend scales. Once a
+  copycat appears, more expensive to enforce.
+- **What I need from Dan:** "yes file" or "wait."
+
+### D-007 — Bookkeeping system choice
+- **Wave (free) vs QuickBooks Online Simple Start ($30/mo)?** Wave is fine
+  for solo single-member LLCs; QBO has stronger sales-tax integration if
+  Stripe Tax doesn't fully cover us.
+- **What I need from Dan:** preference.
+
+### D-008 — Test-device buys
+- **iPhone + Pixel for testing** (~$750 combined).
+- **What I need from Dan:** approve and I'll write up exact SKUs to buy.
+
+---
+
+## ✅ Decisions made
+
+### 2026-06-04 — Chief-of-Staff session stood up
+- Created `F:\legacy-odyssey\ops\` as the business source of truth.
+- Authored BUSINESS-OPS, FILINGS, SUBSCRIPTIONS, HARDWARE, DECISIONS,
+  CALENDAR as v1 drafts.
+- All marked "VERIFY" where actual values weren't known to this session.
+- **Who:** this session, on Dan's mandate.
+
+(Older business decisions from prior sessions live in CLAUDE.md and
+docs/INDEX.md — pull them in here only if they're business-side and
+likely to be questioned later.)
