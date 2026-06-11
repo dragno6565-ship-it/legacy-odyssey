@@ -43,11 +43,16 @@ multiple circles (many-to-many).
   Migration `029_circles.sql` applied to prod (book_contacts, circles, circle_members,
   book_update_notifications). `contactService.js` + app API `/api/contacts/*` +
   web `/account/book/circles` (live) + app `CirclesScreen` (ships in next build 1.0.18).
-- [ ] **Phase 2 — Notify + magic link (the payoff).** `notify(circleId|Everyone)` in
-  contactService → email each opted-in contact via `sendOnboardingEmail` (has the
-  unsubscribe slot) with their magic-link URL; `GET /?circle=<access_token>` in
-  book.js sets the book-view session + stamps last_viewed_at; `/circle/unsubscribe/<token>`;
-  write a `book_update_notifications` row; rate-limit ~1 blast/10min/book. Build on web + app.
+- [x] **Phase 2 — Notify + magic link. SHIPPED + TESTED on web (2026-06-10).**
+  `contactService.notifyCircle` (cooldown 10 min/book, dedupe, audit row);
+  `?circle=<token>` in requireBookPassword opens the book passwordless (sets the
+  standard book cookie, stamps last_viewed_at; archiving a contact revokes the link);
+  `GET/POST /circle/unsubscribe/:token` (RFC 8058 one-click); web "Send an Update"
+  card on /account/book/circles; app API `POST /api/contacts/mine/notify` ready.
+  E2E-verified live: email sent (Resend), magic link bypassed the password via curl
+  (no cookies), bad token rejected, unsubscribe flips notify_opt_in, cooldown blocks
+  repeat blasts. REMAINING: app CirclesScreen needs the Notify UI (1.0.18); Dan's
+  personal test pass.
 - [ ] **Phase 3 — polish.** "What changed" auto-detect, view analytics, digest, native-share SMS, import phone contacts.
 - [ ] **1.0.18 mobile build** will carry the CirclesScreen (+ the tagline fix + other queued app items) — both platforms, lockstep.
 - [ ] **App: remove numbered "Chapter/Section" eyebrow labels** from the book section screens, to match the web (done on web 2026-06-10: dropped Chapter One/Two/Three/Six/Seven/Eight/Nine/Ten + "Section Five" on Family; kept descriptive eyebrows like "The day you arrived", "In motion", "Your collections", "The First Year"). Find any "Chapter X"/"Section X" headers in `mobile/` book screens and remove them the same way. Ship in 1.0.18.
@@ -55,6 +60,7 @@ multiple circles (many-to-many).
 ### 📱 App parity for the next build (web changes made 2026-06-10 — mirror ALL of these in 1.0.18)
 > Rule #8/#9: apps + web editors must always match. Everything below is LIVE on web and must be brought to the app before/in the next build. **Circles must be working + tested on web first (Dan's call) before we cut the app build.**
 - [ ] **Circles entry now lives on "My Account", not the book editor.** Web: moved the "Your Circles" card off the My Book hub onto the My Account page (`account-dashboard.ejs`), gold-bordered with a "New" badge; Circles page nav now breadcrumbs `My Account / Your Circles` and "← Back to My Account". App already shows a Circles card on the Dashboard (DashboardScreen SECTIONS) — confirm it's positioned/labelled to match and is NOT inside the book-editing flow.
+- [ ] **Circles Phase 2 in the app.** Add the "Send an Update" UI to CirclesScreen calling `POST /api/contacts/mine/notify` ({circleId?, note?}; 429 = cooldown — show the server's message). Mirror the web card: Everyone-or-circle picker + optional note + confirm before sending.
 - [ ] **Family editor — clean slate + no emojis.** Web removed the 6 forced default members (Mom/Dad/4 grandparents); list now shows only members the user added, with an empty-state prompt + "+ Add Family Member", all members deletable, and emoji avatars replaced with a line-drawn person icon (also on the member-detail page + public book). Mirror in the app's family screens: drop the hardcoded defaults, allow delete of all, swap emoji placeholders for the icon.
 - [ ] **Video Moments grouping.** Web book nav moved "Video Moments" out of "The Book" into "Family & Memories", directly under "Our Family". Match the app's book navigation order/grouping.
 - [ ] **Master "Save Page" button on gallery editors.** Web added a one-tap "save all captions" bar on Birthday/Celebrations(+detail)/Keepsakes/Recipes/Galleries/Journey editors. Confirm the app's equivalent editors save captions in a way that matches (app already saves per-field on blur — verify parity of behavior).
