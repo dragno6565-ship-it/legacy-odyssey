@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-10 (night: 1.0.18 parity batch built — BOTH EAS builds FINISHED, awaiting Dan test + submission go; galleries web overhaul; graceful-shutdown deploys)
+**Last session:** 2026-06-10 (night: **1.0.18 SUBMITTED to both stores on Dan's explicit go** — verify outcomes first thing next session; galleries web overhaul; graceful-shutdown deploys)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -51,13 +51,42 @@
   Dan's hard gate: Circles tested by him on web BEFORE the app build.
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
-## Open items
-- See `TODO.md` (canonical). Top threads: Circles Phase 2 (notify/magic-link), 1.0.18
-  lockstep build, **verify affiliate gift/signup conversion** (needs `REWARDFUL_API_SECRET`
-  live + a $29 test gift purchase via a test affiliate link), B15 branded-signup CTA
-  cutover, infra cleanups (www 404, `TURNSTILE_SECRET_KEY` env).
+## Open items (next session, in order)
+1. **Verify the 1.0.18 store submissions** — both were scheduled via `eas submit
+   --platform all --latest` on Dan's explicit release go (2026-06-10 ~9 PM). Check:
+   https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/d5724f17-f238-4843-b7af-b35de8415183 (Android)
+   https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/ec191935-bbc6-42cd-9c1d-f1bbadc489f5 (iOS)
+   ⚠️ iOS: `eas submit` only delivers the binary to App Store Connect — the 1.0.18
+   version likely still needs to be created in ASC, build 32 attached, and
+   "Submit for Review" clicked (same manual flow as 1.0.17). Android: confirm which
+   track the .aab landed on and that it's rolling out. (`submission:list`/`submit:list`
+   don't exist in eas-cli 16.x — use the URLs or upgrade the CLI.)
+2. **Demo-site CHAPTER labels (facebook session flag, 2026-06-10):** your-childs-name.com
+   may STILL show "CHAPTER ONE/TWO/FOUR" — the demo is served from a DIFFERENT/richer
+   deploy than the repo (source unresolved since May 26). My eyebrow removal fixed
+   `src/views/book/*` but won't reach the demo if it's a separate deploy. Resolve the
+   demo's deploy source, then re-check.
+3. **Dan's phone test of 1.0.18** once stores process it (or TestFlight/internal track).
+4. **Verify affiliate gift/signup conversion** (needs `REWARDFUL_API_SECRET` confirmed
+   in Railway + a $29 test gift via a test affiliate link) — Blocked on Dan.
+5. B15 branded-signup CTA cutover; GA4 `purchase` key event; `/gift` conversion fixes;
+   `/preview/option6` promote-or-delete; infra cleanups (www 404, `TURNSTILE_SECRET_KEY`).
+6. Known parity drift (pre-existing): web rotate control in only ~4 of ~12 editors.
 
 ## Log
+- **2026-06-10 (night)** — Marathon. Web: Fraunces/Inter restyle (29 views) + darker
+  muted text (#4a3f30 final); Circles moved to My Account; Circles **Phase 2 shipped +
+  E2E-tested** (notify emails, magic links, unsubscribe, cooldown); family editor clean
+  slate (defaults removed, emojis→SVG, all deletable); numbered Chapter/Section eyebrows
+  removed from public book; Save Page bar (7 editors + JS-autosave hook); galleries
+  overhaul (per-gallery pages + index on public book, nav submenu, rename, reorder,
+  50-photo cap, create-then-name, lightbox arrows); decimal weight/length; upload
+  resilience (graceful shutdown on SIGTERM + batch-uploader auto-retry + urlencoded
+  body fix). App: full 1.0.18 parity batch (Circles Send-an-Update, galleries flow/
+  reorder/cap, family icon/delete, year rename, decimal pads) + 3 new API endpoints.
+  **Both EAS builds FINISHED; both store submissions scheduled on Dan's explicit go.**
+  Lessons: don't deploy while Dan is uploading (now structurally fixed); FormData fetch
+  to urlencoded-only routes silently empties req.body.
 - **2026-06-10** — Big day. Shipped: affiliate code integration (snippet + Checkout
   attribution, verified live) + gift/signup Option-B attribution + no-refunds policy
   everywhere; gift admin (void/notes/email-recipient); Circles Phase 1 (web + app +
