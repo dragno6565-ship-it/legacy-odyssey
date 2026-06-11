@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-10 (night: **1.0.18 SUBMITTED to both stores on Dan's explicit go** — verify outcomes first thing next session; galleries web overhaul; graceful-shutdown deploys)
+**Last session:** 2026-06-10 (night: **1.0.18 fully released — iOS "Waiting for Review" in ASC (build 32 attached, notes in, Dan clicked Submit), Android delivered to Play**; galleries web overhaul; graceful-shutdown deploys)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -52,7 +52,8 @@
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
 ## Open items (next session, in order)
-1. **Verify the 1.0.18 store submissions** — both were scheduled via `eas submit
+1. **1.0.18 release status — VERIFIED 2026-06-10 ~10 PM:** iOS = "Waiting for Review" in App Store Connect (complete); Android = delivered to Play. Just monitor for review outcomes/rejections. Original verification notes below:
+   **(was: Verify the 1.0.18 store submissions)** — both were scheduled via `eas submit
    --platform all --latest` on Dan's explicit release go (2026-06-10 ~9 PM). Check:
    https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/d5724f17-f238-4843-b7af-b35de8415183 (Android)
    https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/ec191935-bbc6-42cd-9c1d-f1bbadc489f5 (iOS)
