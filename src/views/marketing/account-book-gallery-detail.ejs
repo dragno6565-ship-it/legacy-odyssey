@@ -99,6 +99,18 @@
     async function saveCaption(id, caption) {
       try { await fetch('/account/book/galleries/photo/' + id + '/caption', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caption: caption }) }); } catch (e) {}
     }
+
+    // Hook for the shared Save Page bar: save the gallery name + every caption at once.
+    window.loSavePage = async function () {
+      var tasks = [];
+      var titleForm = document.querySelector('.title-row');
+      if (titleForm) tasks.push(fetch(titleForm.getAttribute('action'), { method: 'POST', body: new FormData(titleForm), credentials: 'same-origin' }));
+      document.querySelectorAll('.pcard').forEach(function (card) {
+        var input = card.querySelector('input[type="text"]');
+        if (input) tasks.push(saveCaption(card.dataset.id, input.value));
+      });
+      await Promise.all(tasks);
+    };
     async function deletePhoto(id) {
       if (!confirm('Remove this photo?')) return;
       try { await fetch('/account/book/galleries/photo/' + id + '/delete', { method: 'POST' }); location.reload(); } catch (e) { alert('Could not remove. Please try again.'); }

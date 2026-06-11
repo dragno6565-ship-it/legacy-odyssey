@@ -21,7 +21,9 @@
   var btn = document.getElementById('loSaveBtn');
   if (!bar || !btn) return;
   var forms = captionForms();
-  if (!forms.length) return;            // nothing to save on this page
+  // Pages that autosave via JS (e.g. custom galleries) define window.loSavePage
+  // instead of having caption forms — the bar shows for either.
+  if (!forms.length && typeof window.loSavePage !== 'function') return; // nothing to save
   bar.style.display = 'flex';
   document.body.style.paddingBottom = '5rem'; // keep content clear of the fixed bar
 
@@ -32,9 +34,11 @@
     btn.textContent = 'Saving…';
     btn.style.opacity = '0.85';
     try {
-      await Promise.all(forms.map(function (f) {
+      var work = forms.map(function (f) {
         return fetch(f.getAttribute('action'), { method: 'POST', body: new FormData(f), credentials: 'same-origin' });
-      }));
+      });
+      if (typeof window.loSavePage === 'function') work.push(window.loSavePage());
+      await Promise.all(work);
       btn.textContent = '✓ Saved';
       btn.style.background = '#2e7d32';
       setTimeout(function () { window.location.reload(); }, 650);
