@@ -10,11 +10,11 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 4rem; }
     .wrap { max-width: 760px; margin: 0 auto; }
-    .breadcrumb { font-size: 0.82rem; color: #6b5d47; margin-bottom: 1.5rem; }
+    .breadcrumb { font-size: 0.82rem; color: #4a3f30; margin-bottom: 1.5rem; }
     .breadcrumb a { color: #c8a96e; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     h1 { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.4rem; }
-    .subtitle { color: #6b5d47; font-size: 0.95rem; margin-bottom: 2rem; }
+    .subtitle { color: #4a3f30; font-size: 0.95rem; margin-bottom: 2rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
     .section-card {
       background: #fff;
@@ -34,7 +34,7 @@
     .section-card .card-icon { color: #c8a96e; line-height: 1; }
     .section-card .card-icon svg { width: 28px; height: 28px; stroke-width: 1.5; }
     .section-card h3 { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; color: #2c2416; }
-    .section-card p { font-size: 0.82rem; color: #6b5d47; line-height: 1.5; }
+    .section-card p { font-size: 0.82rem; color: #4a3f30; line-height: 1.5; }
     .dot {
       position: absolute;
       top: 1rem; right: 1rem;
@@ -43,7 +43,7 @@
       background: #c8a96e;
     }
     .dot.empty { background: #e0d5c4; }
-    .legend { display: flex; gap: 1.25rem; font-size: 0.8rem; color: #6b5d47; margin-bottom: 1.5rem; align-items: center; }
+    .legend { display: flex; gap: 1.25rem; font-size: 0.8rem; color: #4a3f30; margin-bottom: 1.5rem; align-items: center; }
     .legend span { display: flex; align-items: center; gap: 0.35rem; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   </style>
@@ -111,7 +111,7 @@
         <div class="dot <%= (visibleSections.galleries) ? '' : 'empty' %>"></div>
         <div class="card-icon"><i data-lucide="images"></i></div>
         <h3>Custom Galleries</h3>
-        <p>Make your own photo galleries — name each one, up to 21 photos with captions</p>
+        <p>Make your own photo galleries — name each one, up to 50 photos with captions</p>
       </a>
 
       <a href="/account/book/journey" class="section-card">

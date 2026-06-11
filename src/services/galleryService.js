@@ -1,11 +1,11 @@
 /**
  * Custom galleries — customer-created photo galleries with a custom title and
- * up to 21 captioned photos each. Backed by custom_galleries +
+ * up to 50 captioned photos each. Backed by custom_galleries +
  * custom_gallery_photos (migration 028). Shared by web + app routes.
  */
 const { supabaseAdmin } = require('../config/supabase');
 
-const MAX_PHOTOS = 21;
+const MAX_PHOTOS = 50;
 
 // All galleries for a book, each with its photos (ordered).
 async function listGalleries(bookId) {
@@ -61,7 +61,7 @@ async function ownsPhoto(bookId, photoId) {
   return data && data.custom_galleries && data.custom_galleries.book_id === bookId ? data : null;
 }
 
-/** Add photos (paths) to a gallery, capped at 21 total. Returns the inserted rows. */
+/** Add photos (paths) to a gallery, capped at MAX_PHOTOS total. Returns the inserted rows. */
 async function addPhotos(bookId, galleryId, paths) {
   const g = await getGallery(bookId, galleryId);
   if (!g) return [];

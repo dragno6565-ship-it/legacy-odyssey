@@ -9,12 +9,12 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Inter',sans-serif; background:#faf7f2; color:#2c2416; min-height:100vh; padding:2rem 1rem 5rem; }
     .wrap { max-width:760px; margin:0 auto; }
-    .breadcrumb { font-size:0.82rem; color:#6b5d47; margin-bottom:1.5rem; }
+    .breadcrumb { font-size:0.82rem; color:#4a3f30; margin-bottom:1.5rem; }
     .breadcrumb a { color:#c8a96e; text-decoration:none; }
     .title-row { display:flex; gap:0.6rem; align-items:center; margin-bottom:0.3rem; }
     .title-row input { flex:1; font-family:'Fraunces',serif; font-size:1.85rem; font-weight:600; border:none; border-bottom:2px solid transparent; background:transparent; color:#2c2416; padding:0.1rem 0; }
     .title-row input:focus { outline:none; border-bottom-color:#c8a96e; }
-    .count { font-size:0.85rem; color:#6b5d47; margin-bottom:1.5rem; }
+    .count { font-size:0.85rem; color:#4a3f30; margin-bottom:1.5rem; }
     .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; }
     .pcard { background:#fff; border:1px solid #e0d5c4; border-radius:10px; overflow:hidden; }
     .pcard-img { aspect-ratio:1; background:#ece4d6; }
@@ -26,9 +26,9 @@
     .add { border:2px dashed #c8a96e; border-radius:10px; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; color:#c8a96e; font-weight:600; text-align:center; padding:0.5rem; }
     .add:hover { background:#fdf9f3; }
     .add.disabled { opacity:0.5; cursor:not-allowed; border-color:#ccc; color:#999; }
-    .progress { display:none; text-align:center; color:#c8a96e; font-size:0.9rem; margin-top:1rem; }
+    .progress { display:none; text-align:center; color:#2c2416; font-weight:600; font-size:0.95rem; margin-top:1rem; }
     .actions { margin-top:2rem; display:flex; justify-content:space-between; align-items:center; }
-    .btn-back { color:#6b5d47; text-decoration:none; font-size:0.9rem; }
+    .btn-back { color:#4a3f30; text-decoration:none; font-size:0.9rem; }
     .btn-delete { background:none; border:1px solid #e0b4b4; color:#c0392b; padding:0.6rem 1.1rem; border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
     .btn-delete:hover { background:#fdf2f2; }
     .flash { background:#f0faf0; border:1px solid #a8d5a8; color:#2e7d32; padding:0.7rem 1rem; border-radius:8px; font-size:0.88rem; margin-bottom:1rem; }
@@ -40,8 +40,13 @@
 
     <% if (success) { %><div class="flash">✓ Saved.</div><% } %>
 
-    <form class="title-row" method="POST" action="/account/book/galleries/<%= gallery.id %>/rename">
-      <input type="text" name="title" value="<%= gallery.title || '' %>" placeholder="Gallery name" maxlength="80" onblur="this.form.submit()">
+    <% var isUntitled = !gallery.title || gallery.title === 'Untitled Gallery'; %>
+    <form class="title-row" method="POST" action="/account/book/galleries/<%= gallery.id %>/rename" style="flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:#4a3f30;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.25rem;">Gallery name</label>
+        <input type="text" name="title" value="<%= isUntitled ? '' : gallery.title %>" placeholder="e.g. Our Trip to the Lake" maxlength="80" <%= isUntitled ? 'autofocus' : '' %> style="width:100%;border-bottom:2px solid #e0d5c4;">
+      </div>
+      <button type="submit" style="align-self:flex-end;background:#c8a96e;color:#fff;border:none;border-radius:8px;padding:0.55rem 1.1rem;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;">Save name</button>
     </form>
     <div class="count"><span id="photoCount"><%= photos.length %></span> of <%= maxPhotos %> photos</div>
 
@@ -55,7 +60,7 @@
       <% }); %>
       <div class="add <%= photos.length >= maxPhotos ? 'disabled' : '' %>" id="addTile" onclick="<%= photos.length >= maxPhotos ? '' : "document.getElementById('galInput').click()" %>">
         <div style="font-size:1.6rem;">＋</div>
-        <div><%= photos.length >= maxPhotos ? 'Full (21)' : 'Add photos' %></div>
+        <div><%= photos.length >= maxPhotos ? 'Full (' + maxPhotos + ')' : 'Add photos' %></div>
       </div>
     </div>
     <input type="file" id="galInput" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
@@ -76,7 +81,7 @@
       var files = Array.from(input.files || []); input.value = '';
       if (!files.length) return;
       var room = MAX - COUNT;
-      if (room <= 0) { alert('This gallery is full (21 photos).'); return; }
+      if (room <= 0) { alert('This gallery is full (' + MAX + ' photos).'); return; }
       if (files.length > room) { alert('Only ' + room + ' more photo' + (room === 1 ? '' : 's') + ' will fit — adding the first ' + room + '.'); files = files.slice(0, room); }
       var prog = document.getElementById('progress'); prog.style.display = 'block';
       var paths = [];

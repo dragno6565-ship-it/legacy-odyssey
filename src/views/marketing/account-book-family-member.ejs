@@ -10,11 +10,11 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
     .wrap { max-width: 680px; margin: 0 auto; }
-    .breadcrumb { font-size: 0.82rem; color: #6b5d47; margin-bottom: 1.5rem; }
+    .breadcrumb { font-size: 0.82rem; color: #4a3f30; margin-bottom: 1.5rem; }
     .breadcrumb a { color: #c8a96e; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
     h1 { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .section-desc { color: #6b5d47; font-size: 0.92rem; margin-bottom: 2rem; }
+    .section-desc { color: #4a3f30; font-size: 0.92rem; margin-bottom: 2rem; }
     .flash { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.25rem; }
     .flash-success { background: #f0faf0; border: 1px solid #a8d5a8; color: #2e7d32; }
     .flash-error { background: #fdf2f2; border: 1px solid #e0b4b4; color: #c0392b; }
@@ -24,7 +24,7 @@
     .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
     .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
     .form-group:last-child { margin-bottom: 0; }
-    label { font-size: 0.8rem; font-weight: 600; color: #6b5d47; text-transform: uppercase; letter-spacing: 0.04em; }
+    label { font-size: 0.8rem; font-weight: 600; color: #4a3f30; text-transform: uppercase; letter-spacing: 0.04em; }
     input[type="text"], textarea {
       padding: 0.7rem 0.9rem;
       border: 1.5px solid #e0d5c4;
@@ -72,7 +72,7 @@
     .profile-photo-zone.has-photo { border-style: solid; border-color: #c8a96e; }
     .profile-photo-zone img { width: 100%; height: 100%; object-fit: cover; }
     .profile-photo-zone .emoji-placeholder { font-size: 2.2rem; }
-    .profile-photo-hint { font-size: 0.75rem; color: #6b5d47; margin-top: 0.4rem; text-align: center; width: 100px; flex-shrink: 0; }
+    .profile-photo-hint { font-size: 0.75rem; color: #4a3f30; margin-top: 0.4rem; text-align: center; width: 100px; flex-shrink: 0; }
     .profile-photo-hint strong { color: #c8a96e; }
     .profile-remove {
       position: absolute; top: 3px; right: 3px;
@@ -114,7 +114,7 @@
     .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
     .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-save:hover { background: #b08e4a; }
-    .btn-back { color: #6b5d47; text-decoration: none; font-size: 0.9rem; }
+    .btn-back { color: #4a3f30; text-decoration: none; font-size: 0.9rem; }
     .btn-back:hover { color: #2c2416; }
 
     @media (max-width: 520px) { .form-row, .form-row.three { grid-template-columns: 1fr; } .album-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -174,7 +174,7 @@
 
       <!-- Meta / Fun Facts -->
       <div class="card">
-        <h2>Quick Facts <span style="font-size:0.78rem;font-weight:400;color:#6b5d47;">(optional)</span></h2>
+        <h2>Quick Facts <span style="font-size:0.78rem;font-weight:400;color:#4a3f30;">(optional)</span></h2>
         <%
           const META_OPTIONS = [
             { label: 'Full Name',     placeholder: 'e.g. Robert Charles Smith' },
@@ -235,7 +235,7 @@
 
       <!-- Quote -->
       <div class="card">
-        <h2>Quote <span style="font-size:0.78rem;font-weight:400;color:#6b5d47;">(optional)</span></h2>
+        <h2>Quote <span style="font-size:0.78rem;font-weight:400;color:#4a3f30;">(optional)</span></h2>
         <div class="form-group">
           <label>Quote Text</label>
           <textarea name="quote_text" placeholder="A meaningful quote from or about them…"><%= member.quote_text || '' %></textarea>
@@ -248,7 +248,7 @@
 
       <!-- Second Story -->
       <div class="card">
-        <h2>More to Their Story <span style="font-size:0.78rem;font-weight:400;color:#6b5d47;">(optional second section)</span></h2>
+        <h2>More to Their Story <span style="font-size:0.78rem;font-weight:400;color:#4a3f30;">(optional second section)</span></h2>
         <div class="form-group">
           <label>Continued Story</label>
           <div id="story2Editor"><%- member.story2 || '' %></div>
@@ -258,7 +258,7 @@
 
       <!-- Album Photos -->
       <div class="card">
-        <h2>Album Photos <span style="font-size:0.78rem;font-weight:400;color:#6b5d47;">(up to 3)</span></h2>
+        <h2>Album Photos <span style="font-size:0.78rem;font-weight:400;color:#4a3f30;">(up to 3)</span></h2>
         <div class="album-grid">
           <% [
             { n: 1, url: album1Url, path: 'album_1_path', caption: 'album_1_caption', uploadId: 'alb1Upload', zoneId: 'alb1Zone', prevId: 'alb1Prev' },
@@ -295,7 +295,7 @@
     <% if (videoContextId) { %>
       <%- include('_video-block', { videos, context: videoContext, contextId: videoContextId, single: videoSingle, maxClipSec }) %>
     <% } else { %>
-      <div style="background:#fff;border:1px dashed #e0d5c4;border-radius:12px;padding:1rem;margin-top:1.25rem;font-size:0.85rem;color:#6b5d47;text-align:center;">Save this family member first, then you can add a video.</div>
+      <div style="background:#fff;border:1px dashed #e0d5c4;border-radius:12px;padding:1rem;margin-top:1.25rem;font-size:0.85rem;color:#4a3f30;text-align:center;">Save this family member first, then you can add a video.</div>
     <% } %>
   </div>
 
