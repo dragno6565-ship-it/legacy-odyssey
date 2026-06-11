@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-10 (created the whole sessions/ system)
+**Last session:** 2026-06-10 (zombie Railway service identified; routed for Dan-side deletion)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
@@ -26,6 +26,23 @@
    below + add to the roster BEFORE handing Dan the brief.
 
 ## Open items
+- [ ] **Blocked on Dan — delete zombie Railway service.** Identified as project
+      `romantic-creation` (id `25a7cbc7-64da-4012-bf24-5b20a0bc4839`, service
+      `a759cd1b-34ae-4171-8e4b-9259e0e95dda`, live at `legacy-odyssey-production-a9d1...`
+      v2.1.0 — confirmed alive 2026-06-10). Owning Railway account is the **`dragno65`
+      GitHub identity** (login email almost certainly `dragno65@hotmail.com`), separate
+      from production account `dragno6565@gmail.com`. Dan needs to sign in via that
+      GitHub identity in Chrome and delete from the service-settings URL. All findings
+      written into `docs/infrastructure/railway.md` under Open issues. Do NOT use the
+      `.env` Railway token to delete (scope is currently ambiguous between sources).
+- [ ] **Reconcile `.env` Railway-token scope.** CLAUDE.md (2026-06-08) says it points to
+      LIVE prod (`27622203`); archived DEV.md/HANDOFF.md say it points to the OLD zombie
+      (`25a7cbc7`). After Dan deletes the zombie, re-verify by hitting Railway's GraphQL
+      `me` query with the token — whichever project it lists is the real scope. Update
+      CLAUDE.md once and remove the ambiguity from `docs/infrastructure/railway.md`.
+- [ ] **CLAUDE.md zombie note (lines 109-110) currently says "benign; don't chase it."**
+      Update once Dan has deleted it — or update before then to "in flight to delete,
+      see docs/infrastructure/railway.md" so a future session doesn't get confused.
 - [ ] Dan to paste the reorg onboarding note into each currently-running session.
 - [ ] PROJECT-MAP Phase 1 (Dan): move `Legacy Odyssey Logins.docx` +
       `Legacy_Odyssey_Project_Accounts.pdf` from the repo to `F:\_secrets\` / password manager.
@@ -38,8 +55,17 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
-- **2026-06-10** — Full reorg: slim CLAUDE.md (full copy → `docs/archive/CLAUDE-full-20260610.md`),
-  created sessions/ + STATUS.md, ran PROJECT-MAP Phase 0, stubbed E:\Claude\CLAUDE.md.
+- **2026-06-10 (evening)** — Investigated zombie Railway service for Dan-side deletion.
+  Confirmed alive via `/health` (v2.1.0). Identified project as `romantic-creation`
+  (id `25a7cbc7-...`, service `a759cd1b-...`) owned by the `dragno65` GitHub Railway
+  account (email likely `dragno65@hotmail.com`), separate from prod `dragno6565@gmail.com`.
+  Sources: `Legacy_Odyssey_Project_Accounts.pdf`, `PROJECT_LINKS.md`,
+  `BACKUP_PRE_MIGRATION.md`. Wrote findings into `docs/infrastructure/railway.md` —
+  Open issues section now has concrete IDs, dashboard URLs, access path, and the
+  do-NOT-use-the-`.env`-token caveat. No deletion performed (Dan owns that).
+- **2026-06-10 (morning)** — Full reorg: slim CLAUDE.md (full copy →
+  `docs/archive/CLAUDE-full-20260610.md`), created sessions/ + STATUS.md, ran
+  PROJECT-MAP Phase 0, stubbed E:\Claude\CLAUDE.md.
 
 ---
 

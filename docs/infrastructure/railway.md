@@ -2,7 +2,7 @@
 
 **Status:** active (production hosting since Feb 2026)
 **Owner:** Legacy Odyssey Express server hosting
-**Last touched:** 2026-04-28
+**Last touched:** 2026-06-10
 
 ## What it is
 Railway Pro — hosts the production Express server (Node 20). Auto-deploys from `dragno6565-ship-it/legacy-odyssey` on push to `main`.
@@ -60,5 +60,12 @@ Critical: Railway's edge **gates traffic by Host header**. Any Host not in this 
 ## Open issues / quirks
 - **20 custom-domain cap** is the hard scaling block. Cap-bump to 30 offered temporarily by Railway support; not negotiated yet.
 - **Edge gates by Host header** — traffic proxied from Approximated still needs each Host to be in Railway's list. This is why Approximated alone doesn't solve the cap problem.
-- **Zombie service** at `legacy-odyssey-production-a9d1.up.railway.app` still alive (v2.1.0 stale). Should be deleted once v1.0.5+ has propagated to all installed mobile clients.
-- **Railway env vars** — `RAILWAY_API_TOKEN`, `RAILWAY_SERVICE_ID`, `RAILWAY_ENVIRONMENT_ID` in `.env` point to a SECONDARY project (`25a7cbc7` "romantic-creation"). Cannot add custom domains via API for the production project.
+- **Zombie service** at `legacy-odyssey-production-a9d1.up.railway.app` still alive (v2.1.0 stale, health-checked 2026-06-10). Lives in a DIFFERENT Railway account from production. Concrete identifiers (from `PROJECT_LINKS.md` + `BACKUP_PRE_MIGRATION.md`):
+  - Project: **`romantic-creation`** · project ID `25a7cbc7-64da-4012-bf24-5b20a0bc4839`
+  - Service ID: `a759cd1b-34ae-4171-8e4b-9259e0e95dda`
+  - Dashboard: https://railway.com/project/25a7cbc7-64da-4012-bf24-5b20a0bc4839
+  - Service settings (delete here): https://railway.com/project/25a7cbc7-64da-4012-bf24-5b20a0bc4839/service/a759cd1b-34ae-4171-8e4b-9259e0e95dda/settings
+  - **Owning Railway account:** the `dragno65` GitHub identity (per `Legacy_Odyssey_Project_Accounts.pdf` — "Railway · Username: dragno65 (GitHub login)"). Associated email almost certainly `dragno65@hotmail.com` (owner's older personal email). NOT `dragno6565@gmail.com` (that one holds production only).
+  - **Access path to delete:** sign into railway.com via GitHub as `dragno65` in a private window (the local machine's git is authenticated as `dragno6565-ship-it`, so creds for `dragno65` aren't on disk here).
+  - Delete only after eyeballing project name "romantic-creation" + version 2.1.0 + URL `...a9d1.up.railway.app` — do NOT touch the live `bountiful-expression` project.
+- **Railway env vars** — `RAILWAY_API_TOKEN`, `RAILWAY_SERVICE_ID`, `RAILWAY_ENVIRONMENT_ID` in `.env`: **CLAUDE.md (2026-06-08 correction) says these point to LIVE production (`27622203`)**; older HANDOFF.md/DEV.md (now archived) said they point to the OLD `25a7cbc7` zombie project. Treat as ambiguous until reconfirmed — do NOT use this token to delete anything. Delete the zombie via the dashboard UI only.

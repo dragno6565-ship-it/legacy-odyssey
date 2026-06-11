@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-10 (evening) — dispatcher
+- Did: Investigated the zombie Railway service. Confirmed alive (`/health` → v2.1.0). Identified it as project `romantic-creation` (id `25a7cbc7-64da-4012-bf24-5b20a0bc4839`, service `a759cd1b-34ae-4171-8e4b-9259e0e95dda`) owned by the **`dragno65` GitHub Railway account** (login email likely `dragno65@hotmail.com`) — separate from production `dragno6565@gmail.com`. Wrote full findings + access path into `docs/infrastructure/railway.md` Open issues.
+- Others should know: Coding session — do NOT use the `.env` `RAILWAY_API_TOKEN` to delete anything. CLAUDE.md (Jun 8) says it points at LIVE prod (`27622203`); archived DEV.md/HANDOFF.md said it points at the zombie (`25a7cbc7`). Treat as ambiguous until reconfirmed; deletion happens via dashboard UI only. CLAUDE.md lines 109-110 still call the zombie "benign; don't chase it" — Dispatcher will update that line next session.
+- Blocked on Dan: sign into railway.com via GitHub as `dragno65` in Chrome (creds not on this machine — local git is `dragno6565-ship-it`) and delete from the service-settings URL in `docs/infrastructure/railway.md`. Verify project name `romantic-creation` + version 2.1.0 + URL ending `a9d1` before clicking delete.
+
 ## 2026-06-10 (night) — coding
 - Did: **1.0.18 app parity batch BUILT — both EAS production builds FINISHED** (not submitted; awaiting Dan's test + go). App: Circles "Send an Update", galleries create-then-name/reorder/50-cap, family icon+delete+no-emoji, year rename, decimal keyboards. Server: 3 additive API endpoints (family delete, gallery reorder, year rename). Also tonight: galleries web overhaul round 2 (per-gallery pages on the public book, gallery-list menu, rename/reorder/50-cap/create-then-name, lightbox arrows incl. custom galleries), **graceful shutdown on deploys** (in-flight uploads no longer killed) + batch-uploader auto-retry + urlencoded fix for background form saves (gallery names were silently resetting).
 - Others should know: **(all)** deploys no longer interrupt customer uploads (SIGTERM drain). Server now has DELETE family member, PUT gallery reorder, PUT celebration-year rename APIs.
