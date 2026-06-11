@@ -9,19 +9,48 @@
 
 ---
 
-## 🤝 Affiliate program — Rewardful (branch `affiliate-rewardful-integration`, 2026-06-08)
+## 🤝 Affiliate program — Rewardful (✅ LIVE + verified, 2026-06-08)
 
 Code integration for the "Friends of Legacy Odyssey" affiliate program (35% recurring).
-Source of truth: `docs/infrastructure/rewardful.md`. **On a branch — NOT yet merged/deployed.**
+Source of truth: `docs/infrastructure/rewardful.md`. **MERGED to main + DEPLOYED + verified
+end-to-end on Rewardful** (merge `6e6cbd6`). Verification: created a real test affiliate
+(`?via=ztest`), visited the live site → `rw.js` loaded, `api.getrewardful.com/referrals/track`
+fired, Rewardful minted a referral UUID, and the affiliate's dashboard showed **Referrals: 1**.
+Test affiliate deleted afterward (account clean). NOTE: Rewardful's "Add Rewardful to your
+website" banner is a generic nag that only clears after the first paying conversion — NOT an
+installation detector; tracking is confirmed working. **Recruitment is now unblocked.**
 
 - [x] **Task 1 — Rewardful JS snippet** added to `<head>` of all 28 public marketing pages (key `0a0312`). Commit `dd2ed36`.
 - [x] **Task 2 — Stripe `client_reference_id`** passed from `window.Rewardful.referral` through 4 checkout endpoints (create-checkout, create-founder-checkout, create-founder-page-checkout, create-childhood-checkout), set only when present. Commit `2b163b5`.
 - [x] **Task 3 — refund/void trace.** ⚠️ Finding: there is **no automatic Stripe refund** on domain-registration failure (no `refunds.create` anywhere) — the customer keeps an active subscription + a working book on the subdomain, so the sale (and commission) is legitimate. Rewardful's native `charge.refunded` auto-void still works for any *manual* refund Dan issues. **Decision needed:** should domain failure auto-refund? (separate business call — not implemented.)
 - [x] **Task 4 — `/affiliates` landing page** + route (`book.js`) + footer links (landing-v2-cro/landing/landing-v2). Commit `2645c16`.
 - [x] **Task 5 — asset pack** in `affiliate-assets/` (product desc, 5 captions, 3 email swipes, brand-rules, 10-Q&A FAQ, 3 SVG banners). Commit `692ac4c`. **Still to do:** upload to Rewardful Asset Library (needs the UI); export SVG banners→PNG if required.
-- [ ] **Add `REWARDFUL_API_SECRET` to Railway env** (Dan — value from app.getrewardful.com/company/edit). Only needed if we later add a webhook receiver / API void; not required for Tasks 1-4.
-- [ ] **Merge to main + deploy**, then verify: `Rewardful.referral` returns a value on `?via=test123` (incognito), and a test referral's commission voids on a manual refund.
+- [x] **Merged to main + deployed + verified live** (merge `6e6cbd6`, 2026-06-08). `/affiliates` serves 200; snippet confirmed live; real `?via=` referral tracked on Rewardful dashboard.
+- [ ] **Add `REWARDFUL_API_SECRET` to Railway env** (Dan — value from app.getrewardful.com/company/edit). Only needed if we later add a webhook receiver / API void; not required for current tracking.
+- [ ] **Upload asset pack to Rewardful Asset Library** (Dan / needs the UI). Files in `affiliate-assets/`; export SVG banners → PNG if the library requires raster.
+- [ ] **Decision (Task 3): should domain-registration failure auto-refund?** Currently NO refunds at all (per Dan — no-refund policy; customer keeps subscription + subdomain book). Nothing to implement unless policy changes.
 - [ ] **Follow-up:** the branded Payment-Intent signup flow (`create-signup-intent`) + gift checkouts are NOT yet Rewardful-attributed (they use PaymentIntents, not Checkout Sessions — need separate handling).
+
+---
+
+## 👥 Circles — contact list + update notifications (2026-06-09)
+
+Plan: `docs/plan-contact-list-notifications.md`. Decisions locked: email-only MVP,
+per-contact magic link, manual notify, name = "Circles", a person can be in
+multiple circles (many-to-many).
+
+- [x] **Phase 1 — manage contacts + circles. SHIPPED + deployed (merge `c2bf469`).**
+  Migration `029_circles.sql` applied to prod (book_contacts, circles, circle_members,
+  book_update_notifications). `contactService.js` + app API `/api/contacts/*` +
+  web `/account/book/circles` (live) + app `CirclesScreen` (ships in next build 1.0.18).
+- [ ] **Phase 2 — Notify + magic link (the payoff).** `notify(circleId|Everyone)` in
+  contactService → email each opted-in contact via `sendOnboardingEmail` (has the
+  unsubscribe slot) with their magic-link URL; `GET /?circle=<access_token>` in
+  book.js sets the book-view session + stamps last_viewed_at; `/circle/unsubscribe/<token>`;
+  write a `book_update_notifications` row; rate-limit ~1 blast/10min/book. Build on web + app.
+- [ ] **Phase 3 — polish.** "What changed" auto-detect, view analytics, digest, native-share SMS, import phone contacts.
+- [ ] **1.0.18 mobile build** will carry the CirclesScreen (+ the tagline fix + other queued app items) — both platforms, lockstep.
+- [ ] **App: remove numbered "Chapter/Section" eyebrow labels** from the book section screens, to match the web (done on web 2026-06-10: dropped Chapter One/Two/Three/Six/Seven/Eight/Nine/Ten + "Section Five" on Family; kept descriptive eyebrows like "The day you arrived", "In motion", "Your collections", "The First Year"). Find any "Chapter X"/"Section X" headers in `mobile/` book screens and remove them the same way. Ship in 1.0.18.
 
 ---
 
@@ -176,8 +205,6 @@ Source of truth: `docs/infrastructure/rewardful.md`. **On a branch — NOT yet m
 - [ ] **`TURNSTILE_SECRET_KEY`** → add to Railway env so contact-form server-side verification activates
       (honeypot defends until then).
 - [ ] **`www.legacyodyssey.com` 404** — add `www` as a Railway custom domain, or a Cloudflare 301 www→apex.
-- [ ] **Apex 404** on `kateragno.com` + `your-family-photo-album.com` (Railway custom-domain cap). Free up
-      stale Railway slots (Approximated replaced them) or add a Spaceship URL-redirect apex→www.
 - [ ] **Delete the zombie Railway service** (`legacy-odyssey-production-a9d1.up.railway.app`) once 1.0.5+ has
       propagated on both stores.
 - [ ] **Cancel Cloudflare for SaaS** add-on (no longer used for customer routing; keep CF for the

@@ -1127,8 +1127,6 @@ router.post('/book/family/reorder', requireAccountSession, async (req, res) => {
 });
 
 router.post('/book/family/:key/delete', requireAccountSession, async (req, res, next) => {
-  const DEFAULT_KEYS = ['mom', 'dad', 'grandma-maternal', 'grandpa-maternal', 'grandma-paternal', 'grandpa-paternal'];
-  if (DEFAULT_KEYS.includes(req.params.key)) return res.redirect('/account/book/family');
   try {
     const book = await bookService.getBookByFamilyId(req.family.id);
     await supabaseAdmin.from('family_members').delete().eq('book_id', book.id).eq('member_key', req.params.key);

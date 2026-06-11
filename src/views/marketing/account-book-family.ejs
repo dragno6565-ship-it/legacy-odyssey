@@ -100,50 +100,10 @@
 
     <% if (success) { %><div class="flash flash-success">&#10003; Saved successfully.</div><% } %>
 
-    <%
-      const memberMap = {};
-      (members || []).forEach(m => { memberMap[m.member_key] = m; });
-      const defaultKeys = [
-        { key: 'mom',              label: "Mom",               emoji: '👩' },
-        { key: 'dad',              label: "Dad",               emoji: '👨' },
-        { key: 'grandma-maternal', label: "Grandma (Maternal)", emoji: '👵' },
-        { key: 'grandpa-maternal', label: "Grandpa (Maternal)", emoji: '👴' },
-        { key: 'grandma-paternal', label: "Grandma (Paternal)", emoji: '👵' },
-        { key: 'grandpa-paternal', label: "Grandpa (Paternal)", emoji: '👴' },
-      ];
-      const defaultKeySet = new Set(defaultKeys.map(d => d.key));
-      const customMembers = (members || []).filter(m => !defaultKeySet.has(m.member_key));
-    %>
-
     <div class="member-list" id="memberList">
-      <% defaultKeys.forEach(function(def) {
-        const m = memberMap[def.key] || {};
+      <% (members || []).forEach(function(m) {
         const hasContent = (m.story && m.story.trim()) || (m.photo_path && m.photo_path.trim());
-        const displayName = (m.name && m.name !== def.label && !m.name.includes("'s Name")) ? m.name : null;
-      %>
-      <div class="member-item" data-key="<%= def.key %>">
-        <span class="drag-handle" title="Drag to reorder">&#9776;</span>
-        <a href="/account/book/family/<%= def.key %>" class="member-card">
-          <div class="member-photo">
-            <% if (m.photoUrl) { %>
-              <img src="<%= m.photoUrl %>" alt="<%= def.label %>">
-            <% } else { %>
-              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#c8a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>
-            <% } %>
-          </div>
-          <div class="member-info">
-            <div class="member-name"><%= displayName || def.label %></div>
-            <div class="member-relation"><%= m.relation || def.label %></div>
-          </div>
-          <div class="member-dot <%= hasContent ? 'dot-filled' : 'dot-empty' %>"></div>
-          <span class="member-arrow">&#8250;</span>
-        </a>
-      </div>
-      <% }); %>
-
-      <% customMembers.forEach(function(m) {
-        const hasContent = (m.story && m.story.trim()) || (m.photo_path && m.photo_path.trim());
-        const displayName = m.name || m.member_key;
+        const displayName = (m.name && !m.name.includes("'s Name")) ? m.name : (m.relation || 'Family Member');
       %>
       <div class="member-item" data-key="<%= m.member_key %>">
         <span class="drag-handle" title="Drag to reorder">&#9776;</span>
@@ -169,7 +129,12 @@
       </div>
       <% }); %>
     </div>
-    <p class="reorder-hint">&#8645; Drag to reorder</p>
+
+    <% if (!members || !members.length) { %>
+      <p class="section-desc" style="text-align:center; margin: 1.5rem 0 0.5rem;">No family members yet. Add the people who matter most to your child.</p>
+    <% } else if (members.length > 1) { %>
+      <p class="reorder-hint">&#8645; Drag to reorder</p>
+    <% } %>
 
     <form method="POST" action="/account/book/family/add-new">
       <button type="submit" class="btn-add-member">+ Add Family Member</button>
