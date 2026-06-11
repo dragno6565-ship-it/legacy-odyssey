@@ -52,6 +52,14 @@ multiple circles (many-to-many).
 - [ ] **1.0.18 mobile build** will carry the CirclesScreen (+ the tagline fix + other queued app items) — both platforms, lockstep.
 - [ ] **App: remove numbered "Chapter/Section" eyebrow labels** from the book section screens, to match the web (done on web 2026-06-10: dropped Chapter One/Two/Three/Six/Seven/Eight/Nine/Ten + "Section Five" on Family; kept descriptive eyebrows like "The day you arrived", "In motion", "Your collections", "The First Year"). Find any "Chapter X"/"Section X" headers in `mobile/` book screens and remove them the same way. Ship in 1.0.18.
 
+### 📱 App parity for the next build (web changes made 2026-06-10 — mirror ALL of these in 1.0.18)
+> Rule #8/#9: apps + web editors must always match. Everything below is LIVE on web and must be brought to the app before/in the next build. **Circles must be working + tested on web first (Dan's call) before we cut the app build.**
+- [ ] **Circles entry now lives on "My Account", not the book editor.** Web: moved the "Your Circles" card off the My Book hub onto the My Account page (`account-dashboard.ejs`), gold-bordered with a "New" badge; Circles page nav now breadcrumbs `My Account / Your Circles` and "← Back to My Account". App already shows a Circles card on the Dashboard (DashboardScreen SECTIONS) — confirm it's positioned/labelled to match and is NOT inside the book-editing flow.
+- [ ] **Family editor — clean slate + no emojis.** Web removed the 6 forced default members (Mom/Dad/4 grandparents); list now shows only members the user added, with an empty-state prompt + "+ Add Family Member", all members deletable, and emoji avatars replaced with a line-drawn person icon (also on the member-detail page + public book). Mirror in the app's family screens: drop the hardcoded defaults, allow delete of all, swap emoji placeholders for the icon.
+- [ ] **Video Moments grouping.** Web book nav moved "Video Moments" out of "The Book" into "Family & Memories", directly under "Our Family". Match the app's book navigation order/grouping.
+- [ ] **Master "Save Page" button on gallery editors.** Web added a one-tap "save all captions" bar on Birthday/Celebrations(+detail)/Keepsakes/Recipes/Galleries/Journey editors. Confirm the app's equivalent editors save captions in a way that matches (app already saves per-field on blur — verify parity of behavior).
+- [ ] **Font + contrast refresh.** Web account/editor pages switched Cormorant→**Fraunces** (headings) and Jost→**Inter** (body), and darkened muted text (#8a7e6b→#6b5d47) for contrast. If we want the app to match, update the app theme fonts/colors in the next build (bigger task — decide whether to include in 1.0.18 or defer).
+
 ---
 
 ## 🔜 Test / verify (Dan — quick actions)
