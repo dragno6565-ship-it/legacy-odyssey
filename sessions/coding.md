@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-10 (night: **1.0.18 fully released — iOS "Waiting for Review" in ASC (build 32 attached, notes in, Dan clicked Submit), Android delivered to Play**; galleries web overhaul; graceful-shutdown deploys)
+**Last session:** 2026-06-11 (new coding session onboarded — read-in + verification only, no code changes)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -52,29 +52,46 @@
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
 ## Open items (next session, in order)
-1. **1.0.18 release status — VERIFIED 2026-06-10 ~10 PM:** iOS = "Waiting for Review" in App Store Connect (complete); Android = delivered to Play. Just monitor for review outcomes/rejections. Original verification notes below:
-   **(was: Verify the 1.0.18 store submissions)** — both were scheduled via `eas submit
-   --platform all --latest` on Dan's explicit release go (2026-06-10 ~9 PM). Check:
+1. **Monitor 1.0.18 review outcomes** (iOS "Waiting for Review" in ASC; Android delivered
+   to Play — both verified 2026-06-10 ~10 PM, reconfirmed `fdaa502`). React to any
+   rejection; coordinate Dan's phone test once builds are downloadable. Expo submission
+   links if needed:
    https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/d5724f17-f238-4843-b7af-b35de8415183 (Android)
    https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/ec191935-bbc6-42cd-9c1d-f1bbadc489f5 (iOS)
-   ⚠️ iOS: `eas submit` only delivers the binary to App Store Connect — the 1.0.18
-   version likely still needs to be created in ASC, build 32 attached, and
-   "Submit for Review" clicked (same manual flow as 1.0.17). Android: confirm which
-   track the .aab landed on and that it's rolling out. (`submission:list`/`submit:list`
-   don't exist in eas-cli 16.x — use the URLs or upgrade the CLI.)
-2. **Demo-site CHAPTER labels (facebook session flag, 2026-06-10):** your-childs-name.com
+2. **Dispatcher-routed (2026-06-10 nightly close):** (a) mark GA4 `purchase` as a Key
+   Event — GA4 admin toggle, property 530710619, not code; (b) install Microsoft Clarity
+   on `/gift` (routed from google-ads — gates any paid-spend restart).
+3. **Demo-site CHAPTER labels (facebook session flag, 2026-06-10):** your-childs-name.com
    may STILL show "CHAPTER ONE/TWO/FOUR" — the demo is served from a DIFFERENT/richer
-   deploy than the repo (source unresolved since May 26). My eyebrow removal fixed
+   deploy than the repo (source unresolved since May 26). The eyebrow removal fixed
    `src/views/book/*` but won't reach the demo if it's a separate deploy. Resolve the
-   demo's deploy source, then re-check.
-3. **Dan's phone test of 1.0.18** once stores process it (or TestFlight/internal track).
+   demo's deploy source, then re-check (then also: banner overlap + clickable recipes,
+   TODO.md "Demo site" item).
 4. **Verify affiliate gift/signup conversion** (needs `REWARDFUL_API_SECRET` confirmed
    in Railway + a $29 test gift via a test affiliate link) — Blocked on Dan.
-5. B15 branded-signup CTA cutover; GA4 `purchase` key event; `/gift` conversion fixes;
-   `/preview/option6` promote-or-delete; infra cleanups (www 404, `TURNSTILE_SECRET_KEY`).
+5. B15 branded-signup CTA cutover; `/gift` conversion fixes; `/preview/option6`
+   promote-or-delete; infra cleanups (www 404, `TURNSTILE_SECRET_KEY`).
 6. Known parity drift (pre-existing): web rotate control in only ~4 of ~12 editors.
 
+### ⚠️ Working-tree watchlist (uncommitted, seen 2026-06-11 — don't clobber, don't blanket-commit)
+- `.gitignore` adds `CLAUDE.md` to the ignore list — unattributed; F: CLAUDE.md is the
+  canonical, Dispatcher-owned source of truth, so ignoring it looks wrong. Flagged to Dan;
+  confirm with Dispatcher before anyone commits that hunk.
+- `package.json`/`package-lock.json` add `puppeteer` devDependency — unattributed (likely a
+  marketing session's screenshot scripts). No STATUS entry claims it.
+- `marketing/facebook/BRAND-VOICE-GUIDE.md` 1-line change — facebook session's.
+- TODO.md carries the previous coding session's status updates (kept; TODO.md stays
+  uncommitted by convention despite being tracked).
+- Commit `60b73ce` (landing pricing reorder: Annual middle on desktop, first on mobile) is
+  live but undocumented in any brief/STATUS — likely predecessor's last act.
+
 ## Log
+- **2026-06-11** — New coding session onboarded (replaces the prior over-large one; sole
+  coding session per `c91c125`). Read-in + verification only — no code changes, no deploys.
+  Confirmed 1.0.18: iOS Waiting for Review, Android delivered. Audited the working tree and
+  flagged inconsistencies (see watchlist above): `.gitignore`-ignores-CLAUDE.md hunk,
+  unattributed puppeteer dep, stale TODO.md lines (fixed: 1.0.18 verification done; zombie
+  Railway deletion is Dan-via-dashboard-only, never the `.env` token).
 - **2026-06-10 (night)** — Marathon. Web: Fraunces/Inter restyle (29 views) + darker
   muted text (#4a3f30 final); Circles moved to My Account; Circles **Phase 2 shipped +
   E2E-tested** (notify emails, magic links, unsubscribe, cooldown); family editor clean

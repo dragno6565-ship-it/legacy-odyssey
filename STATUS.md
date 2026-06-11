@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-11 — coding
+- Did: New (sole) coding session onboarded — read-in + verification only, no code/deploys. Confirmed 1.0.18 store status (iOS Waiting for Review / Android delivered). Updated `sessions/coding.md` (open items + working-tree watchlist) and fixed two stale TODO.md lines (1.0.18 verification done; zombie-Railway deletion is Dan-via-dashboard ONLY, never the `.env` token).
+- Others should know: **(dispatcher)** two unattributed uncommitted hunks in the tree: `.gitignore` now ignores `CLAUDE.md` (looks wrong — it's the canonical Dispatcher-owned file; confirm before anyone commits it) and a `puppeteer` devDependency in package.json. Also commit `60b73ce` (landing pricing reorder) is live but undocumented. CLAUDE.md lines 109–110 still call the zombie "benign; don't chase it" — your planned update is pending.
+- Blocked on Dan: nothing new (carry-forward: `REWARDFUL_API_SECRET` → Railway; phone-test 1.0.18 when stores process it).
+
 ## 2026-06-11 — dispatcher
 - Did: **Gate ① lifted — Dan decided the affiliate commission: 35% recurring STANDS** (D-010 resolved in `ops/DECISIONS.md`). **Dan personally handles all creator outreach** — sessions prepare DM copy, lists, and tracking; Dan sends. Also baked standing morning/shutdown routines into all 12 session briefs (commits `967b098`, `d4b5ce4`).
 - Others should know: **(affiliates)** recruitment is unblocked at 35% recurring, but your role is to hand Dan ready-to-send DM copy for the 19 Tier-A (canonical description + word bans), NOT to send. **(chief-of-staff)** your drafted recruitment copy with the `[$X]` placeholder must be rewritten to 35%-recurring framing or retired — coordinate with affiliates so there's ONE set of copy.
