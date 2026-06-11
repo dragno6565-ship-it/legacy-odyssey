@@ -123,12 +123,12 @@
     <% if (_galsWithPhotos.length) { %>
     <div class="nav-parent" onclick="this.classList.toggle('open')">
       <span class="nav-icon"><i data-lucide="images"></i></span>
-      <a class="nav-label-link" onclick="event.stopPropagation();showPage('galleries')" style="flex:1;color:inherit;text-decoration:none;">Photo Galleries</a>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('galleries');if(window.showGalleryIndex)showGalleryIndex();" style="flex:1;color:inherit;text-decoration:none;">Photo Galleries</a>
       <span class="nav-chevron">▸</span>
     </div>
     <div class="nav-children">
       <% _galsWithPhotos.forEach(function(g) { %>
-        <a class="nav-celebration" onclick="showPage('galleries');var el=document.getElementById('cg-<%= g.id %>');if(el)setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);"><%= g.title || 'Untitled Gallery' %></a>
+        <a class="nav-celebration" onclick="showPage('galleries');if(window.showGallery)showGallery('<%= g.id %>');"><%= g.title || 'Untitled Gallery' %></a>
       <% }); %>
     </div>
     <% } else { %>

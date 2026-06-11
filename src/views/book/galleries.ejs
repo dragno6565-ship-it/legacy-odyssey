@@ -4,26 +4,59 @@
     <h2 class="page-header-title">Photo <em>Galleries</em></h2>
   </div>
   <div class="page-body">
-    <% (customGalleries || []).forEach(function (g) { %>
-      <% if (g.photos && g.photos.length) { %>
-        <div class="cg-gallery-block" id="cg-<%= g.id %>">
-          <% if (g.title) { %><h3 class="cg-gallery-title"><%= g.title %></h3><% } %>
-          <div class="cg-grid">
-            <% g.photos.forEach(function (p) { %>
-              <figure class="cg-item">
-                <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || '' %>" loading="lazy" style="<%= photoPos(p.photo_path) %>">
-                <% if (p.caption) { %><figcaption><%= p.caption %></figcaption><% } %>
-              </figure>
-            <% }); %>
+    <%
+      const _cgList = (customGalleries || []).filter((g) => g.photos && g.photos.length);
+    %>
+
+    <!-- Index: one card per gallery; clicking opens that gallery's own page -->
+    <div class="cg-index" id="cgIndex">
+      <% _cgList.forEach(function (g) { %>
+        <div class="cg-index-card" onclick="showGallery('<%= g.id %>')">
+          <div class="cg-index-cover">
+            <img src="<%= imageUrl(g.photos[0].photo_path) %>" alt="<%= g.title || '' %>" loading="lazy" style="<%= photoPos(g.photos[0].photo_path) %>">
+          </div>
+          <div class="cg-index-meta">
+            <div class="cg-index-title"><%= g.title || 'Untitled Gallery' %></div>
+            <div class="cg-index-count"><%= g.photos.length %> photo<%= g.photos.length === 1 ? '' : 's' %></div>
           </div>
         </div>
-      <% } %>
+      <% }); %>
+    </div>
+
+    <!-- Detail: one block per gallery, hidden until opened -->
+    <button type="button" class="cg-back" id="cgBack" onclick="showGalleryIndex()" hidden>&#8592; All galleries</button>
+    <% _cgList.forEach(function (g) { %>
+      <div class="cg-gallery-block" id="cg-<%= g.id %>" hidden>
+        <% if (g.title) { %><h3 class="cg-gallery-title"><%= g.title %></h3><% } %>
+        <div class="cg-grid">
+          <% g.photos.forEach(function (p) { %>
+            <figure class="cg-item">
+              <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || '' %>" loading="lazy" style="<%= photoPos(p.photo_path) %>">
+              <% if (p.caption) { %><figcaption><%= p.caption %></figcaption><% } %>
+            </figure>
+          <% }); %>
+        </div>
+      </div>
     <% }); %>
   </div>
 </section>
 
 <style>
+  .cg-index { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 760px) { .cg-index { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+  @media (max-width: 440px) { .cg-index { grid-template-columns: 1fr; } }
+  .cg-index-card { background: #fff; border: 1px solid #e0d5c4; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 22px rgba(26,21,16,0.08); cursor: pointer; transition: transform 0.15s, box-shadow 0.2s; }
+  .cg-index-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,21,16,0.14); }
+  .cg-index-cover { aspect-ratio: 4/3; overflow: hidden; }
+  .cg-index-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cg-index-meta { padding: 12px 14px; }
+  .cg-index-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #2c2416; }
+  .cg-index-count { font-size: 13px; color: #6b5d47; margin-top: 2px; }
+  .cg-back { display: block; margin: 0 auto 1.5rem; background: none; border: 1px solid #c8a96e; color: #b08e4a; border-radius: 8px; padding: 0.5rem 1.1rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  .cg-back:hover { background: rgba(200,169,110,0.1); }
+  .cg-back[hidden] { display: none; }
   .cg-gallery-block { max-width: 980px; margin: 0 auto 3rem; }
+  .cg-gallery-block[hidden] { display: none; }
   .cg-gallery-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: #2c2416; text-align: center; margin-bottom: 1.25rem; }
   .cg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   @media (max-width: 760px) { .cg-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
@@ -32,3 +65,26 @@
   .cg-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
   .cg-item figcaption { padding: 11px 13px; font-family: 'Cormorant Garamond', serif; font-size: 17px; color: #2c2416; text-align: center; }
 </style>
+
+<script>
+  // Each gallery opens as its own page within the galleries section: the index
+  // shows cover cards; showGallery(id) reveals just that gallery + a back button.
+  function showGallery(id) {
+    var idx = document.getElementById('cgIndex');
+    var back = document.getElementById('cgBack');
+    if (idx) idx.hidden = true;
+    if (back) back.hidden = false;
+    document.querySelectorAll('.cg-gallery-block').forEach(function (b) { b.hidden = (b.id !== 'cg-' + id); });
+    var sec = document.getElementById('page-galleries');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function showGalleryIndex() {
+    var idx = document.getElementById('cgIndex');
+    var back = document.getElementById('cgBack');
+    if (idx) idx.hidden = false;
+    if (back) back.hidden = true;
+    document.querySelectorAll('.cg-gallery-block').forEach(function (b) { b.hidden = true; });
+  }
+  window.showGallery = showGallery;
+  window.showGalleryIndex = showGalleryIndex;
+</script>
