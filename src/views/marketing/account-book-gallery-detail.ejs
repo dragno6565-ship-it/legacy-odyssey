@@ -46,7 +46,7 @@
         <label style="display:block;font-size:0.78rem;font-weight:600;color:#4a3f30;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.25rem;">Gallery name</label>
         <input type="text" name="title" value="<%= isUntitled ? '' : gallery.title %>" placeholder="e.g. Our Trip to the Lake" maxlength="80" <%= isUntitled ? 'autofocus' : '' %> style="width:100%;border-bottom:2px solid #e0d5c4;">
       </div>
-      <button type="submit" style="align-self:flex-end;background:#c8a96e;color:#fff;border:none;border-radius:8px;padding:0.55rem 1.1rem;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;">Save name</button>
+      <button type="submit" id="saveNameBtn" style="align-self:flex-end;background:#c8a96e;color:#fff;border:none;border-radius:8px;padding:0.55rem 1.1rem;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;">Save name</button>
     </form>
     <div class="count"><span id="photoCount"><%= photos.length %></span> of <%= maxPhotos %> photos</div>
 
@@ -97,6 +97,12 @@
         await fetch('/account/book/galleries/<%= gallery.id %>/photos', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paths: paths })
         });
+        // The page reloads to show the new photos — save a typed-but-unsaved
+        // gallery name first so the reload doesn't discard it.
+        var titleForm = document.querySelector('.title-row');
+        if (titleForm && titleForm.querySelector('input[name="title"]').value.trim()) {
+          try { await fetch(titleForm.getAttribute('action'), { method: 'POST', body: new FormData(titleForm), credentials: 'same-origin' }); } catch (e2) {}
+        }
         location.reload();
       } catch (e) { alert('Upload failed. Please try again.'); prog.style.display = 'none'; }
     }
@@ -104,6 +110,27 @@
     async function saveCaption(id, caption) {
       try { await fetch('/account/book/galleries/photo/' + id + '/caption', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ caption: caption }) }); } catch (e) {}
     }
+
+    // Save the gallery name WITHOUT navigating — a full-page form submit would
+    // cancel any photo uploads still in flight. Fetch in the background and
+    // flash the button instead.
+    (function () {
+      var form = document.querySelector('.title-row');
+      var btn = document.getElementById('saveNameBtn');
+      if (!form || !btn) return;
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var orig = btn.textContent;
+        btn.disabled = true; btn.textContent = 'Saving…';
+        try {
+          await fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form), credentials: 'same-origin' });
+          btn.textContent = '✓ Saved';
+        } catch (err) {
+          btn.textContent = 'Try again';
+        }
+        setTimeout(function () { btn.textContent = orig; btn.disabled = false; }, 1600);
+      });
+    })();
 
     // Hook for the shared Save Page bar: save the gallery name + every caption at once.
     window.loSavePage = async function () {
