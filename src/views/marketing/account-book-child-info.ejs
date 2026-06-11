@@ -4,28 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Child Info – Legacy Odyssey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Jost', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
+    body { font-family: 'Inter', sans-serif; background: #faf7f2; color: #2c2416; min-height: 100vh; padding: 2rem 1rem 5rem; }
     .wrap { max-width: 680px; margin: 0 auto; }
-    .breadcrumb { font-size: 0.82rem; color: #8a7e6b; margin-bottom: 1.5rem; }
+    .breadcrumb { font-size: 0.82rem; color: #6b5d47; margin-bottom: 1.5rem; }
     .breadcrumb a { color: #c8a96e; text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
-    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .section-desc { color: #8a7e6b; font-size: 0.92rem; margin-bottom: 2rem; }
+    h1 { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .section-desc { color: #6b5d47; font-size: 0.92rem; margin-bottom: 2rem; }
     .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 1.75rem; margin-bottom: 1.25rem; border: 1px solid #f0ebe3; }
-    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
+    .card h2 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; color: #2c2416; padding-bottom: 0.75rem; border-bottom: 1px solid #f0ebe3; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
     .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
     .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
     .form-group:last-child { margin-bottom: 0; }
-    label { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
+    label { font-size: 0.8rem; font-weight: 600; color: #6b5d47; text-transform: uppercase; letter-spacing: 0.04em; }
     input[type="text"], input[type="date"], input[type="time"], input[type="number"], textarea {
       padding: 0.7rem 0.9rem;
       border: 1.5px solid #e0d5c4;
       border-radius: 8px;
-      font-family: 'Jost', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 0.95rem;
       color: #2c2416;
       background: #fff;
@@ -48,7 +48,7 @@
     .photo-zone:hover { border-color: #c8a96e; background: #fdf9f3; }
     .photo-zone.has-photo { border-style: solid; border-color: #c8a96e; padding: 0; overflow: hidden; }
     .photo-zone img { width: 100%; max-height: 260px; object-fit: cover; display: block; border-radius: 8px; }
-    .photo-zone-label { font-size: 0.88rem; color: #8a7e6b; margin-top: 0.5rem; }
+    .photo-zone-label { font-size: 0.88rem; color: #6b5d47; margin-top: 0.5rem; }
     .photo-zone-label strong { color: #c8a96e; }
     .photo-remove {
       position: absolute; top: 0.5rem; right: 0.5rem;
@@ -66,19 +66,19 @@
 
     /* Save bar */
     .save-bar { position: sticky; bottom: 0; background: #faf7f2; border-top: 1px solid #e0d5c4; padding: 1rem 0; margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; }
-    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-save { background: #c8a96e; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-save:hover { background: #b08e4a; }
-    .btn-back { color: #8a7e6b; text-decoration: none; font-size: 0.9rem; }
+    .btn-back { color: #6b5d47; text-decoration: none; font-size: 0.9rem; }
     .btn-back:hover { color: #2c2416; }
 
     /* Welcome-page field toggles */
     .wf-section { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #f0ebe3; }
-    .wf-head { font-size: 0.8rem; font-weight: 600; color: #8a7e6b; text-transform: uppercase; letter-spacing: 0.04em; }
-    .wf-note { font-size: 0.82rem; color: #8a7e6b; margin: 0.4rem 0 0.9rem; line-height: 1.45; }
+    .wf-head { font-size: 0.8rem; font-weight: 600; color: #6b5d47; text-transform: uppercase; letter-spacing: 0.04em; }
+    .wf-note { font-size: 0.82rem; color: #6b5d47; margin: 0.4rem 0 0.9rem; line-height: 1.45; }
     .wf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7rem 1rem; }
     .wf-check { display: flex; align-items: center; gap: 0.5rem; font-size: 0.92rem; color: #2c2416; font-weight: 400; text-transform: none; letter-spacing: 0; cursor: pointer; }
     .wf-check input { width: auto; margin: 0; accent-color: #c8a96e; }
-    .field-note { font-size: 0.78rem; color: #8a7e6b; }
+    .field-note { font-size: 0.78rem; color: #6b5d47; }
 
     @media (max-width: 520px) {
       .form-row, .form-row.three { grid-template-columns: 1fr; }
@@ -191,7 +191,7 @@
       <!-- Hero Photo -->
       <div class="card">
         <h2>Hero Photo</h2>
-        <p style="font-size:0.85rem;color:#8a7e6b;margin-bottom:1rem;">The large photo shown at the very top of your book — the first thing visitors see.</p>
+        <p style="font-size:0.85rem;color:#6b5d47;margin-bottom:1rem;">The large photo shown at the very top of your book — the first thing visitors see.</p>
         <input type="hidden" name="hero_image_path" id="heroImagePath" value="<%= book.hero_image_path || '' %>">
         <div class="photo-zone <%= heroUrl ? 'has-photo' : '' %>" id="heroPhotoZone" onclick="document.getElementById('heroFileInput').click()">
           <% if (heroUrl) { %>
@@ -212,7 +212,7 @@
       <!-- Parent Quote -->
       <div class="card">
         <h2>Parent Quote</h2>
-        <p style="font-size:0.85rem;color:#8a7e6b;margin-bottom:1rem;">A short quote shown on the welcome page of your book.</p>
+        <p style="font-size:0.85rem;color:#6b5d47;margin-bottom:1rem;">A short quote shown on the welcome page of your book.</p>
         <div class="form-group">
           <label>Quote</label>
           <textarea name="parent_quote" placeholder="From the moment we first saw your face…"><%= book.parent_quote || '' %></textarea>

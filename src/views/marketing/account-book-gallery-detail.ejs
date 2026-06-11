@@ -4,32 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= gallery.title || 'Gallery' %> – Legacy Odyssey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Jost',sans-serif; background:#faf7f2; color:#2c2416; min-height:100vh; padding:2rem 1rem 5rem; }
+    body { font-family:'Inter',sans-serif; background:#faf7f2; color:#2c2416; min-height:100vh; padding:2rem 1rem 5rem; }
     .wrap { max-width:760px; margin:0 auto; }
-    .breadcrumb { font-size:0.82rem; color:#8a7e6b; margin-bottom:1.5rem; }
+    .breadcrumb { font-size:0.82rem; color:#6b5d47; margin-bottom:1.5rem; }
     .breadcrumb a { color:#c8a96e; text-decoration:none; }
     .title-row { display:flex; gap:0.6rem; align-items:center; margin-bottom:0.3rem; }
-    .title-row input { flex:1; font-family:'Cormorant Garamond',serif; font-size:1.85rem; font-weight:600; border:none; border-bottom:2px solid transparent; background:transparent; color:#2c2416; padding:0.1rem 0; }
+    .title-row input { flex:1; font-family:'Fraunces',serif; font-size:1.85rem; font-weight:600; border:none; border-bottom:2px solid transparent; background:transparent; color:#2c2416; padding:0.1rem 0; }
     .title-row input:focus { outline:none; border-bottom-color:#c8a96e; }
-    .count { font-size:0.85rem; color:#8a7e6b; margin-bottom:1.5rem; }
+    .count { font-size:0.85rem; color:#6b5d47; margin-bottom:1.5rem; }
     .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; }
     .pcard { background:#fff; border:1px solid #e0d5c4; border-radius:10px; overflow:hidden; }
     .pcard-img { aspect-ratio:1; background:#ece4d6; }
     .pcard-img img { width:100%; height:100%; object-fit:cover; display:block; }
-    .pcard input { width:100%; border:none; border-top:1px solid #f0ebe3; padding:0.45rem 0.55rem; font-family:'Jost',sans-serif; font-size:0.82rem; color:#2c2416; }
+    .pcard input { width:100%; border:none; border-top:1px solid #f0ebe3; padding:0.45rem 0.55rem; font-family:'Inter',sans-serif; font-size:0.82rem; color:#2c2416; }
     .pcard input:focus { outline:none; background:#fdf9f3; }
-    .pcard-del { width:100%; background:#fff; border:none; border-top:1px solid #f0ebe3; color:#c0392b; font-size:0.78rem; font-weight:600; padding:0.4rem; cursor:pointer; font-family:'Jost',sans-serif; }
+    .pcard-del { width:100%; background:#fff; border:none; border-top:1px solid #f0ebe3; color:#c0392b; font-size:0.78rem; font-weight:600; padding:0.4rem; cursor:pointer; font-family:'Inter',sans-serif; }
     .pcard-del:hover { background:#fdf2f2; }
     .add { border:2px dashed #c8a96e; border-radius:10px; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; color:#c8a96e; font-weight:600; text-align:center; padding:0.5rem; }
     .add:hover { background:#fdf9f3; }
     .add.disabled { opacity:0.5; cursor:not-allowed; border-color:#ccc; color:#999; }
     .progress { display:none; text-align:center; color:#c8a96e; font-size:0.9rem; margin-top:1rem; }
     .actions { margin-top:2rem; display:flex; justify-content:space-between; align-items:center; }
-    .btn-back { color:#8a7e6b; text-decoration:none; font-size:0.9rem; }
-    .btn-delete { background:none; border:1px solid #e0b4b4; color:#c0392b; padding:0.6rem 1.1rem; border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:'Jost',sans-serif; }
+    .btn-back { color:#6b5d47; text-decoration:none; font-size:0.9rem; }
+    .btn-delete { background:none; border:1px solid #e0b4b4; color:#c0392b; padding:0.6rem 1.1rem; border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
     .btn-delete:hover { background:#fdf2f2; }
     .flash { background:#f0faf0; border:1px solid #a8d5a8; color:#2e7d32; padding:0.7rem 1rem; border-radius:8px; font-size:0.88rem; margin-bottom:1rem; }
   </style>

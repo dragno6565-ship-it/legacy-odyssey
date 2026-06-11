@@ -4,28 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Custom Galleries – Legacy Odyssey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Jost',sans-serif; background:#faf7f2; color:#2c2416; min-height:100vh; padding:2rem 1rem 5rem; }
+    body { font-family:'Inter',sans-serif; background:#faf7f2; color:#2c2416; min-height:100vh; padding:2rem 1rem 5rem; }
     .wrap { max-width:680px; margin:0 auto; }
-    .breadcrumb { font-size:0.82rem; color:#8a7e6b; margin-bottom:1.5rem; }
+    .breadcrumb { font-size:0.82rem; color:#6b5d47; margin-bottom:1.5rem; }
     .breadcrumb a { color:#c8a96e; text-decoration:none; }
-    h1 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:600; margin-bottom:0.25rem; }
-    .section-desc { color:#8a7e6b; font-size:0.92rem; margin-bottom:1.75rem; }
+    h1 { font-family:'Fraunces',serif; font-size:2rem; font-weight:600; margin-bottom:0.25rem; }
+    .section-desc { color:#6b5d47; font-size:0.92rem; margin-bottom:1.75rem; }
     .gal { display:flex; gap:1rem; align-items:center; background:#fff; border:1px solid #f0ebe3; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); padding:0.85rem; margin-bottom:0.85rem; text-decoration:none; color:inherit; }
     .gal:hover { border-color:#c8a96e; }
     .gal-cover { width:72px; height:72px; border-radius:8px; object-fit:cover; background:#ece4d6; flex-shrink:0; }
     .gal-cover.empty { display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#c8a96e; }
-    .gal-info h3 { font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:600; }
-    .gal-info p { font-size:0.82rem; color:#8a7e6b; }
+    .gal-info h3 { font-family:'Fraunces',serif; font-size:1.25rem; font-weight:600; }
+    .gal-info p { font-size:0.82rem; color:#6b5d47; }
     .create { background:#fff; border:2px dashed #c8a96e; border-radius:12px; padding:1.25rem; margin-top:1rem; }
-    .create label { font-size:0.8rem; font-weight:600; color:#8a7e6b; text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:0.4rem; }
-    .create input { width:100%; padding:0.7rem 0.9rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Jost',sans-serif; font-size:0.95rem; color:#2c2416; margin-bottom:0.75rem; }
-    .btn { background:#c8a96e; color:#fff; border:none; border-radius:8px; padding:0.7rem 1.5rem; font-family:'Jost',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; }
+    .create label { font-size:0.8rem; font-weight:600; color:#6b5d47; text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:0.4rem; }
+    .create input { width:100%; padding:0.7rem 0.9rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416; margin-bottom:0.75rem; }
+    .btn { background:#c8a96e; color:#fff; border:none; border-radius:8px; padding:0.7rem 1.5rem; font-family:'Inter',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; }
     .btn:hover { background:#b08e4a; }
-    .empty-state { text-align:center; color:#8a7e6b; font-size:0.9rem; padding:1.5rem 0; }
-    .btn-back { display:inline-block; margin-top:1.5rem; color:#8a7e6b; text-decoration:none; font-size:0.9rem; }
+    .empty-state { text-align:center; color:#6b5d47; font-size:0.9rem; padding:1.5rem 0; }
+    .btn-back { display:inline-block; margin-top:1.5rem; color:#6b5d47; text-decoration:none; font-size:0.9rem; }
   </style>
 </head>
 <body>
