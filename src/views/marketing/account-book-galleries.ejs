@@ -13,8 +13,23 @@
     .breadcrumb a { color:#c8a96e; text-decoration:none; }
     h1 { font-family:'Fraunces',serif; font-size:2rem; font-weight:600; margin-bottom:0.25rem; }
     .section-desc { color:#6b5d47; font-size:0.92rem; margin-bottom:1.75rem; }
-    .gal { display:flex; gap:1rem; align-items:center; background:#fff; border:1px solid #f0ebe3; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); padding:0.85rem; margin-bottom:0.85rem; text-decoration:none; color:inherit; }
+    .gal { display:flex; gap:1rem; align-items:center; background:#fff; border:1px solid #f0ebe3; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); padding:0.85rem; text-decoration:none; color:inherit; flex:1; }
     .gal:hover { border-color:#c8a96e; }
+    .gal-item { margin-bottom:0.85rem; }
+    .gal-row { display:flex; align-items:center; gap:0.5rem; }
+    .drag-handle { color:#b8ad9e; font-size:1.25rem; cursor:grab; padding:0.5rem 0.6rem; flex-shrink:0; user-select:none; display:flex; align-items:center; border-radius:6px; }
+    .drag-handle:hover { background:#f0ebe3; color:#6b5d47; }
+    .drag-handle:active { cursor:grabbing; }
+    .sortable-ghost { opacity:0.4; }
+    .btn-rename { background:none; border:none; color:#c8a96e; font-size:0.82rem; font-weight:600; cursor:pointer; padding:0.3rem 0.5rem; border-radius:6px; flex-shrink:0; font-family:'Inter',sans-serif; }
+    .btn-rename:hover { background:#fdf9f3; }
+    .rename-form { display:none; gap:0.5rem; margin:0.4rem 0 0 3.1rem; }
+    .rename-form.open { display:flex; }
+    .rename-form input { flex:1; padding:0.5rem 0.7rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.9rem; color:#2c2416; }
+    .btn-sm { background:#c8a96e; color:#fff; border:none; border-radius:8px; padding:0.5rem 0.9rem; font-family:'Inter',sans-serif; font-size:0.82rem; font-weight:600; cursor:pointer; }
+    .reorder-hint { font-size:0.78rem; color:#b0a090; text-align:center; margin:0.35rem 0 0; }
+    #reorder-toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:#2e7d32; color:#fff; padding:0.6rem 1.25rem; border-radius:20px; font-size:0.85rem; font-weight:600; opacity:0; transition:opacity 0.2s; pointer-events:none; z-index:999; white-space:nowrap; }
+    #reorder-toast.show { opacity:1; }
     .gal-cover { width:72px; height:72px; border-radius:8px; object-fit:cover; background:#ece4d6; flex-shrink:0; }
     .gal-cover.empty { display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#c8a96e; }
     .gal-info h3 { font-family:'Fraunces',serif; font-size:1.25rem; font-weight:600; }
@@ -34,18 +49,34 @@
     <h1>Custom Galleries</h1>
     <p class="section-desc">Create your own photo galleries — name each one whatever you like, and add up to 21 photos with captions.</p>
 
+    <% if (success) { %><div style="background:#f0faf0;border:1px solid #a8d5a8;color:#2e7d32;padding:0.7rem 1rem;border-radius:8px;font-size:0.9rem;margin-bottom:1rem;">&#10003; Saved.</div><% } %>
+
     <% if (!galleries || galleries.length === 0) { %>
       <div class="empty-state">No galleries yet — create your first one below.</div>
     <% } %>
+    <div id="galleryList">
     <% (galleries || []).forEach(function (g) { %>
-      <a class="gal" href="/account/book/galleries/<%= g.id %>">
-        <% if (g.coverUrl) { %><img class="gal-cover" src="<%= g.coverUrl %>" alt=""><% } else { %><div class="gal-cover empty">&#128247;</div><% } %>
-        <div class="gal-info">
-          <h3><%= g.title || 'Untitled Gallery' %></h3>
-          <p><%= g.photoCount %> photo<%= g.photoCount === 1 ? '' : 's' %></p>
+      <div class="gal-item" data-id="<%= g.id %>">
+        <div class="gal-row">
+          <span class="drag-handle" title="Drag to reorder">&#9776;</span>
+          <a class="gal" href="/account/book/galleries/<%= g.id %>">
+            <% if (g.coverUrl) { %><img class="gal-cover" src="<%= g.coverUrl %>" alt=""><% } else { %><div class="gal-cover empty">&#128247;</div><% } %>
+            <div class="gal-info">
+              <h3><%= g.title || 'Untitled Gallery' %></h3>
+              <p><%= g.photoCount %> photo<%= g.photoCount === 1 ? '' : 's' %></p>
+            </div>
+          </a>
+          <button type="button" class="btn-rename" onclick="this.closest('.gal-item').querySelector('.rename-form').classList.toggle('open')">Rename</button>
         </div>
-      </a>
+        <form class="rename-form" method="POST" action="/account/book/galleries/<%= g.id %>/rename">
+          <input type="hidden" name="from" value="list">
+          <input type="text" name="title" value="<%= g.title || '' %>" maxlength="80" required>
+          <button type="submit" class="btn-sm">Save name</button>
+        </form>
+      </div>
     <% }); %>
+    </div>
+    <% if (galleries && galleries.length > 1) { %><p class="reorder-hint">&#8645; Drag to reorder — this is the order visitors see</p><% } %>
 
     <form class="create" method="POST" action="/account/book/galleries">
       <label>New gallery name</label>
@@ -55,5 +86,32 @@
 
     <a href="/account/book" class="btn-back">← Back to My Book</a>
   </div>
+
+  <div id="reorder-toast">&#10003; Order saved</div>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script>
+    var toastTimer;
+    function showToast(ok) {
+      var t = document.getElementById('reorder-toast');
+      t.textContent = ok ? '✓ Order saved' : '⚠ Could not save order';
+      t.style.background = ok ? '#2e7d32' : '#c0392b';
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+    Sortable.create(document.getElementById('galleryList'), {
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'sortable-ghost',
+      onEnd: function () {
+        var order = [].map.call(document.querySelectorAll('.gal-item'), function (el) { return el.dataset.id; });
+        fetch('/account/book/galleries/reorder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: order })
+        }).then(function (r) { showToast(r.ok); }).catch(function () { showToast(false); });
+      }
+    });
+  </script>
 </body>
 </html>

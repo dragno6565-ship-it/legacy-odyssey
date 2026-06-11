@@ -552,8 +552,24 @@ router.post('/book/galleries/:id/rename', requireAccountSession, async (req, res
   try {
     const bid = await resolveBookId(req);
     await galleryService.renameGallery(bid, req.params.id, req.body.title);
-    res.redirect('/account/book/galleries/' + req.params.id + '?success=1');
+    // Renames come from two places: the gallery detail page and the list page.
+    res.redirect(req.body.from === 'list'
+      ? '/account/book/galleries?success=1'
+      : '/account/book/galleries/' + req.params.id + '?success=1');
   } catch (err) { next(err); }
+});
+
+// Drag-to-reorder on the galleries list — this order is what visitors see.
+router.post('/book/galleries/reorder', requireAccountSession, async (req, res) => {
+  try {
+    const bid = await resolveBookId(req);
+    if (!bid || !Array.isArray(req.body.order)) return res.status(400).json({ error: 'Invalid order' });
+    await galleryService.reorderGalleries(bid, req.body.order);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Gallery reorder error:', err.message);
+    res.status(500).json({ error: 'Failed to save order' });
+  }
 });
 
 router.post('/book/galleries/:id/delete', requireAccountSession, async (req, res, next) => {

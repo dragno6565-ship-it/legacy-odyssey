@@ -40,12 +40,6 @@
       <span class="nav-label">Your Birth Day</span>
     </a>
     <% } %>
-    <% if (visibleSections.galleries) { %>
-    <a class="nav-item" onclick="showPage('galleries')">
-      <span class="nav-icon"><i data-lucide="images"></i></span>
-      <span class="nav-label">Photo Galleries</span>
-    </a>
-    <% } %>
     <% if (visibleSections.journey) { %>
     <a class="nav-item" onclick="showPage('journey')">
       <span class="nav-icon"><i data-lucide="route"></i></span>
@@ -115,6 +109,34 @@
       <span class="nav-icon"><i data-lucide="video"></i></span>
       <span class="nav-label">Video Moments</span>
     </a>
+    <% } %>
+    <% if (visibleSections.galleries) { %>
+    <%
+      // Photo Galleries submenu — same nested-dropdown UX as Celebrations.
+      // Lists each gallery that actually has photos; clicking one opens the
+      // galleries page and scrolls to that gallery's block (#cg-<id>).
+      // Detail layouts (celebration/recipe) don't pass customGalleries, so
+      // guard and fall back to a plain nav item there.
+      const _galsSrc = (typeof customGalleries !== 'undefined' && customGalleries) ? customGalleries : [];
+      const _galsWithPhotos = _galsSrc.filter((g) => g.photos && g.photos.length);
+    %>
+    <% if (_galsWithPhotos.length) { %>
+    <div class="nav-parent" onclick="this.classList.toggle('open')">
+      <span class="nav-icon"><i data-lucide="images"></i></span>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('galleries')" style="flex:1;color:inherit;text-decoration:none;">Photo Galleries</a>
+      <span class="nav-chevron">▸</span>
+    </div>
+    <div class="nav-children">
+      <% _galsWithPhotos.forEach(function(g) { %>
+        <a class="nav-celebration" onclick="showPage('galleries');var el=document.getElementById('cg-<%= g.id %>');if(el)setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);"><%= g.title || 'Untitled Gallery' %></a>
+      <% }); %>
+    </div>
+    <% } else { %>
+    <a class="nav-item" onclick="showPage('galleries')">
+      <span class="nav-icon"><i data-lucide="images"></i></span>
+      <span class="nav-label">Photo Galleries</span>
+    </a>
+    <% } %>
     <% } %>
     <% if (visibleSections.firsts) { %>
     <a class="nav-item" onclick="showPage('firsts')">

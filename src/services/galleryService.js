@@ -87,8 +87,21 @@ async function deletePhoto(bookId, photoId) {
   return true;
 }
 
+// Persist a new gallery order (array of gallery ids, first = top).
+// UPDATE per row, scoped by book_id so foreign ids are ignored.
+async function reorderGalleries(bookId, orderedIds) {
+  if (!Array.isArray(orderedIds)) return false;
+  await Promise.all(orderedIds.map((id, i) =>
+    supabaseAdmin.from('custom_galleries')
+      .update({ sort_order: i })
+      .eq('id', id)
+      .eq('book_id', bookId)
+  ));
+  return true;
+}
+
 module.exports = {
   MAX_PHOTOS,
   listGalleries, getGallery, createGallery, renameGallery, deleteGallery,
-  addPhotos, setCaption, deletePhoto,
+  addPhotos, setCaption, deletePhoto, reorderGalleries,
 };

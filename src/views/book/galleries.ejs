@@ -6,7 +6,7 @@
   <div class="page-body">
     <% (customGalleries || []).forEach(function (g) { %>
       <% if (g.photos && g.photos.length) { %>
-        <div class="cg-gallery-block">
+        <div class="cg-gallery-block" id="cg-<%= g.id %>">
           <% if (g.title) { %><h3 class="cg-gallery-title"><%= g.title %></h3><% } %>
           <div class="cg-grid">
             <% g.photos.forEach(function (p) { %>
