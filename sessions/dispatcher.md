@@ -100,3 +100,10 @@
 1. Re-read this brief and the full top section of STATUS.md; check for overnight entries, conflicts, and board formatting damage.
 2. Produce Dan's agenda: decisions in priority order, hands-on tasks, each session's first task, and any new cross-session conflicts.
 3. Explicitly flag any session whose planned first task is gated on a decision Dan has not made yet.
+
+## Standing shutdown routine (trigger: "goodnight" / "run the close" - normally AFTER Dan pastes the other sessions' goodnight summaries)
+1. Reconcile the pasted summaries against STATUS.md; detect duplicates, conflicts, and decisions that gate tomorrow's first tasks.
+2. Write ONE consolidated "NIGHTLY CLOSE - dispatcher" entry at the top of STATUS.md: day headline, morning gates, consolidated+prioritized "Blocked on Dan" list. Verify no existing entry headings get damaged by the edit.
+3. Commit STATUS.md (own files only; do not push - pushing main triggers a Railway deploy).
+4. Give Dan the morning agenda preview: decisions in priority order, hands-on tasks, each session's first task.
+5. Housekeeping check: archive STATUS.md's oldest half past ~40 entries; update this brief's log.
