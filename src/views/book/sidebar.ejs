@@ -40,12 +40,6 @@
       <span class="nav-label">Your Birth Day</span>
     </a>
     <% } %>
-    <% if (visibleSections.moments) { %>
-    <a class="nav-item" onclick="showPage('moments')">
-      <span class="nav-icon"><i data-lucide="video"></i></span>
-      <span class="nav-label">Video Moments</span>
-    </a>
-    <% } %>
     <% if (visibleSections.galleries) { %>
     <a class="nav-item" onclick="showPage('galleries')">
       <span class="nav-icon"><i data-lucide="images"></i></span>
@@ -107,13 +101,19 @@
       <span class="nav-label">Month by Month</span>
     </a>
     <% } %>
-    <% if (visibleSections.family || visibleSections.firsts || visibleSections.holidays || visibleSections.letters || visibleSections.recipes) { %>
+    <% if (visibleSections.family || visibleSections.moments || visibleSections.firsts || visibleSections.holidays || visibleSections.letters || visibleSections.recipes) { %>
     <div class="nav-section-label">Family &amp; Memories</div>
     <% } %>
     <% if (visibleSections.family) { %>
     <a class="nav-item" onclick="showPage('family')">
       <span class="nav-icon"><i data-lucide="users"></i></span>
       <span class="nav-label">Our Family</span>
+    </a>
+    <% } %>
+    <% if (visibleSections.moments) { %>
+    <a class="nav-item" onclick="showPage('moments')">
+      <span class="nav-icon"><i data-lucide="video"></i></span>
+      <span class="nav-label">Video Moments</span>
     </a>
     <% } %>
     <% if (visibleSections.firsts) { %>
