@@ -42,3 +42,10 @@
 - **2026-06-10** — Scheduled pins 41–70 (May 21–Jun 18 at 12:00 PM). Handled context resumption mid-pin-57 from prior session. Discovered Pinterest's 30-day cap on scheduling; pin 70 landed Jun 18. Rewrote stale `marketing/pinterest/pinterest.md`. Adopted sessions/+STATUS.md protocol.
 - **~2026-05-20** — Scheduled pins 1–40 (prior session).
 - **2026-06-10** — (dispatcher) File created during the cross-session reorg.
+
+---
+
+## Standing morning routine (trigger: Dan opens with just "good morning" or no specific task)
+1. Re-read CLAUDE.md, this brief, and the top of STATUS.md - start with the latest dispatcher NIGHTLY CLOSE / agenda entry.
+2. Cross-check the board against your planned first task: if another session's entry conflicts with it, blocks it, gates it on a Dan decision, or already did it, surface that instead of proceeding.
+3. Reply with: (a) your first task and why it's first, (b) what you're blocked on, (c) anything on the board that affects you. Then WAIT for Dan's go before starting any work.

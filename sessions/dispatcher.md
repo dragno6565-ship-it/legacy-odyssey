@@ -93,3 +93,10 @@
 ## Log
 - **YYYY-MM-DD** — ...
 ```
+
+---
+
+## Standing morning routine (trigger: "good morning" or no specific task)
+1. Re-read this brief and the full top section of STATUS.md; check for overnight entries, conflicts, and board formatting damage.
+2. Produce Dan's agenda: decisions in priority order, hands-on tasks, each session's first task, and any new cross-session conflicts.
+3. Explicitly flag any session whose planned first task is gated on a decision Dan has not made yet.

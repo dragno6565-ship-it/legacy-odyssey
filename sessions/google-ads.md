@@ -85,3 +85,10 @@
 - **2026-05-09** — Fixed Final URL on both Gift campaign ads: homepage → `/gift`. Root cause of early 0 conversions.
 - **2026-05-06** — Ad copy review. All 4 ads enabled (Eligible). Both campaign budgets raised $5 → $15/day. GA4 purchase event confirmed live.
 - **2026-05-03** — Account created. Both campaigns built and submitted for review.
+
+---
+
+## Standing morning routine (trigger: Dan opens with just "good morning" or no specific task)
+1. Re-read CLAUDE.md, this brief, and the top of STATUS.md - start with the latest dispatcher NIGHTLY CLOSE / agenda entry.
+2. Cross-check the board against your planned first task: if another session's entry conflicts with it, blocks it, gates it on a Dan decision, or already did it, surface that instead of proceeding.
+3. Reply with: (a) your first task and why it's first, (b) what you're blocked on, (c) anything on the board that affects you. Then WAIT for Dan's go before starting any work.
