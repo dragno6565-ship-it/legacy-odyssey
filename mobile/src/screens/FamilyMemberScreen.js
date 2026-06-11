@@ -10,9 +10,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { Alert } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { get, put } from '../api/client';
+import { get, put, del } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import VideoBlock from '../components/VideoBlock';
 import { useSavedToast } from '../components/SavedToast';
@@ -28,7 +29,6 @@ export default function FamilyMemberScreen({ route, navigation }) {
 
   const [name, setName] = useState('');
   const [relation, setRelation] = useState('');
-  const [emoji, setEmoji] = useState('');
   const [photoPath, setPhotoPath] = useState('');
   const [meta, setMeta] = useState([
     { label: '', value: '' },
@@ -56,7 +56,6 @@ export default function FamilyMemberScreen({ route, navigation }) {
           setMemberId(member.id || null);
           setName(member.name || '');
           setRelation(member.relation || '');
-          setEmoji(member.emoji || '');
           setPhotoPath(member.photo_path || '');
           setMeta([
             { label: member.meta_1_label || '', value: member.meta_1_value || '' },
@@ -108,7 +107,6 @@ export default function FamilyMemberScreen({ route, navigation }) {
       await put(`/api/books/mine/family/${memberKey}`, {
         name: name.trim(),
         relation: relation.trim(),
-        emoji: emoji.trim(),
         photo_path: photoPath,
         meta_1_label: meta[0].label.trim(),
         meta_1_value: meta[0].value.trim(),
@@ -179,9 +177,6 @@ export default function FamilyMemberScreen({ route, navigation }) {
               <TextInput style={styles.input} value={relation} onChangeText={setRelation} placeholder="e.g., Mom" placeholderTextColor={colors.placeholder} />
             </View>
           </View>
-
-          <Text style={styles.label}>Emoji</Text>
-          <TextInput style={styles.input} value={emoji} onChangeText={setEmoji} placeholder="e.g., \u{1F469}" placeholderTextColor={colors.placeholder} />
         </View>
 
         {/* Meta Facts */}
@@ -248,6 +243,24 @@ export default function FamilyMemberScreen({ route, navigation }) {
             <Text style={styles.saveButtonText}>Save</Text>
           )}
         </TouchableOpacity>
+
+        {memberId ? (
+          <TouchableOpacity
+            style={styles.removeButton}
+            activeOpacity={0.7}
+            onPress={() => {
+              Alert.alert('Remove from family?', `Remove ${name || 'this person'} from your family list? Their page and photos are deleted.`, [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Remove', style: 'destructive', onPress: async () => {
+                  try { await del(`/api/books/mine/family/${memberKey}`); navigation.goBack(); }
+                  catch (e) { Alert.alert('Error', 'Could not remove. Please try again.'); }
+                } },
+              ]);
+            }}
+          >
+            <Text style={styles.removeButtonText}>Remove from family</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
       {ToastComponent}
     </KeyboardAvoidingView>
@@ -272,4 +285,6 @@ const styles = StyleSheet.create({
   saveButton: { backgroundColor: colors.gold, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md, minHeight: 50, ...shadows.button },
   saveButtonDisabled: { opacity: 0.7 },
   saveButtonText: { color: colors.white, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold },
+  removeButton: { marginTop: spacing.lg, alignItems: 'center' },
+  removeButtonText: { color: colors.error, fontSize: typography.sizes.sm, fontWeight: typography.weights.medium },
 });

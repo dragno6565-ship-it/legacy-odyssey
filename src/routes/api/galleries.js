@@ -24,6 +24,17 @@ router.get('/mine', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Reorder galleries (app twin of POST /account/book/galleries/reorder).
+// Declared before the :id routes so 'reorder' isn't captured as an id.
+router.put('/mine/reorder', async (req, res, next) => {
+  try {
+    const id = await bid(req);
+    if (!id || !Array.isArray(req.body.order)) return res.status(400).json({ error: 'Invalid order' });
+    await galleryService.reorderGalleries(id, req.body.order);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 router.get('/mine/:id', async (req, res, next) => {
   try {
     const g = await galleryService.getGallery(await bid(req), req.params.id);

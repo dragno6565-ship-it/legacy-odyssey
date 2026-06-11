@@ -10,9 +10,9 @@ import {
   Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { PartyPopper } from 'lucide-react-native';
+import { PartyPopper, Pencil } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
-import { get, post, del } from '../api/client';
+import { get, post, put, del } from '../api/client';
 
 /**
  * Top-level Celebrations screen — list of celebration years.
@@ -28,6 +28,8 @@ export default function CelebrationsScreen({ navigation }) {
   const [newYearLabel, setNewYearLabel] = useState('');
   const [counts, setCounts] = useState({}); // year_label -> celebration count
   const [adding, setAdding] = useState(false);
+  const [renamingYear, setRenamingYear] = useState(null);
+  const [renameVal, setRenameVal] = useState('');
 
   const fetchYears = useCallback(async () => {
     setLoading(true);
@@ -92,6 +94,22 @@ export default function CelebrationsScreen({ navigation }) {
     }
   }
 
+  // Rename a year — relabels the year AND every celebration filed under it
+  // (PUT /api/books/mine/celebration-years, twin of the web editor's Rename).
+  async function saveRenameYear(oldLabel) {
+    const newLabel = renameVal.trim();
+    if (!newLabel || newLabel === oldLabel) { setRenamingYear(null); return; }
+    try {
+      const res = await put('/api/books/mine/celebration-years', { oldLabel, newLabel });
+      setYears(Array.isArray(res.data) ? res.data : years.map((y) => (y === oldLabel ? newLabel : y)));
+      setCounts((c) => { const n = { ...c, [newLabel]: c[oldLabel] || 0 }; delete n[oldLabel]; return n; });
+      setRenamingYear(null);
+    } catch (err) {
+      const msg = (err.response && err.response.data && err.response.data.error) || 'Please try again.';
+      Alert.alert('Could not rename', msg);
+    }
+  }
+
   function handleDeleteYear(label) {
     Alert.alert(
       `Delete "${label}"?`,
@@ -140,6 +158,29 @@ export default function CelebrationsScreen({ navigation }) {
         // deletion of it (it always exists). Long-press delete is only
         // enabled for custom years.
         const canDelete = label !== 'Your First Year' && years.length > 1;
+        if (renamingYear === label) {
+          return (
+            <View key={label} style={styles.yearRow}>
+              <View style={[styles.yearRowInner, { flex: 1 }]}>
+                <TextInput
+                  style={styles.renameInput}
+                  value={renameVal}
+                  onChangeText={setRenameVal}
+                  autoFocus
+                  maxLength={40}
+                  returnKeyType="done"
+                  onSubmitEditing={() => saveRenameYear(label)}
+                />
+                <TouchableOpacity style={styles.renameSave} onPress={() => saveRenameYear(label)}>
+                  <Text style={styles.renameSaveText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setRenamingYear(null)}>
+                  <Text style={styles.renameCancel}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          );
+        }
         return (
           <TouchableOpacity
             key={label}
@@ -159,6 +200,9 @@ export default function CelebrationsScreen({ navigation }) {
                 </Text>
               </View>
             </View>
+            <TouchableOpacity onPress={() => { setRenamingYear(label); setRenameVal(label); }} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={{ marginRight: spacing.sm }}>
+              <Pencil size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
         );
@@ -241,6 +285,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   chevron: { fontSize: 24, color: colors.gold, marginLeft: spacing.sm },
+  renameInput: { flex: 1, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.gold, borderRadius: borderRadius.md, padding: spacing.sm, fontSize: typography.sizes.md, color: colors.textPrimary },
+  renameSave: { backgroundColor: colors.gold, borderRadius: borderRadius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, marginLeft: spacing.sm },
+  renameSaveText: { color: '#fff', fontSize: typography.sizes.sm, fontWeight: typography.weights.semibold },
+  renameCancel: { color: colors.textSecondary, fontSize: typography.sizes.sm, marginLeft: spacing.sm },
   addYearCard: {
     borderWidth: 2,
     borderStyle: 'dashed',

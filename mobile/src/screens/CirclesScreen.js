@@ -1,17 +1,23 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Users, Trash2 } from 'lucide-react-native';
+import { Users, Trash2, Send } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
 
-// Phase 1: manage contacts + circles (no notifications yet). Mirrors the web
-// /account/book/circles page. Calls the JWT API at /api/contacts/*.
+// Phases 1 + 2: manage contacts + circles, and send update emails (each
+// opted-in person gets their private magic link — no password needed).
+// Mirrors the web /account/book/circles page. Calls the JWT API at /api/contacts/*.
 export default function CirclesScreen() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [circles, setCircles] = useState([]);
+
+  // Send an Update (Phase 2)
+  const [notifyCircleId, setNotifyCircleId] = useState(null); // null = Everyone
+  const [notifyNote, setNotifyNote] = useState('');
+  const [sending, setSending] = useState(false);
 
   const [newCircle, setNewCircle] = useState('');
   const [cName, setCName] = useState('');
@@ -85,6 +91,36 @@ export default function CirclesScreen() {
     ]);
   }
 
+  // ── Send an Update (Phase 2) ─────────────────────────────────────────────
+  const notifiable = contacts.filter((c) => c.email && c.notify_opt_in !== false && !c.unsubscribed_at);
+  const notifiableInCircle = (c) => notifiable.filter((p) => (p.circle_ids || []).indexOf(c.id) !== -1).length;
+  const selectedCount = notifyCircleId
+    ? notifiableInCircle(circles.find((c) => c.id === notifyCircleId) || { id: notifyCircleId })
+    : notifiable.length;
+
+  function sendUpdate() {
+    if (sending || !selectedCount) return;
+    Alert.alert(
+      'Send the update email now?',
+      `${selectedCount} ${selectedCount === 1 ? 'person' : 'people'} will each get their own private link.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Send', onPress: async () => {
+          setSending(true);
+          try {
+            const res = await post('/api/contacts/mine/notify', { circleId: notifyCircleId || '', note: notifyNote.trim() });
+            const sent = (res.data && res.data.sent) || 0;
+            setNotifyNote('');
+            Alert.alert('Sent', `Update sent to ${sent} ${sent === 1 ? 'person' : 'people'}.`);
+          } catch (e) {
+            const msg = (e.response && e.response.data && e.response.data.error) || 'Could not send the update.';
+            Alert.alert('Not sent', msg);
+          } finally { setSending(false); }
+        } },
+      ]
+    );
+  }
+
   const Chips = ({ selected, onToggle }) => (
     <View style={styles.chips}>
       {circles.map((c) => {
@@ -104,7 +140,40 @@ export default function CirclesScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Text style={styles.pageTitle}>Your Circles</Text>
       <Text style={styles.pageSubtitle}>Keep a private list of who can see the book, grouped into circles like “Grandparents.”</Text>
-      <View style={styles.note}><Text style={styles.noteText}>Soon you’ll be able to tap “Notify” and tell a circle when you add something new. For now, build your list.</Text></View>
+
+      {/* SEND AN UPDATE (Phase 2) */}
+      {notifiable.length > 0 ? (
+        <View style={[styles.card, styles.notifyCard]}>
+          <View style={styles.row}>
+            <Send size={18} color={colors.gold} />
+            <Text style={styles.cardTitle}>Send an Update</Text>
+          </View>
+          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>Let people know there’s something new in the book. Each person gets an email with their own private link — no password needed.</Text>
+          <Text style={styles.label}>Who</Text>
+          <View style={styles.chips}>
+            <TouchableOpacity onPress={() => setNotifyCircleId(null)} style={[styles.chip, !notifyCircleId && styles.chipOn]}>
+              <Text style={[styles.chipText, !notifyCircleId && styles.chipTextOn]}>Everyone ({notifiable.length})</Text>
+            </TouchableOpacity>
+            {circles.map((c) => (
+              <TouchableOpacity key={c.id} onPress={() => setNotifyCircleId(c.id)} style={[styles.chip, notifyCircleId === c.id && styles.chipOn]}>
+                <Text style={[styles.chipText, notifyCircleId === c.id && styles.chipTextOn]}>{c.name} ({notifiableInCircle(c)})</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TextInput
+            style={styles.input}
+            value={notifyNote}
+            onChangeText={setNotifyNote}
+            placeholder="Add a short note (optional)"
+            placeholderTextColor={colors.placeholder}
+            maxLength={500}
+          />
+          <TouchableOpacity style={[styles.btn, (sending || !selectedCount) && styles.dim]} onPress={sendUpdate} disabled={sending || !selectedCount}>
+            {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Send Update</Text>}
+          </TouchableOpacity>
+          <Text style={[styles.muted, { marginTop: spacing.xs, fontSize: typography.sizes.xs }]}>One update per 10 minutes, so inboxes stay friendly.</Text>
+        </View>
+      ) : null}
 
       {/* CIRCLES */}
       <Text style={styles.h2}>Circles</Text>
@@ -194,8 +263,7 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, paddingBottom: 150 },
   pageTitle: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.xl, fontWeight: typography.weights.bold, color: colors.textPrimary },
   pageSubtitle: { fontSize: typography.sizes.sm, color: colors.textSecondary, marginBottom: spacing.md, fontStyle: 'italic' },
-  note: { backgroundColor: '#fbf6ed', borderLeftWidth: 4, borderLeftColor: colors.gold, borderRadius: borderRadius.sm, padding: spacing.sm, marginBottom: spacing.md },
-  noteText: { fontSize: typography.sizes.xs, color: '#6b5e44' },
+  notifyCard: { borderWidth: 1.5, borderColor: colors.gold, marginTop: spacing.sm },
   h2: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.semibold, color: colors.textPrimary, marginTop: spacing.lg, marginBottom: spacing.sm },
   empty: { fontSize: typography.sizes.sm, color: colors.textSecondary, marginBottom: spacing.sm },
   card: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.sm, ...shadows.card },

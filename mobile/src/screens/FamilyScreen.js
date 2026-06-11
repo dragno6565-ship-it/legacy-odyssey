@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { User } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get } from '../api/client';
 import { BASE_URL } from '../api/client';
@@ -63,7 +64,7 @@ export default function FamilyScreen({ navigation }) {
           <Image source={{ uri: photoUri }} style={styles.memberPhoto} />
         ) : (
           <View style={styles.memberPhotoPlaceholder}>
-            <Text style={styles.memberEmoji}>{item.emoji || '\u{1F464}'}</Text>
+            <User size={32} color={colors.gold} strokeWidth={1.5} />
           </View>
         )}
         <Text style={styles.memberName} numberOfLines={1}>
@@ -105,6 +106,9 @@ export default function FamilyScreen({ navigation }) {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.grid}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No family members yet. Add the people who matter most to your child.</Text>
+        }
         ListFooterComponent={
           <TouchableOpacity
             style={styles.addButton}
@@ -140,7 +144,7 @@ const styles = StyleSheet.create({
   memberCard: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.md, width: '48%', alignItems: 'center', ...shadows.card },
   memberPhoto: { width: 80, height: 80, borderRadius: 40, backgroundColor: colors.card, marginBottom: spacing.sm },
   memberPhotoPlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: colors.card, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.sm },
-  memberEmoji: { fontSize: 32 },
+  emptyText: { fontSize: typography.sizes.sm, color: colors.textSecondary, textAlign: 'center', marginVertical: spacing.lg, paddingHorizontal: spacing.lg },
   memberName: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.md, fontWeight: typography.weights.semibold, color: colors.textPrimary, textAlign: 'center' },
   memberRelation: { fontSize: typography.sizes.xs, color: colors.textSecondary, marginTop: 2 },
   addButton: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.xl, width: '100%', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.gold, borderStyle: 'dashed', minHeight: 100, ...shadows.card },

@@ -348,6 +348,18 @@ router.put('/mine/family/:key', async (req, res, next) => {
   }
 });
 
+// Remove a family member (any member — matches the web editor's clean-slate model).
+router.delete('/mine/family/:key', async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const { supabaseAdmin } = require('../../config/supabase');
+    await supabaseAdmin.from('family_members').delete().eq('book_id', book.id).eq('member_key', req.params.key);
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Generic section endpoints (firsts, letters, recipes)
 const sectionTables = {
   firsts: 'firsts',
@@ -475,6 +487,25 @@ router.post('/mine/celebration-years', async (req, res, next) => {
     const { label } = req.body;
     if (!label || years.includes(label)) return res.status(400).json({ error: 'Invalid or duplicate label' });
     const updated = [...years, label];
+    await bookService.updateBook(book.id, { celebration_years: updated });
+    res.json(updated);
+  } catch (err) { next(err); }
+});
+
+// Rename a year (app twin of POST /account/book/celebrations/year/edit):
+// updates the label list AND relabels every celebration filed under it.
+router.put('/mine/celebration-years', async (req, res, next) => {
+  try {
+    const oldLabel = (req.body.oldLabel || '').toString().trim();
+    const newLabel = (req.body.newLabel || '').toString().trim();
+    if (!oldLabel || !newLabel) return res.status(400).json({ error: 'Both labels are required' });
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    const years = book.celebration_years || ['Your First Year'];
+    if (oldLabel === newLabel) return res.json(years);
+    if (years.includes(newLabel)) return res.status(400).json({ error: 'That year name already exists' });
+    const { supabaseAdmin } = require('../../config/supabase');
+    const updated = years.includes(oldLabel) ? years.map((y) => (y === oldLabel ? newLabel : y)) : [...years, newLabel];
+    await supabaseAdmin.from('celebrations').update({ year_label: newLabel }).eq('book_id', book.id).eq('year_label', oldLabel);
     await bookService.updateBook(book.id, { celebration_years: updated });
     res.json(updated);
   } catch (err) { next(err); }

@@ -4,14 +4,13 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
 import { pickAndUploadPhotos } from '../utils/multiPhoto';
 
-const MAX = 21;
-
 export default function GalleryDetailScreen({ route, navigation }) {
   const { galleryId } = route.params || {};
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
   const [photos, setPhotos] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [maxPhotos, setMaxPhotos] = useState(50); // server is the source of truth (galleryService.MAX_PHOTOS)
   const [progress, setProgress] = useState('');
 
   const fetchGallery = useCallback(async () => {
@@ -19,6 +18,7 @@ export default function GalleryDetailScreen({ route, navigation }) {
       const res = await get(`/api/galleries/mine/${galleryId}`);
       const g = (res.data && res.data.gallery) || {};
       setTitle(g.title || '');
+      if (res.data && res.data.maxPhotos) setMaxPhotos(res.data.maxPhotos);
       setPhotos(g.photos || []);
     } catch (err) { Alert.alert('Error', 'Could not load this gallery.'); }
     finally { setLoading(false); }
@@ -31,8 +31,8 @@ export default function GalleryDetailScreen({ route, navigation }) {
   }
 
   async function addPhotos() {
-    const room = MAX - photos.length;
-    if (room <= 0) { Alert.alert('Full', 'This gallery already has 21 photos.'); return; }
+    const room = maxPhotos - photos.length;
+    if (room <= 0) { Alert.alert('Full', 'This gallery already has ' + maxPhotos + ' photos.'); return; }
     setBusy(true); setProgress('');
     try {
       const { canceled, paths } = await pickAndUploadPhotos({ limit: room, onProgress: (d, t) => setProgress(`Uploading ${Math.min(d + 1, t)} of ${t}…`) });
@@ -69,7 +69,7 @@ export default function GalleryDetailScreen({ route, navigation }) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <TextInput style={styles.titleInput} value={title} onChangeText={setTitle} onEndEditing={saveTitle} placeholder="Gallery name" placeholderTextColor={colors.placeholder} maxLength={80} />
-      <Text style={styles.count}>{photos.length} of {MAX} photos</Text>
+      <Text style={styles.count}>{photos.length} of {maxPhotos} photos</Text>
 
       {photos.map((p) => (
         <View key={p.id} style={styles.card}>
@@ -79,11 +79,11 @@ export default function GalleryDetailScreen({ route, navigation }) {
         </View>
       ))}
 
-      <TouchableOpacity style={[styles.addButton, (busy || photos.length >= MAX) && styles.addDisabled]} onPress={addPhotos} disabled={busy || photos.length >= MAX} activeOpacity={0.8}>
+      <TouchableOpacity style={[styles.addButton, (busy || photos.length >= maxPhotos) && styles.addDisabled]} onPress={addPhotos} disabled={busy || photos.length >= maxPhotos} activeOpacity={0.8}>
         {busy ? (
           <View style={styles.row}><ActivityIndicator color={colors.gold} size="small" /><Text style={styles.addText}>  {progress || 'Uploading…'}</Text></View>
         ) : (
-          <Text style={styles.addText}>{photos.length >= MAX ? 'Full (21 photos)' : '+ Add photos'}</Text>
+          <Text style={styles.addText}>{photos.length >= maxPhotos ? 'Full (' + maxPhotos + ' photos)' : '+ Add photos'}</Text>
         )}
       </TouchableOpacity>
 

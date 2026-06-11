@@ -362,7 +362,7 @@ export default function ChildInfoScreen({ navigation }) {
               onChangeText={setWeightLbs}
               placeholder="7"
               placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
             />
           </View>
           <View style={styles.thirdField}>
@@ -373,7 +373,7 @@ export default function ChildInfoScreen({ navigation }) {
               onChangeText={setWeightOz}
               placeholder="8"
               placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
             />
           </View>
           <View style={styles.thirdField}>
@@ -384,7 +384,7 @@ export default function ChildInfoScreen({ navigation }) {
               onChangeText={setLengthInches}
               placeholder="20"
               placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
             />
           </View>
         </View>
