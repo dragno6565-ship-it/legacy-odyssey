@@ -35,7 +35,7 @@
     btn.style.opacity = '0.85';
     try {
       var work = forms.map(function (f) {
-        return fetch(f.getAttribute('action'), { method: 'POST', body: new FormData(f), credentials: 'same-origin' });
+        return fetch(f.getAttribute('action'), { method: 'POST', body: new URLSearchParams(new FormData(f)), credentials: 'same-origin' });
       });
       if (typeof window.loSavePage === 'function') work.push(window.loSavePage());
       await Promise.all(work);

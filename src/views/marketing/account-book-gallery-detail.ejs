@@ -126,7 +126,7 @@
       // gallery name first so the reload doesn't discard it.
       var titleForm = document.querySelector('.title-row');
       if (titleForm && titleForm.querySelector('input[name="title"]').value.trim()) {
-        try { await fetch(titleForm.getAttribute('action'), { method: 'POST', body: new FormData(titleForm), credentials: 'same-origin' }); } catch (e2) {}
+        try { await fetch(titleForm.getAttribute('action'), { method: 'POST', body: new URLSearchParams(new FormData(titleForm)), credentials: 'same-origin' }); } catch (e2) {}
       }
       location.reload();
     }
@@ -147,7 +147,7 @@
         var orig = btn.textContent;
         btn.disabled = true; btn.textContent = 'Saving…';
         try {
-          await fetch(form.getAttribute('action'), { method: 'POST', body: new FormData(form), credentials: 'same-origin' });
+          await fetch(form.getAttribute('action'), { method: 'POST', body: new URLSearchParams(new FormData(form)), credentials: 'same-origin' });
           btn.textContent = '✓ Saved';
         } catch (err) {
           btn.textContent = 'Try again';
@@ -160,7 +160,7 @@
     window.loSavePage = async function () {
       var tasks = [];
       var titleForm = document.querySelector('.title-row');
-      if (titleForm) tasks.push(fetch(titleForm.getAttribute('action'), { method: 'POST', body: new FormData(titleForm), credentials: 'same-origin' }));
+      if (titleForm) tasks.push(fetch(titleForm.getAttribute('action'), { method: 'POST', body: new URLSearchParams(new FormData(titleForm)), credentials: 'same-origin' }));
       document.querySelectorAll('.pcard').forEach(function (card) {
         var input = card.querySelector('input[type="text"]');
         if (input) tasks.push(saveCaption(card.dataset.id, input.value));
