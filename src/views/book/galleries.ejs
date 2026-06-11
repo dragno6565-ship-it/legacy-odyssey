@@ -43,6 +43,7 @@
 
 <style>
   .cg-index { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .cg-index[hidden] { display: none; }
   @media (max-width: 760px) { .cg-index { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
   @media (max-width: 440px) { .cg-index { grid-template-columns: 1fr; } }
   .cg-index-card { background: #fff; border: 1px solid #e0d5c4; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 22px rgba(26,21,16,0.08); cursor: pointer; transition: transform 0.15s, box-shadow 0.2s; }
