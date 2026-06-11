@@ -261,10 +261,11 @@
     @media (max-width: 980px) { .lo-pricing-cards { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 560px) {
       .lo-pricing-cards { grid-template-columns: 1fr; }
-      /* Mobile order: Annual, Monthly, Entire Childhood, Gift (DOM order is Monthly, Annual, Gift, Childhood) */
-      .lo-pricing-card:nth-child(1) { order: 1; } /* Annual */
-      .lo-pricing-card:nth-child(2) { order: 3; } /* Gift */
-      .lo-pricing-card:nth-child(3) { order: 2; } /* Entire Childhood */
+      /* Mobile stack: Annual first, Gift second, Childhood third
+         (DOM order is Gift, Annual, Childhood — Annual sits in the middle on desktop) */
+      .lo-pricing-card:nth-child(1) { order: 2; } /* Gift */
+      .lo-pricing-card:nth-child(2) { order: 1; } /* Annual */
+      .lo-pricing-card:nth-child(3) { order: 3; } /* Entire Childhood */
     }
     .lo-pricing-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(200,169,110,0.2); border-radius: 12px; padding: 32px 24px; display: flex; flex-direction: column; transition: transform .25s ease, box-shadow .25s ease; }
     .lo-pricing-card:hover { transform: scale(1.03); box-shadow: 0 18px 50px rgba(0,0,0,0.45); }
@@ -708,7 +709,23 @@
       </div>
       <div class="lo-pricing-cards">
 
-        <!-- Annual — HIGHLIGHTED, with anchoring -->
+        <!-- Gift — left on desktop, second on mobile -->
+        <div class="lo-pricing-card">
+          <div class="lo-pricing-name">Gift <span>a Book</span></div>
+          <div class="lo-pricing-tag">A gift the parents will treasure.</div>
+          <div class="lo-pricing-price"><div class="lo-pricing-dollar">$29</div><div class="lo-pricing-period">/ one-time</div></div>
+          <div class="lo-pricing-renewal">Recipient picks their domain &amp; activates. <strong>No auto-charge to you.</strong></div>
+          <ul class="lo-pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> They choose their .com</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full digital baby book</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> One full year included</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Gift code delivered instantly</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> All features included</li>
+          </ul>
+          <a href="/gift" class="lo-pricing-btn lo-pricing-btn-secondary">Send as a Gift</a>
+        </div>
+
+        <!-- Annual — HIGHLIGHTED, middle on desktop, first on mobile -->
         <div class="lo-pricing-card highlighted">
           <div class="lo-pricing-badge">Introductory Offer</div>
           <div class="lo-pricing-name">Annual <span>Plan</span></div>
@@ -724,22 +741,6 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> No setup fee</li>
           </ul>
           <button type="button" class="lo-pricing-btn lo-pricing-btn-primary" onclick="openFounderModal('annual')">Claim It — $29</button>        </div>
-
-        <!-- Gift -->
-        <div class="lo-pricing-card">
-          <div class="lo-pricing-name">Gift <span>a Book</span></div>
-          <div class="lo-pricing-tag">A gift the parents will treasure.</div>
-          <div class="lo-pricing-price"><div class="lo-pricing-dollar">$29</div><div class="lo-pricing-period">/ one-time</div></div>
-          <div class="lo-pricing-renewal">Recipient picks their domain &amp; activates. <strong>No auto-charge to you.</strong></div>
-          <ul class="lo-pricing-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> They choose their .com</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full digital baby book</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> One full year included</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Gift code delivered instantly</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> All features included</li>
-          </ul>
-          <a href="/gift" class="lo-pricing-btn lo-pricing-btn-secondary">Send as a Gift</a>
-        </div>
 
         <!-- Childhood — 18-year prepaid plan ($450). Best Value. Checkout wiring = task B14. -->
         <div class="lo-pricing-card highlighted">
