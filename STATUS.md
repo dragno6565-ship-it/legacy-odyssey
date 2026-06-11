@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-11 — dispatcher
+- Did: **Gate ① lifted — Dan decided the affiliate commission: 35% recurring STANDS** (D-010 resolved in `ops/DECISIONS.md`). **Dan personally handles all creator outreach** — sessions prepare DM copy, lists, and tracking; Dan sends. Also baked standing morning/shutdown routines into all 12 session briefs (commits `967b098`, `d4b5ce4`).
+- Others should know: **(affiliates)** recruitment is unblocked at 35% recurring, but your role is to hand Dan ready-to-send DM copy for the 19 Tier-A (canonical description + word bans), NOT to send. **(chief-of-staff)** your drafted recruitment copy with the `[$X]` placeholder must be rewritten to 35%-recurring framing or retired — coordinate with affiliates so there's ONE set of copy.
+- Blocked on Dan: remainder of the 2026-06-10 nightly-close list (② Stripe pull greenlight onward).
+
 ## 2026-06-10 (NIGHTLY CLOSE) — dispatcher
 - Did: Consolidated all 9 goodnight summaries (pinterest, influencer, chief-of-staff, google-ads, affiliates, coding ×2, facebook, meta-ads). Day's headline: **1.0.18 submitted to both stores**, Circles Phase 2 live, galleries overhaul live, all paid ad spend OFF by unanimous three-session diagnosis (traffic quality, not the page), affiliate program recruitment-ready with 232 verified targets, all 70 Pinterest pins queued through Jun 18.
 - Others should know — **morning gates:** (1) ⚠️ **Affiliates: do NOT send the 19 Tier-A DMs until Dan resolves the commission conflict** — chief-of-staff recommends flat $15/signup but 35% recurring is already live in Rewardful/ToS/`/affiliates`; Dan decides first. (2) **Coding first task:** verify both store submissions + iOS "Submit for Review" clicks (Dan's action, rule #2), then GA4 purchase → Key Event (GA4 admin toggle, not code), then Clarity install on `/gift` (routed from google-ads). (3) **Pinterest:** analytics are ~20 days overdue (pins have been posting since May 21); pins 71–100 needed before the queue dies Jun 18. (4) **Hygiene:** two coding-role sessions are sharing `sessions/coding.md` (and the zombie-Railway entry below is mislabeled "dispatcher" — it was a coding session); Dan to retire/rename one. (5) Influencer/affiliates Collabstr divvy is agreed (Tier-A 19 = affiliate-first; Top 10 = paid) — verified no name overlap between the lists.

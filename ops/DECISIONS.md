@@ -31,13 +31,14 @@ Last updated: 2026-06-04
   the ~9 customers in docs/INDEX.md). Chief-of-staff can do this on Dan's go.
 - **Owner:** Dan to greenlight; Claude executes.
 
-### D-010 — Affiliate commission amount (MEDIUM)
-- Affiliate recruitment copy is drafted (given to Dan 2026-06-10) with a
-  `[$X]` placeholder. **Recommendation: flat $15 per paid signup** (a % of a
-  $29 product is too small to motivate creators; flat is easy to track).
-  Note: the affiliates session runs Rewardful at **35% recurring** for some
-  creator tiers — reconcile the two so the offer is consistent.
-- **Owner:** Dan picks the number; then the copy + Rewardful settings get locked.
+### D-010 — Affiliate commission: ✅ RESOLVED 2026-06-11
+- **Dan's decision (2026-06-11, via Dispatcher): 35% recurring stands.** The
+  live Rewardful program ("Friends of Legacy Odyssey", 35% recurring, 90-day
+  cookie, 60-day hold) is the single offer for ALL affiliates. The flat-$15
+  recommendation is declined; any recruitment copy with a `[$X]` placeholder
+  must be rewritten to the 35%-recurring framing before use.
+- **Dan personally handles creator outreach** (the 19 Tier-A DMs and beyond) —
+  sessions prepare copy, lists, and tracking; Dan sends.
 
 ### D-002 — Privacy Policy / ToS: ✅ RESOLVED 2026-06-04
 - **Outcome:** Both live and substantive. /privacy (May 25 2026, 167 lines)
