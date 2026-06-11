@@ -96,11 +96,10 @@ router.get('/affiliates', (req, res) => {
 // Dan can visit each as a real numbered URL (/font/1 .. /font/5) and pick one.
 // Remove once a font is chosen and applied to the live account pages.
 const FONT_OPTIONS = [
-  { n: 1, name: 'Playfair Display + Inter',      serif: "'Playfair Display', serif", sans: "'Inter', sans-serif",      g: 'Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600' },
-  { n: 2, name: 'Fraunces + Inter',              serif: "'Fraunces', serif",         sans: "'Inter', sans-serif",      g: 'Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600' },
-  { n: 3, name: 'DM Serif Display + DM Sans',    serif: "'DM Serif Display', serif", sans: "'DM Sans', sans-serif",    g: 'DM+Serif+Display&family=DM+Sans:wght@400;500;700' },
-  { n: 4, name: 'Libre Baskerville + Montserrat', serif: "'Libre Baskerville', serif", sans: "'Montserrat', sans-serif", g: 'Libre+Baskerville:wght@400;700&family=Montserrat:wght@400;500;600;700' },
-  { n: 5, name: 'Cormorant + Jost (current)',    serif: "'Cormorant Garamond', serif", sans: "'Jost', sans-serif",     g: 'Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500;600' },
+  { n: 1, name: 'Fraunces',          tag: 'Bold & characterful',     serif: "'Fraunces', serif",          sans: "'Inter', sans-serif",   g: 'Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700' },
+  { n: 2, name: 'Playfair Display',  tag: 'Elegant, high-contrast',  serif: "'Playfair Display', serif",  sans: "'Inter', sans-serif",   g: 'Playfair+Display:wght@500;600;700;800&family=Inter:wght@400;500;600;700' },
+  { n: 3, name: 'DM Serif Display',  tag: 'Heavy & dramatic',        serif: "'DM Serif Display', serif",  sans: "'DM Sans', sans-serif", g: 'DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700' },
+  { n: 4, name: 'Cormorant',         tag: 'Current type, darker',    serif: "'Cormorant Garamond', serif", sans: "'Jost', sans-serif",   g: 'Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500;600' },
 ];
 router.get('/font/:n', (req, res) => {
   const n = parseInt(req.params.n, 10);
