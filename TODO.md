@@ -59,6 +59,7 @@ multiple circles (many-to-many).
 - [ ] **Video Moments grouping.** Web book nav moved "Video Moments" out of "The Book" into "Family & Memories", directly under "Our Family". Match the app's book navigation order/grouping.
 - [ ] **Master "Save Page" button on gallery editors.** Web added a one-tap "save all captions" bar on Birthday/Celebrations(+detail)/Keepsakes/Recipes/Galleries/Journey editors. Confirm the app's equivalent editors save captions in a way that matches (app already saves per-field on blur — verify parity of behavior).
 - [ ] **Font + contrast refresh.** Web account/editor pages switched Cormorant→**Fraunces** (headings) and Jost→**Inter** (body), and darkened muted text (#8a7e6b→#6b5d47) for contrast. If we want the app to match, update the app theme fonts/colors in the next build (bigger task — decide whether to include in 1.0.18 or defer).
+- [ ] **Child Info — allow decimal weight/length.** Web fixed the length/weight inputs to accept decimals (e.g. 19.8 in) — they were `type=number` with no step (whole-numbers only), which rejected 19.8 with a browser "valid value" error. DB already stores it (`birth_length_inches NUMERIC(4,1)`; weight normalized server-side). Check the app's Child Info screen uses `keyboardType="decimal-pad"` and doesn't block decimals.
 
 ---
 
