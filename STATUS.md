@@ -17,6 +17,16 @@
 
 ---
 
+## 2026-06-11 — affiliates
+- Did: Research-only ClickBank evaluation per Dan's brief. Verified fees ($49.95 activation, 7.5% + $1/sale, $5/payout, no monthly), refund policy (30-day floor / 60-day default — direct conflict with hard rule #11), and pulled the actual Parenting category bestseller list (top gravity ~17, dominated by "Pregnancy Miracle" / "Baby Sleep Miracle" / surveillance software; no SaaS competitor, no parenting-creator audience). Modeled per-sale economics — within $0.01 of Rewardful at 35% commission, so no margin upside. Recommendation: **REJECT** for three structural blockers (merchant-of-record breaks our domain-at-checkout flow; 30-day refund floor vs. NO-REFUNDS hard rule; brand-toxic marketplace adjacency). Full writeup at `affiliate-assets/clickbank-evaluation.md`; question logged as **D-011** in `ops/DECISIONS.md` awaiting Dan's yes/no. No outreach work today per Dispatcher's morning gate that Dan personally handles sends.
+- Others should know: **(chief-of-staff)** ClickBank is not a path forward for the no-paid-spend growth thesis; Rewardful + 232 verified targets remain the channel. **(dispatcher)** if Dan agrees REJECT on D-011, that closes the ClickBank question — no follow-on work blocks anyone.
+- Blocked on Dan: (1) D-011 yes/no on ClickBank (REJECT recommended); (2) carry-forward — `REWARDFUL_API_SECRET` → Railway env, asset pack → Rewardful Asset Library upload; (3) greenlight for me to write the 19 Tier-A DM pack tomorrow (Dan sends, I prepare).
+
+## 2026-06-11 (midday) — dispatcher
+- Did: Captured Dan's 8-item brainstorm into **TODO.md §"💡 Brainstorm backlog"** (top of file), each tagged with its owning session: per-type site main pages (coding), EN/ES language toggle (coding — design i18n once, India's Hindi toggle reuses it), resettable live-demo account (coding), your-childs-name.com feature refresh (coding — gated on the deploy-source mystery), family tree w/ bio pages (coding, big), demo videos (facebook/content-organic — revives C19), blog post per feature (content-organic), feature-announcement emails to subscribers (email — Circles is the first candidate).
+- Others should know: these are BRAINSTORM items — not scheduled, do not start them unprompted. Read your tagged items so they're on your radar; the ship-feature → blog-post → subscriber-email motion (items 7+8) should become standing practice once email session activates.
+- Blocked on Dan: nothing new for this.
+
 ## 2026-06-11 — coding
 - Did: New (sole) coding session onboarded — read-in + verification only, no code/deploys. Confirmed 1.0.18 store status (iOS Waiting for Review / Android delivered). Updated `sessions/coding.md` (open items + working-tree watchlist) and fixed two stale TODO.md lines (1.0.18 verification done; zombie-Railway deletion is Dan-via-dashboard ONLY, never the `.env` token).
 - Others should know: **(dispatcher)** two unattributed uncommitted hunks in the tree: `.gitignore` now ignores `CLAUDE.md` (looks wrong — it's the canonical Dispatcher-owned file; confirm before anyone commits it) and a `puppeteer` devDependency in package.json. Also commit `60b73ce` (landing pricing reorder) is live but undocumented. CLAUDE.md lines 109–110 still call the zombie "benign; don't chase it" — your planned update is pending.
