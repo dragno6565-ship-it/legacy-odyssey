@@ -23,6 +23,37 @@ Last updated: 2026-06-04
   the AZ LLC may not shield Dan personally.
 - **Owner:** Dan. ~20 minutes to dig out / confirm.
 
+### D-011 — Add ClickBank as a second affiliate channel? (affiliates session recommends REJECT)
+- **Question:** Should we onboard Legacy Odyssey as a ClickBank vendor in
+  addition to (or instead of extending) the live Rewardful program?
+- **Affiliates session recommendation (2026-06-11): REJECT.** Three
+  structural conflicts make ClickBank incompatible with the product as it
+  exists today:
+  1. ClickBank is **merchant of record** — collects payment, settles to us
+     later. Our Spaceship .com domain registration fires at the moment of
+     payment. The flows can't reconcile without breaking the "your baby
+     gets a .com at signup" pitch.
+  2. ClickBank's **minimum refund window is 30 days** (default 60).
+     Conflicts with CLAUDE.md hard rule #11 (NO REFUNDS — ever) and creates
+     a domain-cost write-off on every refunded sale (~$11 each).
+  3. The ClickBank Parenting category is **tiny and brand-toxic** — top
+     gravity ~17, bestsellers are "Pregnancy Miracle" / "Baby Sleep Miracle"
+     / child surveillance software / marriage-rescue ebooks. Wrong shelf
+     for a sentimental baby-book product, wrong affiliate cohort
+     (info-product / nutra / biz-opp marketers, not parenting creators).
+- **Economics:** Per-sale net to LO is within a penny of Rewardful at the
+  same 35% commission ($16.79 vs. $16.80 on a $29 first-year sale before
+  domain costs). ClickBank does NOT beat Rewardful on margin.
+- **What ClickBank would add over Rewardful + our 232 verified targets:**
+  nothing useful. Their marketplace value-prop is info-product affiliates;
+  we don't sell info-products and don't want that audience near a
+  children's-photos product.
+- **Full evaluation:** `affiliate-assets/clickbank-evaluation.md`.
+- **What would change the answer:** ClickBank introducing a non-MoR mode
+  (they don't offer one today) OR LO launching a downloadable info-product
+  variant where the domain-purchase flow doesn't apply. Both hypothetical.
+- **What I need from Dan:** "agreed, REJECT" or "I want to revisit."
+
 ### D-009 — Verify REAL Stripe sales count (HIGH — underpins all funnel work)
 - **Why:** GA4 shows only **$14.97 revenue / 3 key events** over 28 days, while
   Meta claimed ~3 purchases. We don't know the TRUE number of paying customers

@@ -4,7 +4,7 @@
 > strategy + assets, target-list sourcing/verification. 35% recurring forever
 > commission. Code integration is DONE, live, and verified end-to-end.
 
-**Last session:** 2026-06-10 (PM — Collabstr 100 + end-of-day wrap)
+**Last session:** 2026-06-11 (ClickBank evaluation — REJECT recommended)
 
 ## Scope
 - Owns `affiliate-assets/` (the program plan, swipe copy, banners, target lists,
@@ -109,21 +109,28 @@ personally vets the categories that matter most, VA bulk-mines the rest.
 ## Open items
 
 **🔥 Top priority for the next session — start here:**
-- [ ] **DM the 19 ⭐ Tier A targets** from `affiliate-targets-printable.docx`
-      Section F.1 (the Collabstr 100's bullseye picks: Karly Yonker, Mama Yulya,
-      Keila Lorbes, Laura Feneley, Andersen Johnson, Tatiana Torres, Emily
-      Meachen, Trinity Patterson, Claudia Herrera, Kayla Bucknell, Wendy Perez,
-      Cynthia Cano, Shantel Au-Johnson, Renae Brummer, Michaela Hockenberger,
-      Anne Paddock (pregnant!), Tiffany Thomas, Heather Lancaster, Michaela Kuhns,
-      Ariana Raley, Mik Laughlin, Faviola Herrera, Jenni Barber). Per the
-      recommendation: founder-personal DM, affiliate-first pitch (free LO
-      lifetime account via `/admin/gift-codes` + 35% recurring Rewardful link),
-      zero cash spend.
+- [ ] **Write the 19 Tier-A DM pack** for Dan to send. Per Dispatcher's
+      2026-06-11 ruling, my role is now to **prepare ready-to-send DM copy**
+      (canonical product description verbatim + word bans respected,
+      affiliate-first pitch: free LO lifetime account via `/admin/gift-codes`
+      + 35% recurring Rewardful link), NOT to send. Output:
+      `affiliate-assets/tier-a-dm-pack-2026-06-11.md`. One personalized DM
+      per target ≤120 words, plus a short "how to use" cover note. **Also:
+      coordinate with chief-of-staff** — their draft recruitment copy with
+      `[$X]` placeholder needs to retire or be folded into this pack so
+      there's ONE set of copy (D-010 resolved: 35% recurring stands).
 - [ ] **Verify gift/PaymentIntent attribution end-to-end** with coding session
       once Dan confirms `REWARDFUL_API_SECRET` is in Railway env. Coding has
       shipped Option B (referral in Stripe metadata → `recordConversion()`
       from webhook); ONE real referred gift purchase needs to flow through
       and land in the Rewardful dashboard to prove it.
+- [ ] **D-011 (ClickBank) awaits Dan's "agreed, REJECT" or "revisit"** in
+      `ops/DECISIONS.md`. Full evaluation in
+      `affiliate-assets/clickbank-evaluation.md`. Recommendation is REJECT
+      for three structural blockers (merchant-of-record breaks our domain-at-
+      checkout flow; 30-day minimum refund window conflicts with hard rule
+      #11; parenting category is brand-toxic). No work to do beyond Dan's
+      yes/no.
 
 **Carry-forward:**
 - [ ] **Upload asset pack to Rewardful Asset Library** (needs the Rewardful UI;
@@ -146,6 +153,20 @@ personally vets the categories that matter most, VA bulk-mines the rest.
 
 ## Log
 
+- **2026-06-11** — Research-only ClickBank evaluation per Dan's brief. Verified
+  fees (one-time $49.95 activation, 7.5% + $1 per sale, $5/payout, no monthly),
+  refund policy (30-day floor, 60-day default, 90-day max standard, 364 by
+  request — direct conflict with CLAUDE.md rule #11), and pulled the actual
+  Parenting & Families bestseller list (top gravity 16.97, dominated by
+  "Pregnancy Miracle" / "Baby Sleep Miracle" info-products + surveillance
+  software — no SaaS competitor, no audience overlap with parenting creators).
+  Modeled per-sale economics: ClickBank net to LO = $16.79 on a $29 sale,
+  Rewardful net = $16.80 — within a penny, no margin upside. Three structural
+  blockers identified: merchant-of-record vs. our domain-at-checkout flow;
+  30-day refund floor vs. hard rule #11; brand-toxic marketplace adjacency.
+  Recommendation: **REJECT**. Full writeup at
+  `affiliate-assets/clickbank-evaluation.md`. Question logged as **D-011** in
+  `ops/DECISIONS.md` (awaiting Dan's yes/no).
 - **2026-06-10 (EOD wrap)** — Updated brief to reflect coding's correction:
   gift + branded-signup PaymentIntent flows ARE now Rewardful-attributed
   (Option B shipped today, unverified until `REWARDFUL_API_SECRET` is in
