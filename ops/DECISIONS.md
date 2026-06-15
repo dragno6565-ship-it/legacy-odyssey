@@ -23,8 +23,11 @@ Last updated: 2026-06-04
   the AZ LLC may not shield Dan personally.
 - **Owner:** Dan. ~20 minutes to dig out / confirm.
 
-### D-011 — Add ClickBank as a second affiliate channel? (affiliates session recommends REJECT)
-- **Question:** Should we onboard Legacy Odyssey as a ClickBank vendor in
+### D-011 — ClickBank as a second affiliate channel: ✅ RESOLVED 2026-06-15 — REJECT
+- **Dan's decision (2026-06-15, via Dispatcher): NOT using ClickBank.** Matches the
+  affiliates session's recommendation. Rewardful (35% recurring) + the 232 verified
+  targets remain the affiliate channel. No follow-on work; question closed.
+- **Original question:** Should we onboard Legacy Odyssey as a ClickBank vendor in
   addition to (or instead of extending) the live Rewardful program?
 - **Affiliates session recommendation (2026-06-11): REJECT.** Three
   structural conflicts make ClickBank incompatible with the product as it

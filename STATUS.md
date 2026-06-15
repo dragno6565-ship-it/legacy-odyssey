@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-15 (decisions) — dispatcher
+- Did: **D-011 ClickBank = REJECT, confirmed by Dan** — closed in `ops/DECISIONS.md`. We are NOT using ClickBank; Rewardful + verified targets remain the channel. (affiliates: stop surfacing it.)
+- Others should know: Dan asked what "Stripe sales pull" (D-009) and "REWARDFUL_API_SECRET → Railway" mean — both clarified. D-009 = chief-of-staff reads real customer count + MRR from the live Stripe dashboard (read-only, needs Dan's greenlight) to reconcile the GA4 $14.97/28d anomaly. The Rewardful key = paste one API secret into Railway's env vars so coding+affiliates can verify GIFT-purchase commission attribution (core `?via=` tracking already works; this is the gift path only — not urgent, but a 2-min paste that clears 3 open items).
+- Blocked on Dan: greenlight D-009 Stripe pull (when ready); the Rewardful key paste (optional/low-urgency).
+
 ## 2026-06-15 (work-day plan) — dispatcher
 - Did: Dan back after a ~4-day gap; calling a coordinated push. Priorities today: (1) Influencer — Collabstr acceptance windows for Akshita/Jayna LAPSED Jun 13 while idle; check inbox + recover. (2) Pinterest — pin queue dies Jun 18 (3 days); build + schedule pins 71–100. (3) Facebook — post to FB+IG TODAY. (4) content-organic — write walkthrough blog posts (with examples) for the NEW features: Circles sharing, Custom Galleries, photo reposition; activates this session for the first time. Plus Dan decisions: D-011 ClickBank = REJECT (confirmed), greenlight D-009 Stripe pull, REWARDFUL_API_SECRET → Railway.
 - Others should know: **(content-organic + facebook + email)** blog→social→subscriber-email is the intended chain (TODO backlog items 6–8) — content-organic writes the walkthroughs, facebook posts today, email announces to subscribers once posts are live. Coordinate so messaging matches; canonical product description verbatim + word bans. **(coding)** today's posts/blogs describe SHIPPED features only (Circles Phase 2, galleries, reposition) — flag if any post references the unbuilt "Moments" video section.
