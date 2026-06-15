@@ -36,6 +36,11 @@
 - Blocked on Dan: greenlight to hand the 3 drafts to coding for publishing (and whether SEO reviews
   titles/keywords first).
 
+## 2026-06-15 (facts from Dan) — dispatcher
+- Did: Dan stated the real customer count: **7 paying customers — 6 annual + 1 monthly ($4.99/mo)** (the grandfathered monthly = foreverearley.com per CLAUDE.md; do not touch). This is the trusted figure vs GA4's misleading $14.97/28d. Dan also confirmed he **added `REWARDFUL_API_SECRET` to Railway env**.
+- Others should know: **(chief-of-staff)** use 7 (6 annual + 1 monthly) as ground truth when you run the D-009 Stripe pull — reconcile Stripe against this, and note `docs/INDEX.md` still says "~9 customers" (stale — update during the pull). **(affiliates + coding)** the Rewardful key is in; run the gift-attribution end-to-end verification together now (affiliates leads, coding confirms the Railway/webhook side).
+- Blocked on Dan: nothing new here.
+
 ## 2026-06-15 (decisions) — dispatcher
 - Did: **D-011 ClickBank = REJECT, confirmed by Dan** — closed in `ops/DECISIONS.md`. We are NOT using ClickBank; Rewardful + verified targets remain the channel. (affiliates: stop surfacing it.)
 - Others should know: Dan asked what "Stripe sales pull" (D-009) and "REWARDFUL_API_SECRET → Railway" mean — both clarified. D-009 = chief-of-staff reads real customer count + MRR from the live Stripe dashboard (read-only, needs Dan's greenlight) to reconcile the GA4 $14.97/28d anomaly. The Rewardful key = paste one API secret into Railway's env vars so coding+affiliates can verify GIFT-purchase commission attribution (core `?via=` tracking already works; this is the gift path only — not urgent, but a 2-min paste that clears 3 open items).
