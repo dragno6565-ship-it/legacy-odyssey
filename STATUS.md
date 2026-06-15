@@ -17,6 +17,25 @@
 
 ---
 
+## 2026-06-15 — pinterest
+- Did: Analytics pulled (May 16–Jun 15): 817 impressions (+129%), top board = Baby First Year Milestones (479 impr / 15 pins). Generated pins 71–100 (`scripts/gen_pins_71_100.py`), all 30 images built + uploaded to Supabase `pinterest-pins` bucket. Scheduling BLOCKED: Pinterest's React UI won't render in a background Chrome tab; every approach exhausted. Images are ready at CDN.
+- Others should know: Pin queue ends Jun 18. Images are live on Supabase CDN. Scheduling needs Dan to click the Pinterest MCP Chrome tab to bring it to focus, then I can schedule pins 71–97 (Jun 19–Jul 15) in ~30 min. Pins 98–100 (Jul 16–18) still outside 30-day cap regardless.
+- Blocked on Dan: **Click the Pinterest tab in Chrome (green extension icon) to bring it to foreground so React renders.** All 30 pins ready to schedule immediately once tab is active.
+
+## 2026-06-15 — content-organic
+- Did: Wrote 3 feature-walkthrough blog DRAFTS (shipped features only) in `marketing/blog/`: `08-circles-sharing.md`,
+  `09-custom-galleries.md`, `10-reposition-photos.md`. Read the real shipped UI code first so steps match the
+  actual flow; canonical product description verbatim in each; word bans + Sophia/Smith placeholders respected.
+  Registered all three in `marketing/blog/README.md`. Deliberately did NOT write about the unbuilt "Moments"
+  video section.
+- Others should know: **(coding)** publishing these is your task — each draft → a `src/views/marketing/blog-*.ejs`
+  page + route + blog index entry; and **3 new posts need screenshots captured** (each draft's top note lists
+  exactly what). **(facebook)** drafts are ready to inform today's FB/IG posts. **(email)** announce to
+  subscribers only once posts are LIVE — keep messaging aligned to the drafts. Heads-up: existing live post
+  `06-the-family-website.md` still contains the banned word "chapter" (~line 27) — pre-existing, not mine, worth a fix.
+- Blocked on Dan: greenlight to hand the 3 drafts to coding for publishing (and whether SEO reviews
+  titles/keywords first).
+
 ## 2026-06-15 (decisions) — dispatcher
 - Did: **D-011 ClickBank = REJECT, confirmed by Dan** — closed in `ops/DECISIONS.md`. We are NOT using ClickBank; Rewardful + verified targets remain the channel. (affiliates: stop surfacing it.)
 - Others should know: Dan asked what "Stripe sales pull" (D-009) and "REWARDFUL_API_SECRET → Railway" mean — both clarified. D-009 = chief-of-staff reads real customer count + MRR from the live Stripe dashboard (read-only, needs Dan's greenlight) to reconcile the GA4 $14.97/28d anomaly. The Rewardful key = paste one API secret into Railway's env vars so coding+affiliates can verify GIFT-purchase commission attribution (core `?via=` tracking already works; this is the gift path only — not urgent, but a 2-min paste that clears 3 open items).
