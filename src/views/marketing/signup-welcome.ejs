@@ -30,6 +30,7 @@
     .ty-links { margin-top: 22px; font-size: 13px; }
     .ty-links a { color: rgba(250,247,242,0.6); text-decoration: underline; margin: 0 10px; }
   </style>
+  <%- include('../partials/tracking') %>
 </head>
 <body>
   <div class="ty">
@@ -48,5 +49,30 @@
       <a href="mailto:help@legacyodyssey.com">Need help?</a>
     </div>
   </div>
+
+  <% if (typeof purchase !== 'undefined' && purchase) { %>
+  <!-- Conversion tracking for the branded embedded-signup flow. Mirrors
+       success.ejs / gift-success.ejs so branded signups are counted in
+       GA4, Meta, and Pinterest. transaction_id = the Stripe PaymentIntent id
+       (stable + dedupes with any server-side CAPI we add later). -->
+  <script>
+    var loTxId = '<%= purchase.transactionId %>';
+    var loValue = <%= purchase.value %>;
+    var loPlan = '<%= purchase.plan %>';
+    fbq('track', 'Purchase', { value: loValue, currency: 'USD' }, { eventID: loTxId });
+    pintrk('track', 'checkout', { value: loValue, order_quantity: 1, currency: 'USD' });
+    gtag('event', 'purchase', {
+      transaction_id: loTxId,
+      value: loValue,
+      currency: 'USD',
+      items: [{
+        item_id: loPlan,
+        item_name: 'Legacy Odyssey ' + (loPlan ? loPlan.charAt(0).toUpperCase() + loPlan.slice(1) : 'Signup'),
+        price: loValue,
+        quantity: 1
+      }]
+    });
+  </script>
+  <% } %>
 </body>
 </html>

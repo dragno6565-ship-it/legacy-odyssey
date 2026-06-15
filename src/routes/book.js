@@ -404,6 +404,9 @@ router.get('/sitemap.xml', async (req, res) => {
     { loc: `https://${appDomain}/blog/letters-to-your-child`, priority: '0.7', changefreq: 'monthly' },
     { loc: `https://${appDomain}/blog/the-family-website`, priority: '0.7', changefreq: 'monthly' },
     { loc: `https://${appDomain}/blog/getting-started-guide`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/circles-sharing`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/custom-galleries`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/reposition-photos`, priority: '0.7', changefreq: 'monthly' },
   ];
 
   if (families) {
@@ -497,6 +500,30 @@ router.get('/privacy', (req, res) => {
 
 // Blog posts registry — add new posts here
 const BLOG_POSTS = [
+  {
+    title: 'Circles: Sharing Your Book with Family, the Easy Way',
+    excerpt: 'A private list of who can see the book, and a one-tap way to send each person their own private link whenever there\'s something new.',
+    url: '/blog/circles-sharing',
+    category: 'Feature',
+    date: 'June 15, 2026',
+    readTime: '5 min read',
+  },
+  {
+    title: 'Custom Galleries: Photo Collections, Named However You Like',
+    excerpt: 'Make as many photo collections as you like — up to 50 captioned photos each, reorderable, each its own page on the public book.',
+    url: '/blog/custom-galleries',
+    category: 'Feature',
+    date: 'June 15, 2026',
+    readTime: '5 min read',
+  },
+  {
+    title: 'Reposition: Get the Crop Right on Every Photo',
+    excerpt: 'Set the focal point so the crop centers on what matters — usually the face — wherever the photo appears. Your original is never changed.',
+    url: '/blog/reposition-photos',
+    category: 'Feature',
+    date: 'June 15, 2026',
+    readTime: '4 min read',
+  },
   {
     title: 'Inside Legacy Odyssey: A Complete Walkthrough of Every Section',
     excerpt: 'Every section of the book explained — what\'s in it, how to fill it in, and what family sees on the website.',
@@ -606,6 +633,15 @@ router.get('/blog/the-family-website', (req, res) => {
 });
 router.get('/blog/getting-started-guide', (req, res) => {
   res.render('marketing/blog-getting-started-guide');
+});
+router.get('/blog/circles-sharing', (req, res) => {
+  res.render('marketing/blog-circles-sharing');
+});
+router.get('/blog/custom-galleries', (req, res) => {
+  res.render('marketing/blog-custom-galleries');
+});
+router.get('/blog/reposition-photos', (req, res) => {
+  res.render('marketing/blog-reposition-photos');
 });
 
 // Circle update emails — unsubscribe (works on any host: book domains + main
@@ -787,10 +823,40 @@ router.get('/start/checkout', (req, res) => {
 
 // Post-payment welcome for the embedded signup. Provisioning (account + book +
 // domain) runs in the webhook; this page just reassures + points to email.
-router.get('/start/welcome', (req, res) => {
-  res.render('marketing/signup-welcome', {
-    appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
-  });
+// Branded embedded-signup completion page. confirmPayment redirects here with
+// ?payment_intent=...&redirect_status=succeeded (Stripe appends them to the
+// return_url). We retrieve the PaymentIntent so the page can fire the SAME
+// purchase analytics as the hosted-Checkout success page (success.ejs) — without
+// this, every branded-signup conversion was invisible to GA4/Meta/Pinterest.
+// Value comes from the actual charge (pi.amount), so it reflects the real
+// first-year price ($29 annual intro / $10.98 monthly+setup / $450 childhood).
+router.get('/start/welcome', async (req, res) => {
+  const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+  let purchase = null;
+  const piId = req.query.payment_intent;
+  if (piId && req.query.redirect_status === 'succeeded') {
+    try {
+      const { stripe } = require('../config/stripe');
+      if (stripe) {
+        const pi = await stripe.paymentIntents.retrieve(piId);
+        if (pi && pi.status === 'succeeded') {
+          // period lives on the PI metadata for childhood; for subscriptions it's
+          // on the subscription, so fall back to deriving from the charged amount.
+          let plan = (pi.metadata && pi.metadata.period) || '';
+          if (!plan) plan = pi.amount >= 45000 ? 'childhood' : (pi.amount === 2900 ? 'annual' : 'monthly');
+          purchase = {
+            transactionId: pi.id,
+            value: (pi.amount || 0) / 100,
+            plan,
+          };
+        }
+      }
+    } catch (err) {
+      console.error('[start/welcome] purchase analytics lookup failed:', err.message);
+      // Non-fatal — still show the welcome page, just without the purchase event.
+    }
+  }
+  res.render('marketing/signup-welcome', { appDomain, purchase });
 });
 
 // Post-payment confirmation for the embedded checkout. Fulfillment normally
