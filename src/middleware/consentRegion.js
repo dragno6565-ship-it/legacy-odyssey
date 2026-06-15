@@ -32,5 +32,9 @@ module.exports = function consentRegion(req, res, next) {
     required = CONSENT_COUNTRIES.has(country);
   }
   res.locals.consentRequired = required;
+  // Microsoft Clarity project id (heatmaps + session recordings). Driven by an
+  // env var so the project can be created/rotated without a code change; the
+  // tracking partial loads Clarity only when this is set AND consent is granted.
+  res.locals.clarityProjectId = process.env.CLARITY_PROJECT_ID || '';
   next();
 };
