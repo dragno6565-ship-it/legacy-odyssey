@@ -4,7 +4,7 @@
 > related to the AFFILIATES session — influencers may also be recruited as affiliates
 > (35% recurring through Rewardful).
 
-**Last session:** 2026-06-10
+**Last session:** 2026-06-15
 
 ## Scope
 - Owns `marketing/influencer/influencer.md` — the detail file.
@@ -15,15 +15,23 @@
 - `sessions/affiliates.md` — the affiliate program is often the better influencer offer.
 - `marketing/_BRIEF.md` + memory hard rules (word bans, canonical product description).
 
-## Current state
-- **Collabstr** account active (login dragno6565@gmail.com).
-  - **In-flight orders:**
-    - Akshita Thakur (@rayanved) — Story $50 + Feed Post $125 = $175. Placed 2026-06-10. Awaiting acceptance.
-    - Jayna Chambliss (@_jblisss) — Feed Post $250. Placed 2026-06-10. Awaiting acceptance.
-    - Sarah Baraldi #105567 — old May order, status NOT re-verified this session.
-  - **Declined:** Carina (@a.calm.mom).
-  - **Already used / relationship:** Giulia Busetto (@giulibusetto_) — Dan flagged 2026-06-10 "we already use Giulia."
+## Current state (verified against Collabstr billing ledger 2026-06-15)
+- **Collabstr** account active (login dragno6565@gmail.com). 2026 ledger: 6 orders, 2 completed.
+  - ✅ **Akshita Thakur (@rayanved) — COMPLETED Jun 3.** Story ($55) + Feed Post ($137.50), both
+    paid out. **Feed post LIVE: https://www.instagram.com/p/DZIDySGjprr/** Baby = Rayan Ved.
+    She accepted May 27, we gifted her a comp code (akshitathakur27@gmail.com), she built her book,
+    posted, left a review. **Pitched 3 paid follow-ons:** Voiceover/Reel · UGC footage we'd own ·
+    whitelisting/paid-ad usage rights. Warm, responsive, wants repeat work — best relationship to date.
+  - ❌ **Jayna Chambliss (@_jblisss) — CANCELLED/REFUNDED.** $275 sent May 25, never accepted →
+    auto-cancelled → **$275 back in Collabstr balance.** She ghosted. Do NOT re-order.
+  - ⏳ **Giulia Busetto (@giulibusetto_) — IN-PROGRESS, $759 IG Reel, placed May 7.** ⚠️ Predates my
+    radar. Chat shows "Looks wonderful! Thank you!" Jun 7 — may be delivered-but-not-marked-complete.
+    Real cash exposure sitting open. Dan should poke to close it out.
+  - ❌ **Carina (@a.calm.mom)** — cancelled (3 feed posts, $275).
+  - ❌ **Sarah Baraldi** — cancelled (#105567 / Apr 30 Reel $295). RESOLVED: she requested to cancel
+    (seen in chat "Sarah requested to cancel"). No longer an open item.
   - **On hold:** Lianne (@diaperdynasty) — per Dan, May 2026.
+- **$275 Jayna refund is available to redeploy** → recommend Amanda Foust (@amanda_arrows).
 - **Intellifluence** brand profile created 2026-06-10. Description uses the canonical wording with
   web-editor explicitly mentioned ("through the iOS & Android app OR the web editor at legacyodyssey.com").
   Categories: Baby, Family, Gifts, Kids, Mommy. Timezone America/Phoenix. Safe Browsing on.
@@ -34,32 +42,34 @@
   free codes instead of cash where possible.
 
 ## Open items (tomorrow's first actions in order)
-- [ ] **FIRST THING:** check Collabstr inbox for Akshita Thakur (@rayanved) + Jayna Chambliss (@_jblisss)
-      acceptance status (72-hr windows close 2026-06-13). If either declined, pull replacement from the
-      Top-10 shortlist in the detail file (start with Amanda Foust @amanda_arrows).
-- [ ] **Coordinate with `affiliates` session** before next outreach. They built a "Collabstr 100"
-      sub-10K US mom creator list (see their 2026-06-10 PM STATUS entry + `affiliate-assets/collabstr-mom-under10k.md`).
-      **Division of labor:** their 19 ⭐ Tier-A bullseye targets get **affiliate-first** pitch (Rewardful 35%
-      recurring + comp gift code via /admin) — do NOT spend on those as Collabstr paid posts.
-      Influencer session keeps the paid-post lane for mid-tier creators (1.2k–48k) where one-shot cash
-      makes sense. The 10 vetted picks in our detail file are above the sub-10K threshold — fair game.
-- [ ] Verify Sarah Baraldi #105567 — old May order, never re-confirmed.
-- [ ] Intellifluence finishing: Dan still owes (a) logo upload, (b) first/last name on the account,
-      (c) finalize and submit the campaign wizard.
-- [ ] Decide on next Collabstr buy from the Top-10 shortlist (Amanda Foust @amanda_arrows is highest-fit
-      — 83.4% engagement, 80% US, 87% F, $145 feed post).
-- [ ] **Meaghan Williamson** (@mindfullymademotherhood, 811k) — no public business email; only outreach
-      path is IG DM. Draft if Dan wants to pursue.
-- [ ] **The Bump advertising** — researched 2026-06-10; enterprise-level ($10K–50K minimum); NOT
-      appropriate at current stage. **Park** — re-evaluate at $5K+ MRR.
+- [ ] **Redeploy the $275 Jayna refund → Amanda Foust (@amanda_arrows).** Recommended buy: IG Feed
+      Post $145 (+ Story/Reel toward the rest of the refund). 32.3k IG, 83.4% engagement, 80% US,
+      87% F, 75% target age, Top Creator. **AWAITING DAN'S GO — do not place/spend without it.**
+- [ ] **Akshita follow-up (highest-value relationship).** She delivered + wants repeat work and
+      pitched 3 paid options. Recommend: Dan DMs a warm thank-you + asks her **whitelisting price**
+      for the existing live post (lets us run her content as a Meta ad — the real lever) before
+      buying net-new. Can draft the DM on request. Coordinate with **facebook** (wants to repost
+      her Jun 3 post natively — link: https://www.instagram.com/p/DZIDySGjprr/) and **meta-ads**
+      (whitelisting = paid usage rights).
+- [ ] **Close out Giulia's $759 in-progress Reel.** Flag to Dan/chief-of-staff — open cash exposure
+      on Collabstr since May 7; looks delivered (Jun 7 "Looks wonderful!") but not marked complete.
+- [ ] **Coordinate with `affiliates` before next outreach.** Their 19 ⭐ Tier-A sub-10K targets get
+      **affiliate-first** pitch (Rewardful 35% + comp gift code) — NOT Collabstr paid posts. Influencer
+      keeps the paid-post lane for mid-tier (1.2k–48k). Top-10 picks are above sub-10K — fair game.
+- [ ] Intellifluence finishing: Dan still owes (a) logo upload, (b) first/last name, (c) submit wizard.
+- [ ] **Meaghan Williamson** (@mindfullymademotherhood, 811k) — IG DM only path. Draft if Dan wants.
+- [ ] **The Bump advertising** — PARKED (enterprise $10K–50K). Re-evaluate at $5K+ MRR.
 
 ## Blocked on Dan
-- Akshita + Jayna acceptance verification (72-hr windows; check Collabstr inbox tomorrow).
-- Intellifluence: upload logo, fill First/Last name fields, finalize + submit campaign wizard.
-- Pick next from Top-10 shortlist (Amanda Foust recommended).
-- Re-verify Sarah Baraldi #105567 from May.
-- Decide whether to promote `/preview/option6` over the live `landing-v2-cro` hero (coding session
-  also did landing hero work today — verify no conflict before promoting either).
+- **GO to place the Amanda Foust order** against the $275 Jayna refund (feed post $145 recommended).
+- Whether to have Dan DM Akshita re: whitelisting + the 3 follow-on offers (I can draft).
+- Close-out of Giulia's $759 in-progress Reel.
+- Intellifluence: logo + first/last name + submit wizard.
+
+## Resolved this session (no longer open)
+- ✅ Akshita acceptance — COMPLETED, post live. Both her items paid out.
+- ✅ Jayna — cancelled/refunded (ghosted). $275 back in balance.
+- ✅ Sarah Baraldi #105567 — she requested cancel; closed. (Remove from future open-item lists.)
 
 ## Standing rules for this session
 - **Word bans (CLAUDE.md hard rules):** never "forever", never "chapter", never "family book /
@@ -72,6 +82,13 @@
   affiliate commission rather than a one-shot paid post.
 
 ## Log
+- **2026-06-15** — Verified all Collabstr order outcomes against the billing ledger (the Jun-13
+  acceptance windows lapsed while idle). Results: **Akshita = COMPLETED, feed post LIVE**
+  (https://www.instagram.com/p/DZIDySGjprr/), both items paid out, she wants repeat work + pitched
+  3 paid follow-ons. **Jayna = cancelled/refunded** (ghosted) → $275 back in balance. Discovered a
+  previously-unknown **Giulia $759 Reel still in-progress** since May 7 (cash exposure). Sarah Baraldi
+  resolved (she cancelled). Recommended redeploying the $275 to Amanda Foust + having Dan DM Akshita
+  about whitelisting. No spend placed — awaiting Dan's go.
 - **2026-06-10** — Reviewed Carina decline → moved to Jayna Chambliss + Akshita Thakur orders.
   Researched Meaghan Williamson + The Bump (both parked). Set up Intellifluence brand profile.
   Deep-checked ~25 Collabstr profiles for US%, female%, target age, engagement, price; produced

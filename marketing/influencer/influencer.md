@@ -12,13 +12,17 @@
 
 ---
 
-## Active orders (Collabstr)
+## Order status (verified against Collabstr billing ledger 2026-06-15)
 
-| Creator | Handle | Platform | Order | Amount | Status | Notes |
-|---|---|---|---|---|---|---|
-| Akshita Thakur | @rayanved | IG Story + Feed Post | 2026-06-10 | $50 + $125 = $175 | ⏳ Awaiting acceptance (72hr) | 15.8k IG, 1.8M avg views (viral), 25-35 millennial mom audience. Austin TX. Gift code + brief sent. |
-| Jayna Chambliss | @_jblisss | IG Feed Post | 2026-06-10 | $250 | ⏳ Awaiting acceptance (72hr) | 7.7k followers, 113k avg views, 29.6% engagement, 77% female, 74% US, 5.0 rating |
-| Sarah Baraldi | — | IG | #105567 | $295 | ❓ Unverified (last logged May 13 delivery) | Carry-over from May. Status NOT re-checked this session. |
+| Creator | Handle | Platform | Amount | Status | Notes |
+|---|---|---|---|---|---|
+| Akshita Thakur | @rayanved | IG Story + Feed Post | $55 + $137.50 | ✅ **COMPLETED Jun 3** | **Feed post LIVE: https://www.instagram.com/p/DZIDySGjprr/** Both paid out. Built her own book via comp code (akshitathakur27@gmail.com). Warm, wants repeat work. Pitched 3 paid follow-ons: Voiceover/Reel · UGC footage · whitelisting/ad-usage rights. Baby = Rayan Ved. **Best relationship to date.** |
+| Jayna Chambliss | @_jblisss | IG Feed Post | $275 | ❌ **CANCELLED / REFUNDED** | Sent May 25, never accepted → auto-cancelled → $275 back in Collabstr balance. Ghosted. Do NOT re-order. |
+| Giulia Busetto | @giulibusetto_ | IG Reel | $759 | ⏳ **IN-PROGRESS** (since May 7) | ⚠️ Cash exposure. Chat "Looks wonderful!" Jun 7 — likely delivered, not marked complete. Dan should close out. |
+| Carina | @a.calm.mom | 3 IG Feed Posts | $275 | ❌ Cancelled | — |
+| Sarah Baraldi | — | IG Reel | $295 | ❌ Cancelled (#105567) | She requested to cancel (chat). CLOSED — remove from open items. |
+
+**$275 Jayna refund available to redeploy → recommend Amanda Foust (@amanda_arrows) $145 feed post.**
 
 ## Status of past / parked
 
