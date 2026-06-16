@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-11 (new coding session onboarded — read-in + verification only, no code changes)
+**Last session:** 2026-06-15 (big day — GA branded-signup tracking fix, 3 feature blog posts, Microsoft Clarity, Rewardful key verified, feature screenshots; all live)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -25,9 +25,9 @@
   (verified end-to-end with a real test affiliate). **Gift + branded-signup PaymentIntent
   flows NOW ALSO attributed (Option B):** referral captured in Stripe metadata
   (`rewardful_referral`) → `rewardfulService.recordConversion()` (POST /v1/conversions)
-  fired from the webhook. ⚠️ That last hop is UNVERIFIED until `REWARDFUL_API_SECRET` is
-  confirmed applied in Railway + a real referred gift purchase. **(Corrects the
-  affiliates-session note that gift/signup flows are "still not attributed" — they are now.)**
+  fired from the webhook. ✅ **2026-06-15: `REWARDFUL_API_SECRET` CONFIRMED in Railway prod +
+  authenticates (GET /v1/campaigns → 200).** Code/webhook side green; only the affiliates
+  session's real referred test purchase remains to confirm a conversion in the dashboard.
 - **No-refunds policy** surfaced everywhere: every checkout fine print, `terms.ejs` §4,
   affiliate FAQ. (CLAUDE.md rule #11.) `/affiliates` page price ($29) removed per Dan.
 - **Gift admin (live):** void an unredeemed code (redeem now rejects `status='voided'`);
@@ -52,40 +52,73 @@
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
 ## Open items (next session, in order)
-1. **Monitor 1.0.18 review outcomes** (iOS "Waiting for Review" in ASC; Android delivered
-   to Play — both verified 2026-06-10 ~10 PM, reconfirmed `fdaa502`). React to any
-   rejection; coordinate Dan's phone test once builds are downloadable. Expo submission
-   links if needed:
-   https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/d5724f17-f238-4843-b7af-b35de8415183 (Android)
-   https://expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/ec191935-bbc6-42cd-9c1d-f1bbadc489f5 (iOS)
-2. **Dispatcher-routed (2026-06-10 nightly close):** (a) mark GA4 `purchase` as a Key
-   Event — GA4 admin toggle, property 530710619, not code; (b) install Microsoft Clarity
-   on `/gift` (routed from google-ads — gates any paid-spend restart).
-3. **Demo-site CHAPTER labels (facebook session flag, 2026-06-10):** your-childs-name.com
-   may STILL show "CHAPTER ONE/TWO/FOUR" — the demo is served from a DIFFERENT/richer
-   deploy than the repo (source unresolved since May 26). The eyebrow removal fixed
-   `src/views/book/*` but won't reach the demo if it's a separate deploy. Resolve the
-   demo's deploy source, then re-check (then also: banner overlap + clickable recipes,
-   TODO.md "Demo site" item).
-4. **Verify affiliate gift/signup conversion** (needs `REWARDFUL_API_SECRET` confirmed
-   in Railway + a $29 test gift via a test affiliate link) — Blocked on Dan.
-5. B15 branded-signup CTA cutover; `/gift` conversion fixes; `/preview/option6`
-   promote-or-delete; infra cleanups (www 404, `TURNSTILE_SECRET_KEY`).
-6. Known parity drift (pre-existing): web rotate control in only ~4 of ~12 editors.
+1. **GA: two deferred decisions (Blocked on Dan).** (a) **Consent-mode timing** — the inline
+   `purchase` event on success.ejs/gift-success.ejs fires BEFORE the deferred `consent.js`
+   grants `analytics_storage`, so Consent Mode v2 downgrades them to cookieless/modeled and
+   likely dampens GA conversion counts across ALL flows. Needs careful fix (fire `purchase`
+   from inside `loEnableTracking`, or load consent.js before the event) + live verification —
+   don't touch blind (it's GDPR gating). (b) **success.ejs annual value = 49.99** but the
+   customer pays **$29** first year — Dan said leave it for now (mid revenue reconciliation);
+   revisit after the Stripe pull. (Branded-signup flow already fixed — uses real pi.amount.)
+2. **Demo-site deploy-source mystery** (only untouched item from 2026-06-15). your-childs-name.com
+   serves a DIFFERENT/richer build than the repo (unresolved since May 26) — may still show
+   banned "CHAPTER ONE/TWO/FOUR" eyebrows. **LEAD (from `docs/INDEX.md` line 65 / `spaceship-hosting.md`):
+   the demo is hosted on SPACESHIP WEB HOSTING, not Railway** — so repo/Railway changes never reach it.
+   Next: find the demo's source files on Spaceship hosting (likely a static export of an older book
+   build), edit there. Then fix banner overlap + clickable recipes (TODO "Demo site"). Gates the refresh.
+3. **Monitor 1.0.18 review outcomes** (iOS "Waiting for Review" in ASC; Android delivered to
+   Play, verified 2026-06-10). React to any rejection; coordinate Dan's phone test. Submission
+   links: Android d5724f17-… / iOS ec191935-… (expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/).
+4. **Affiliate gift/signup conversion end-to-end** — the `REWARDFUL_API_SECRET` is now CONFIRMED
+   live in Railway + authenticating (verified 2026-06-15, GET /v1/campaigns → 200). Remaining =
+   the affiliates session's real referred $29 test purchase confirming a conversion in the
+   Rewardful dashboard. Coding side = GREEN.
+5. **Reposition screenshot follow-up (optional):** the 4th feature shot IS captured
+   (`marketing/screenshots/features/10-reposition-modal.jpg`); script works. Nothing pending
+   unless we want it embedded in the blog (existing posts are text-only).
+6. B15 branded-signup CTA cutover; `/gift` conversion fixes (now measurable via Clarity +
+   the branded-signup GA fix); `/preview/option6` promote-or-delete; infra cleanups
+   (www 404, `TURNSTILE_SECRET_KEY`). Pre-existing parity drift: web rotate in ~4 of ~12 editors.
 
-### ⚠️ Working-tree watchlist (uncommitted, seen 2026-06-11 — don't clobber, don't blanket-commit)
-- `.gitignore` adds `CLAUDE.md` to the ignore list — unattributed; F: CLAUDE.md is the
-  canonical, Dispatcher-owned source of truth, so ignoring it looks wrong. Flagged to Dan;
-  confirm with Dispatcher before anyone commits that hunk.
-- `package.json`/`package-lock.json` add `puppeteer` devDependency — unattributed (likely a
-  marketing session's screenshot scripts). No STATUS entry claims it.
-- `marketing/facebook/BRAND-VOICE-GUIDE.md` 1-line change — facebook session's.
-- TODO.md carries the previous coding session's status updates (kept; TODO.md stays
-  uncommitted by convention despite being tracked).
-- Commit `60b73ce` (landing pricing reorder: Annual middle on desktop, first on mobile) is
-  live but undocumented in any brief/STATUS — likely predecessor's last act.
+### ⚠️ Working-tree / repo notes
+- **Local `main` is 2 commits AHEAD of origin** — `d7e158b` (puppeteer dep + capture script)
+  and `bd52da5` (capture-script reposition fix). Intentionally UNPUSHED (dev tooling only, no
+  prod runtime change). Will ride the next agreed deploy. The prod commits today (`9c4c526`
+  blog+GA fix, `a1146d9` Clarity) ARE pushed/live.
+- `.gitignore`-ignores-CLAUDE.md hunk: RESOLVED by dispatcher (`3cefbef` tracks CLAUDE.md).
+- `puppeteer` devDependency: now COMMITTED (`d7e158b`) — it backs the screenshot capture scripts.
+- Still uncommitted (other sessions', leave alone): `TODO.md` (coding working list, edited today),
+  `marketing/facebook/BRAND-VOICE-GUIDE.md` (facebook), `sessions/content-organic.md` (content-organic).
+- Commit `60b73ce` (landing pricing reorder) = prior coding session's, live, now documented.
+- Feature screenshots delivered (untracked binaries, per marketing/ convention):
+  `marketing/screenshots/features/08-circles-page.jpg`, `09-gallery-grid.jpg`, `09-gallery-list.jpg`,
+  `10-reposition-modal.jpg`.
 
 ## Log
+- **2026-06-15** — Big day; 3 prod deploys, all live & verified.
+  • **GA4 tracking:** found `purchase` was ALREADY a key event (the routed console toggle was
+    moot). Real bug: the **branded PaymentIntent signup** (`/start/checkout`→`/start/welcome`)
+    fired ZERO analytics — `signup-welcome.ejs` had no tracking partial/purchase event, unlike
+    success.ejs + gift-success.ejs. Fixed: `/start/welcome` retrieves the PI and fires GA4+Meta+
+    Pinterest `purchase` with the real charged amount (commit `9c4c526`). Flagged consent-timing
+    + the 49.99-vs-29 value (see Open items 1).
+  • **Blog:** published Circles / Custom Galleries / Reposition posts (`blog-*.ejs` + routes +
+    registry + sitemap), text-only matching the 9 existing posts; canonical desc + word bans
+    verified (`9c4c526`). Live + in index/sitemap.
+  • **Clarity:** wired site-wide, consent-gated, env-driven (`CLARITY_PROJECT_ID` via
+    `consentRegion` middleware; loader in tracking partial) — `a1146d9`. Dan created project
+    `x7mt9cszyp`; I set the Railway env var via API (authorized) → live on `/gift` + site-wide.
+  • **Rewardful:** verified `REWARDFUL_API_SECRET` is set in Railway prod (also confirms the
+    local Railway token/IDs point at the LIVE project `27622203`, not the zombie) AND the key
+    authenticates (GET /v1/campaigns → 200). Webhook/code side GREEN.
+  • **Screenshots:** built `scripts/capture-feature-screenshots.js` (puppeteer) — logs into the
+    review@ demo account (password via `LO_DEMO_PASSWORD` env), uploads repo stock photos to seed
+    a gallery, captures all 4 feature shots → `marketing/screenshots/features/`. Committed dep +
+    script locally (`d7e158b`,`bd52da5`, unpushed).
+  • Lessons: the Apple-review account `review@legacyodyssey.com` is the safe demo (placeholder
+    data); the real dogfood `dragno65@hotmail.com` was pre-filled at login — never screenshot it.
+    GA4 lives under `legacyodysseyapp@gmail.com` (not the default Chrome account) — switch via
+    `?authuser=`. Browser MCP can't upload arbitrary repo files; puppeteer can.
 - **2026-06-11** — New coding session onboarded (replaces the prior over-large one; sole
   coding session per `c91c125`). Read-in + verification only — no code changes, no deploys.
   Confirmed 1.0.18: iOS Waiting for Review, Android delivered. Audited the working tree and

@@ -290,10 +290,13 @@ chargebacks** (rare) and **ToS violations** — both handled natively by Rewardf
 - **Gift + branded-signup PaymentIntent flows**: can't use `client_reference_id`, so the
   Rewardful referral is captured in Stripe metadata (`metadata.rewardful_referral`) and the
   webhook calls `rewardfulService.recordConversion()` → `POST /v1/conversions` on payment
-  success. **⚠️ Code shipped but UNVERIFIED — hard-blocked on `REWARDFUL_API_SECRET` (Railway
-  env) + a real referred purchase.** The call is a safe no-op until the secret is set. Verify:
-  create a test affiliate, buy a gift via its `?via=` link, confirm a conversion in Rewardful.
+  success. **✅ 2026-06-15: `REWARDFUL_API_SECRET` confirmed set in Railway prod (length 32) and
+  AUTHENTICATES** (coding ran a read-only `GET /v1/campaigns` with the key → HTTP 200). The
+  webhook uses the identical Basic-auth (secret as username), so conversions will authenticate.
+  **Last step:** the affiliates session's real referred purchase — buy via a test affiliate's
+  `?via=` link, confirm the conversion appears in the Rewardful dashboard. Code/webhook = GREEN.
 
 ## History
 
+- **2026-06-15** — `REWARDFUL_API_SECRET` added to Railway prod by Dan; coding verified it's set (length 32) and authenticates against the Rewardful API (`GET /v1/campaigns` → 200, read-only). Gift/branded-signup conversion code/webhook side now GREEN; only a real referred test purchase remains (affiliates).
 - **2026-06-08** — Initial setup. Rewardful account, Stripe connection, campaign, fraud controls, ToS all configured by Claude session in `E:\Claude` working with Dan. Code-side integration (Tasks 2-6 above) not yet done.

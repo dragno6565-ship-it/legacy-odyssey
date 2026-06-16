@@ -69,6 +69,7 @@ When you create/touch any entity not yet listed: write its file from the standar
 - [infrastructure/stripe.md](infrastructure/stripe.md) — Live mode payments. Account `acct_1T3N7kJk2GIrL5uS`.
 - [infrastructure/resend.md](infrastructure/resend.md) — Outbound transactional email. Sender domain verified.
 - [infrastructure/rewardful.md](infrastructure/rewardful.md) — Affiliate program tracking. Friends of Legacy Odyssey campaign, 35% recurring forever, $49/mo Starter plan.
+- [infrastructure/clarity.md](infrastructure/clarity.md) — Microsoft Clarity heatmaps/session recordings. Project `x7mt9cszyp`, site-wide + consent-gated, env-driven (`CLARITY_PROJECT_ID`). Free.
 - [infrastructure/spacemail.md](infrastructure/spacemail.md) — Inbound mail at `@legacyodyssey.com`. Mailboxes exist; per-mailbox forwarding to gmail not yet set up.
 
 ### Mobile + app stores
