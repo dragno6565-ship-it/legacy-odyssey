@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-10 (zombie Railway service identified; routed for Dan-side deletion)
+**Last session:** 2026-06-15 (work-day routing + nightly close; survived a power outage; demo-host mystery solved = Spaceship)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
@@ -55,6 +55,15 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
+- **2026-06-15** — Full work day. Routed Dan's 8-item brainstorm into the TODO backlog;
+  resolved D-010 (35% affiliate commission stands) + D-011 (ClickBank rejected); recorded
+  real customer count (7: 6 annual + 1 monthly); issued work-day prompts to Pinterest /
+  Influencer / content-organic / Facebook / Coding / Email / Affiliates; baked standing
+  morning + shutdown routines into all 12 briefs. Survived a power outage with zero data
+  loss (everything committed to git on F: as it happened). Nightly close: coding shipped
+  3 prod deploys (branded-signup GA tracking fix, 3 feature blog posts live, Clarity live);
+  **demo-site host mystery SOLVED = Spaceship Web Hosting, not Railway.** New Dan decisions
+  queued: GA consent-mode timing fix, success.ejs $49.99→$29.
 - **2026-06-10 (evening)** — Investigated zombie Railway service for Dan-side deletion.
   Confirmed alive via `/health` (v2.1.0). Identified project as `romantic-creation`
   (id `25a7cbc7-...`, service `a759cd1b-...`) owned by the `dragno65` GitHub Railway
