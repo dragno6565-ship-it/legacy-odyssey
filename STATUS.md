@@ -17,6 +17,29 @@
 
 ---
 
+## 2026-06-16 — coding
+- Did: Health-check triage + sales-path verification. **Both health-check alarms were FALSE:** lachlanstoneleister.com is UP (apex+www 200, 12/12 no flap — the "ECONNRESET" was a transient blip during yesterday's redeploys; the check pings once/no-retry); backups HEALTHY (`cron_runs[photo-backup]` last success 14.4h ago, **R2 273 == Supabase 273, zero gap** — the 95.7h WARN was the benign "no new photos in 4 days" case, self-cleared by my demo uploads). **Sales path WORKS** — both `create-signup-intent` and `create-checkout` reach Stripe (clientSecret / checkout.stripe.com URL); the "Something went wrong" + the Sentry `req.body undefined` page were **my own PowerShell↔curl quoting artifacts** (browser=curl), not a real outage. Shipped a `req.body` guard (malformed/bot POSTs → clean 400 not 500/Sentry) — `d7740fc`, **live + verified**. Demo-host mystery: it's on **Spaceship cPanel** (documented in `docs/domains/your-childs-name.com.md` + TODO).
+- Others should know: **⚠️ (everyone who deploys)** the push carried the `puppeteer` devDependency which **BROKE the Railway build** (`npm ci` → Chromium download fails). FIXED by setting **`PUPPETEER_SKIP_DOWNLOAD=true` in Railway env (now set — do NOT remove it)**; builds succeed again. My earlier "harmless dev tooling" call on the puppeteer commit was wrong. **(chief-of-staff)** the Railway API token DOES read env vars for me (used it to read STRIPE_SECRET_KEY/REWARDFUL/R2 config + to set Clarity & the puppeteer var) — your "Railway token 403" for the Stripe pull may be a query/scope issue, not a dead token; happy to help fetch the key/config if Dan greenlights D-009.
+- Blocked on Dan: GA consent-mode timing decision (still gates trustworthy conversion data); nothing else new.
+
+## 2026-06-16 — chief-of-staff
+- Did: Traffic report + D-009 Stripe pull. **GA4:** 28d = 1,167 sess / 11s avg / 25% eng (down ~37% w/ paid off); 7d = 177 sess / 4s / 79% Direct / paid fully off; homepage 79% (9s), /gift 14% (7s); all GA conversions $0 = **tracking artifact** (yesterday's branded-signup GA fix + consent-timing caveat). **Stripe $ BLOCKED** (dashboard blocked in browser tool, Railway API token 403, no local key, CLI not logged in) — but reconciled customers via Supabase service-role: **7 REAL paying = 6 annual + 1 monthly** (matches ground truth exactly); the DB's 16 "paid" rows also contain owner + 2 demos + **4 influencer comps** (Akshita/Giulia/Megan/Sia via free gift codes) + 2 early rows w/ no Stripe sub (emmacherry, roypatrickthompson). Real conversion ≈0.2–0.3% — landing pages DO sell, just tiny volume. Wrote `ops/TRAFFIC-AND-REVENUE-2026-06-16.md`; updated `docs/INDEX.md` customer section + DECISIONS D-009.
+- Others should know: **(coding)** I edited `docs/INDEX.md` (your lane) at Dan's explicit request — customer count was wrong; please create entity files for the 3 NEW real customers (arloboos, zoraporter, emmabeine) + the 4 comps, and confirm whether emmacherry/roypatrickthompson (no `stripe_subscription_id`) actually pay or are stale/comped. The GA consent-mode timing fix is still the gating item for trustworthy conversion data. **(meta-ads/google-ads/influencer)** real conversion is ~0.2–0.3% and paid is off — keep it off; growth is the comp/affiliate + organic motion. **(affiliates)** 4 influencer comps are live as full accounts — confirms the comp-gift motion works.
+- Blocked on Dan: (1) **Stripe $ unblock** — paste a read-only Stripe key, OR `stripe login` the CLI in `F:\tools\`, OR read lifetime + 30d gross + active-sub count off the dashboard, OR fix the Railway token scope; (2) carry-overs: D-001 LLC paperwork, GA consent-timing decision, secrets→`F:\_secrets\` (Phase 1).
+
+## 2026-06-16 — email
+- Did: Drafted + staged the **Circles feature-announcement email** to existing customers →
+  `marketing/email/circles-announcement.md`. One CTA → live blog post
+  (legacyodyssey.com/blog/circles-sharing); canonical description verbatim; word bans + no real
+  names respected. **NOT sent.**
+- Others should know: **(coding)** when Dan greenlights, the send is yours — assemble the
+  recipient list + wire RFC 8058 list-unsubscribe through Resend (no marketing subscriber list
+  exists yet, 0 captured leads). **(facebook)** held until your Circles post is live per your
+  Jun-15 note; matched your/content-organic's messaging.
+- Blocked on Dan: **ON HOLD** — Dan wants to personally test Circles + approve the copy before
+  any send; audience decision deferred until after. (Recommendation when it unblocks:
+  customers-only, 7.) Also surfacing the still-open welcome emails to Reese/Lachlan/Jeff.
+
 ## 2026-06-16 (work-day plan) — dispatcher
 - Did: Dan greenlit the full session fleet for today + added two work items. **🚨 Health-check email shows 2 real issues (routed to CODING, urgent):** (1) **FAIL — lachlanstoneleister.com apex half-broken (ECONNRESET)** — a PAYING customer's live site is unreachable; top priority. (2) **WARN — R2 backup last upload 95.7h ago (~4 days)** — backup cron may have stalled; for a children's-photos product this is a data-protection risk, verify the cron actually runs. Also Dan wants: **landing/checkout sales-path verification** (can a visitor actually buy? test the live flow) → CODING; and a **traffic report** (volume, sources, time-on-site, where they drop) → CHIEF-OF-STAFF (now meaningful since yesterday's branded-signup GA fix, though consent-timing still dampens — caveat the data).
 - Others should know: **(chief-of-staff)** traffic report + the Stripe D-009 pull pair naturally — do both. **(coding)** health-check failures are #1/#2 before the demo-site refresh. **(facebook/email/pinterest/influencer)** all cleared to run — see today's gates.
