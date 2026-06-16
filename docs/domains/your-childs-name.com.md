@@ -2,10 +2,10 @@
 
 **Status:** active (marketing demo site, NOT a customer)
 **Owner:** Legacy Odyssey marketing
-**Last touched:** 2026-04-28
+**Last touched:** 2026-06-16
 
 ## What it is
-**Marketing demo of the Legacy Odyssey baby book product.** Anyone visiting this domain sees a fully populated baby book — password gate is bypassed, demo content is shown — so prospective customers can preview the product before purchasing. **NOT a paying customer.** It's a static HTML demo served either from Express middleware (currently) or Spaceship hosting (target state as of Apr 28).
+**Marketing demo of the Legacy Odyssey baby book product.** Anyone visiting this domain sees a fully populated baby book — password gate is bypassed, demo content is shown — so prospective customers can preview the product before purchasing. **NOT a paying customer.** It's a static HTML demo. **Served from Spaceship Web Hosting** (LiteSpeed, 66.29.148.24) — migration off Railway COMPLETED Apr 28. The repo's `src/public/your-childs-name-demo.html` (42 KB) is **NOT** what's live; the live file is the richer 386 KB `index.html` on Spaceship cPanel (see below).
 
 This is one of TWO marketing demo domains; the sibling is `your-family-photo-album.com` (demo for the future family photo album product).
 
@@ -49,6 +49,7 @@ This is one of TWO marketing demo domains; the sibling is `your-family-photo-alb
 **DO NOT overwrite the Spaceship version** — user's preferred canonical.
 
 ## History
+- 2026-06-16 — **Resolved the coding-session "demo deploy-source mystery"** (open since May 26): the demo is served from **Spaceship Web Hosting cPanel**, file `/home/wnuazicufx/your-childs-name.com/index.html` (386 KB) — NOT Railway/the repo. So repo edits to `src/views/book/*` or `your-childs-name-demo.html` never reach the live demo. **To refresh the demo (banner overlap, clickable recipes, any banned "CHAPTER" eyebrows) edit that cPanel file via Spaceship hosting file-manager/FTP** (needs Spaceship hosting login). TODO "Demo site" updated to match.
 - 2026-04-15 — Local demo HTML created, committed to repo. Express middleware added. Marketing copy updated.
 - 2026-04-15 (later same day) — Richer 386 KB version uploaded directly to Spaceship cPanel
 - 2026-04-28 — Spaceship hosting custom website folder created. Migration off Railway in progress.

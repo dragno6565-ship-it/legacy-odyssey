@@ -47,6 +47,12 @@ app.use('/', require('./routes/webhooks'));
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+// Normalize req.body to an object. express.json only sets req.body when the
+// request carries a JSON content-type, so a malformed client, a bot, or a POST
+// without that header leaves it undefined — and `const { x } = req.body` then
+// throws a 500 (and pages Sentry). With this, those requests hit each route's
+// own validation and get a clean 400 instead.
+app.use((req, _res, next) => { if (req.body == null) req.body = {}; next(); });
 app.use(cookieParser(process.env.SESSION_SECRET));
 
 // X-Robots-Tag: noindex on customer book domains only (never the marketing
