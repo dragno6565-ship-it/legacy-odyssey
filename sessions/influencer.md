@@ -4,7 +4,7 @@
 > related to the AFFILIATES session — influencers may also be recruited as affiliates
 > (35% recurring through Rewardful).
 
-**Last session:** 2026-06-15
+**Last session:** 2026-06-16
 
 ## Scope
 - Owns `marketing/influencer/influencer.md` — the detail file.
@@ -42,29 +42,28 @@
   free codes instead of cash where possible.
 
 ## Open items (tomorrow's first actions in order)
-- [ ] **Redeploy the $275 Jayna refund → Amanda Foust (@amanda_arrows).** Recommended buy: IG Feed
-      Post $145 (+ Story/Reel toward the rest of the refund). 32.3k IG, 83.4% engagement, 80% US,
-      87% F, 75% target age, Top Creator. **AWAITING DAN'S GO — do not place/spend without it.**
-- [ ] **Akshita follow-up (highest-value relationship).** She delivered + wants repeat work and
-      pitched 3 paid options. Recommend: Dan DMs a warm thank-you + asks her **whitelisting price**
-      for the existing live post (lets us run her content as a Meta ad — the real lever) before
-      buying net-new. Can draft the DM on request. Coordinate with **facebook** (wants to repost
-      her Jun 3 post natively — link: https://www.instagram.com/p/DZIDySGjprr/) and **meta-ads**
-      (whitelisting = paid usage rights).
-- [ ] **Close out Giulia's $759 in-progress Reel.** Flag to Dan/chief-of-staff — open cash exposure
-      on Collabstr since May 7; looks delivered (Jun 7 "Looks wonderful!") but not marked complete.
+- [ ] **Watch for Amanda Foust (@amanda_arrows) acceptance.** Order PLACED Jun 16 — IG Feed Post
+      $159.50 ($145 + fee) from the Jayna refund balance, IN-PROGRESS, awaiting her acceptance
+      (72-hr window → ~Jun 19). If she declines/lapses, next pick from Top-10 = Kristen Corrao
+      (@kristen_corrao, 88% US, $70 feed) or Jennifer Mendez (@jenn11, 98% US, $85 feed).
+- [ ] **Screen ALL future creators for US base first** (Dan rule 2026-06-16). Location/US-audience %
+      matters MORE than raw engagement for our US customer goals. Re-audit the Top-10 shortlist on
+      this lens before buying — drop or deprioritize any that aren't clearly US-weighted.
 - [ ] **Coordinate with `affiliates` before next outreach.** Their 19 ⭐ Tier-A sub-10K targets get
       **affiliate-first** pitch (Rewardful 35% + comp gift code) — NOT Collabstr paid posts. Influencer
       keeps the paid-post lane for mid-tier (1.2k–48k). Top-10 picks are above sub-10K — fair game.
 - [ ] Intellifluence finishing: Dan still owes (a) logo upload, (b) first/last name, (c) submit wizard.
-- [ ] **Meaghan Williamson** (@mindfullymademotherhood, 811k) — IG DM only path. Draft if Dan wants.
+- [ ] **Meaghan Williamson** (@mindfullymademotherhood, 811k) — IG DM only path. Verify US audience
+      before pursuing (per new US-first screen). Draft if Dan wants.
 - [ ] **The Bump advertising** — PARKED (enterprise $10K–50K). Re-evaluate at $5K+ MRR.
 
 ## Blocked on Dan
-- **GO to place the Amanda Foust order** against the $275 Jayna refund (feed post $145 recommended).
-- Whether to have Dan DM Akshita re: whitelisting + the 3 follow-on offers (I can draft).
-- Close-out of Giulia's $759 in-progress Reel.
-- Intellifluence: logo + first/last name + submit wizard.
+- Intellifluence: logo + first/last name + submit wizard (only remaining hard block).
+
+## Resolved 2026-06-16
+- ✅ **Amanda Foust order PLACED** — $159.50 from the Jayna refund balance (~$115.50 left). In-progress.
+- ✅ **Akshita — CLOSED, do not pursue.** India-based; not a repeat collaborator (Dan's call). DM scrapped.
+- ✅ **Giulia $759 Reel — COMPLETED** (resolved itself on the ledger; no longer open cash exposure).
 
 ## Resolved this session (no longer open)
 - ✅ Akshita acceptance — COMPLETED, post live. Both her items paid out.
@@ -82,6 +81,13 @@
   affiliate commission rather than a one-shot paid post.
 
 ## Log
+- **2026-06-16** — Placed the **Amanda Foust** ($159.50) IG Feed Post order against the $275 Jayna
+  refund balance (Use Balance; ~$115.50 left) — confirmed In-progress in the ledger. Brief: single
+  feed post, positive/low-stress tone, tag @legacyodesseyapp + bio link, emailed digital comp code
+  (clarified nothing ships). Drafted an Akshita whitelisting DM → **scrapped**: Dan closed Akshita
+  (India-based, not a repeat collaborator). New standing rule recorded: **screen creators for US base
+  first — location/audience > engagement** for US customer goals. Noted **Giulia $759 = Completed**
+  (self-resolved). No card charged all session — balance-funded.
 - **2026-06-15** — Verified all Collabstr order outcomes against the billing ledger (the Jun-13
   acceptance windows lapsed while idle). Results: **Akshita = COMPLETED, feed post LIVE**
   (https://www.instagram.com/p/DZIDySGjprr/), both items paid out, she wants repeat work + pitched

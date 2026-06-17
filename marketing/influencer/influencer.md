@@ -16,9 +16,10 @@
 
 | Creator | Handle | Platform | Amount | Status | Notes |
 |---|---|---|---|---|---|
-| Akshita Thakur | @rayanved | IG Story + Feed Post | $55 + $137.50 | ✅ **COMPLETED Jun 3** | **Feed post LIVE: https://www.instagram.com/p/DZIDySGjprr/** Both paid out. Built her own book via comp code (akshitathakur27@gmail.com). Warm, wants repeat work. Pitched 3 paid follow-ons: Voiceover/Reel · UGC footage · whitelisting/ad-usage rights. Baby = Rayan Ved. **Best relationship to date.** |
-| Jayna Chambliss | @_jblisss | IG Feed Post | $275 | ❌ **CANCELLED / REFUNDED** | Sent May 25, never accepted → auto-cancelled → $275 back in Collabstr balance. Ghosted. Do NOT re-order. |
-| Giulia Busetto | @giulibusetto_ | IG Reel | $759 | ⏳ **IN-PROGRESS** (since May 7) | ⚠️ Cash exposure. Chat "Looks wonderful!" Jun 7 — likely delivered, not marked complete. Dan should close out. |
+| Amanda Foust | @amanda_arrows | IG Feed Post | $159.50 ($145 + $14.50 fee) | ⏳ **IN-PROGRESS — placed Jun 16** | Paid from the $275 Jayna refund balance (≈$115.50 left). 32.3k IG, 83.4% engagement, 80% US, 87% F, 75% target age, Top Creator. Brief: single feed post, positive/low-stress tone, tag @legacyodesseyapp + bio link; offered emailed comp gift code (clarified digital, nothing to ship). Awaiting her acceptance. |
+| Akshita Thakur | @rayanved | IG Story + Feed Post | $55 + $137.50 | ✅ **COMPLETED Jun 3 — project closed, do NOT pursue** | Feed post was live (https://www.instagram.com/p/DZIDySGjprr/); both paid out. **Dan's call 2026-06-16: NOT a repeat collaborator — she is India-based, wrong market for our US customer goals.** Drop all follow-up (no whitelisting, no Reel/UGC). Do not re-suggest. |
+| Jayna Chambliss | @_jblisss | IG Feed Post | $275 | ❌ **CANCELLED / REFUNDED** | Sent May 25, never accepted → auto-cancelled → $275 back in balance (redeployed to Amanda Foust Jun 16). Ghosted. Do NOT re-order. |
+| Giulia Busetto | @giulibusetto_ | IG Reel | $759 | ✅ **COMPLETED** | Resolved — ledger shows Completed as of Jun 16 (was in-progress). No longer open cash exposure. |
 | Carina | @a.calm.mom | 3 IG Feed Posts | $275 | ❌ Cancelled | — |
 | Sarah Baraldi | — | IG Reel | $295 | ❌ Cancelled (#105567) | She requested to cancel (chat). CLOSED — remove from open items. |
 
