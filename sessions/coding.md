@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-15 (big day — GA branded-signup tracking fix, 3 feature blog posts, Microsoft Clarity, Rewardful key verified, feature screenshots; all live)
+**Last session:** 2026-06-16 (health-check triage — both alarms FALSE; sales path verified working; shipped `req.body` hardening; fixed a Railway build break caused by the puppeteer dep)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -52,49 +52,74 @@
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
 ## Open items (next session, in order)
-1. **GA: two deferred decisions (Blocked on Dan).** (a) **Consent-mode timing** — the inline
-   `purchase` event on success.ejs/gift-success.ejs fires BEFORE the deferred `consent.js`
-   grants `analytics_storage`, so Consent Mode v2 downgrades them to cookieless/modeled and
-   likely dampens GA conversion counts across ALL flows. Needs careful fix (fire `purchase`
-   from inside `loEnableTracking`, or load consent.js before the event) + live verification —
-   don't touch blind (it's GDPR gating). (b) **success.ejs annual value = 49.99** but the
-   customer pays **$29** first year — Dan said leave it for now (mid revenue reconciliation);
-   revisit after the Stripe pull. (Branded-signup flow already fixed — uses real pi.amount.)
-2. **Demo-site deploy-source mystery** (only untouched item from 2026-06-15). your-childs-name.com
-   serves a DIFFERENT/richer build than the repo (unresolved since May 26) — may still show
-   banned "CHAPTER ONE/TWO/FOUR" eyebrows. **LEAD (from `docs/INDEX.md` line 65 / `spaceship-hosting.md`):
-   the demo is hosted on SPACESHIP WEB HOSTING, not Railway** — so repo/Railway changes never reach it.
-   Next: find the demo's source files on Spaceship hosting (likely a static export of an older book
-   build), edit there. Then fix banner overlap + clickable recipes (TODO "Demo site"). Gates the refresh.
-3. **Monitor 1.0.18 review outcomes** (iOS "Waiting for Review" in ASC; Android delivered to
-   Play, verified 2026-06-10). React to any rejection; coordinate Dan's phone test. Submission
-   links: Android d5724f17-… / iOS ec191935-… (expo.dev/accounts/dragno65/projects/legacy-odyssey/submissions/).
-4. **Affiliate gift/signup conversion end-to-end** — the `REWARDFUL_API_SECRET` is now CONFIRMED
-   live in Railway + authenticating (verified 2026-06-15, GET /v1/campaigns → 200). Remaining =
-   the affiliates session's real referred $29 test purchase confirming a conversion in the
-   Rewardful dashboard. Coding side = GREEN.
-5. **Reposition screenshot follow-up (optional):** the 4th feature shot IS captured
-   (`marketing/screenshots/features/10-reposition-modal.jpg`); script works. Nothing pending
-   unless we want it embedded in the blog (existing posts are text-only).
-6. B15 branded-signup CTA cutover; `/gift` conversion fixes (now measurable via Clarity +
-   the branded-signup GA fix); `/preview/option6` promote-or-delete; infra cleanups
-   (www 404, `TURNSTILE_SECRET_KEY`). Pre-existing parity drift: web rotate in ~4 of ~12 editors.
+1. **GA consent-mode timing (Blocked on Dan — now the top gating item).** The inline `purchase`
+   event on success.ejs/gift-success.ejs fires BEFORE the deferred `consent.js` grants
+   `analytics_storage`, so Consent Mode v2 downgrades them to cookieless/modeled — chief-of-staff's
+   2026-06-16 traffic report shows ALL GA conversions reading $0 because of this. Needs a careful fix
+   (fire `purchase` from inside `loEnableTracking`, or load consent.js before the event) + live
+   verification — don't touch blind (GDPR gating). Secondary: **success.ejs annual value 49.99 → $29**
+   (Dan said leave for now, mid revenue reconciliation). (Branded-signup flow already uses real pi.amount.)
+2. **Customer entity files (routed by chief-of-staff 2026-06-16).** `docs/INDEX.md` customer section was
+   reconciled (7 real paying = 6 annual + 1 monthly). Create `docs/customers/` entity files for the 3 NEW
+   real customers (**arloboos**, **zoraporter**, **emmabeine**) + the 4 influencer comps
+   (Akshita/Giulia/Megan/Sia), and **confirm whether `emmacherry`/`roypatrickthompson` actually pay** —
+   their DB rows have NO `stripe_subscription_id` (churned? manually provisioned? comped?). Use the
+   Supabase service-role (local) to check.
+3. **Demo-site content refresh — MYSTERY SOLVED, now actionable.** The live demo is on **Spaceship Web
+   Hosting cPanel**, file `/home/wnuazicufx/your-childs-name.com/index.html` (386 KB) — NOT Railway/repo
+   (see `docs/domains/your-childs-name.com.md`). To fix the banner overlap + clickable recipes + any banned
+   "CHAPTER" eyebrows, edit that cPanel file via Spaceship file-manager/FTP. **Needs Spaceship hosting login
+   (Dan).** Repo edits will NOT reach it.
+4. **Monitor 1.0.18 review outcomes** (iOS "Waiting for Review"; Android delivered, verified 2026-06-10).
+   React to rejections; coordinate Dan's phone test.
+5. **Affiliate gift/signup conversion** — coding side GREEN (`REWARDFUL_API_SECRET` live + authenticating).
+   Remaining = the affiliates session's real referred $29 test purchase confirming a dashboard conversion.
+6. B15 branded-signup CTA cutover; `/gift` conversion fixes (now measurable via Clarity + the GA fix once
+   consent-timing lands); `/preview/option6` promote-or-delete; infra cleanups (www 404,
+   `TURNSTILE_SECRET_KEY`). Pre-existing parity drift: web rotate in ~4 of ~12 editors.
+
+### ⚠️ Build / deploy gotcha (NEW 2026-06-16 — read before deploying)
+- **`PUPPETEER_SKIP_DOWNLOAD=true` MUST stay set in Railway env.** The `puppeteer` devDependency (backs the
+  screenshot scripts) makes Railway's `npm ci` try to download Chromium, which FAILS the build (builder
+  lacks tar/unzip, Node 18). The env var makes the build skip the download (puppeteer is never RUN on
+  Railway). If a deploy ever fails on `npm ci`/puppeteer/chromium, confirm that var is set. Local installs
+  still download Chromium (so the screenshot script works) — the skip is Railway-scoped only.
+- Sales path is healthy: both `create-signup-intent` (clientSecret) and `create-checkout`
+  (checkout.stripe.com) reach Stripe; the `req.body` guard (server.js, `d7740fc`) returns clean 400s for
+  malformed/bot POSTs instead of 500/Sentry pages.
 
 ### ⚠️ Working-tree / repo notes
-- **Local `main` is 2 commits AHEAD of origin** — `d7e158b` (puppeteer dep + capture script)
-  and `bd52da5` (capture-script reposition fix). Intentionally UNPUSHED (dev tooling only, no
-  prod runtime change). Will ride the next agreed deploy. The prod commits today (`9c4c526`
-  blog+GA fix, `a1146d9` Clarity) ARE pushed/live.
-- `.gitignore`-ignores-CLAUDE.md hunk: RESOLVED by dispatcher (`3cefbef` tracks CLAUDE.md).
-- `puppeteer` devDependency: now COMMITTED (`d7e158b`) — it backs the screenshot capture scripts.
-- Still uncommitted (other sessions', leave alone): `TODO.md` (coding working list, edited today),
-  `marketing/facebook/BRAND-VOICE-GUIDE.md` (facebook), `sessions/content-organic.md` (content-organic).
-- Commit `60b73ce` (landing pricing reorder) = prior coding session's, live, now documented.
-- Feature screenshots delivered (untracked binaries, per marketing/ convention):
-  `marketing/screenshots/features/08-circles-page.jpg`, `09-gallery-grid.jpg`, `09-gallery-list.jpg`,
-  `10-reposition-modal.jpg`.
+- **origin is now CAUGHT UP through `d7740fc`** (the puppeteer/blog/GA/Clarity/hardening commits all
+  pushed + deployed). Only doc commits remain local/unpushed after this shutdown (STATUS `73dd21f` +
+  this brief) — docs, no deploy needed; they ride the next push.
+- `TODO.md` stays uncommitted (coding working-list convention); edited today (demo-site item).
+- Still uncommitted (other sessions', leave alone): `marketing/facebook/BRAND-VOICE-GUIDE.md`,
+  various `sessions/*.md` other roles edited. Never blanket-commit.
+- Feature screenshots are untracked binaries (per marketing/ convention) in
+  `marketing/screenshots/features/` (08-circles-page, 09-gallery-grid, 09-gallery-list, 10-reposition-modal).
 
 ## Log
+- **2026-06-16** — Health-check triage + sales-path verification (no feature work).
+  • **Both health-check alarms FALSE.** lachlanstoneleister.com UP (apex+www 200, 12/12 no flap; the
+    ECONNRESET was a transient blip during yesterday's redeploys — the domain check pings once, no retry).
+    Backups HEALTHY: `cron_runs[photo-backup]` last success 14.4h ago, **R2 273 == Supabase 273 (gap 0)** —
+    the 95.7h WARN was the benign "no new photos in 4 days" case (the check measures last-*upload* age),
+    self-cleared by my demo uploads.
+  • **Sales path WORKS.** Both `create-signup-intent` (→clientSecret) and `create-checkout`
+    (→checkout.stripe.com) reach Stripe; Stripe/prices/coupon all valid. The scary "Something went wrong" +
+    the Sentry `req.body undefined` page were **my own PowerShell↔curl JSON-quoting artifacts** (browser=curl),
+    NOT a real outage — a clean file-based request works. Verified the actual `stripeService` fn + raw Stripe
+    ops locally with prod env; all green. Cleaned up the live test customers I created.
+  • **Shipped `req.body` hardening** (server.js global guard → malformed/bot POSTs get a clean 400 instead of
+    a 500 TypeError that pages Sentry). `d7740fc`, deployed + verified live.
+  • **Deploy detour:** the push FAILED the Railway build — it was the first to carry yesterday's `puppeteer`
+    devDependency, whose Chromium download breaks `npm ci`. Fixed by setting `PUPPETEER_SKIP_DOWNLOAD=true` in
+    Railway env (via API); rebuild succeeded; hardening live. (No outage — prod stayed on the last good build.)
+    A delayed Railway "build failed" email arrived AFTER the fix — stale, for the 18:20 failed attempt; the
+    18:28 rebuild is SUCCESS.
+  • **Demo-host mystery SOLVED + documented** (Spaceship cPanel; see Open item 3 + `your-childs-name.com.md`).
+  • Lessons: NEVER call a new dependency "harmless to deploy" without checking it builds on the server
+    (puppeteer ≠ harmless). PowerShell+curl mangles inline JSON — use `--data-binary @file` for POST tests.
 - **2026-06-15** — Big day; 3 prod deploys, all live & verified.
   • **GA4 tracking:** found `purchase` was ALREADY a key event (the routed console toggle was
     moot). Real bug: the **branded PaymentIntent signup** (`/start/checkout`→`/start/welcome`)
