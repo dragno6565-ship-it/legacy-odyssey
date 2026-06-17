@@ -344,25 +344,24 @@
 
   <script>
     const purchaseEventId = '<%= purchaseEventId %>';
-    fbq('track', 'Purchase', { value: <%= planValue %>, currency: 'USD' }, { eventID: purchaseEventId });
-    fbq('track', 'StartTrial', {}, { eventID: 'trial_' + purchaseEventId });
-    pintrk('track', 'signup');
-    pintrk('track', 'checkout', {
-      value: <%= planValue %>,
-      order_quantity: 1,
-      currency: 'USD'
-    });
-    // GA4 purchase event
-    gtag('event', 'purchase', {
-      transaction_id: purchaseEventId,
-      value: <%= planValue %>,
-      currency: 'USD',
-      items: [{
-        item_id: '<%= plan %>',
-        item_name: 'Legacy Odyssey <%= plan.charAt(0).toUpperCase() + plan.slice(1) %>',
-        price: <%= planValue %>,
-        quantity: 1
-      }]
+    // Fire only after consent is granted (else Consent Mode v2 drops the conversion).
+    (window.loOnTrackingReady || function (f) { f(); })(function () {
+      fbq('track', 'Purchase', { value: <%= planValue %>, currency: 'USD' }, { eventID: purchaseEventId });
+      fbq('track', 'StartTrial', {}, { eventID: 'trial_' + purchaseEventId });
+      pintrk('track', 'signup');
+      pintrk('track', 'checkout', { value: <%= planValue %>, order_quantity: 1, currency: 'USD' });
+      // GA4 purchase event
+      gtag('event', 'purchase', {
+        transaction_id: purchaseEventId,
+        value: <%= planValue %>,
+        currency: 'USD',
+        items: [{
+          item_id: '<%= plan %>',
+          item_name: 'Legacy Odyssey <%= plan.charAt(0).toUpperCase() + plan.slice(1) %>',
+          price: <%= planValue %>,
+          quantity: 1
+        }]
+      });
     });
   </script>
 </body>

@@ -59,18 +59,21 @@
     var loTxId = '<%= purchase.transactionId %>';
     var loValue = <%= purchase.value %>;
     var loPlan = '<%= purchase.plan %>';
-    fbq('track', 'Purchase', { value: loValue, currency: 'USD' }, { eventID: loTxId });
-    pintrk('track', 'checkout', { value: loValue, order_quantity: 1, currency: 'USD' });
-    gtag('event', 'purchase', {
-      transaction_id: loTxId,
-      value: loValue,
-      currency: 'USD',
-      items: [{
-        item_id: loPlan,
-        item_name: 'Legacy Odyssey ' + (loPlan ? loPlan.charAt(0).toUpperCase() + loPlan.slice(1) : 'Signup'),
-        price: loValue,
-        quantity: 1
-      }]
+    // Fire only after consent is granted (else Consent Mode v2 drops the conversion).
+    (window.loOnTrackingReady || function (f) { f(); })(function () {
+      fbq('track', 'Purchase', { value: loValue, currency: 'USD' }, { eventID: loTxId });
+      pintrk('track', 'checkout', { value: loValue, order_quantity: 1, currency: 'USD' });
+      gtag('event', 'purchase', {
+        transaction_id: loTxId,
+        value: loValue,
+        currency: 'USD',
+        items: [{
+          item_id: loPlan,
+          item_name: 'Legacy Odyssey ' + (loPlan ? loPlan.charAt(0).toUpperCase() + loPlan.slice(1) : 'Signup'),
+          price: loValue,
+          quantity: 1
+        }]
+      });
     });
   </script>
   <% } %>
