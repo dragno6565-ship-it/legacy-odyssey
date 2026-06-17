@@ -57,13 +57,18 @@ Last updated: 2026-06-04
   variant where the domain-purchase flow doesn't apply. Both hypothetical.
 - **What I need from Dan:** "agreed, REJECT" or "I want to revisit."
 
-### D-009 — Verify REAL Stripe sales count (HIGH — underpins all funnel work)
-- **Why:** GA4 shows only **$14.97 revenue / 3 key events** over 28 days, while
-  Meta claimed ~3 purchases. We don't know the TRUE number of paying customers
-  or the true conversion rate. Everything in SALES-BLOCKERS rests on this.
-- **Action:** pull lifetime + last-30d real sales from Stripe (and reconcile vs
-  the ~9 customers in docs/INDEX.md). Chief-of-staff can do this on Dan's go.
-- **Owner:** Dan to greenlight; Claude executes.
+### D-009 — Verify REAL Stripe sales — ⏳ COUNT DONE, $ STILL BLOCKED (2026-06-16)
+- **Customer count RESOLVED via Supabase:** **7 real paying customers (6 annual
+  + 1 monthly)** — matches Dan's ground truth exactly. DB had 16 "paid" rows;
+  the other 9 = owner + 2 demos + 4 influencer comps + 2 early no-Stripe-sub
+  rows. Full detail in `ops/TRAFFIC-AND-REVENUE-2026-06-16.md`; docs/INDEX.md fixed.
+- **Revenue $ STILL OPEN:** couldn't pull actual Stripe $ — dashboard blocked in
+  browser tool, Railway API token 403 (no key), local .env has no Stripe key,
+  CLI not logged in. **Blocked on Dan:** paste a read-only Stripe key, OR
+  `stripe login` the CLI, OR read lifetime/30d gross + active-sub count off the
+  dashboard, OR fix the Railway token scope.
+- **Real conversion rate ≈ 0.2–0.3%** (≈3 new payers / ~1,167–1,856 sessions).
+  Landing pages DO sell — tiny volume, not zero (GA's $0 is a tracking artifact).
 
 ### D-010 — Affiliate commission: ✅ RESOLVED 2026-06-11
 - **Dan's decision (2026-06-11, via Dispatcher): 35% recurring stands.** The

@@ -39,19 +39,41 @@ When you create/touch any entity not yet listed: write its file from the standar
 
 ## Customers / family records
 
-### Real customers (paying)
-- [customers/eowyn-ragno-owner.md](customers/eowyn-ragno-owner.md) — owner's own family (dogfood). Email `dragno65@hotmail.com`. Family ID `fb16691d-...`.
-- [customers/kate-ragno-niece.md](customers/kate-ragno-niece.md) — owner's niece. Signed up Mar 29 2026. Site live, content minimal.
-- [customers/roy-patrick-thompson.md](customers/roy-patrick-thompson.md) — Julia Ragno's family.
-- [customers/emma-cherry.md](customers/emma-cherry.md) — Lindsey Cherry's family.
-- [customers/reese-tatler.md](customers/reese-tatler.md) — Ashlee Tatler's family.
-- [customers/lachlan-stone-leister.md](customers/lachlan-stone-leister.md) — Alexis Lynn Stone's family.
-- [customers/jeff-presutti.md](customers/jeff-presutti.md) — Kayle Brown / Jeff Presutti family.
+> **Reconciled against Supabase 2026-06-16 (chief-of-staff).** The `families` table holds
+> **16 non-archived `plan=paid` rows + 3 free + 7 archived = 26 total.** But only
+> **7 are REAL PAYING customers** (have a Stripe sub AND did not redeem a comp gift code):
+> **6 annual + 1 monthly** — matches Dan's ground truth exactly. The rest are owner/demos/
+> influencer comps. Do not equate "paid rows in DB" with "paying customers."
+> ⚠️ TODO for coding: create entity files for the new real customers (arloboos, zoraporter,
+> emmabeine) + the comps; `emmacherry`/`roypatrickthompson` rows have NO stripe_subscription_id
+> (data gap — confirm whether they actually pay or are stale/comped).
 
-### Demo / test accounts
-- [customers/apple-review-demo.md](customers/apple-review-demo.md) — `review@legacyodyssey.com` for Apple App Store review. Password `TestPass-2026!`.
-- [customers/your-family-demo.md](customers/your-family-demo.md) — placeholder families row for `your-family-photo-album.com` demo. NOT a real customer.
-- [customers/your-childs-name-demo-context.md](customers/your-childs-name-demo-context.md) — context for the static demo at `your-childs-name.com`. No families row.
+### Real PAYING customers (7 — verified Stripe sub, non-comp, 2026-06-16)
+- `reesetatler.com` — Ashlee Tatler (founder tier). [reese-tatler.md](customers/reese-tatler.md)
+- `lachlanstoneleister.com` — Alexis Lynn Stone (annual). [lachlan-stone-leister.md](customers/lachlan-stone-leister.md)
+- `jeffpresutti.com` — Kayle Brown / Jeff Presutti (annual). [jeff-presutti.md](customers/jeff-presutti.md)
+- `arloboos.com` — jadeashb@gmail.com (annual). **NEW ~May 6 — no entity file yet.**
+- `zoraporter.com` — rdawnporter@gmail.com (annual). **NEW ~May 11 — no entity file yet.**
+- `emmabeine.com` — ashley.beine@outlook.com (annual). **NEW ~May 12 — no entity file yet.**
+- `foreverearley.com` — lorenearley23@gmail.com (**the 1 grandfathered monthly $4.99** — do not touch).
+
+### Influencer COMPS (free gift code redeemed — $0 paid, NOT paying customers)
+- `rayanved.com` — Akshita Thakur (Collabstr). `chloealessandrairrgang.com` — Giulia Busetto.
+- `micahhasan.com` — Megan (meganlsyed). `siyababy.com` — Sia Patil.
+
+### Owner / demo (not customers)
+- `eowynhoperagno.com` — owner dogfood (dragno65@hotmail.com). [eowyn-ragno-owner.md](customers/eowyn-ragno-owner.md)
+- `your-family-photo-album.com` — demo (sample@). [your-family-demo.md](customers/your-family-demo.md)
+- `review@legacyodyssey.com` — Apple review demo. [apple-review-demo.md](customers/apple-review-demo.md)
+- `kateragno.com` — Dan's own site (not a customer; do not diagnose). [kate-ragno-niece.md](customers/kate-ragno-niece.md)
+
+### Early rows with NO Stripe sub (status unclear — verify)
+- `emmacherry.com` (Lindsey Cherry) + `roypatrickthompson.com` (Roy) — DB says active/paid but no
+  `stripe_subscription_id`. Either churned, manually provisioned, or comped. NOT counted in the 7.
+  [emma-cherry.md](customers/emma-cherry.md) · [roy-patrick-thompson.md](customers/roy-patrick-thompson.md)
+
+### Demo / test context
+- [customers/your-childs-name-demo-context.md](customers/your-childs-name-demo-context.md) — static demo at `your-childs-name.com`. No families row.
 
 ---
 
@@ -99,9 +121,12 @@ When you create/touch any entity not yet listed: write its file from the standar
 
 ---
 
-## Quick stats (Apr 28 2026)
+## Quick stats (reconciled 2026-06-16)
 
-- **9 active customers** (paying), 7 with custom domains, 2 are owner's own (Eowyn) + Apple review demo
+- **7 REAL PAYING customers** (6 annual + 1 monthly) — verified via Supabase (Stripe sub + non-comp).
+  DB has 16 non-archived `paid` rows total; the other 9 = owner(1) + demos(2) + influencer comps(4)
+  + 2 early no-Stripe-sub rows (emmacherry, roypatrickthompson). See Customers section above.
+- **4 influencer comps** live (rayanved/Akshita, chloealessandra/Giulia, micahhasan/Megan, siyababy/Sia).
 - **3 demo entities** (your-childs-name, your-family-photo-album, your-family demo families row)
 - **20 Railway custom domains** (cap), 19 used + 1 free
 - **8 Approximated vhosts** (4 customers × apex + www, technically 16 but counting customer-domains as 8)

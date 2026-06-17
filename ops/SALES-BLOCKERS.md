@@ -2,6 +2,12 @@
 
 > Review 2026-06-08. Mix of LIVE-VERIFIED (curl/code) and agent-reported
 > (marked). Tiered by revenue impact. Update as items close.
+>
+> **2026-06-16 update (coding session):** the SALES PATH IS VERIFIED WORKING —
+> both checkout flows reach Stripe (the earlier "outage"/500 was a curl-quoting
+> test artifact, not a real bug; a req.body hardening shipped, `d7740fc`).
+> This closes the "is checkout broken?" question: **it is not.** Confirms the
+> root cause below = traffic quality + volume, NOT the page or the funnel.
 
 ---
 

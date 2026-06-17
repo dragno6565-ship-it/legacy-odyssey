@@ -3,7 +3,7 @@
 > Business operations: formation/legal, filings, costs, vendors, hardware, calendar,
 > decisions, and business-level analytics/diagnosis. Does NOT write feature code.
 
-**Last session:** 2026-06-10 (sales-funnel analytics deep-dive + protocol adoption)
+**Last session:** 2026-06-16 (traffic report + Stripe/Supabase customer reconciliation D-009)
 
 ## Scope
 - Owns the entire `ops/` directory — the business source of truth.
@@ -54,12 +54,33 @@
 - PROJECT-MAP Phase 0 done (Dispatcher, 2026-06-10). Phases 1–4 pending — Phase 1 (move
   `Legacy Odyssey Logins.docx` + `Project_Accounts.pdf` into `F:\_secrets\`) is the priority.
 
-## Open items
-- See `ops/DECISIONS.md` (D-001…D-008) + the 90-day plan in `ops/BUSINESS-OPS.md`.
-  Headlines: confirm LLC paperwork; verify real Stripe sales count vs GA; keep paid off;
-  fix GA4 purchase key-event; secrets out of repo (Phase 1).
+## Open items (next session — refreshed 2026-06-16)
+- **Stripe $ pull (D-009 revenue half) — BLOCKED ON DAN.** Customer count DONE (7 real
+  paying = 6 annual + 1 monthly). Still need actual lifetime + 30d gross $: needs Dan to
+  paste a read-only Stripe key / `stripe login` the CLI in `F:\tools\` / read the figures
+  off the dashboard / fix the Railway token scope. First thing to finish when unblocked.
+- **GA consent-mode timing — BLOCKED ON DAN.** The gate for trustworthy conversion data
+  (all GA conversions read $0 because purchase can fire before consent). Coding owns the
+  fix; Dan owns the go.
+- **D-001 LLC paperwork — BLOCKED ON DAN** (EIN + signed operating agreement + separated
+  business banking). Top business risk.
+- **Secrets → `F:\_secrets\` (PROJECT-MAP Phase 1) — BLOCKED ON DAN.**
+- Mine, unblocked: 90-day plan P1/P2 in `ops/BUSINESS-OPS.md` (Stripe Tax, insurance,
+  trademark, bookkeeping). Keep paid Meta/Google OFF.
+- Not mine: coding owns the new-customer entity files (arloboos/zoraporter/emmabeine + 4
+  comps) + emmacherry/roypatrickthompson Stripe-sub verification.
 
 ## Log
+- **2026-06-16** — Traffic report + D-009 Stripe pull. GA4 (28d: 1,167 sess/11s/25% eng;
+  7d: 177 sess/4s, paid OFF; home 79%, /gift 14%, all conversions $0 = tracking artifact per
+  yesterday's GA fix + consent-timing caveat). **Stripe $ BLOCKED** (dashboard blocked, Railway
+  token 403, no local key, CLI not logged in) — but reconciled CUSTOMERS via Supabase
+  service-role: **7 real paying = 6 annual + 1 monthly** (matches Dan exactly); DB's 16 "paid"
+  rows = +owner +2 demos +4 influencer comps +2 early no-stripe-sub. Real conversion ≈0.2–0.3%
+  (sells, just tiny). Wrote `ops/TRAFFIC-AND-REVENUE-2026-06-16.md`; updated DECISIONS D-009 +
+  docs/INDEX.md customer section. Removed `.tmp` pull scripts. Late: absorbed coding's shutdown
+  note → recorded sales-path VERIFIED-WORKING in SALES-BLOCKERS (checkout reaches Stripe; not a
+  checkout problem) + R2 backups healthy (273==273) in PROJECT-MAP Phase 4.
 - **2026-06-10** — Sales-funnel deep-dive at Dan's request ("getting traffic but nobody
   buys"). Pulled GA4 (traffic-acquisition + landing-page reports via Chrome) and Meta Ads
   Manager. Found paid acquisition was the leak ($213/purchase; /gift 25% of traffic at 0

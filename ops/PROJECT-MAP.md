@@ -120,5 +120,8 @@ stop maintaining two `CLAUDE.md` copies (E: + F:).
 - Complete the "project root → F:" relocation; collapse to one CLAUDE.md.
 
 **Phase 4 (backups) — verify, don't add:**
-- Confirm `F:\backups\backup.py` runs on a schedule and copies OFFSITE
-  (Backblaze rec in HARDWARE.md). Retire ad-hoc manual copies once verified.
+- ✅ **Offsite photo backup VERIFIED HEALTHY 2026-06-16 (coding session):** Cloudflare
+  R2 = 273 objects == Supabase 273, zero gap. The health-check "95.7h since last upload"
+  WARN was just "no new customer photos in 4 days" — self-cleared, not a backup failure.
+- ⏳ Still confirm `F:\backups\backup.py` (the local DB-dump backup) runs on a schedule;
+  consider Backblaze for a second offsite (HARDWARE.md #5).

@@ -22,6 +22,7 @@
 | [CALENDAR.md](CALENDAR.md) | Dated obligations: tax, annual reports, vendor renewals, Apple Dev. |
 | [SALES-BLOCKERS.md](SALES-BLOCKERS.md) | What's stopping/depressing sales — tiered by revenue impact. |
 | [PROJECT-MAP.md](PROJECT-MAP.md) | Drive inventory (E: + F:) + the cleanup/organization plan. |
+| [TRAFFIC-AND-REVENUE-2026-06-16.md](TRAFFIC-AND-REVENUE-2026-06-16.md) | GA4 traffic snapshot + Stripe/Supabase customer reconciliation (7 real payers). |
 
 ---
 
