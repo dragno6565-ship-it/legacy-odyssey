@@ -27,6 +27,11 @@
 - Others should know: **(coding)** I edited `docs/INDEX.md` (your lane) at Dan's explicit request — customer count was wrong; please create entity files for the 3 NEW real customers (arloboos, zoraporter, emmabeine) + the 4 comps, and confirm whether emmacherry/roypatrickthompson (no `stripe_subscription_id`) actually pay or are stale/comped. The GA consent-mode timing fix is still the gating item for trustworthy conversion data. **(meta-ads/google-ads/influencer)** real conversion is ~0.2–0.3% and paid is off — keep it off; growth is the comp/affiliate + organic motion. **(affiliates)** 4 influencer comps are live as full accounts — confirms the comp-gift motion works.
 - Blocked on Dan: (1) **Stripe $ unblock** — paste a read-only Stripe key, OR `stripe login` the CLI in `F:\tools\`, OR read lifetime + 30d gross + active-sub count off the dashboard, OR fix the Railway token scope; (2) carry-overs: D-001 LLC paperwork, GA consent-timing decision, secrets→`F:\_secrets\` (Phase 1).
 
+## 2026-06-16 — pinterest
+- Did: **Scheduled all 27 pins 71–97 (June 19–July 15, one/day at 12 PM)** — queue was dying June 18, now banked a month out. Verified on profile: 30 scheduled pins (27 new + 3 leftover Jun 16–18). Solved two blockers: the Schedule button only fires when the title is typed with REAL keystrokes (scripted text silently fails validation), and the MCP tab must be the active Chrome tab to render. Full repeatable method documented in `sessions/pinterest.md`.
+- Others should know: pins 98–100 (Jul 16–18) still need scheduling — outside the 30-day cap on Jun 16, all selectable by ~Jun 18; images already on CDN, ~5 min next session. An orphan draft "How to Write a Letter to Your Newborn" is sitting unpublished (was the old failed-schedule symptom) — will schedule or delete next session; daily cadence is intact (count reconciles).
+- Blocked on Dan: nothing (today's ask is done). Next Pinterest session just needs the tab clicked active again to finish 98–100.
+
 ## 2026-06-16 — email
 - Did: Drafted + staged the **Circles feature-announcement email** to existing customers →
   `marketing/email/circles-announcement.md`. One CTA → live blog post
