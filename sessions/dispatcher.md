@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-15 (work-day routing + nightly close; survived a power outage; demo-host mystery solved = Spaceship)
+**Last session:** 2026-06-17 (nightly close; flagged the real-names rule conflict for Dan; D-009 revenue resolved = $288 net lifetime)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
@@ -55,6 +55,14 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
+- **2026-06-17** — Nightly close. Wins: GA consent-timing fix LIVE; D-009 fully resolved
+  (lifetime $287.95 net, 7 real external paying customers); Contact section built (D-012
+  step 1, unpushed, awaiting deploy go); editor IA revamp approved (D-012/13/14); Amanda
+  Foust order placed; LLC checklist created. Flagged a CONFLICT for Dan: facebook made
+  "no real outside names in brand content" a hard rule (after Dan reacted strongly) while
+  chief-of-staff relays Dan said that item is NOT a hard rule — needs reconciliation;
+  sessions defaulting to the stricter ask-first rule meanwhile. Headline: ~$288 net
+  lifetime vs ~$1,142/mo past Meta spend → keep paid off.
 - **2026-06-15** — Full work day. Routed Dan's 8-item brainstorm into the TODO backlog;
   resolved D-010 (35% affiliate commission stands) + D-011 (ClickBank rejected); recorded
   real customer count (7: 6 annual + 1 monthly); issued work-day prompts to Pinterest /
