@@ -3,7 +3,7 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-16 (health-check triage — both alarms FALSE; sales path verified working; shipped `req.body` hardening; fixed a Railway build break caused by the puppeteer dep)
+**Last session:** 2026-06-17 (shipped GA consent-timing fix — live; built the editor-IA Contact section + alphabetical contacts, web+mobile, UNCOMMITTED/undeployed pending Dan's review)
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -52,13 +52,25 @@
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
 ## Open items (next session, in order)
-1. **GA consent-mode timing (Blocked on Dan — now the top gating item).** The inline `purchase`
-   event on success.ejs/gift-success.ejs fires BEFORE the deferred `consent.js` grants
-   `analytics_storage`, so Consent Mode v2 downgrades them to cookieless/modeled — chief-of-staff's
-   2026-06-16 traffic report shows ALL GA conversions reading $0 because of this. Needs a careful fix
-   (fire `purchase` from inside `loEnableTracking`, or load consent.js before the event) + live
-   verification — don't touch blind (GDPR gating). Secondary: **success.ejs annual value 49.99 → $29**
-   (Dan said leave for now, mid revenue reconciliation). (Branded-signup flow already uses real pi.amount.)
+1. **⏳ Editor IA revamp — Contact section (D-012 step 1): BUILT, UNCOMMITTED, awaiting Dan's deploy
+   decision.** Web + mobile lockstep, "relabel in place" (Dan's call). Files changed (uncommitted):
+   web `account-dashboard.ejs` (card "Your Circles"→"Contact"), `account-book-circles.ejs`
+   (title/breadcrumb/h1→"Contact", "People"→"Contact List"); mobile `DashboardScreen.js` (pulled
+   `circles` out of SECTIONS into its own "Contact" ListHeaderComponent), `CirclesScreen.js` + `App.js`
+   (relabel). PLUS **alphabetical Contact List** — `contactService.listContacts` now sorts case-insensitive
+   (server-side → fixes web + LIVE app, no rebuild). Plan doc: `docs/editor-ia-revamp.md`. Verified (web
+   render-shown to Dan, mobile parses). **NEXT: get Dan's go → commit + push web; mobile rides next EAS
+   build (TestFlight review).** Web previews saved to `.tmp/contact-preview/` + Dan's Desktop.
+2. **Editor regroup (D-012 step 2)** — once Contact ships: regroup the flat editor into 4 groups (Main page
+   [Child Info · Your Journey to Us · **Family Intro NEW**] · Your Odyssey · Family & Memories · Contact),
+   web `account-book.ejs` (flat grid today) + mobile `DashboardScreen` SECTIONS. + notify-after-NEW-section
+   prompt. + **D-013 web staging env** (web deploys straight to prod today — stand up a review copy). Full
+   spec: `docs/editor-ia-revamp.md` + `ops/DECISIONS.md` D-012/013/014. Family sites DEFERRED (D-014).
+3. **✅ GA consent-mode timing — SHIPPED + LIVE (`4fdbdd0`).** Added a `loOnTrackingReady()` queue to the
+   tracking partial that `loEnableTracking` flushes AFTER granting consent; wrapped the `purchase` events on
+   success/gift-success/signup-welcome. Logic verified (queued→flushed on grant→never on decline). Real
+   proof = a live conversion + GA's 24-48h lag. Secondary still open: **success.ejs annual value 49.99 → $29**
+   (Dan said leave for now, mid revenue reconciliation).
 2. **Customer entity files (routed by chief-of-staff 2026-06-16).** `docs/INDEX.md` customer section was
    reconciled (7 real paying = 6 annual + 1 monthly). Create `docs/customers/` entity files for the 3 NEW
    real customers (**arloboos**, **zoraporter**, **emmabeine**) + the 4 influencer comps
@@ -89,16 +101,34 @@
   malformed/bot POSTs instead of 500/Sentry pages.
 
 ### ⚠️ Working-tree / repo notes
-- **origin is now CAUGHT UP through `d7740fc`** (the puppeteer/blog/GA/Clarity/hardening commits all
-  pushed + deployed). Only doc commits remain local/unpushed after this shutdown (STATUS `73dd21f` +
-  this brief) — docs, no deploy needed; they ride the next push.
-- `TODO.md` stays uncommitted (coding working-list convention); edited today (demo-site item).
+- **GA consent-timing fix (`4fdbdd0`) is PUSHED + LIVE.** origin caught up through it.
+- **⚠️ The Contact section feature is COMMITTED LOCALLY (`3d54f6a`) but NOT PUSHED** — held pending Dan's
+  deploy review. **The next `git push` WILL deploy it** (web). So before any unrelated push, know that
+  Contact rides along — confirm Dan's OK on Contact first, or cherry-pick. Mobile part ships in the next
+  EAS build regardless.
+- `docs/INDEX.md` is modified by chief-of-staff (customer reclassification) — not mine, leave it.
+- `TODO.md` stays uncommitted (coding working-list convention).
 - Still uncommitted (other sessions', leave alone): `marketing/facebook/BRAND-VOICE-GUIDE.md`,
   various `sessions/*.md` other roles edited. Never blanket-commit.
-- Feature screenshots are untracked binaries (per marketing/ convention) in
-  `marketing/screenshots/features/` (08-circles-page, 09-gallery-grid, 09-gallery-list, 10-reposition-modal).
+- Feature screenshots are untracked binaries in `marketing/screenshots/features/`; Contact-section web
+  previews in `.tmp/contact-preview/` (also copied to Dan's Desktop).
 
 ## Log
+- **2026-06-17** — Two things.
+  • **GA consent-timing fix — SHIPPED + LIVE (`4fdbdd0`).** `purchase` events fired before the deferred
+    consent.js granted analytics_storage → Consent Mode v2 dropped them (GA $0). Added `loOnTrackingReady()`
+    queue to the tracking partial, flushed by `loEnableTracking` after consent; wrapped purchase on
+    success/gift-success/signup-welcome. Deployed + smoke-tested (homepage 200, partial present site-wide).
+  • **Editor IA revamp — Contact section (D-012 step 1) BUILT (uncommitted, undeployed, pending Dan).**
+    Web+mobile lockstep relabel-in-place: Contacts+Circles pulled into their own "Contact" section
+    (web card + page; mobile ListHeaderComponent above the book grid). + **alphabetical Contact List**
+    (`listContacts` case-insensitive sort, server-side → web + live app). Created `docs/editor-ia-revamp.md`.
+    Verified web by rendering the changed pages locally → screenshots shown to Dan (saved to his Desktop +
+    `.tmp/contact-preview/`); mobile parses clean. Dan reviewing; hadn't given the deploy go at shutdown.
+  • Lessons: PowerShell mangles inline JSON/quotes for curl + node -e — write a script file or use
+    `--data-binary @file`. Chrome MCP `navigate` forces https:// (no file://) — serve previews via a tiny
+    local http server, or puppeteer-screenshot rendered HTML to PNG. Expo-web is NOT faithful for app review —
+    use TestFlight. Mobile section ordering that comes from the server API updates the live app without a rebuild.
 - **2026-06-16** — Health-check triage + sales-path verification (no feature work).
   • **Both health-check alarms FALSE.** lachlanstoneleister.com UP (apex+www 200, 12/12 no flap; the
     ECONNRESET was a transient blip during yesterday's redeploys — the domain check pings once, no retry).
