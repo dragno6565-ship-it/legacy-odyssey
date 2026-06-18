@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Circles – Legacy Odyssey</title>
+  <title>Contact – Legacy Odyssey</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -43,9 +43,9 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="breadcrumb"><a href="/account/dashboard">My Account</a> &nbsp;/&nbsp; Your Circles</div>
-    <h1>Your Circles</h1>
-    <p class="section-desc">Keep a private list of the people who can see your book, and organize them into Circles (like “Grandparents” or “Close Family”).</p>
+    <div class="breadcrumb"><a href="/account/dashboard">My Account</a> &nbsp;/&nbsp; Contact</div>
+    <h1>Contact</h1>
+    <p class="section-desc">Your Contact List and Circles — keep a private list of the people who can see your book, organize them into Circles (like “Grandparents” or “Close Family”), and tell them when there's something new.</p>
 
     <% if (success) { %><div class="banner ok">Saved.</div><% } %>
     <% if (typeof sent !== 'undefined' && sent) { %><div class="banner ok">Update sent to <%= sent %> <%= sent === '1' ? 'person' : 'people' %>. They each got their own private link.</div><% } %>
@@ -115,7 +115,7 @@
     </div>
 
     <!-- ===== CONTACTS ===== -->
-    <h2>People</h2>
+    <h2>Contact List</h2>
     <% if (!contacts || contacts.length === 0) { %>
       <div class="empty">No contacts yet — add the first person below.</div>
     <% } %>

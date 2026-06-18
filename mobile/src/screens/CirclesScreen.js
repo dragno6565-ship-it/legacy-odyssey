@@ -138,8 +138,8 @@ export default function CirclesScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-      <Text style={styles.pageTitle}>Your Circles</Text>
-      <Text style={styles.pageSubtitle}>Keep a private list of who can see the book, grouped into circles like “Grandparents.”</Text>
+      <Text style={styles.pageTitle}>Contact</Text>
+      <Text style={styles.pageSubtitle}>Your Contact List and Circles — keep a private list of who can see the book, grouped into circles like “Grandparents.”</Text>
 
       {/* SEND AN UPDATE (Phase 2) */}
       {notifiable.length > 0 ? (
@@ -206,8 +206,8 @@ export default function CirclesScreen() {
         </View>
       </View>
 
-      {/* PEOPLE */}
-      <Text style={styles.h2}>People</Text>
+      {/* CONTACT LIST */}
+      <Text style={styles.h2}>Contact List</Text>
       {contacts.length === 0 ? <Text style={styles.empty}>No contacts yet — add the first person below.</Text> : null}
       {contacts.map((p) => (
         <View key={p.id} style={styles.card}>

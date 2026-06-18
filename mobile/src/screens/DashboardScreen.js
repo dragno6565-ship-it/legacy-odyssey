@@ -60,11 +60,15 @@ const SECTIONS = [
   { key: 'recipes',        title: 'Family Recipes',       icon: UtensilsCrossed, screen: 'FamilyRecipes' },
   { key: 'keepsakes',      title: 'Their Keepsakes',      icon: Archive,         screen: 'Keepsakes' },
   { key: 'vault',          title: 'The Vault',            icon: Lock,            screen: 'TheVault' },
-  { key: 'circles',        title: 'Your Circles',         icon: Share2,          screen: 'Circles' },
   { key: 'manageSections', title: 'Website Sections',     icon: Globe,           screen: 'ManageSections' },
   { key: 'help',           title: 'Help & Support',       icon: LifeBuoy,        screen: 'Help' },
   { key: 'settings',       title: 'Settings',             icon: SettingsIcon,    screen: 'Settings' },
 ];
+
+// Contact is its OWN top-level section (Contact List + Circles) — pulled out of
+// the book grid and rendered above it (D-012). key 'circles' keeps the existing
+// paid-feature lock + the CirclesScreen route; only the presentation changes.
+const CONTACT = { key: 'circles', title: 'Contact', icon: Users, screen: 'Circles' };
 
 const DEMO_BOOK = { child: { first_name: 'Sophia', last_name: 'Smith' }, subdomain: 'sophiasmith', custom_domain: null };
 
@@ -192,6 +196,34 @@ export default function DashboardScreen({ navigation }) {
     );
   }
 
+  // Contact = its own section above the book grid (Contact List + Circles).
+  function renderContactSection() {
+    const isLocked = isFree && !FREE_SECTIONS.has(CONTACT.key);
+    return (
+      <View style={styles.contactSection}>
+        <Text style={styles.contactHeading}>Contact</Text>
+        <TouchableOpacity
+          style={[styles.card, styles.contactCard, isLocked && styles.cardLocked]}
+          activeOpacity={0.7}
+          onPress={() => {
+            if (isLocked) showUpgradePrompt('Contact');
+            else navigation.navigate(CONTACT.screen, { book });
+          }}
+        >
+          <View style={styles.cardIcon}>
+            {isLocked
+              ? <Lock size={22} color="#c8a96e" strokeWidth={1.5} />
+              : <CONTACT.icon size={22} color="#c8a96e" strokeWidth={1.5} />}
+          </View>
+          <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{CONTACT.title}</Text>
+          <Text style={[styles.cardAction, isLocked && styles.cardActionLocked]}>
+            {isLocked ? 'Upgrade' : 'Contact List + Circles'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -256,6 +288,7 @@ export default function DashboardScreen({ navigation }) {
       {/* Section Grid */}
       <FlatList
         data={SECTIONS}
+        ListHeaderComponent={renderContactSection}
         renderItem={renderSectionCard}
         keyExtractor={(item) => item.key}
         numColumns={2}
@@ -480,6 +513,22 @@ const styles = StyleSheet.create({
   },
   cardTitleLocked: {
     color: colors.textSecondary,
+  },
+  contactSection: {
+    marginBottom: spacing.lg,
+  },
+  contactHeading: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.gold,
+    marginBottom: spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  contactCard: {
+    width: '100%',
+    marginBottom: 0,
   },
   cardAction: {
     fontSize: typography.sizes.xs,

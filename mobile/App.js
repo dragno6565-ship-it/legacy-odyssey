@@ -113,7 +113,7 @@ function AppNavigator() {
       <AppStack.Screen name="BirthDay" component={BirthDayScreen} options={{ title: 'Your Birth Day' }} />
       <AppStack.Screen name="Moments" component={MomentsScreen} options={{ title: 'Video Moments' }} />
       <AppStack.Screen name="Galleries" component={GalleriesScreen} options={{ title: 'Custom Galleries' }} />
-      <AppStack.Screen name="Circles" component={CirclesScreen} options={{ title: 'Your Circles' }} />
+      <AppStack.Screen name="Circles" component={CirclesScreen} options={{ title: 'Contact' }} />
       <AppStack.Screen name="GalleryDetail" component={GalleryDetailScreen} options={{ title: 'Gallery' }} />
       <AppStack.Screen name="Journey" component={JourneyScreen} options={{ title: 'Your Journey to Us' }} />
       <AppStack.Screen name="ComingHome" component={ComingHomeScreen} options={{ title: 'Coming Home' }} />

@@ -29,7 +29,12 @@ async function listContacts(bookId) {
     .in('contact_id', ids);
   const byContact = {};
   for (const m of (members || [])) (byContact[m.contact_id] = byContact[m.contact_id] || []).push(m.circle_id);
-  return list.map((c) => ({ ...c, circle_ids: byContact[c.id] || [] }));
+  // Alphabetical by name, case-insensitive + locale-aware. The DB `.order('name')`
+  // above sorts case-SENSITIVELY (C-collation puts capitals before lowercase, so
+  // "Zoe" would precede "adam"); this guarantees a true A→Z order on web + app.
+  return list
+    .map((c) => ({ ...c, circle_ids: byContact[c.id] || [] }))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
 }
 
 async function addContact(bookId, { name, email, phone } = {}) {
