@@ -245,8 +245,14 @@ router.get('/gifts', requireAdmin, async (req, res, next) => {
       stats,
       filter,
       admin: req.admin,
+      // Default for the comp-gift "Confirmation copy to" field + the per-gift
+      // resend copy: the shared ops inbox, not the individual admin's login email.
+      confirmationDefault: process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com',
       compCode: req.query.comp || null,
       compError: req.query.comp_error || null,
+      resent: req.query.resent || null,
+      edited: req.query.edited || null,
+      giftError: req.query.gift_error || null,
     });
   } catch (err) {
     next(err);
@@ -361,6 +367,75 @@ router.post('/gifts/:id/notes', requireAdmin, async (req, res, next) => {
     const giftService = require('../services/giftService');
     await giftService.setGiftNotes(req.params.id, req.body.notes || '');
     res.redirect('/admin/gifts?notes_saved=1');
+  } catch (err) { next(err); }
+});
+
+// Edit an UNREDEEMED gift's recipient email + message (no email sent).
+router.post('/gifts/:id/edit', requireAdmin, async (req, res, next) => {
+  try {
+    const giftService = require('../services/giftService');
+    const updated = await giftService.updateGiftRecipient(req.params.id, {
+      recipientEmail: req.body.recipientEmail,
+      recipientMessage: req.body.recipientMessage,
+    });
+    if (!updated) {
+      return res.redirect('/admin/gifts?gift_error=' + encodeURIComponent('That gift could not be edited — it may already be redeemed or voided.'));
+    }
+    console.log(`[admin] gift ${updated.code} recipient edited by ${req.user?.email}`);
+    res.redirect('/admin/gifts?edited=' + encodeURIComponent(updated.code));
+  } catch (err) { next(err); }
+});
+
+// Resend an UNREDEEMED gift's email. Saves any inline edits to the recipient
+// email/message first (so the resend uses the latest values), then re-sends the
+// gift notification to the recipient and, if "copy to me" is checked, a
+// confirmation copy to the ops inbox.
+router.post('/gifts/:id/resend', requireAdmin, async (req, res, next) => {
+  try {
+    const giftService = require('../services/giftService');
+    const updated = await giftService.updateGiftRecipient(req.params.id, {
+      recipientEmail: req.body.recipientEmail,
+      recipientMessage: req.body.recipientMessage,
+    });
+    const gift = updated || await giftService.getGiftById(req.params.id);
+    if (!gift || gift.status !== 'purchased') {
+      return res.redirect('/admin/gifts?gift_error=' + encodeURIComponent('That gift could not be resent — it may already be redeemed or voided.'));
+    }
+    if (!gift.recipient_email) {
+      return res.redirect('/admin/gifts?gift_error=' + encodeURIComponent('Add a recipient email first, then resend.'));
+    }
+    const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
+    const redeemUrl = `https://${appDomain}/redeem?code=${gift.code}`;
+    const certificateUrl = `https://${appDomain}/gift/certificate/${gift.certificate_token}`;
+
+    await emailService.sendGiftNotificationEmail({
+      to: gift.recipient_email,
+      buyerName: gift.buyer_name,
+      message: gift.recipient_message,
+      redeemUrl,
+      monthsPrepaid: gift.months_prepaid,
+    });
+    await supabaseAdmin.from('gift_codes')
+      .update({ recipient_email_sent_at: new Date().toISOString() })
+      .eq('id', gift.id);
+
+    let copiedTo = null;
+    if (req.body.copyToMe) {
+      copiedTo = process.env.ADMIN_EMAIL || 'legacyodysseyapp@gmail.com';
+      await emailService.sendGiftPurchaseEmail({
+        to: copiedTo,
+        buyerName: gift.buyer_name,
+        giftCode: gift.code,
+        redeemUrl,
+        certificateUrl,
+        recipientName: gift.recipient_name,
+        deliveryMethod: gift.delivery_method,
+        deliverAt: gift.deliver_at,
+        monthsPrepaid: gift.months_prepaid,
+      });
+    }
+    console.log(`[admin] gift ${gift.code} RESENT to ${gift.recipient_email}${copiedTo ? ' (+copy ' + copiedTo + ')' : ''} by ${req.user?.email}`);
+    res.redirect('/admin/gifts?resent=' + encodeURIComponent(gift.code));
   } catch (err) { next(err); }
 });
 

@@ -135,6 +135,15 @@
       <% if (typeof compError !== 'undefined' && compError) { %>
         <div class="comp-banner comp-banner-err">&#9888; <%= compError %></div>
       <% } %>
+      <% if (typeof resent !== 'undefined' && resent) { %>
+        <div class="comp-banner comp-banner-ok">&#128231; Gift <code><%= resent %></code> resent to the recipient.</div>
+      <% } %>
+      <% if (typeof edited !== 'undefined' && edited) { %>
+        <div class="comp-banner comp-banner-ok">&#9989; Gift <code><%= edited %></code> updated.</div>
+      <% } %>
+      <% if (typeof giftError !== 'undefined' && giftError) { %>
+        <div class="comp-banner comp-banner-err">&#9888; <%= giftError %></div>
+      <% } %>
 
       <!-- Comp gift (influencer / promo giveaway) -->
       <details class="comp-panel" <%= (typeof compError !== 'undefined' && compError) ? 'open' : '' %>>
@@ -169,7 +178,7 @@
               </div>
               <div class="comp-field">
                 <label for="buyerEmail">Confirmation copy to</label>
-                <input type="email" id="buyerEmail" name="buyerEmail" value="<%= admin.email %>" placeholder="you@legacyodyssey.com">
+                <input type="email" id="buyerEmail" name="buyerEmail" value="<%= confirmationDefault %>" placeholder="you@legacyodyssey.com">
               </div>
               <div class="comp-field comp-field-full">
                 <label for="recipientMessage">Personal note (optional)</label>
@@ -344,6 +353,18 @@
                     <span style="color: var(--ink-light); font-size: 0.8rem;">Not redeemed</span>
                   <% } %>
                   <% if (gift.is_unredeemed) { %>
+                    <details style="margin-top:4px;">
+                      <summary style="cursor:pointer;font-size:0.72rem;color:#c8a96e;">Edit / Resend</summary>
+                      <form method="POST" style="margin-top:6px;display:flex;flex-direction:column;gap:4px;">
+                        <input type="email" name="recipientEmail" value="<%= gift.recipient_email || '' %>" placeholder="recipient email" style="font-size:0.72rem;padding:4px;border:1px solid var(--border,#e0d5c4);border-radius:4px;width:180px;">
+                        <textarea name="recipientMessage" rows="2" placeholder="message (optional)" style="font-size:0.72rem;padding:4px;border:1px solid var(--border,#e0d5c4);border-radius:4px;width:180px;"><%= gift.recipient_message || '' %></textarea>
+                        <label style="font-size:0.68rem;display:flex;align-items:center;gap:4px;color:var(--ink-light,#8a7e6b);"><input type="checkbox" name="copyToMe" value="1"> also email a copy to <%= confirmationDefault %></label>
+                        <div style="display:flex;gap:4px;">
+                          <button type="submit" formaction="/admin/gifts/<%= gift.id %>/edit" class="btn btn-sm" style="padding:4px 8px;font-size:0.72rem;cursor:pointer;">Save</button>
+                          <button type="submit" formaction="/admin/gifts/<%= gift.id %>/resend" class="btn btn-sm" style="padding:4px 8px;font-size:0.72rem;background:#c8a96e;color:#1a1510;border:none;cursor:pointer;" onclick="return confirm('Resend the gift email to the recipient now?');">Resend</button>
+                        </div>
+                      </form>
+                    </details>
                     <form action="/admin/gifts/<%= gift.id %>/void" method="POST" style="display:inline;" onsubmit="return confirm('Void gift <%= gift.code %>? The code will STOP WORKING immediately — this cannot be undone.');">
                       <button type="submit" class="btn btn-sm" style="background:#c0392b;color:#fff;border:none;margin-top:4px;cursor:pointer;">Void</button>
                     </form>

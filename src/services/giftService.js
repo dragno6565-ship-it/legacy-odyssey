@@ -442,6 +442,37 @@ async function setGiftNotes(giftId, notes) {
   return data || null;
 }
 
+/** Load a single gift by id (admin). */
+async function getGiftById(giftId) {
+  const { data, error } = await supabaseAdmin
+    .from('gift_codes')
+    .select('*')
+    .eq('id', giftId)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
+/**
+ * Update an UNREDEEMED gift's recipient email + message (admin edit). Scoped to
+ * status='purchased' so we never rewrite a redeemed or voided code. Returns the
+ * updated row, or null if it wasn't unredeemed (so the caller can report that).
+ */
+async function updateGiftRecipient(giftId, { recipientEmail, recipientMessage } = {}) {
+  const patch = { updated_at: new Date().toISOString() };
+  if (recipientEmail !== undefined) patch.recipient_email = (recipientEmail || '').trim() || null;
+  if (recipientMessage !== undefined) patch.recipient_message = (recipientMessage || '').trim().slice(0, 2000) || null;
+  const { data, error } = await supabaseAdmin
+    .from('gift_codes')
+    .update(patch)
+    .eq('id', giftId)
+    .eq('status', 'purchased')
+    .select('*')
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
 module.exports = {
   generateGiftCode,
   createGiftCode,
@@ -450,4 +481,6 @@ module.exports = {
   fulfillGiftForPaymentIntent,
   voidGiftCode,
   setGiftNotes,
+  getGiftById,
+  updateGiftRecipient,
 };
