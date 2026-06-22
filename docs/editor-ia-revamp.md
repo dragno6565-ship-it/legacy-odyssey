@@ -10,8 +10,16 @@
 - **Family & Memories**: Our Family · Your Firsts · Celebrations · Letters · Recipes · The Vault · Custom Galleries · Video Moments.
 - **Contact** (its OWN section, pulled out of "My Book"): Contact List + Circles. Plumbing exists (Circles Phase 1+2) — re-home + declutter.
 
+> ⚠️ **LABEL = "Your Contacts"** (Dan, 2026-06-17). The section/card is titled **"Your Contacts"**, NOT
+> "Contact" — `ops/DECISIONS.md` D-012 says "Contact", which is wrong; chief-of-staff should correct it.
+> The two parts inside keep "Contact List" (people) + "Circles" (groups).
+
 ## Build order (D-012)
-1. **Contact section** ← IN PROGRESS. Re-home Contacts + Circles into their own top-level "Contact" section, web + app lockstep. Decision (Dan 2026-06-17): **relabel in place** — keep the web route `/account/book/circles`, just relabel "Your Circles" → "Contact" (card + page + breadcrumb), and inside relabel "People" → "Contact List". Mobile: pull `circles` out of `DashboardScreen` `SECTIONS` into its own "Contact" section; relabel CirclesScreen "Your Circles" → "Contact".
+1. **Your Contacts section** ← BUILT (pending Dan's deploy go). Re-home Contacts + Circles into their own
+   top-level **"Your Contacts"** section, web + app lockstep. Decision (Dan 2026-06-17): **relabel in place** —
+   keep the web route `/account/book/circles`, relabel "Your Circles" → "Your Contacts" (card + page +
+   breadcrumb), and inside relabel "People" → "Contact List". Mobile: pull `circles` out of `DashboardScreen`
+   `SECTIONS` into its own "Your Contacts" card above the grid; relabel CirclesScreen + nav title.
 2. **Editor regroup** into the 4 groups above (web My Book hub `account-book.ejs` is a flat grid today; mobile `DashboardScreen` `SECTIONS` is a flat list). + **Family Intro** new main-page option.
 3. **Notify-after-section prompt:** when a whole NEW section is added → "notify a circle or one contact?" (user chooses each time, NOT per edit; revisit the 10-min cooldown).
 

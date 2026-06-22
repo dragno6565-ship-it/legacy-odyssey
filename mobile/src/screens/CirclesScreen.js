@@ -138,7 +138,7 @@ export default function CirclesScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-      <Text style={styles.pageTitle}>Contact</Text>
+      <Text style={styles.pageTitle}>Your Contacts</Text>
       <Text style={styles.pageSubtitle}>Your Contact List and Circles — keep a private list of who can see the book, grouped into circles like “Grandparents.”</Text>
 
       {/* SEND AN UPDATE (Phase 2) */}

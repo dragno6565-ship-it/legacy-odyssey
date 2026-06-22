@@ -68,7 +68,7 @@ const SECTIONS = [
 // Contact is its OWN top-level section (Contact List + Circles) — pulled out of
 // the book grid and rendered above it (D-012). key 'circles' keeps the existing
 // paid-feature lock + the CirclesScreen route; only the presentation changes.
-const CONTACT = { key: 'circles', title: 'Contact', icon: Users, screen: 'Circles' };
+const CONTACT = { key: 'circles', title: 'Your Contacts', icon: Users, screen: 'Circles' };
 
 const DEMO_BOOK = { child: { first_name: 'Sophia', last_name: 'Smith' }, subdomain: 'sophiasmith', custom_domain: null };
 
@@ -201,7 +201,6 @@ export default function DashboardScreen({ navigation }) {
     const isLocked = isFree && !FREE_SECTIONS.has(CONTACT.key);
     return (
       <View style={styles.contactSection}>
-        <Text style={styles.contactHeading}>Contact</Text>
         <TouchableOpacity
           style={[styles.card, styles.contactCard, isLocked && styles.cardLocked]}
           activeOpacity={0.7}
