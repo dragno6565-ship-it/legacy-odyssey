@@ -328,7 +328,7 @@ router.get('/reset-callback', (req, res) => {
 });
 
 // Domains that show the book as a demo (password bypassed, CTA shown)
-const DEMO_BOOK_DOMAINS = ['your-childs-name.com', 'your-family-photo-album.com'];
+const DEMO_BOOK_DOMAINS = ['your-childs-name.com'];
 
 function isDemoBookDomain(hostname) {
   const bare = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
@@ -337,8 +337,6 @@ function isDemoBookDomain(hostname) {
 
 // Serve static demo sites for specific domains and subdomains
 const DEMO_SITES = {
-  'your-family-photo-album.com': 'family-album-demo.html',
-  'your-family-photo-album': 'family-album-demo.html', // subdomain match
   'your-childs-name.com': 'your-childs-name-demo.html',
   'your-childs-name': 'your-childs-name-demo.html', // subdomain match
 };
