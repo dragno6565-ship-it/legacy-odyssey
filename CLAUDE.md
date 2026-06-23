@@ -72,6 +72,8 @@ automatically via the Spaceship API at checkout.
 10. **ALWAYS put copy-paste content in its own fenced code block** — emails, prompts for other sessions, commands, snippets — alone in the block, no surrounding prose inside it.
 11. **NO REFUNDS — ever.** Do not advertise, offer, or imply refunds anywhere. Cancellation = stop future charges, keep access through the paid period. Domains non-refundable. (Only the formal ToS keeps a minimal consumer-protection-law carve-out.)
 12. **Word bans (memory hard rules):** never "forever", never "chapter" (use section/page/area), never "family book / family's story" (it's a BABY book about the CHILD), never analogize to scrapbook/journal/photo album. The mobile app is NOT required — the web editor is equal.
+13. **REAL OUTSIDE NAMES — ASK FIRST (Dan, 2026-06-23, resolves the 06-16/06-17 conflict).** Before putting any real outside person's name, @handle, or their child's name (influencers, customers, partners, etc.) into ANY brand content — caption, post, ad, email, creative — ASK Dan whether it's appropriate *in that specific situation*. It is NOT a blanket ban (so the old BRAND-VOICE-GUIDE "never" line is retired) and "credit the influencer" does not pre-authorize it — the rule is per-instance approval. (Distinct from rule #3, which is an absolute ban on the owner's own FAMILY names in placeholders/demos.)
+14. **The product is a WEBSITE, not "a book"** (facebook hard rule, 2026-06-22). The sharing feature is **"Your Contacts"** (sub-areas: Contact List + Circles) — the old "Circles" label is retired in customer-facing copy.
 
 ---
 
