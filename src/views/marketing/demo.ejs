@@ -79,6 +79,7 @@
     .avail{margin-top:.85rem;display:flex;align-items:center;gap:8px;color:#3f8a52;font-size:.88rem;font-weight:600;opacity:0;transition:opacity .4s}
     .avail.show{opacity:1}
     .avail svg{width:18px;height:18px}
+    .urlnote{margin-top:.7rem;font-size:.8rem;color:var(--soft)}
     /* signup mock */
     .mock-input{background:#fdfbf7;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--soft);font-size:.95rem;margin-top:.7rem}
     .mock-input.filled{color:var(--ink)}
@@ -151,31 +152,32 @@
       <!-- STEP 1 — pick the name -->
       <section class="step" data-step>
         <div class="eyebrow">Step 1 — The name</div>
-        <h2>Your baby gets their name as a website</h2>
-        <p class="lead">Type a name and it becomes a real web address — their own corner of the internet.</p>
+        <h2>Your baby gets their own website</h2>
+        <p class="lead">Type a name and it becomes a real <b>.com</b> of their own — their own website, not a page on anyone else's site.</p>
         <div class="field">
-          <label for="babyName">Baby's first name</label>
+          <label for="babyName">Baby's name</label>
           <input id="babyName" type="text" placeholder="Your baby's name" autocomplete="off" spellcheck="false">
         </div>
         <div class="url-preview">
-          <span class="u"><b id="slug">yourbaby</b>.legacyodyssey.com</span>
+          <span class="u"><b id="slug">your-childs-name</b>.com</span>
         </div>
         <div class="avail show" id="avail">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span id="availText">That address is available</span>
+          <span id="availText">That domain is available</span>
         </div>
+        <p class="urlnote">A real domain that's theirs — included for the first year.</p>
         <div class="spacer"></div>
       </section>
 
       <!-- STEP 2 — quick signup -->
       <section class="step" data-step>
         <div class="eyebrow">Step 2 — Claim it</div>
-        <h2>Reserve the address</h2>
-        <p class="lead">A quick sign-up holds the name and unlocks the editor. Nothing here is real — it's just a preview.</p>
+        <h2>Reserve the domain</h2>
+        <p class="lead">A quick sign-up registers the .com and unlocks the editor. Nothing here is real — it's just a preview.</p>
         <div class="mock-input filled" id="signupEmail">you@email.com</div>
         <div class="mock-input">••••••••••</div>
         <div class="reserved">
-          <b id="reservedUrl">yourbaby.legacyodyssey.com</b> is reserved and password-protected — only the people you invite can ever see it.
+          <b id="reservedUrl">your-childs-name.com</b> is yours and password-protected — only the people you invite can ever see it.
         </div>
         <div class="spacer"></div>
       </section>
@@ -241,7 +243,7 @@
           <h2 style="font-size:1.2rem">Your baby's website is live</h2>
           <p class="lead">Family can visit it from any browser — no app needed on their end.</p>
         </div>
-        <a class="livelink" id="liveLink">yourbaby.legacyodyssey.com</a>
+        <a class="livelink" id="liveLink">your-childs-name.com</a>
         <div class="spacer"></div>
       </section>
 
@@ -252,7 +254,7 @@
         <div class="site">
           <div class="site-bar">
             <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span id="siteUrlBar">yourbaby.legacyodyssey.com</span>
+            <span id="siteUrlBar">your-childs-name.com</span>
           </div>
           <div class="site-hero">
             <img src="/demo-assets/baby3.jpg" alt="">
@@ -311,17 +313,18 @@
       var nameInput = document.getElementById('babyName');
       function slugify(v){
         var s = (v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-        return s || 'yourbaby';
+        return s || 'your-childs-name';
       }
       function applyName(){
         var slug = slugify(nameInput.value);
+        var domain = slug + '.com';
         var pretty = nameInput.value.trim() || 'Your Baby';
         document.getElementById('slug').textContent = slug;
-        document.getElementById('reservedUrl').textContent = slug + '.legacyodyssey.com';
-        document.getElementById('liveLink').textContent = slug + '.legacyodyssey.com';
-        document.getElementById('siteUrlBar').textContent = slug + '.legacyodyssey.com';
+        document.getElementById('reservedUrl').textContent = domain;
+        document.getElementById('liveLink').textContent = domain;
+        document.getElementById('siteUrlBar').textContent = domain;
         document.getElementById('siteName').textContent = pretty;
-        document.getElementById('availText').textContent = slug + '.legacyodyssey.com is available';
+        document.getElementById('availText').textContent = domain + ' is available';
       }
       if (nameInput){ nameInput.addEventListener('input', applyName); }
 
