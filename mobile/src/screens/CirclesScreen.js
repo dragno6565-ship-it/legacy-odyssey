@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Modal, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Users, Trash2, Send } from 'lucide-react-native';
+import * as Contacts from 'expo-contacts';
+import { Users, Trash2, Send, UserPlus } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
 
@@ -31,6 +32,14 @@ export default function CirclesScreen() {
   const [editPhone, setEditPhone] = useState('');
   const [renameId, setRenameId] = useState(null);      // circle being renamed
   const [renameVal, setRenameVal] = useState('');
+
+  // Import from phone (expo-contacts)
+  const [showImport, setShowImport] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importBusy, setImportBusy] = useState(false);
+  const [deviceContacts, setDeviceContacts] = useState([]);
+  const [importSel, setImportSel] = useState({});      // { [deviceId]: true }
+  const [importSearch, setImportSearch] = useState('');
 
   const fetchAll = useCallback(async () => {
     try {
@@ -91,6 +100,78 @@ export default function CirclesScreen() {
     ]);
   }
 
+  // ── Import from phone (expo-contacts) ────────────────────────────────────
+  const _name = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const _email = (s) => (s || '').trim().toLowerCase();
+  const _phone = (s) => (s || '').replace(/[^0-9]/g, '');
+
+  // True if a device contact already exists in the book's contact list.
+  function isAlreadyAdded(c) {
+    const e = _email(c.email), ph = _phone(c.phone), n = _name(c.name);
+    return contacts.some((x) => {
+      const xe = _email(x.email), xph = _phone(x.phone), xn = _name(x.name);
+      return (e && xe && e === xe) || (ph && xph && ph === xph) || (!e && !ph && n && xn && n === xn);
+    });
+  }
+
+  async function openImporter() {
+    if (importBusy) return;
+    try {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Contacts permission needed',
+          'To add people from your phone, allow Legacy Odyssey to access your contacts.',
+          [{ text: 'Not now', style: 'cancel' }, { text: 'Open Settings', onPress: () => Linking.openSettings() }]
+        );
+        return;
+      }
+      setImportSel({}); setImportSearch(''); setShowImport(true); setImportLoading(true);
+      const { data } = await Contacts.getContactsAsync({
+        fields: [Contacts.Fields.Name, Contacts.Fields.Emails, Contacts.Fields.PhoneNumbers],
+      });
+      const mapped = (data || [])
+        .map((c) => ({
+          id: c.id,
+          name: (c.name || [c.firstName, c.lastName].filter(Boolean).join(' ') || '').trim(),
+          email: (c.emails && c.emails[0] && c.emails[0].email) || '',
+          phone: (c.phoneNumbers && c.phoneNumbers[0] && c.phoneNumbers[0].number) || '',
+        }))
+        .filter((c) => c.name)
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+      setDeviceContacts(mapped);
+    } catch (e) {
+      Alert.alert('Error', 'Could not open your contacts.');
+      setShowImport(false);
+    } finally {
+      setImportLoading(false);
+    }
+  }
+
+  const toggleImport = (id) => setImportSel((s) => ({ ...s, [id]: !s[id] }));
+
+  async function doImport() {
+    const chosen = deviceContacts.filter((c) => importSel[c.id] && !isAlreadyAdded(c));
+    if (!chosen.length || importBusy) return;
+    setImportBusy(true);
+    try {
+      const people = chosen.map((c) => ({ name: c.name, email: c.email, phone: c.phone }));
+      const res = await post('/api/contacts/mine/contacts/import', { people });
+      const imported = (res.data && res.data.imported) || 0;
+      const skipped = (res.data && res.data.skipped) || 0;
+      setShowImport(false);
+      await fetchAll();
+      Alert.alert(
+        'Import complete',
+        `${imported} ${imported === 1 ? 'contact' : 'contacts'} added${skipped ? `, ${skipped} skipped (already on your list)` : ''}.`
+      );
+    } catch (e) {
+      Alert.alert('Error', 'Could not import contacts. Please try again.');
+    } finally {
+      setImportBusy(false);
+    }
+  }
+
   // ── Send an Update (Phase 2) ─────────────────────────────────────────────
   const notifiable = contacts.filter((c) => c.email && c.notify_opt_in !== false && !c.unsubscribed_at);
   const notifiableInCircle = (c) => notifiable.filter((p) => (p.circle_ids || []).indexOf(c.id) !== -1).length;
@@ -136,7 +217,14 @@ export default function CirclesScreen() {
 
   if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color={colors.gold} /></View>;
 
+  const _q = importSearch.trim().toLowerCase();
+  const filteredDevice = _q
+    ? deviceContacts.filter((c) => (c.name + ' ' + c.email + ' ' + c.phone).toLowerCase().includes(_q))
+    : deviceContacts;
+  const selectedImportCount = deviceContacts.filter((c) => importSel[c.id] && !isAlreadyAdded(c)).length;
+
   return (
+    <>
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Text style={styles.pageTitle}>Your Contacts</Text>
       <Text style={styles.pageSubtitle}>Your Contact List and Circles — keep a private list of who can see the book, grouped into circles like “Grandparents.”</Text>
@@ -243,6 +331,14 @@ export default function CirclesScreen() {
           )}
         </View>
       ))}
+      <TouchableOpacity style={[styles.card, styles.importRow]} onPress={openImporter} activeOpacity={0.7} disabled={importBusy}>
+        <UserPlus size={22} color={colors.gold} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.cardTitle}>Import from your phone</Text>
+          <Text style={styles.muted}>Pick people from your contacts instead of typing each one.</Text>
+        </View>
+      </TouchableOpacity>
+
       <View style={styles.card}>
         <Text style={styles.label}>Add a person</Text>
         <TextInput style={styles.input} value={cName} onChangeText={setCName} placeholder="Full name" placeholderTextColor={colors.placeholder} />
@@ -254,6 +350,58 @@ export default function CirclesScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+
+    {/* Import-from-phone picker */}
+    <Modal visible={showImport} animationType="slide" transparent onRequestClose={() => setShowImport(false)}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHead}>
+            <Text style={styles.modalTitle}>Import Contacts</Text>
+            <TouchableOpacity onPress={() => setShowImport(false)}><Text style={styles.link}>Close</Text></TouchableOpacity>
+          </View>
+          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>Tap the people you want to add to your Contact List. Anyone already on your list is marked.</Text>
+          <TextInput
+            style={styles.input}
+            value={importSearch}
+            onChangeText={setImportSearch}
+            placeholder="Search your contacts"
+            placeholderTextColor={colors.placeholder}
+            autoCapitalize="none"
+          />
+          {importLoading ? (
+            <View style={styles.modalLoading}><ActivityIndicator size="large" color={colors.gold} /></View>
+          ) : (
+            <FlatList
+              data={filteredDevice}
+              keyExtractor={(item) => String(item.id)}
+              keyboardShouldPersistTaps="handled"
+              style={styles.pickList}
+              ListEmptyComponent={<Text style={[styles.muted, { textAlign: 'center', padding: spacing.lg }]}>No contacts found on this phone.</Text>}
+              renderItem={({ item }) => {
+                const added = isAlreadyAdded(item);
+                const on = !!importSel[item.id];
+                return (
+                  <TouchableOpacity style={styles.pickRow} activeOpacity={added ? 1 : 0.6} disabled={added} onPress={() => toggleImport(item.id)}>
+                    <View style={[styles.checkbox, on && styles.checkboxOn, added && styles.checkboxDim]}>
+                      {on ? <Text style={styles.checkboxMark}>{'✓'}</Text> : null}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.pickName}>{item.name}</Text>
+                      <Text style={styles.muted} numberOfLines={1}>{item.email || item.phone || 'no email or phone'}</Text>
+                    </View>
+                    {added ? <Text style={styles.addedTag}>Added</Text> : null}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+          <TouchableOpacity style={[styles.btn, (!selectedImportCount || importBusy) && styles.dim]} onPress={doImport} disabled={!selectedImportCount || importBusy}>
+            {importBusy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{selectedImportCount ? `Import (${selectedImportCount})` : 'Import'}</Text>}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+    </>
   );
 }
 
@@ -286,4 +434,18 @@ const styles = StyleSheet.create({
   btnSm: { backgroundColor: colors.gold, borderRadius: borderRadius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, justifyContent: 'center' },
   btnSmText: { color: '#fff', fontSize: typography.sizes.sm, fontWeight: typography.weights.semibold },
   dim: { opacity: 0.5 },
+  importRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalSheet: { backgroundColor: colors.background, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.lg, maxHeight: '88%' },
+  modalHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
+  modalTitle: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.bold, color: colors.textPrimary },
+  modalLoading: { padding: spacing.xxl, alignItems: 'center' },
+  pickList: { flexGrow: 0, marginBottom: spacing.sm },
+  pickRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
+  pickName: { fontSize: typography.sizes.md, color: colors.textPrimary, fontWeight: typography.weights.medium },
+  checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  checkboxOn: { backgroundColor: colors.gold, borderColor: colors.gold },
+  checkboxDim: { opacity: 0.4 },
+  checkboxMark: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
+  addedTag: { fontSize: typography.sizes.xs, color: colors.textSecondary, fontStyle: 'italic' },
 });

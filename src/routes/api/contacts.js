@@ -28,6 +28,16 @@ router.get('/mine', async (req, res, next) => {
 router.post('/mine/contacts', async (req, res, next) => {
   try { res.json(await contactService.addContact(await bid(req), req.body)); } catch (err) { next(err); }
 });
+// Bulk import from the phone's address book (app-only). Body: { people: [{name,email,phone}] }.
+// De-dupes against existing contacts + within the batch. Returns { imported, skipped, contacts }.
+router.post('/mine/contacts/import', async (req, res, next) => {
+  try {
+    const id = await bid(req);
+    if (!id) return res.status(404).json({ error: 'No book found' });
+    const people = Array.isArray(req.body && req.body.people) ? req.body.people : [];
+    res.json(await contactService.importContacts(id, people));
+  } catch (err) { next(err); }
+});
 router.put('/mine/contacts/:id', async (req, res, next) => {
   try { res.json(await contactService.updateContact(await bid(req), req.params.id, req.body)); } catch (err) { next(err); }
 });

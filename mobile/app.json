@@ -2,7 +2,7 @@
   "expo": {
     "name": "Legacy Odyssey",
     "slug": "legacy-odyssey",
-    "version": "1.0.19",
+    "version": "1.0.20",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,8 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Legacy Odyssey uses your camera to take photos for your baby book sections, such as capturing monthly milestones, family member portraits, and memorable moments to add to your book.",
-        "NSPhotoLibraryUsageDescription": "Legacy Odyssey uses your photo library to let you add photos to your baby book — for example, uploading a birth story photo, a monthly milestone image, a family portrait, or a recipe photo to preserve in your family's keepsake book."
+        "NSPhotoLibraryUsageDescription": "Legacy Odyssey uses your photo library to let you add photos to your baby book — for example, a birth story photo, a monthly milestone image, a family portrait, or a recipe photo.",
+        "NSContactsUsageDescription": "Legacy Odyssey can add people from your contacts to your book's Contact List, so you can choose who sees your child's book without typing each name, email, and phone by hand."
       }
     },
     "android": {
@@ -31,7 +32,8 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_CONTACTS"
       ]
     },
     "web": {

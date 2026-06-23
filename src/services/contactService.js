@@ -54,6 +54,68 @@ async function addContact(bookId, { name, email, phone } = {}) {
   return { ...data, circle_ids: [] };
 }
 
+/**
+ * Bulk-import contacts (from the app's phone-address-book picker). De-dupes
+ * against existing contacts AND within the incoming batch: a person is a
+ * duplicate if their email matches, their phone (digits-only) matches, or —
+ * when they have neither email nor phone — their name matches an existing one.
+ * Imported rows are tagged source='import' when that column exists (migration
+ * 030); if it hasn't been applied yet we transparently insert without it, so the
+ * feature never depends on the migration. Returns { imported, skipped, contacts }.
+ */
+async function importContacts(bookId, people = []) {
+  const normName = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const normEmail = (s) => (s || '').trim().toLowerCase();
+  const normPhone = (s) => (s || '').replace(/[^0-9]/g, '');
+
+  const incoming = (Array.isArray(people) ? people : [])
+    .map((p) => ({
+      name: (p && p.name ? String(p.name) : '').trim().slice(0, MAX_NAME),
+      email: (p && p.email ? String(p.email) : '').trim() || null,
+      phone: (p && p.phone ? String(p.phone) : '').trim() || null,
+    }))
+    .filter((p) => p.name);
+
+  if (!incoming.length) return { imported: 0, skipped: 0, contacts: [] };
+
+  const existing = await listContacts(bookId);
+  const emails = new Set(existing.map((c) => normEmail(c.email)).filter(Boolean));
+  const phones = new Set(existing.map((c) => normPhone(c.phone)).filter(Boolean));
+  const names = new Set(existing.map((c) => normName(c.name)).filter(Boolean));
+
+  const toInsert = [];
+  let skipped = 0;
+  for (const p of incoming) {
+    const e = normEmail(p.email);
+    const ph = normPhone(p.phone);
+    const n = normName(p.name);
+    const dupe = (e && emails.has(e)) || (ph && phones.has(ph)) || (!e && !ph && n && names.has(n));
+    if (dupe) { skipped++; continue; }
+    toInsert.push(p);
+    if (e) emails.add(e);
+    if (ph) phones.add(ph);
+    if (n) names.add(n);
+  }
+
+  if (!toInsert.length) return { imported: 0, skipped, contacts: [] };
+
+  const rows = toInsert.map((p) => ({ book_id: bookId, name: p.name, email: p.email, phone: p.phone }));
+  let { data, error } = await supabaseAdmin
+    .from('book_contacts')
+    .insert(rows.map((r) => ({ ...r, source: 'import' })))
+    .select('*');
+  if (error && /source/i.test(error.message || '') && /column|schema/i.test(error.message || '')) {
+    // `source` column not migrated yet (030) — insert without it.
+    ({ data, error } = await supabaseAdmin.from('book_contacts').insert(rows).select('*'));
+  }
+  if (error) throw error;
+  return {
+    imported: (data || []).length,
+    skipped,
+    contacts: (data || []).map((c) => ({ ...c, circle_ids: [] })),
+  };
+}
+
 async function updateContact(bookId, contactId, { name, email, phone } = {}) {
   const patch = {};
   if (name !== undefined) patch.name = (name || '').trim().slice(0, MAX_NAME);
@@ -253,7 +315,7 @@ async function notifyCircle({ bookId, circleId = null, note = '', bookUrl, siteL
 }
 
 module.exports = {
-  listContacts, addContact, updateContact, archiveContact,
+  listContacts, addContact, importContacts, updateContact, archiveContact,
   listCircles, createCircle, renameCircle, archiveCircle,
   setContactCircles, findContactByToken,
   unsubscribeByToken, notifyCircle,
