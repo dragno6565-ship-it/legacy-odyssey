@@ -30,7 +30,7 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
               <p style="margin:0 0 24px;font-size:26px;color:#1E1812;line-height:1.3;">You're on the list.</p>
 
               <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                Thank you for signing up for Legacy Odyssey. You're eligible for our introductory rate — <strong>$29 for your first year</strong>. That's less than $2.50/month to preserve your family's memories on your own exclusive .com domain.
+                Thank you for signing up for Legacy Odyssey. You're eligible for our introductory rate — <strong>$29 for your first year</strong>. That's less than $2.50/month for your child's own baby book, on their own exclusive .com domain.
               </p>
 
               <p style="margin:0 0 20px;font-size:16px;color:#4A3F32;line-height:1.7;">
@@ -63,19 +63,10 @@ const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
                     </a>
                   </td>
                 </tr>
-                <tr>
-                  <td>
-                    <a href="https://your-family-photo-album.legacyodyssey.com" style="display:block;background:#F8F2E6;border:1px solid #D4B483;border-radius:6px;padding:14px 18px;text-decoration:none;color:#1E1812;">
-                      <span style="font-size:12px;color:#B8935A;display:block;margin-bottom:3px;letter-spacing:0.08em;">FAMILY ALBUM DEMO</span>
-                      <span style="font-size:15px;font-weight:bold;">your-family-photo-album.legacyodyssey.com</span>
-                      <span style="font-size:12px;color:#6B5B45;display:block;margin-top:2px;">Password: family</span>
-                    </a>
-                  </td>
-                </tr>
               </table>
 
               <p style="margin:0 0 32px;font-size:16px;color:#4A3F32;line-height:1.7;">
-                Every Legacy Odyssey family gets their own private .com &mdash; nine chapters of memories, unlimited photos, and a <strong>Time Vault</strong> where you write letters sealed until your child's 18th birthday.
+                Every Legacy Odyssey family gets their own private .com &mdash; milestones, unlimited photos, and a <strong>Time Vault</strong> where you write letters sealed until your child's 18th birthday.
               </p>
 
               <!-- CTA -->
