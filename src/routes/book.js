@@ -92,6 +92,14 @@ router.get('/affiliates', (req, res) => {
   res.render('marketing/affiliates');
 });
 
+// Guided, self-contained product walkthrough — a tap-through "tour" for showing
+// people what the product is (pick a name → reserve → editor → add photos →
+// publish → the finished site). No DB, no auth, no real names; noindex. Renders
+// on the main domain (defined before resolveFamily). Images live in /demo-assets/.
+router.get('/demo', (req, res) => {
+  res.render('marketing/demo');
+});
+
 // Side-by-side comparison: original landing-v2 (left) vs CRO revision (right),
 // each rendered in its own iframe at the real preview routes above.
 router.get('/preview/cro-compare', (req, res) => {

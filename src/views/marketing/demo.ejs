@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex">
+  <title>See how Legacy Odyssey works — a quick walkthrough</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#faf7f2; --ink:#2c2416; --muted:#4a3f30; --soft:#6b5d47;
+      --gold:#c8a96e; --gold-deep:#b3925a; --line:#ece4d7; --card:#fff;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:'Inter',sans-serif; background:var(--bg); color:var(--ink);
+      display:flex; align-items:center; justify-content:center; min-height:100vh;
+      padding:1rem; -webkit-font-smoothing:antialiased;
+    }
+    .device{
+      width:100%; max-width:430px; height:min(860px,94vh);
+      background:var(--card); border-radius:30px; overflow:hidden; position:relative;
+      box-shadow:0 18px 60px rgba(44,36,22,.18); display:flex; flex-direction:column;
+      border:1px solid var(--line);
+    }
+    /* progress */
+    .progress{display:flex;gap:5px;padding:14px 18px 0;flex-shrink:0}
+    .progress i{height:3px;flex:1;background:var(--line);border-radius:2px;transition:background .3s}
+    .progress i.on{background:var(--gold)}
+    /* step viewport */
+    .screen{flex:1;position:relative;overflow:hidden}
+    .step{
+      position:absolute;inset:0;padding:22px 24px 18px;overflow-y:auto;
+      display:flex;flex-direction:column;
+      opacity:0;transform:translateX(24px);pointer-events:none;
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .step.active{opacity:1;transform:none;pointer-events:auto}
+    .eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.7rem}
+    h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;line-height:1.18;margin-bottom:.6rem}
+    h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;line-height:1.2;margin-bottom:.5rem}
+    p.lead{color:var(--muted);font-size:.95rem;line-height:1.55}
+    .spacer{flex:1}
+    /* nav */
+    .nav{display:flex;gap:10px;align-items:center;padding:12px 18px 18px;flex-shrink:0;border-top:1px solid var(--line)}
+    .btn{
+      font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem;border:none;cursor:pointer;
+      border-radius:999px;padding:13px 22px;transition:transform .12s, box-shadow .2s, background .2s;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-primary{background:var(--gold);color:#fff;flex:1;box-shadow:0 4px 14px rgba(200,169,110,.4)}
+    .btn-primary:hover{background:var(--gold-deep)}
+    .btn-ghost{background:transparent;color:var(--soft);padding:13px 8px}
+    /* intro hero */
+    .brand{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;letter-spacing:.02em;text-align:center;color:var(--soft);margin-bottom:auto}
+    .intro-art{
+      width:140px;height:140px;border-radius:50%;margin:0 auto 1.5rem;
+      background:linear-gradient(135deg,#f3e9d9,#e7d4b3);display:flex;align-items:center;justify-content:center;
+      box-shadow:inset 0 2px 10px rgba(255,255,255,.6),0 8px 24px rgba(179,146,90,.2);
+    }
+    .intro-art svg{width:62px;height:62px;color:var(--gold-deep)}
+    .center{text-align:center}
+    .tag{display:inline-block;background:#f3ece0;color:var(--soft);font-size:.78rem;font-weight:600;padding:.35rem .8rem;border-radius:999px;margin-top:1rem}
+    /* name picker */
+    .field{margin-top:1.2rem}
+    .field label{display:block;font-size:.8rem;font-weight:600;color:var(--soft);margin-bottom:.45rem}
+    .field input{
+      width:100%;font-family:'Inter',sans-serif;font-size:1.05rem;color:var(--ink);
+      padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;background:#fdfbf7;outline:none;
+    }
+    .field input:focus{border-color:var(--gold)}
+    .url-preview{
+      margin-top:1.1rem;background:#fdfbf7;border:1.5px solid var(--line);border-radius:12px;
+      padding:14px 16px;display:flex;align-items:center;gap:10px;
+    }
+    .url-preview .u{font-size:1rem;font-weight:600;color:var(--ink);word-break:break-all}
+    .url-preview .u b{color:var(--gold-deep)}
+    .avail{margin-top:.85rem;display:flex;align-items:center;gap:8px;color:#3f8a52;font-size:.88rem;font-weight:600;opacity:0;transition:opacity .4s}
+    .avail.show{opacity:1}
+    .avail svg{width:18px;height:18px}
+    /* signup mock */
+    .mock-input{background:#fdfbf7;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--soft);font-size:.95rem;margin-top:.7rem}
+    .mock-input.filled{color:var(--ink)}
+    .reserved{background:#f3ece0;border-radius:12px;padding:14px 16px;font-size:.86rem;color:var(--muted);margin-top:1.1rem;line-height:1.5}
+    .reserved b{color:var(--ink)}
+    /* editor grid */
+    .grp{margin-top:1.15rem}
+    .grp-h{font-family:'Fraunces',serif;font-weight:600;font-size:.92rem;color:var(--soft);margin-bottom:.5rem}
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .mini{background:#fdfbf7;border:1px solid var(--line);border-radius:10px;padding:11px 12px;position:relative}
+    .mini h4{font-family:'Fraunces',serif;font-weight:600;font-size:.82rem;color:var(--ink)}
+    .mini .d{position:absolute;top:9px;right:9px;width:6px;height:6px;border-radius:50%;background:#e0d5c4}
+    .mini .d.on{background:var(--gold)}
+    .mini.tap{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,169,110,.18);cursor:pointer}
+    .hint{font-size:.78rem;color:var(--soft);text-align:center;margin-top:.9rem;font-style:italic}
+    /* photo add */
+    .photogrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:1.1rem}
+    .photogrid img,.uploadtile{width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;display:block}
+    .ph{opacity:0;transform:scale(.92);transition:opacity .45s, transform .45s}
+    .ph.in{opacity:1;transform:none}
+    .uploadtile{
+      border:2px dashed var(--gold);background:#fdfbf7;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:6px;color:var(--gold-deep);font-size:.78rem;font-weight:600;cursor:pointer;
+    }
+    .uploadtile svg{width:26px;height:26px}
+    /* publish success */
+    .live-badge{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#dff2e4,#bfe6c9);display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem}
+    .live-badge svg{width:46px;height:46px;color:#3f8a52}
+    .livelink{display:block;text-align:center;background:#fdfbf7;border:1.5px solid var(--line);border-radius:12px;padding:13px;margin-top:1.2rem;font-weight:700;color:var(--gold-deep);word-break:break-all}
+    /* finished site preview */
+    .site{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:1rem;background:#fff}
+    .site-bar{background:#f3ece0;padding:7px 12px;font-size:.72rem;color:var(--soft);display:flex;align-items:center;gap:6px}
+    .site-bar .lock{width:11px;height:11px}
+    .site-hero{position:relative;height:200px}
+    .site-hero img{width:100%;height:100%;object-fit:cover;display:block}
+    .site-hero .cap{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,15,8,.62),transparent 60%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
+    .site-hero .cap .k{color:#f3e9d9;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+    .site-hero .cap .n{font-family:'Fraunces',serif;color:#fff;font-size:1.55rem;font-weight:600;line-height:1.1}
+    .site-body{padding:14px}
+    .site-sec{font-family:'Fraunces',serif;font-weight:600;font-size:.95rem;color:var(--ink);margin:.4rem 0 .6rem}
+    .thumbs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+    .thumbs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:block}
+    .site-note{font-size:.82rem;color:var(--muted);line-height:1.55;margin-top:.9rem;border-top:1px solid var(--line);padding-top:.9rem}
+    /* outro */
+    .price{font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;color:var(--gold-deep);margin-top:.4rem}
+    .restart{text-align:center;margin-top:1rem}
+    .restart a{color:var(--soft);font-size:.85rem;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px}
+    @media(max-width:440px){ body{padding:0} .device{height:100vh;max-width:none;border-radius:0;border:none} }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="progress" id="progress"></div>
+    <div class="screen" id="screen">
+
+      <!-- STEP 0 — intro -->
+      <section class="step active" data-step>
+        <div class="brand">Legacy Odyssey</div>
+        <div class="center">
+          <div class="intro-art">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h1>See how it works</h1>
+          <p class="lead">A quick walkthrough — pick a name, add a few photos, and watch a baby's own website come to life. Tap through at your own pace.</p>
+          <div class="tag">Takes about 60 seconds</div>
+        </div>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 1 — pick the name -->
+      <section class="step" data-step>
+        <div class="eyebrow">Step 1 — The name</div>
+        <h2>Your baby gets their name as a website</h2>
+        <p class="lead">Type a name and it becomes a real web address — their own corner of the internet.</p>
+        <div class="field">
+          <label for="babyName">Baby's first name</label>
+          <input id="babyName" type="text" placeholder="Your baby's name" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="url-preview">
+          <span class="u"><b id="slug">yourbaby</b>.legacyodyssey.com</span>
+        </div>
+        <div class="avail show" id="avail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="availText">That address is available</span>
+        </div>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 2 — quick signup -->
+      <section class="step" data-step>
+        <div class="eyebrow">Step 2 — Claim it</div>
+        <h2>Reserve the address</h2>
+        <p class="lead">A quick sign-up holds the name and unlocks the editor. Nothing here is real — it's just a preview.</p>
+        <div class="mock-input filled" id="signupEmail">you@email.com</div>
+        <div class="mock-input">••••••••••</div>
+        <div class="reserved">
+          <b id="reservedUrl">yourbaby.legacyodyssey.com</b> is reserved and password-protected — only the people you invite can ever see it.
+        </div>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 3 — the editor -->
+      <section class="step" data-step>
+        <div class="eyebrow">Step 3 — Fill it in</div>
+        <h2>One simple editor</h2>
+        <p class="lead">Add milestones, photos, and letters — from the app or any browser. Everything's organized into a few easy areas.</p>
+        <div class="grp">
+          <div class="grp-h">Main page</div>
+          <div class="cards">
+            <div class="mini"><span class="d on"></span><h4>Child Info</h4></div>
+            <div class="mini"><span class="d"></span><h4>Your Journey to Us</h4></div>
+          </div>
+        </div>
+        <div class="grp">
+          <div class="grp-h">Your Odyssey</div>
+          <div class="cards">
+            <div class="mini"><span class="d on"></span><h4>Birth Story</h4></div>
+            <div class="mini tap" id="tapSection"><span class="d"></span><h4>Your Birth Day</h4></div>
+          </div>
+        </div>
+        <div class="grp">
+          <div class="grp-h">Family &amp; Memories</div>
+          <div class="cards">
+            <div class="mini"><span class="d on"></span><h4>Our Family</h4></div>
+            <div class="mini"><span class="d"></span><h4>Month by Month</h4></div>
+          </div>
+        </div>
+        <p class="hint">Tap “Your Birth Day” to add photos →</p>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 4 — add photos -->
+      <section class="step" data-step>
+        <div class="eyebrow">Your Birth Day</div>
+        <h2>Add a few photos</h2>
+        <p class="lead">Upload from your phone — they drop straight onto the page.</p>
+        <div class="photogrid" id="photogrid">
+          <div class="uploadtile" id="uploadTile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Add photos</span>
+          </div>
+          <img class="ph" data-ph src="/demo-assets/baby4.jpg" alt="">
+          <img class="ph" data-ph src="/demo-assets/baby2.jpg" alt="">
+          <img class="ph" data-ph src="/demo-assets/baby9.jpg" alt="">
+          <img class="ph" data-ph src="/demo-assets/baby5.jpg" alt="">
+        </div>
+        <p class="hint" id="photoHint">Tap “Add photos”</p>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 5 — publish -->
+      <section class="step" data-step>
+        <div class="eyebrow">Step 4 — Go live</div>
+        <h2>Publish the website</h2>
+        <p class="lead">When you're ready, it's live for the family at the address you chose.</p>
+        <div style="margin-top:1.4rem" class="center">
+          <div class="live-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 style="font-size:1.2rem">Your baby's website is live</h2>
+          <p class="lead">Family can visit it from any browser — no app needed on their end.</p>
+        </div>
+        <a class="livelink" id="liveLink">yourbaby.legacyodyssey.com</a>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 6 — the finished site -->
+      <section class="step" data-step>
+        <div class="eyebrow">What the family sees</div>
+        <h2>The finished website</h2>
+        <div class="site">
+          <div class="site-bar">
+            <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span id="siteUrlBar">yourbaby.legacyodyssey.com</span>
+          </div>
+          <div class="site-hero">
+            <img src="/demo-assets/baby3.jpg" alt="">
+            <div class="cap">
+              <span class="k">A Legacy Odyssey</span>
+              <span class="n" id="siteName">Your Baby</span>
+            </div>
+          </div>
+          <div class="site-body">
+            <div class="site-sec">The day you arrived</div>
+            <div class="thumbs">
+              <img src="/demo-assets/baby4.jpg" alt="">
+              <img src="/demo-assets/baby2.jpg" alt="">
+              <img src="/demo-assets/baby9.jpg" alt="">
+            </div>
+            <div class="site-note">
+              Milestones, letters, the people who love them — all in one private place that grows as they do.
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+      </section>
+
+      <!-- STEP 7 — outro -->
+      <section class="step" data-step>
+        <div class="center" style="margin:auto 0">
+          <div class="brand" style="margin-bottom:1.2rem">Legacy Odyssey</div>
+          <h1>That's the whole idea</h1>
+          <p class="lead">A digital baby book — built as a real website at your child's own .com. Parents fill it in through the app or any browser; family visits it from any browser, password-protected.</p>
+          <div class="price">$29 for the first year</div>
+          <div class="restart"><a href="#" id="restart">↺ Watch it again</a></div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="back" style="visibility:hidden">← Back</button>
+      <button class="btn btn-primary" id="next">Start the tour</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
+      var i = 0;
+      var nextBtn = document.getElementById('next');
+      var backBtn = document.getElementById('back');
+      var prog = document.getElementById('progress');
+      steps.forEach(function(){ var b=document.createElement('i'); prog.appendChild(b); });
+      var bars = Array.prototype.slice.call(prog.children);
+
+      // Per-step "Next" labels
+      var labels = ['Start the tour','Reserve this name','Open the editor','','Publish it','See the website','Finish'];
+
+      var nameInput = document.getElementById('babyName');
+      function slugify(v){
+        var s = (v||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+        return s || 'yourbaby';
+      }
+      function applyName(){
+        var slug = slugify(nameInput.value);
+        var pretty = nameInput.value.trim() || 'Your Baby';
+        document.getElementById('slug').textContent = slug;
+        document.getElementById('reservedUrl').textContent = slug + '.legacyodyssey.com';
+        document.getElementById('liveLink').textContent = slug + '.legacyodyssey.com';
+        document.getElementById('siteUrlBar').textContent = slug + '.legacyodyssey.com';
+        document.getElementById('siteName').textContent = pretty;
+        document.getElementById('availText').textContent = slug + '.legacyodyssey.com is available';
+      }
+      if (nameInput){ nameInput.addEventListener('input', applyName); }
+
+      function show(n){
+        i = Math.max(0, Math.min(steps.length-1, n));
+        steps.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+        bars.forEach(function(b,idx){ b.classList.toggle('on', idx<=i); });
+        backBtn.style.visibility = i===0 ? 'hidden' : 'visible';
+        nextBtn.textContent = labels[i] || 'Next';
+        // last step: hide next
+        nextBtn.style.display = (i===steps.length-1) ? 'none' : 'block';
+        if (i===1){ applyName(); }
+        if (i===4){ resetPhotos(); }
+      }
+
+      // Step 3 -> tap section advances
+      var tap = document.getElementById('tapSection');
+      if (tap){ tap.addEventListener('click', function(){ show(4); }); }
+
+      // Step 4 photo reveal
+      var photosShown = false;
+      function resetPhotos(){
+        photosShown = false;
+        document.querySelectorAll('[data-ph]').forEach(function(p){ p.classList.remove('in'); });
+        document.getElementById('photoHint').style.visibility = 'visible';
+      }
+      function revealPhotos(){
+        if (photosShown) return; photosShown = true;
+        var phs = document.querySelectorAll('[data-ph]');
+        phs.forEach(function(p,idx){ setTimeout(function(){ p.classList.add('in'); }, 160*idx); });
+        document.getElementById('photoHint').style.visibility = 'hidden';
+      }
+      var ut = document.getElementById('uploadTile');
+      if (ut){ ut.addEventListener('click', revealPhotos); }
+
+      nextBtn.addEventListener('click', function(){
+        // On the photo step, make sure photos are shown before moving on
+        if (i===4 && !photosShown){ revealPhotos(); setTimeout(function(){ show(i+1); }, 700); return; }
+        show(i+1);
+      });
+      backBtn.addEventListener('click', function(){ show(i-1); });
+      var restart = document.getElementById('restart');
+      if (restart){ restart.addEventListener('click', function(e){ e.preventDefault(); if(nameInput) nameInput.value=''; show(0); }); }
+
+      show(0);
+    })();
+  </script>
+</body>
+</html>
