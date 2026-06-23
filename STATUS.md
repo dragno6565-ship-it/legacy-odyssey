@@ -17,6 +17,47 @@
 
 ---
 
+## 2026-06-23 (readability rule) — dispatcher
+- 🚩 **NEW HARD RULE #15 (Dan, emphatic): never hand Dan a raw `.md` to read.** Any report/plan/analysis FOR DAN must be generated readable — run `python scripts/md-to-html.py <file.md> "C:\Users\dragn\Desktop\LO-reports\<name>.html"` and give Dan the Desktop path. Internal files (STATUS, sessions/, docs/, TODO, ops working files) stay .md. Built reusable converter `scripts/md-to-html.py`; converted today's two reports → `Desktop\LO-reports\` (ANALYTICS-RUNDOWN + GROWTH-100-VISITORS-PLAN, styled HTML).
+- Others should know: **(all sessions)** every Dan-facing deliverable now ships as HTML via the converter — you're not done until the readable version exists + Dan has the path.
+- Blocked on Dan: nothing.
+
+## 2026-06-24 — email
+- Did: **Dan approved the contact-section announcement copy ("Send it")** and asked for it
+  simplified — rewrote plainer, dropped the branded "Your Contacts" label ("we added a contact
+  section… add your contacts to share your site + any changes… split into groups, or circles").
+  Copy LOCKED in `marketing/email/your-contacts-announcement.md` with a SEND SPEC at the top.
+- Others should know: **🚀 (coding) — URGENT, this is the send blocker.** Dan's go is given but
+  the email session can't fire a compliant send itself: (1) assemble the **7-customer** recipient
+  list (Stripe/Supabase); (2) wire a **working one-click unsubscribe** (Resend RFC 8058) — footer
+  is still a `{{unsubscribe_url}}` placeholder, do NOT send with it live; (3) the CTA
+  `/blog/circles-sharing` becomes on-brand the moment you push content-organic's queued blog
+  relabel — so push that first, then send (no `/demo` swap needed).
+- Blocked on Dan: confirm whether the email send waits on facebook's social post going live or
+  goes independently (soft gate). Copy + audience are settled.
+
+## 2026-06-23 — content-organic
+- Did: **Audited ALL 12 live blog pages + the 3 feature drafts** for relevancy vs the current product and applied
+  rules #13/#14. Corrected the `.md` drafts (source of truth for body copy): website-not-"book" reframing
+  everywhere except the verbatim canonical description; **renamed the Circles post → "Your Contacts"** (Contact
+  List + Circles) — this directly resolves the `/blog/circles-sharing` staleness facebook+email both flagged;
+  fixed a STALE "default family members" claim in the walkthrough (editor is clean-slate now); fixed banned
+  "chapter" in `06`. Caught live-only issues with no `.md`: banned **"forever"/"chapter"/"story"** in
+  `blog-what-to-write-in-baby-book.ejs`, and a **duplicate getting-started page** (two slugs). Full itemized
+  fix list: **`marketing/blog/AUDIT-HANDOFF-2026-06-15.md`**.
+- Others should know: **(coding)** the live `blog-*.ejs` pages still need the edits — 10 of 12 pages, each with
+  exact line refs in the handoff; the corrected `.md` files are the copy source. Includes title/meta/og/JSON-LD
+  for the Your Contacts rename. Two `blog-month-by-month`/`blog-birth-story-section` are already clean.
+  **(facebook/email)** the blog Your-Contacts copy is now corrected in draft and queued for coding — once they
+  push, your `/blog/circles-sharing` link will be on-brand (URL slug unchanged unless coding adds an alias).
+- Blocked on Dan: (1) decide which getting-started article is canonical (two exist — dedupe/redirect);
+  (2) confirm the data-retention claim ("hold data one full year") in the long getting-started page is accurate.
+
+## 2026-06-23 — chief-of-staff
+- Did: Delivered both dispatcher asks. **(1) Analytics rundown** (`ops/ANALYTICS-RUNDOWN-2026-06-23.md`): GA4 28d = 851 sessions (falling: 1,856→1,167→851 as paid winds down), 10s avg, GA conversions still $0 = **tracking artifact even post consent-fix → use Stripe**. **Clarity bombshell: 41 BOT sessions excluded vs 18 real in 3 days → ~70% of traffic is bots**; real human floor ≈ **6 qualified visitors/day**; 0% rage/dead clicks (page is fine). Stripe: lifetime $287.95 NET, **last 30d only $4.99 net** (no new sale since Jun 14), 7 real paying customers. **(2) `ops/GROWTH-100-VISITORS-PLAN.md`** — $/visitor-ranked, paid excluded: #1 **affiliate/referral activation** (─$0 upfront, highest-quality channel, DM pack already built — needs Dan to send), #2 organic social/Reels, #3 fix Pinterest click-through (817 impr/30d → 1 click), #4 SEO (compounding), #5 communities, #6 in-product word-of-mouth.
+- Others should know: **(affiliates)** you're the #1 growth lever — your Tier-A DM pack is the cheapest, highest-quality traffic; ready to fire on Dan's send. **(pinterest)** your 817 impressions convert to ~1 site click — biggest fix is pin→click CTA + verify the tag is installed. **(content-organic)** organic social is our #2 and growing (40% eng) — sustain Reels cadence to `/demo`; SEO posts (3 drafts) need coding to publish. **(coding)** please add **GA bot filtering** so we measure real visitors, not the ~70% bot inflation; tiny in-product "start your own" CTA on shared books would compound. **(seo)** own buyer-keyword targeting — Organic Search is highest-intent but we rank for ~nothing.
+- Blocked on Dan: (1) **send the affiliate Tier-A DM pack** (the single highest-ROI growth action); (2) still-open carry-overs — LLC operating-agreement blanks + Trade Name decision.
+
 ## 2026-06-23 (night) — facebook
 - Did: Rebuilt the social announcement to match the now-LIVE "Your Contacts" rename (web + app 1.0.19) — new creative `fb-posts/drafts/your-contacts/POST-your-contacts-hero.png` (feature = Your Contacts; parts = Contact List + Circles; website-not-book; no pricing; no real names) + caption linking `/demo`. Retired the old "circles" draft → `drafts/_retired-circles-2026-06-23/`. **Shown to Dan, AWAITING his explicit "post it" — NOT posted.**
 - Others should know: **(email)** good — we're aligned on "Your Contacts" naming; my post links `/demo` (not the blog, whose URL/text still says "Circles"). **(content-organic/coding)** heads-up: `/blog/circles-sharing` still says "Circles" in URL + body — stale vs. the live "Your Contacts" rename; worth updating. Once Dan approves + I post the social, the email's Contacts announcement is unblocked to send.
