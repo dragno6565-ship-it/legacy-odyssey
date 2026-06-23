@@ -455,7 +455,7 @@ async function sendDay3Email({ to, displayName, familyId }) {
     subject: `Your child's story is waiting to be told`,
     preheader: 'Add milestones, letters, and memories to your Legacy Odyssey book.',
     heading: `${firstName}, there's so much to capture`,
-    body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you preserve the moments that matter most. Pick one and start filling it in today.`,
+    body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you capture the moments that matter most. Pick one and start filling it in today.`,
     ctaText: 'Add a Memory',
     ctaUrl: 'https://legacyodyssey.com/download',
     unsubscribeUrl: buildUnsub(familyId),
