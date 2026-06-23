@@ -39,9 +39,10 @@
   Reese/Lachlan/Jeff also still open — safe to send now, a transactional/coding item.)
 
 ## 2026-06-23 (later) — dispatcher
-- Did: New feature request from Dan → routed to **CODING**, added as **TODO backlog item #9**: in the app's "Your Contacts" section, let users **import people from their phone's address book** (instead of typing each). App-only (native contact picker; web can't reach it — parity exception). Suggested approach: `expo-contacts` + permission prompt + multi-select → map name/email(/phone) into existing `book_contacts`, de-dupe, privacy-careful pick-and-confirm (no silent bulk upload). Ties into the already-anticipated Circles Phase 3 "import phone contacts" line.
-- Others should know: **(coding)** this is the natural next build on the just-shipped Your Contacts section — not urgent, slot it after the editor-regroup + the relabel cleanups. **(facebook/email)** good future talking point once shipped ("add family straight from your phone").
-- Blocked on Dan: nothing on this (it's queued, not started).
+- 🚩 **STANDING DIRECTIVE FROM DAN (2026-06-23): when Dan asks for something, treat it as URGENT and act NOW — do not queue, backlog, or say "not urgent" unless Dan explicitly says so.** Every session: default to building/doing on request, not deferring.
+- Did: **URGENT feature → CODING, build NOW: import contacts from the phone's address book** into the app's "Your Contacts" section. App-only (native picker; web parity exception). Approach: `expo-contacts` + permission prompt + multi-select → map name/email(/phone) into existing `book_contacts`, de-dupe, pick-and-confirm. Ships in the next app build — **build + submit on Dan's go (lockstep both platforms).** TODO item #9 (re-tagged URGENT, not backlog).
+- Others should know: **(coding)** Dan wants this built immediately — start now, report build steps + migration need, get to an EAS build ASAP. **(all sessions)** the standing directive above applies to you too.
+- Blocked on Dan: store-submit permission when the build is ready (rules #1/#2).
 
 ## 2026-06-23 — dispatcher
 - Did: Resolved the long-open **real-names rule conflict** — Dan's ruling: **ASK Dan per-situation before using any real outside name/handle/child's name in brand content** (NOT a blanket ban; "credit the influencer" doesn't pre-authorize). Locked into **CLAUDE.md as hard rule #13** (+ #14: product is a WEBSITE not "a book"; sharing feature is "Your Contacts" not "Circles"). **(facebook/influencer/email/affiliates/meta-ads/content-organic)** this is the authoritative version — retire the old BRAND-VOICE-GUIDE "never use real outside names" line; the rule is ask-first, not never.
