@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
+  ScrollView,
   RefreshControl,
   ActivityIndicator,
   Modal,
@@ -36,6 +36,7 @@ import {
   Archive,
   Lock,
   Globe,
+  Image as ImageIcon,
   LifeBuoy,
   Share2,
   Settings as SettingsIcon,
@@ -69,6 +70,17 @@ const SECTIONS = [
 // the book grid and rendered above it (D-012). key 'circles' keeps the existing
 // paid-feature lock + the CirclesScreen route; only the presentation changes.
 const CONTACT = { key: 'circles', title: 'Your Contacts', icon: Users, screen: 'Circles' };
+
+// D-012 step 2: the flat section grid is regrouped into the SAME 4 groups as the
+// web My Book hub (account-book.ejs) — lockstep names + order. Family Intro is a
+// disabled "Coming soon" placeholder; utility rows go in a "Manage" footer group.
+const SECTION_BY_KEY = SECTIONS.reduce((m, s) => { m[s.key] = s; return m; }, {});
+const GROUPS = [
+  { title: 'Main page',         keys: ['childInfo', 'journey'], placeholder: { key: 'familyIntro', title: 'Family Intro', icon: ImageIcon } },
+  { title: 'Your Odyssey',      keys: ['before', 'birth', 'birthday', 'comingHome', 'months'] },
+  { title: 'Family & Memories', keys: ['family', 'firsts', 'celebrations', 'letters', 'recipes', 'keepsakes', 'vault', 'galleries', 'moments'] },
+];
+const UTILITY_KEYS = ['manageSections', 'help', 'settings'];
 
 const DEMO_BOOK = { child: { first_name: 'Sophia', last_name: 'Smith' }, subdomain: 'sophiasmith', custom_domain: null };
 
@@ -169,10 +181,11 @@ export default function DashboardScreen({ navigation }) {
     return '';
   }
 
-  function renderSectionCard({ item }) {
+  function renderCard(item) {
     const isLocked = isFree && !FREE_SECTIONS.has(item.key);
     return (
       <TouchableOpacity
+        key={item.key}
         style={[styles.card, isLocked && styles.cardLocked]}
         activeOpacity={0.7}
         onPress={() => {
@@ -193,6 +206,31 @@ export default function DashboardScreen({ navigation }) {
           {isLocked ? 'Upgrade' : 'Edit'}
         </Text>
       </TouchableOpacity>
+    );
+  }
+
+  // Disabled "Coming soon" placeholder (Family Intro) — mirrors the web card.
+  function renderPlaceholder(ph) {
+    return (
+      <View key={ph.key} style={[styles.card, styles.cardPlaceholder]}>
+        <View style={styles.cardIcon}>
+          <ph.icon size={22} color="#c8a96e" strokeWidth={1.5} />
+        </View>
+        <Text style={styles.cardTitle}>{ph.title}</Text>
+        <Text style={styles.cardAction}>Coming soon</Text>
+      </View>
+    );
+  }
+
+  function renderGroup(group) {
+    return (
+      <View key={group.title} style={styles.group}>
+        <Text style={styles.groupTitle}>{group.title}</Text>
+        <View style={styles.groupWrap}>
+          {group.keys.map((k) => renderCard(SECTION_BY_KEY[k]))}
+          {group.placeholder ? renderPlaceholder(group.placeholder) : null}
+        </View>
+      </View>
     );
   }
 
@@ -284,14 +322,8 @@ export default function DashboardScreen({ navigation }) {
         </View>
       ) : null}
 
-      {/* Section Grid */}
-      <FlatList
-        data={SECTIONS}
-        ListHeaderComponent={renderContactSection}
-        renderItem={renderSectionCard}
-        keyExtractor={(item) => item.key}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
+      {/* Grouped section list (D-012 step 2 — lockstep with the web My Book hub) */}
+      <ScrollView
         contentContainerStyle={styles.grid}
         refreshControl={
           <RefreshControl
@@ -302,7 +334,21 @@ export default function DashboardScreen({ navigation }) {
           />
         }
         showsVerticalScrollIndicator={false}
-      />
+      >
+        {GROUPS.map(renderGroup)}
+
+        <View style={styles.group}>
+          <Text style={styles.groupTitle}>Your Contacts</Text>
+          {renderContactSection()}
+        </View>
+
+        <View style={styles.group}>
+          <Text style={styles.groupTitle}>Manage</Text>
+          <View style={styles.groupWrap}>
+            {UTILITY_KEYS.map((k) => renderCard(SECTION_BY_KEY[k]))}
+          </View>
+        </View>
+      </ScrollView>
 
       {/* Book Switcher Modal */}
       <Modal
@@ -479,6 +525,26 @@ const styles = StyleSheet.create({
   },
   row: {
     justifyContent: 'space-between',
+  },
+  group: {
+    marginBottom: spacing.lg,
+  },
+  groupTitle: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.gold,
+    marginBottom: spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  groupWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  cardPlaceholder: {
+    opacity: 0.55,
   },
   card: {
     backgroundColor: colors.card,

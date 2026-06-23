@@ -46,6 +46,19 @@
     .legend { display: flex; gap: 1.25rem; font-size: 0.8rem; color: #4a3f30; margin-bottom: 1.5rem; align-items: center; }
     .legend span { display: flex; align-items: center; gap: 0.35rem; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .group { margin-bottom: 2.5rem; }
+    .group-title {
+      font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #6b5d47;
+      letter-spacing: 0.02em; margin-bottom: 0.3rem;
+    }
+    .group-desc { font-size: 0.82rem; color: #9a8c74; margin-bottom: 1rem; }
+    .group-rule { border: none; border-top: 1px solid #ece4d7; margin: 0 0 1rem; }
+    .section-card.disabled { opacity: 0.65; pointer-events: none; cursor: default; }
+    .badge-soon {
+      position: absolute; top: 0.9rem; right: 0.9rem;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #9a8c74; background: #f0ebe3; padding: 0.18rem 0.5rem; border-radius: 999px;
+    }
   </style>
 </head>
 <body>
@@ -77,127 +90,181 @@
       <span><span class="legend-dot" style="background:#e0d5c4;"></span> Empty — ready to fill</span>
     </div>
 
+    <!-- GROUP 1 — Main page -->
+    <div class="group">
+      <div class="group-title">Main page</div>
+      <div class="group-desc">The front door of your child's website — start here.</div>
+      <hr class="group-rule">
+      <div class="grid">
+
+        <a href="/account/book/child-info" class="section-card">
+          <div class="dot <%= (book && book.child_first_name) ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="sparkles"></i></div>
+          <h3>Child Info</h3>
+          <p>Name, birthday, birth details, and hero photo</p>
+        </a>
+
+        <a href="/account/book/journey" class="section-card">
+          <div class="dot <%= visibleSections.journey ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="compass"></i></div>
+          <h3>Your Journey to Us</h3>
+          <p>For adoption, surrogacy, fostering — an optional story page</p>
+        </a>
+
+        <span class="section-card disabled">
+          <div class="badge-soon">Coming soon</div>
+          <div class="card-icon"><i data-lucide="image"></i></div>
+          <h3>Family Intro</h3>
+          <p>A welcome page introducing the family at the front of the site</p>
+        </span>
+
+      </div>
+    </div>
+
+    <!-- GROUP 2 — Your Odyssey -->
+    <div class="group">
+      <div class="group-title">Your Odyssey</div>
+      <div class="group-desc">The story so far, start to now.</div>
+      <hr class="group-rule">
+      <div class="grid">
+
+        <a href="/account/book/before-arrived" class="section-card">
+          <div class="dot <%= visibleSections.before ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="heart"></i></div>
+          <h3>Before You Arrived</h3>
+          <p>Pregnancy memories and the anticipation of arrival</p>
+        </a>
+
+        <a href="/account/book/birth-story" class="section-card">
+          <div class="dot <%= visibleSections.birth ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="book-open"></i></div>
+          <h3>Birth Story</h3>
+          <p>Two perspectives from the big day, with selectable labels</p>
+        </a>
+
+        <a href="/account/book/birthday" class="section-card">
+          <div class="dot <%= (visibleSections.birthday) ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="camera"></i></div>
+          <h3>Your Birth Day</h3>
+          <p>A photo gallery of the day — who was there, the hospital, the doctor</p>
+        </a>
+
+        <a href="/account/book/coming-home" class="section-card">
+          <div class="dot <%= visibleSections.home ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="home"></i></div>
+          <h3>Coming Home</h3>
+          <p>The journey home and your first days together</p>
+        </a>
+
+        <a href="/account/book/months" class="section-card">
+          <div class="dot <%= visibleSections.months ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="calendar"></i></div>
+          <h3>Month by Month</h3>
+          <p>Monthly milestones, notes, and photos from 1 to 12</p>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- GROUP 3 — Family & Memories -->
+    <div class="group">
+      <div class="group-title">Family &amp; Memories</div>
+      <div class="group-desc">The people, the moments, and the keepsakes.</div>
+      <hr class="group-rule">
+      <div class="grid">
+
+        <a href="/account/book/family" class="section-card">
+          <div class="dot <%= visibleSections.family ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="users"></i></div>
+          <h3>Our Family</h3>
+          <p>Family members, their roles, and their stories</p>
+        </a>
+
+        <a href="/account/book/firsts" class="section-card">
+          <div class="dot <%= visibleSections.firsts ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="star"></i></div>
+          <h3>Your Firsts</h3>
+          <p>First smile, first word, first steps, and more</p>
+        </a>
+
+        <a href="/account/book/celebrations" class="section-card">
+          <div class="dot <%= visibleSections.holidays ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="gift"></i></div>
+          <h3>Celebrations</h3>
+          <p>Birthdays, holidays, and special occasions</p>
+        </a>
+
+        <a href="/account/book/letters" class="section-card">
+          <div class="dot <%= visibleSections.letters ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="mail"></i></div>
+          <h3>Letters</h3>
+          <p>Letters written to your little one over time</p>
+        </a>
+
+        <a href="/account/book/recipes" class="section-card">
+          <div class="dot <%= visibleSections.recipes ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="utensils-crossed"></i></div>
+          <h3>Family Recipes</h3>
+          <p>Recipes and food memories passed down through generations</p>
+        </a>
+
+        <a href="/account/book/keepsakes" class="section-card">
+          <div class="dot <%= visibleSections.keepsakes ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="archive"></i></div>
+          <h3>Their Keepsakes</h3>
+          <p>Photos of drawings, awards, certificates &mdash; the small treasures you can't keep forever</p>
+        </a>
+
+        <a href="/account/book/vault" class="section-card">
+          <div class="dot <%= visibleSections.vault ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="lock"></i></div>
+          <h3>The Vault</h3>
+          <p>Letters sealed and hidden until your child is ready</p>
+        </a>
+
+        <a href="/account/book/galleries" class="section-card">
+          <div class="dot <%= (visibleSections.galleries) ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="images"></i></div>
+          <h3>Custom Galleries</h3>
+          <p>Make your own photo galleries — name each one, up to 50 photos with captions</p>
+        </a>
+
+        <a href="/account/book/video-moments" class="section-card">
+          <div class="dot <%= (visibleSections.moments) ? '' : 'empty' %>"></div>
+          <div class="card-icon"><i data-lucide="video"></i></div>
+          <h3>Video Moments</h3>
+          <p>Short video clips — first steps, first words, the laugh (up to 2 min each)</p>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- GROUP 4 — Your Contacts -->
+    <div class="group">
+      <div class="group-title">Your Contacts</div>
+      <div class="group-desc">Choose who can see the website, and let them know when there's something new.</div>
+      <hr class="group-rule">
+      <div class="grid">
+
+        <a href="/account/book/circles" class="section-card">
+          <div class="card-icon"><i data-lucide="user-round-plus"></i></div>
+          <h3>Your Contacts</h3>
+          <p>Your contact list and circles — manage who's invited and send updates</p>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Footer utility -->
+    <hr class="group-rule" style="margin-top:0.5rem;">
     <div class="grid">
-
-      <a href="/account/book/child-info" class="section-card">
-        <div class="dot <%= (book && book.child_first_name) ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="sparkles"></i></div>
-        <h3>Child Info</h3>
-        <p>Name, birthday, birth details, and hero photo</p>
-      </a>
-
-      <a href="/account/book/birth-story" class="section-card">
-        <div class="dot <%= visibleSections.birth ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="book-open"></i></div>
-        <h3>Birth Story</h3>
-        <p>Two perspectives from the big day, with selectable labels</p>
-      </a>
-
-      <a href="/account/book/birthday" class="section-card">
-        <div class="dot <%= (visibleSections.birthday) ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="camera"></i></div>
-        <h3>Your Birth Day</h3>
-        <p>A photo gallery of the day — who was there, the hospital, the doctor</p>
-      </a>
-
-      <a href="/account/book/video-moments" class="section-card">
-        <div class="dot <%= (visibleSections.moments) ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="video"></i></div>
-        <h3>Video Moments</h3>
-        <p>Short video clips — first steps, first words, the laugh (up to 2 min each)</p>
-      </a>
-
-      <a href="/account/book/galleries" class="section-card">
-        <div class="dot <%= (visibleSections.galleries) ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="images"></i></div>
-        <h3>Custom Galleries</h3>
-        <p>Make your own photo galleries — name each one, up to 50 photos with captions</p>
-      </a>
-
-      <a href="/account/book/journey" class="section-card">
-        <div class="dot <%= visibleSections.journey ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="compass"></i></div>
-        <h3>Your Journey to Us</h3>
-        <p>For adoption, surrogacy, fostering — an optional story page</p>
-      </a>
-
-      <a href="/account/book/before-arrived" class="section-card">
-        <div class="dot <%= visibleSections.before ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="heart"></i></div>
-        <h3>Before You Arrived</h3>
-        <p>Pregnancy memories and the anticipation of arrival</p>
-      </a>
-
-      <a href="/account/book/coming-home" class="section-card">
-        <div class="dot <%= visibleSections.home ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="home"></i></div>
-        <h3>Coming Home</h3>
-        <p>The journey home and your first days together</p>
-      </a>
-
-      <a href="/account/book/months" class="section-card">
-        <div class="dot <%= visibleSections.months ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="calendar"></i></div>
-        <h3>Month by Month</h3>
-        <p>Monthly milestones, notes, and photos from 1 to 12</p>
-      </a>
-
-      <a href="/account/book/family" class="section-card">
-        <div class="dot <%= visibleSections.family ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="users"></i></div>
-        <h3>Our Family</h3>
-        <p>Family members, their roles, and their stories</p>
-      </a>
-
-      <a href="/account/book/firsts" class="section-card">
-        <div class="dot <%= visibleSections.firsts ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="star"></i></div>
-        <h3>Your Firsts</h3>
-        <p>First smile, first word, first steps, and more</p>
-      </a>
-
-      <a href="/account/book/celebrations" class="section-card">
-        <div class="dot <%= visibleSections.holidays ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="gift"></i></div>
-        <h3>Celebrations</h3>
-        <p>Birthdays, holidays, and special occasions</p>
-      </a>
-
-      <a href="/account/book/letters" class="section-card">
-        <div class="dot <%= visibleSections.letters ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="mail"></i></div>
-        <h3>Letters</h3>
-        <p>Letters written to your little one over time</p>
-      </a>
-
-      <a href="/account/book/recipes" class="section-card">
-        <div class="dot <%= visibleSections.recipes ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="utensils-crossed"></i></div>
-        <h3>Family Recipes</h3>
-        <p>Recipes and food memories passed down through generations</p>
-      </a>
-
-      <a href="/account/book/keepsakes" class="section-card">
-        <div class="dot <%= visibleSections.keepsakes ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="archive"></i></div>
-        <h3>Their Keepsakes</h3>
-        <p>Photos of drawings, awards, certificates &mdash; the small treasures you can't keep forever</p>
-      </a>
-
-      <a href="/account/book/vault" class="section-card">
-        <div class="dot <%= visibleSections.vault ? '' : 'empty' %>"></div>
-        <div class="card-icon"><i data-lucide="lock"></i></div>
-        <h3>The Vault</h3>
-        <p>Letters sealed and hidden until your child is ready</p>
-      </a>
-
       <a href="/account/book/sections" class="section-card">
         <div class="card-icon"><i data-lucide="globe"></i></div>
         <h3>Website Sections</h3>
         <p>Choose which sections show on your public website</p>
       </a>
-
     </div>
+
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
