@@ -9,6 +9,59 @@
 
 ---
 
+## 💡 Brainstorm backlog (Dan, 2026-06-11 — captured by Dispatcher; not yet scheduled)
+
+> Dan's forward-looking ideas. Each tagged with the owning session. When one gets
+> picked up, move it into the owning session's plan / the right section below.
+
+1. **[coding] Site menus + per-type "main" landing page.** Organize the navigation menus on
+   customer book sites. Each site gets a proper "main" page (the first thing visitors see).
+   We have the baby version today; design main-page variants for (a) FAMILY sites and
+   (b) non-traditional / adopted kids. NOTE: lean on the existing "Your Journey to Us"
+   section (migration 020, built for adoption/surrogacy/foster) for (b); (a) connects to
+   the future Family Photo Album SKU (your-family-photo-album.com demo).
+2. **[coding] Language toggle — English/Spanish first.** Viewer-side i18n on the book sites
+   (and eventually editor/app). DESIGN NOTE: build the i18n mechanism once — the India plan
+   (TODO §Product & growth, Phase 3) wants a Hindi/English toggle later; ES is the pilot.
+3. **[coding] Resettable live-demo account.** A demo book Dan can build IN FRONT of people
+   (use the app, content appears on the website live), then wipe back to a clean slate with
+   one action afterward. Think: dedicated demo family + a "reset demo" admin button that
+   restores a known-clean snapshot. Different from the static your-childs-name.com demo.
+4. **[coding] Update your-childs-name.com** to showcase the newer features (galleries,
+   Circles sharing, video, reposition, etc.). ⚠️ GATED on the demo deploy-source mystery
+   (§Marketing & site polish below) — resolve where the live demo is served from FIRST.
+5. **[coding] Family tree for family sites.** A visual family-tree (looks like a tree,
+   grows as they add people); clicking a family member's name opens a short bio page.
+   Likely builds on the existing family-members data + Family Member editor/bios.
+   Big feature — needs design + migration + app/web parity plan.
+6. **[facebook / content-organic] Demo videos.** Start producing them (C19 was parked when
+   Descript flopped). Natural order: fix demo site (item 4) → record walkthroughs →
+   short cuts for ads/social. Coordinate with item 3's live-demo account.
+7. **[content-organic] Blog post per feature/section** — especially the new ones (Custom
+   Galleries, photo reposition, Circles sharing, video/Moments when it ships). Joins the
+   existing 9 live articles; SEO session should weigh in on titles/keywords.
+   ✅ **2026-06-15 (coding): the first 3 are LIVE** — `/blog/circles-sharing`, `/blog/custom-galleries`,
+   `/blog/reposition-photos` (content-organic drafts published as `blog-*.ejs` + routes + index +
+   sitemap, `9c4c526`). Marketing screenshots for them in `marketing/screenshots/features/`.
+   Also done 2026-06-15: GA branded-signup `purchase` tracking fix (`9c4c526`) + Microsoft Clarity
+   live site-wide, project `x7mt9cszyp` (`a1146d9`). `purchase` was already a GA4 key event.
+8. **[email] Feature-announcement emails to current subscribers** for each addition, linking
+   to the matching blog post (item 7). Recurring motion, not one-shot: ship feature → blog
+   post → subscriber email. Circles ("share your book with family") is the obvious first
+   one since it just shipped. Coordinate with coding for the subscriber list/send mechanism
+   (Resend) and respect unsubscribe handling.
+
+9. **[coding] Import contacts from the phone's address book (Dan, 2026-06-23).** In the app's
+   "Your Contacts" section, let users pull people straight from their phone contacts instead of
+   typing each by hand. APP-ONLY by nature (native contact picker; web can't access it — note the
+   parity exception in TODO per the parity rule). Design notes: use Expo Contacts (`expo-contacts`)
+   with iOS/Android permission prompts; let the user multi-select; map name + email (+ phone for
+   future SMS) into the existing `book_contacts` model; de-dupe against contacts already added;
+   privacy-careful (request least data, don't bulk-upload the whole address book silently — pick-and-confirm).
+   Ties into Circles Phase 3 (the TODO §Circles "import phone contacts" line already anticipated this).
+
+---
+
 ## 🤝 Affiliate program — Rewardful (✅ LIVE + verified, 2026-06-08)
 
 Code integration for the "Friends of Legacy Odyssey" affiliate program (35% recurring).
@@ -26,7 +79,7 @@ installation detector; tracking is confirmed working. **Recruitment is now unblo
 - [x] **Task 4 — `/affiliates` landing page** + route (`book.js`) + footer links (landing-v2-cro/landing/landing-v2). Commit `2645c16`.
 - [x] **Task 5 — asset pack** in `affiliate-assets/` (product desc, 5 captions, 3 email swipes, brand-rules, 10-Q&A FAQ, 3 SVG banners). Commit `692ac4c`. **Still to do:** upload to Rewardful Asset Library (needs the UI); export SVG banners→PNG if required.
 - [x] **Merged to main + deployed + verified live** (merge `6e6cbd6`, 2026-06-08). `/affiliates` serves 200; snippet confirmed live; real `?via=` referral tracked on Rewardful dashboard.
-- [ ] **Add `REWARDFUL_API_SECRET` to Railway env** (Dan — value from app.getrewardful.com/company/edit). Only needed if we later add a webhook receiver / API void; not required for current tracking.
+- [x] **Add `REWARDFUL_API_SECRET` to Railway env** — DONE (Dan, 2026-06-15) + VERIFIED by coding: set in Railway prod (length 32) and authenticates (GET /v1/campaigns → 200). The webhook's `recordConversion()` uses the same Basic-auth, so gift/branded-signup conversions will authenticate. Remaining = affiliates' real referred test purchase to confirm a conversion in the dashboard.
 - [ ] **Upload asset pack to Rewardful Asset Library** (Dan / needs the UI). Files in `affiliate-assets/`; export SVG banners → PNG if the library requires raster.
 - [ ] **Decision (Task 3): should domain-registration failure auto-refund?** Currently NO refunds at all (per Dan — no-refund policy; customer keeps subscription + subdomain book). Nothing to implement unless policy changes.
 - [ ] **Follow-up:** the branded Payment-Intent signup flow (`create-signup-intent`) + gift checkouts are NOT yet Rewardful-attributed (they use PaymentIntents, not Checkout Sessions — need separate handling).
@@ -54,20 +107,20 @@ multiple circles (many-to-many).
   repeat blasts. REMAINING: app CirclesScreen needs the Notify UI (1.0.18); Dan's
   personal test pass.
 - [ ] **Phase 3 — polish.** "What changed" auto-detect, view analytics, digest, native-share SMS, import phone contacts.
-- [ ] **1.0.18 mobile build** will carry the CirclesScreen (+ the tagline fix + other queued app items) — both platforms, lockstep.
-- [ ] **App: remove numbered "Chapter/Section" eyebrow labels** from the book section screens, to match the web (done on web 2026-06-10: dropped Chapter One/Two/Three/Six/Seven/Eight/Nine/Ten + "Section Five" on Family; kept descriptive eyebrows like "The day you arrived", "In motion", "Your collections", "The First Year"). Find any "Chapter X"/"Section X" headers in `mobile/` book screens and remove them the same way. Ship in 1.0.18.
+- [x] **1.0.18 mobile build BUILT + SUBMITTED to both stores 2026-06-10 (night) on Dan's explicit go.** ✅ VERIFIED 2026-06-10 ~10 PM: iOS "Waiting for Review" in ASC (build 32, Dan clicked Submit); Android delivered to Play. Remaining: monitor review outcomes (sessions/coding.md open item 1).
+- [x] **App: remove numbered "Chapter/Section" eyebrow labels — N/A in app code** (no Chapter strings in mobile/; the site preview is a WebView so it inherits the web fix). ⚠️ BUT the facebook session reports the your-childs-name.com DEMO still shows CHAPTER labels — demo deploy source is separate/unresolved (see sessions/coding.md open item 2). from the book section screens, to match the web (done on web 2026-06-10: dropped Chapter One/Two/Three/Six/Seven/Eight/Nine/Ten + "Section Five" on Family; kept descriptive eyebrows like "The day you arrived", "In motion", "Your collections", "The First Year"). Find any "Chapter X"/"Section X" headers in `mobile/` book screens and remove them the same way. Ship in 1.0.18.
 
 ### 📱 App parity for the next build (web changes made 2026-06-10 — mirror ALL of these in 1.0.18)
 > Rule #8/#9: apps + web editors must always match. Everything below is LIVE on web and must be brought to the app before/in the next build. **Circles must be working + tested on web first (Dan's call) before we cut the app build.**
-- [ ] **Circles entry now lives on "My Account", not the book editor.** Web: moved the "Your Circles" card off the My Book hub onto the My Account page (`account-dashboard.ejs`), gold-bordered with a "New" badge; Circles page nav now breadcrumbs `My Account / Your Circles` and "← Back to My Account". App already shows a Circles card on the Dashboard (DashboardScreen SECTIONS) — confirm it's positioned/labelled to match and is NOT inside the book-editing flow.
-- [ ] **Circles Phase 2 in the app.** Add the "Send an Update" UI to CirclesScreen calling `POST /api/contacts/mine/notify` ({circleId?, note?}; 429 = cooldown — show the server's message). Mirror the web card: Everyone-or-circle picker + optional note + confirm before sending.
-- [ ] **Family editor — clean slate + no emojis.** Web removed the 6 forced default members (Mom/Dad/4 grandparents); list now shows only members the user added, with an empty-state prompt + "+ Add Family Member", all members deletable, and emoji avatars replaced with a line-drawn person icon (also on the member-detail page + public book). Mirror in the app's family screens: drop the hardcoded defaults, allow delete of all, swap emoji placeholders for the icon.
-- [ ] **Video Moments grouping.** Web book nav moved "Video Moments" out of "The Book" into "Family & Memories", directly under "Our Family". Match the app's book navigation order/grouping.
-- [ ] **Photo Galleries grouping + submenu + rename/reorder.** Web (2026-06-10): book nav moved "Photo Galleries" into "Family & Memories" (after Video Moments) with a nested submenu listing each gallery (click scrolls to it); editor galleries list got per-gallery **Rename** and **drag-to-reorder** (POST `/account/book/galleries/reorder`, `galleryService.reorderGalleries`). Mirror in the app: galleries entry placement, rename + reorder in the app's galleries editor.
-- [ ] **Galleries: cap 50 + create-then-name flow + lightbox arrows.** Web (2026-06-10): `galleryService.MAX_PHOTOS` 21→50 (app reads it from `/api/galleries` `maxPhotos` — verify no hardcoded 21 in `mobile/`); galleries list page is now just a "+ Create Gallery" button (no name field) — naming happens on the gallery's photo page via a labeled "Gallery name" + Save name control (autofocused when untitled); public-book lightbox prev/next arrows now cover custom galleries + before/firsts/keepsake grids. Mirror flow + cap + photo-swipe in the app.
-- [ ] **Master "Save Page" button on gallery editors.** Web added a one-tap "save all captions" bar on Birthday/Celebrations(+detail)/Keepsakes/Recipes/Galleries/Journey editors. Confirm the app's equivalent editors save captions in a way that matches (app already saves per-field on blur — verify parity of behavior).
+- [x] **Circles entry now lives on "My Account", not the book editor.** Web: moved the "Your Circles" card off the My Book hub onto the My Account page (`account-dashboard.ejs`), gold-bordered with a "New" badge; Circles page nav now breadcrumbs `My Account / Your Circles` and "← Back to My Account". App already shows a Circles card on the Dashboard (DashboardScreen SECTIONS) — confirm it's positioned/labelled to match and is NOT inside the book-editing flow.
+- [x] **Circles Phase 2 in the app. DONE in 1.0.18.** Add the "Send an Update" UI to CirclesScreen calling `POST /api/contacts/mine/notify` ({circleId?, note?}; 429 = cooldown — show the server's message). Mirror the web card: Everyone-or-circle picker + optional note + confirm before sending.
+- [x] **Family editor — clean slate + no emojis. DONE in 1.0.18** (app was already DB-driven/clean; added Remove-from-family + icon + empty state; server DELETE /api/books/mine/family/:key). Web removed the 6 forced default members (Mom/Dad/4 grandparents); list now shows only members the user added, with an empty-state prompt + "+ Add Family Member", all members deletable, and emoji avatars replaced with a line-drawn person icon (also on the member-detail page + public book). Mirror in the app's family screens: drop the hardcoded defaults, allow delete of all, swap emoji placeholders for the icon.
+- [x] **Video Moments grouping. N/A for app** (app dashboard mirrors the web My Book hub, which was not regrouped; the public-book nav change reaches the app via the WebView preview). Web book nav moved "Video Moments" out of "The Book" into "Family & Memories", directly under "Our Family". Match the app's book navigation order/grouping.
+- [x] **Photo Galleries grouping + submenu + rename/reorder. DONE in 1.0.18** (app: up/down reorder + rename existed in detail; server PUT /api/galleries/mine/reorder; public-book submenu reaches app via WebView). Web (2026-06-10): book nav moved "Photo Galleries" into "Family & Memories" (after Video Moments) with a nested submenu listing each gallery (click scrolls to it); editor galleries list got per-gallery **Rename** and **drag-to-reorder** (POST `/account/book/galleries/reorder`, `galleryService.reorderGalleries`). Mirror in the app: galleries entry placement, rename + reorder in the app's galleries editor.
+- [x] **Galleries: cap 50 + create-then-name flow + lightbox arrows. DONE in 1.0.18** (cap now server-driven in app; create-then-name in GalleriesScreen; lightbox via WebView). Web (2026-06-10): `galleryService.MAX_PHOTOS` 21→50 (app reads it from `/api/galleries` `maxPhotos` — verify no hardcoded 21 in `mobile/`); galleries list page is now just a "+ Create Gallery" button (no name field) — naming happens on the gallery's photo page via a labeled "Gallery name" + Save name control (autofocused when untitled); public-book lightbox prev/next arrows now cover custom galleries + before/firsts/keepsake grids. Mirror flow + cap + photo-swipe in the app.
+- [x] **Master "Save Page" button on gallery editors. VERIFIED parity** (app saves per-field on end-editing — equivalent behavior). Web added a one-tap "save all captions" bar on Birthday/Celebrations(+detail)/Keepsakes/Recipes/Galleries/Journey editors. Confirm the app's equivalent editors save captions in a way that matches (app already saves per-field on blur — verify parity of behavior).
 - [x] ~~Font + contrast refresh in the app~~ — **DECIDED 2026-06-10: app fonts stay as-is** (Dan: "The app fonts look fine on my phone"). Web-only change; no app work needed.
-- [ ] **Child Info — allow decimal weight/length.** Web fixed the length/weight inputs to accept decimals (e.g. 19.8 in) — they were `type=number` with no step (whole-numbers only), which rejected 19.8 with a browser "valid value" error. DB already stores it (`birth_length_inches NUMERIC(4,1)`; weight normalized server-side). Check the app's Child Info screen uses `keyboardType="decimal-pad"` and doesn't block decimals.
+- [x] **Child Info — allow decimal weight/length. DONE in 1.0.18** (decimal-pad keyboards). Web fixed the length/weight inputs to accept decimals (e.g. 19.8 in) — they were `type=number` with no step (whole-numbers only), which rejected 19.8 with a browser "valid value" error. DB already stores it (`birth_length_inches NUMERIC(4,1)`; weight normalized server-side). Check the app's Child Info screen uses `keyboardType="decimal-pad"` and doesn't block decimals.
 
 ---
 
@@ -148,9 +201,12 @@ multiple circles (many-to-many).
 - [ ] **C19 — Demo / presentation video.** On hold (Descript attempt scrapped). Needs a clean screen-recording
       walkthrough of the demo book once the demo site is fixed.
 - [ ] **Demo site `your-childs-name.com`** — fix: (1) top banner overlaps the "Back to Family" button;
-      (2) make recipes clickable → recipe detail page. ⚠️ FIRST resolve the deploy-source mystery — the LIVE
-      demo is served from a richer file than the repo's `your-childs-name-demo.html`; editing the repo copy
-      won't change the live site.
+      (2) make recipes clickable → recipe detail page; (3) possible banned "CHAPTER ONE/TWO/FOUR" eyebrows.
+      ✅ **DEPLOY-SOURCE MYSTERY SOLVED (2026-06-16):** the live demo is hosted on **Spaceship Web Hosting**
+      (NOT Railway, NOT the repo). That's why repo edits (`src/views/book/*`, `your-childs-name-demo.html`)
+      never reach it. **Edits must be made on Spaceship hosting** (file manager / FTP) — needs Spaceship
+      hosting login. See `docs/infrastructure/spaceship-hosting.md` + `docs/domains/your-childs-name.com.md`.
+      Next: get Spaceship-hosting file access, locate the served files, edit there.
 - [ ] **B17 — Smart domain-alternative suggestions** when a searched name is taken (middle name, hyphen,
       nickname, "baby/little" prefixes, alt TLDs). Surface in hero search + checkout modal.
 
@@ -222,8 +278,10 @@ multiple circles (many-to-many).
 - [ ] **`TURNSTILE_SECRET_KEY`** → add to Railway env so contact-form server-side verification activates
       (honeypot defends until then).
 - [ ] **`www.legacyodyssey.com` 404** — add `www` as a Railway custom domain, or a Cloudflare 301 www→apex.
-- [ ] **Delete the zombie Railway service** (`legacy-odyssey-production-a9d1.up.railway.app`) once 1.0.5+ has
-      propagated on both stores.
+- [ ] **Delete the zombie Railway service** (`legacy-odyssey-production-a9d1.up.railway.app`) — ⚠️ Dan-only,
+      via the dashboard UI signed in as the `dragno65` GitHub Railway account (it lives in project
+      `romantic-creation`, a DIFFERENT account). NEVER use the `.env` `RAILWAY_API_TOKEN` for this — it may
+      point at LIVE prod. Full findings + access path: `docs/infrastructure/railway.md`.
 - [ ] **Cancel Cloudflare for SaaS** add-on (no longer used for customer routing; keep CF for the
       legacyodyssey.com zone).
 - [ ] **Delete dead code:** `cloudflareService.js` + old CF migration scripts (Approximated is the layer now).

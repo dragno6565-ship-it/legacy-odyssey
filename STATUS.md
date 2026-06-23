@@ -17,15 +17,52 @@
 
 ---
 
+## 2026-06-23 (night) — facebook
+- Did: Rebuilt the social announcement to match the now-LIVE "Your Contacts" rename (web + app 1.0.19) — new creative `fb-posts/drafts/your-contacts/POST-your-contacts-hero.png` (feature = Your Contacts; parts = Contact List + Circles; website-not-book; no pricing; no real names) + caption linking `/demo`. Retired the old "circles" draft → `drafts/_retired-circles-2026-06-23/`. **Shown to Dan, AWAITING his explicit "post it" — NOT posted.**
+- Others should know: **(email)** good — we're aligned on "Your Contacts" naming; my post links `/demo` (not the blog, whose URL/text still says "Circles"). **(content-organic/coding)** heads-up: `/blog/circles-sharing` still says "Circles" in URL + body — stale vs. the live "Your Contacts" rename; worth updating. Once Dan approves + I post the social, the email's Contacts announcement is unblocked to send.
+- Blocked on Dan: (1) **approve the "Your Contacts" post** (then I post FB → IG and move folder to `posted/`); (2) carry-overs unchanged — IG→FB auto-toggle on phone, Rayan repost stays frozen.
+
+## 2026-06-23 — email
+- Did: **Relabeled the staged feature-announcement email "Circles" → "Your Contacts"** to match
+  the live product (resolves the email half of dispatcher's stale-label flag below). Reframed the
+  body per rule #14 (it's a WEBSITE, not "a book"); rule #13 OK (no real outside names present).
+  Renamed file → `marketing/email/your-contacts-announcement.md` (old `circles-announcement.md`
+  deleted). CTA verified still live (`/blog/circles-sharing`, `book.js:645`). Audience confirmed
+  customers-only (7). **Not sent.**
+- Others should know: **(content-organic)** the linked blog post (`blog-circles-sharing.ejs`)
+  still says "Circles" in its body — URL/slug fine, but relabel to "Your Contacts" for
+  consistency. **(facebook)** dispatcher flagged your `POST-circles-hero.png` as the other
+  stale-labeled asset — still needs the same rename before it goes out. **(coding)** when Dan
+  greenlights, the send is yours: recipient list (7 customers) + RFC 8058 list-unsubscribe via
+  Resend; no subscriber list exists yet.
+- Blocked on Dan: approve the relabeled copy + give the go to send. (Welcome emails to
+  Reese/Lachlan/Jeff also still open — safe to send now, a transactional/coding item.)
+
+## 2026-06-23 (later) — dispatcher
+- Did: New feature request from Dan → routed to **CODING**, added as **TODO backlog item #9**: in the app's "Your Contacts" section, let users **import people from their phone's address book** (instead of typing each). App-only (native contact picker; web can't reach it — parity exception). Suggested approach: `expo-contacts` + permission prompt + multi-select → map name/email(/phone) into existing `book_contacts`, de-dupe, privacy-careful pick-and-confirm (no silent bulk upload). Ties into the already-anticipated Circles Phase 3 "import phone contacts" line.
+- Others should know: **(coding)** this is the natural next build on the just-shipped Your Contacts section — not urgent, slot it after the editor-regroup + the relabel cleanups. **(facebook/email)** good future talking point once shipped ("add family straight from your phone").
+- Blocked on Dan: nothing on this (it's queued, not started).
+
 ## 2026-06-23 — dispatcher
 - Did: Resolved the long-open **real-names rule conflict** — Dan's ruling: **ASK Dan per-situation before using any real outside name/handle/child's name in brand content** (NOT a blanket ban; "credit the influencer" doesn't pre-authorize). Locked into **CLAUDE.md as hard rule #13** (+ #14: product is a WEBSITE not "a book"; sharing feature is "Your Contacts" not "Circles"). **(facebook/influencer/email/affiliates/meta-ads/content-organic)** this is the authoritative version — retire the old BRAND-VOICE-GUIDE "never use real outside names" line; the rule is ask-first, not never.
 - Verified for Dan: (1) **Editor regroup (D-012 step 2) is NOT deployed** — Contact section step 1 is live (`8a559af`, in 1.0.19) but the 4-group regroup has no commit on origin/main and nothing is staged to push; Dan thought it shipped — it hasn't. Coding to confirm/execute. (2) **Contacts announcement assets are STALE-LABELED:** email draft `marketing/email/circles-announcement.md` + FB creative `marketing/facebook/fb-posts/drafts/circles/POST-circles-hero.png` both still say "Circles" — predate the rename; must be relabeled "Your Contacts" before they go out or they'll mismatch the live product.
 - Blocked on Dan: confirm editor-regroup ship status w/ coding; approve the (relabeled) Contacts announcement; standing list (success.ejs $29, secrets→F:\_secrets\, LLC checklist, Intellifluence).
 
 ## 2026-06-22 (later) — coding
-- Did: **Shipped a guided product DEMO — LIVE at `legacyodyssey.com/demo`** (commit `d0ac004`, Dan-approved push). A self-contained tap-through "tour" for showing people the product in person: pick a name → "name.legacyodyssey.com is available ✓" → reserve → the editor (new 4-group layout) → add photos → publish → the finished example baby website → "$29 for the first year." Mobile-first, no login/payment, resets every run, `noindex`, no real names (placeholder "Your Baby"; name is whatever you type live), word-ban clean (verified on the live page). Images in `src/public/demo-assets/`. **Also built the editor regroup (D-012 step 2) web-side — HELD, not deployed** (4 groups on the My Book hub; Family Intro = "Coming soon" placeholder); awaiting Dan's lockstep-vs-web-first call.
-- Others should know: **🔗 (facebook/email/influencer/affiliates) NEW SHAREABLE ASSET: `legacyodyssey.com/demo`** — a 60-second interactive walkthrough Dan can text to prospects or link in bios/posts. It's `noindex` (won't show in search) but fully shareable by direct link. Follows all brand rules (canonical pitch, $29, no banned words, no real names). Use it. **(chief-of-staff)** the editor regroup is built but deploy is gated on Dan choosing lockstep (build mobile too) vs web-first.
-- Blocked on Dan: (1) **editor regroup ship method** — lockstep mobile build vs web-first push (decision pending). Carry-overs unchanged below.
+- Did: **Editor regroup (D-012 step 2) now SHIPPED** (`17b2e39`) — answers dispatcher's 06-23 "not deployed" flag.
+  My Book hub regrouped into **Main page / Your Odyssey / Family & Memories / Your Contacts** + a Manage footer,
+  **app↔web lockstep**. **Web is LIVE** (deployed; verified healthy — `/account/book` 302 not 500). **Mobile**
+  (`DashboardScreen`) built + JSX-validated + committed, **rides the next app build** (NOT auto-deployed; app
+  build/submit needs Dan's OK and 1.0.19 is still in review). **Family Intro = disabled "Coming soon" placeholder**
+  on both — real feature still needs a design pass + build. Earlier this session also built the `/demo` walkthrough
+  but **Dan put it ON HOLD (too thin)** — still live but unlinked/`noindex`; keep-or-404 is Dan's call.
+- Others should know: **(dispatcher)** my push also carried YOUR unpushed `60d6664` (real-names rule / CLAUDE.md
+  #13/#14) out to origin — it was sitting local-ahead; flagging so it's not a surprise (docs-only, intended).
+  **⚠️ (next coding session)** rule violation spotted in `mobile/src/screens/DashboardScreen.js`: `DEMO_BOOK` uses
+  a fake person name **"Sophia Smith"** — should be a placeholder (no-invented-names rule). Left as-is (out of
+  scope for the regroup) — fix next.
+- Blocked on Dan: (1) when to build+submit the next app build (**1.0.20**) so the mobile regroup goes live —
+  gated on 1.0.19 clearing review + Dan's store-submit OK. (2) **Family Intro** design pass. (3) `/demo` keep-or-404.
 
 ## 2026-06-22 — coding
 - Did: **Submitted 1.0.19 to BOTH stores (lockstep).** iOS → **App Store, Waiting for Review** (build 33, export-compliance auto-cleared via `ITSAppUsesNonExemptEncryption:false`); Android → **Google Play production** (in review). Apple review ≤48h, email on outcome. Ships the **"Your Contacts" section** (Circles+Contacts re-homed to their own top-level area), **alphabetical contact list**, + **gift-admin tools** (resend gift email, edit recipient email/message, default confirmation-copy-to ops inbox). Recovered cleanly from a frozen ASC tab mid-submit (re-attached build in a fresh tab; single 1.0.19 submission, nothing duplicated).
