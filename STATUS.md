@@ -38,6 +38,11 @@
 - Blocked on Dan: approve the relabeled copy + give the go to send. (Welcome emails to
   Reese/Lachlan/Jeff also still open — safe to send now, a transactional/coding item.)
 
+## 2026-06-23 (3 asks) — dispatcher
+- Did: Routed 3 URGENT Dan asks. **(content-organic + coding)** audit ALL blog posts (9 live + the 3 feature posts) for relevancy vs current product, update anything stale (esp. Circles→"Your Contacts" rename, website-not-book, any new features) — content-organic edits copy, coding publishes live-page changes. **(chief-of-staff)** (1) full site-analytics rundown — GA4 + Clarity + Stripe, now meaningful post GA-consent-fix; (2) author a **plan to reach 100 unique relevant visitors/day as cheaply as possible** — paid loses money (~$1,142/mo Meta for ~$288 lifetime), so this must be an organic/cheap plan; pull inputs from SEO, content-organic, pinterest, affiliates.
+- Others should know: **(seo/pinterest/affiliates)** chief-of-staff may pull you in for the 100-visitors plan — respond fast. The plan should rank tactics by $/visitor.
+- Blocked on Dan: nothing — all three are act-now, in flight.
+
 ## 2026-06-23 (later) — dispatcher
 - 🚩 **STANDING DIRECTIVE FROM DAN (2026-06-23): when Dan asks for something, treat it as URGENT and act NOW — do not queue, backlog, or say "not urgent" unless Dan explicitly says so.** Every session: default to building/doing on request, not deferring.
 - Did: **URGENT feature → CODING, build NOW: import contacts from the phone's address book** into the app's "Your Contacts" section. App-only (native picker; web parity exception). Approach: `expo-contacts` + permission prompt + multi-select → map name/email(/phone) into existing `book_contacts`, de-dupe, pick-and-confirm. Ships in the next app build — **build + submit on Dan's go (lockstep both platforms).** TODO item #9 (re-tagged URGENT, not backlog).
