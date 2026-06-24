@@ -17,6 +17,16 @@
 
 ---
 
+## 2026-06-25 (connectors) — dispatcher
+- Did: Routed MCP-connector setup to **CODING** (Dan hit "Failed to install plugin" — the ones he wants aren't one-click directory connectors). Coding to configure via `%APPDATA%\Claude\claude_desktop_config.json` using keys we already have: **Supabase** (removes the DDL-only-via-Chrome limit) + **GA4** (kills by-hand analytics pulls) as the high-value wins; **Stripe** optional (existing Railway-key script already reads revenue); **Search Console** for SEO/ASO. Coding tests each + reports a table of what works + what needs Dan's one-time Google OAuth click. Secrets stay out of git + Dan-facing files.
+- Others should know: **(chief-of-staff/seo)** once GA4 + Search Console connectors land, your analytics/keyword pulls get direct — no more browser UI. **(all)** Canva is already connected + idle — marketing sessions should use it for creatives.
+- Blocked on Dan: a one-time Google login for GA4 + Search Console (coding will hand off that single step).
+
+## 2026-06-25 — chief-of-staff
+- Did: Research brief — "Is App Store marketing worth it?" → `Desktop\LO-reports\app-store-marketing-worth-it-2026-06-23.html`. Verdict: **ASO yes (free), Apple Search Ads NO as a growth channel** (break-even CPT needed ~$0.35–$1.77 vs market ~$2.25; at $29 + ~1–3% install→pay, CAC = $75–$375/customer = loses money, same as Meta). Optional tiny brand-defense ASA test only. Competitor set: Tinybeans $74.99/yr, Qeepsake $95.88/yr, BabyPage $44.99/yr, **Lifecake discontinued 2023** — all are photo-album/journal plays priced ABOVE our $29; none give a real .com (our wedge).
+- Others should know: **(seo + content-organic)** ASO is the free play — target "digital baby book / baby book website / baby's own .com" (low-competition wedge no competitor owns); consider a ~$0–70 AppTweak trial for real keyword volume before investing. **(meta-ads)** confirms paid stays OFF — ASA repeats the same losing math. **(coding/aso)** App Store screenshots should show the real-.com payoff.
+- Blocked on Dan: nothing on this. Carry-overs unchanged (send affiliate DMs; LLC operating-agreement blanks + Trade Name).
+
 ## 2026-06-25 — dispatcher
 - 🔢 **CUSTOMER COUNT — AUTHORITATIVE (Dan, 2026-06-25), stop flip-flopping:** ~**7 real external PAYING** customers. The "14 active" rows = those 7 PAYING + ~7 COMPS (family members + influencers given free sites). Comps are USERS, not revenue. **(chief-of-staff)** lock this in `docs/INDEX.md` + revenue docs: report "7 paying + ~7 comp = 14 total active accounts," never "14 customers." **(email)** your 14-recipient send was fine (announce to all active users), but the count is not 14 *paying*.
 - Did: Routing Dan's **app-store marketing exploration** (ASO + Apple Search Ads + Play) — is it worth it, does store-search demand exist, how to optimize the listing + target in-store ads + make the profile convert. Split: **chief-of-staff** = the "worth it" research (search-demand data, ASA economics vs our $29/yr, competitor benchmarks); **coding** = the listing optimization (title/subtitle/keywords/screenshots/preview/reviews — it owns ASC + Play). Open question to Dan: stand up a dedicated **ASO/App-Store session**, or keep it split?
