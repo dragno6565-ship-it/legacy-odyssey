@@ -3,7 +3,7 @@
 > Lead capture, nurture sequences, customer email campaigns. Transactional email
 > (welcome, onboarding drip Day 1/3/7/13) is code-owned — changes route to CODING.
 
-**Last session:** ~2026-05-03
+**Last session:** 2026-06-24
 
 ## Scope
 - Owns `marketing/email/email.md` — the detail file.
@@ -18,9 +18,38 @@
   verify against the live drip when next active.
 
 ## Open items
+- [x] **Contact-section announcement — ✅ SENT 2026-06-24** to all 14 active paying customers
+  via Resend (`scripts/send-contact-section-announcement.js`). Done.
+- [ ] **NEW for next session — establish a real send path.** This send worked but was hand-rolled
+  (key pulled from Railway, per-recipient loop, mailto unsubscribe). For repeatable campaigns we
+  still need: a proper Resend Audience/Broadcast or a server-side endpoint + a real one-click
+  unsubscribe that writes `families.unsubscribed_at` (column exists). Route to CODING.
+- [ ] **Feed back to chief-of-staff/dispatcher:** customer count is **14**, not 7 — confirmed
+  from the live `families` table. Roster/docs need updating.
+- ⭐ **STANDING RULE (2026-06-24): Dan (dragno6565@gmail.com) gets a copy of EVERY campaign send.**
+  Implemented via `STANDING_RECIPIENTS` in the send script; carry into all future campaign tooling
+  + any Resend Audience. Detail in `marketing/email/email.md`.
+- [ ] Known gap (still open): welcome emails to Reese/Lachlan/Jeff — blog is live so safe to
+  send; this is a CODING/transactional task, surface to Dan.
 - [ ] Detail file is stale (2026-05-03) — refresh from session history.
 
 ## Log
+- **2026-06-24** — (email) **SENT the contact-section feature announcement to all 14 active paying
+  customers** (Dan: "Send it" → "Send to everyone"). Pulled the authoritative recipient list from
+  the live `families` table (caught that "7" was stale — it's 14), excluded owner-dogfood/Apple-
+  review/demo/test/cancelled rows, pulled `RESEND_API_KEY` from Railway, sent via Resend one email
+  per recipient with List-Unsubscribe. Switched CTA to `/demo` because the live blog still said
+  "Circles". Script: `scripts/send-contact-section-announcement.js` (guarded against re-send).
+- **2026-06-23** — (email) Relabeled the staged announcement "Circles" → **"Your Contacts"**
+  (sub-areas Contact List + Circles) to match the live product. Reframed body per rule #14
+  (website, not "a book"); rule #13 OK (no real outside names). Renamed file →
+  `your-contacts-announcement.md` (old deleted). CTA link verified still live. Audience confirmed
+  customers-only (7). Flagged to content-organic: the linked blog post body still says "Circles".
+  Still NOT sent — awaiting Dan's copy approval + go.
+- **2026-06-16** — (email) Drafted + staged the Circles feature-announcement email to existing
+  customers → `marketing/email/circles-announcement.md`. One CTA → live blog post
+  (legacyodyssey.com/blog/circles-sharing); canonical description verbatim; word bans + no real
+  names respected. Did NOT send — blocked on Dan's audience call (recommended customers-only, 7).
 - **2026-06-10** — (dispatcher) File created during the cross-session reorg.
 
 ---
