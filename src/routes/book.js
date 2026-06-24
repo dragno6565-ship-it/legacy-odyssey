@@ -3,6 +3,7 @@ const path = require('path');
 const resolveFamily = require('../middleware/resolveFamily');
 const { requireBookPassword, hashPassword, computeSiteLabel } = require('../middleware/requireBookPassword');
 const bookService = require('../services/bookService');
+const { translateBook } = require('../services/translateService');
 const { getPublicUrl } = require('../utils/imageUrl');
 
 /**
@@ -982,7 +983,7 @@ router.get('/', resolveFamily, (req, res, next) => {
     }
 
     // Baby Book
-    const data = await bookService.getFullBook(req.family.id);
+    const data = await translateBook(await bookService.getFullBook(req.family.id), res.locals.lang);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
 
@@ -1012,7 +1013,7 @@ router.get('/celebrations/:yearSlug/:celebrationSlug', resolveFamily, requireBoo
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
-    const data = await bookService.getFullBook(req.family.id);
+    const data = await translateBook(await bookService.getFullBook(req.family.id), res.locals.lang);
     if (!data) return res.status(404).render('book/not-found');
 
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
@@ -1080,7 +1081,7 @@ router.get('/recipes/:slug', resolveFamily, requireBookPassword, async (req, res
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
-    const data = await bookService.getFullBook(req.family.id);
+    const data = await translateBook(await bookService.getFullBook(req.family.id), res.locals.lang);
     if (!data) return res.status(404).render('book/not-found');
 
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
@@ -1134,7 +1135,7 @@ router.get('/keepsakes/:slug', resolveFamily, requireBookPassword, async (req, r
       return res.render('book/suspended', { family: req.family, appDomain });
     }
 
-    const data = await bookService.getFullBook(req.family.id);
+    const data = await translateBook(await bookService.getFullBook(req.family.id), res.locals.lang);
     if (!data) return res.status(404).render('book/not-found');
 
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
@@ -1188,7 +1189,7 @@ router.get('/book/:slug', resolveFamily, requireBookPassword, async (req, res, n
     }
 
     // Baby Book
-    const data = await bookService.getFullBook(req.family.id);
+    const data = await translateBook(await bookService.getFullBook(req.family.id), res.locals.lang);
     if (!data) return res.status(404).render('book/not-found');
     const isFree = req.family.plan !== 'paid' && req.family.subscription_status !== 'active';
 
