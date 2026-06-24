@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-17 (nightly close; flagged the real-names rule conflict for Dan; D-009 revenue resolved = $288 net lifetime)
+**Last session:** 2026-06-24 (nightly close; readability rule #15 + converter; growth=influencer-run giveaway; customer count corrected to 14)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
@@ -55,6 +55,16 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
+- **2026-06-24** — Nightly close. Day: 1.0.20 (phone-contacts import) submitted both stores;
+  contact-section announcement emailed to all 14 customers; family-album demo removed. Set 3
+  new CLAUDE.md hard rules — #13 (ask before real outside names), #14 (website/"Your Contacts"
+  not "Circles"), #15 (Dan-facing deliverables ship as readable HTML via `scripts/md-to-html.py`
+  → `Desktop\LO-reports\`, never raw .md); built that converter. Standing directive saved to
+  memory: Dan's requests = urgent, act now. Growth: Dan rejected bot-heavy Meta traffic + the
+  name-check contest; wants 100 RELEVANT humans in 24h via an **influencer-RUN giveaway package**
+  (influencer + affiliates building it, $0 comp prizes + 35% hook) + manual high-intent outreach.
+  Flagged the /demo conflict (banned as link + on hold) — route giveaway to plain legacyodyssey.com.
+  Corrected customer count 7→14. Brutal baseline: ~6 real visitors/day (~70% bots).
 - **2026-06-17** — Nightly close. Wins: GA consent-timing fix LIVE; D-009 fully resolved
   (lifetime $287.95 net, 7 real external paying customers); Contact section built (D-012
   step 1, unpushed, awaiting deploy go); editor IA revamp approved (D-012/13/14); Amanda
