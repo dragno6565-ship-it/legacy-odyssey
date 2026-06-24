@@ -38,6 +38,28 @@ router.post('/mine/contacts/import', async (req, res, next) => {
     res.json(await contactService.importContacts(id, people));
   } catch (err) { next(err); }
 });
+
+// App-only: build the pre-filled text for the device's native Messages app.
+// Returns { phone, message } with the contact's private magic link. The app
+// opens the phone's own SMS composer with this and the user sends it from their
+// own number — NO server-sent SMS (no provider / 10DLC needed).
+router.get('/mine/contacts/:id/sms', async (req, res, next) => {
+  try {
+    const id = await bid(req);
+    if (!id) return res.status(404).json({ error: 'No book found' });
+    const contacts = await contactService.listContacts(id);
+    const c = contacts.find((x) => x.id === req.params.id);
+    if (!c) return res.status(404).json({ error: 'Contact not found' });
+    if (!c.phone) return res.status(400).json({ error: 'That contact has no phone number.' });
+    const f = req.family;
+    const bookUrl = f.custom_domain ? `https://www.${f.custom_domain}` : `https://${f.subdomain}.legacyodyssey.com`;
+    const { computeSiteLabel } = require('../../middleware/requireBookPassword');
+    const siteLabel = await computeSiteLabel(f);
+    const link = `${bookUrl}/?circle=${c.access_token}`;
+    const message = `There's something new on ${siteLabel} — take a look (no password needed): ${link}`;
+    res.json({ phone: c.phone, name: c.name, message });
+  } catch (err) { next(err); }
+});
 router.put('/mine/contacts/:id', async (req, res, next) => {
   try { res.json(await contactService.updateContact(await bid(req), req.params.id, req.body)); } catch (err) { next(err); }
 });
@@ -66,6 +88,7 @@ router.post('/mine/notify', async (req, res) => {
     const result = await contactService.notifyCircle({
       bookId: id,
       circleId: (req.body.circleId || '').trim() || null,
+      contactId: (req.body.contactId || '').trim() || null,
       note: req.body.note,
       bookUrl,
       siteLabel,

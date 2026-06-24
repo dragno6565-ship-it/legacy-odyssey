@@ -62,12 +62,21 @@
         <div class="row">
           <div>
             <label>Who</label>
-            <select name="circleId" style="width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416; background:#fff; margin-bottom:0.6rem;">
+            <select name="target" style="width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416; background:#fff; margin-bottom:0.6rem;">
               <option value="">Everyone (<%= notifiable.length %>)</option>
-              <% (circles || []).forEach(function(c) { %>
-                <% var n = notifiable.filter(function(p){ return (p.circle_ids || []).indexOf(c.id) !== -1; }).length; %>
-                <option value="<%= c.id %>"><%= c.name %> (<%= n %>)</option>
-              <% }); %>
+              <% if ((circles || []).length) { %>
+              <optgroup label="A circle">
+                <% (circles || []).forEach(function(c) { %>
+                  <% var n = notifiable.filter(function(p){ return (p.circle_ids || []).indexOf(c.id) !== -1; }).length; %>
+                  <option value="circle:<%= c.id %>"><%= c.name %> (<%= n %>)</option>
+                <% }); %>
+              </optgroup>
+              <% } %>
+              <optgroup label="One person">
+                <% notifiable.forEach(function(p) { %>
+                  <option value="contact:<%= p.id %>"><%= p.name %></option>
+                <% }); %>
+              </optgroup>
             </select>
           </div>
           <div style="flex:2;">
@@ -76,7 +85,8 @@
           </div>
         </div>
         <button type="submit" class="btn">Send Update</button>
-        <span class="muted" style="margin-left:0.6rem;">One update per 10 minutes, so inboxes stay friendly.</span>
+        <span class="muted" style="margin-left:0.6rem;">One broadcast per 10 minutes; sending to a single person isn't limited.</span>
+        <p class="muted" style="margin-top:0.5rem;">Only people with an email address on their card can receive an update — that's how their private link is delivered.</p>
       </form>
     </div>
     <% } %>

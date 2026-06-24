@@ -632,9 +632,16 @@ router.post('/book/circles/notify', requireAccountSession, async (req, res) => {
       : `https://${f.subdomain}.legacyodyssey.com`;
     const { computeSiteLabel } = require('../middleware/requireBookPassword');
     const siteLabel = await computeSiteLabel(f);
+    // "Who" submits a single value: "" = Everyone, "circle:<id>", or "contact:<id>".
+    const target = (req.body.target || req.body.circleId || '').trim();
+    let circleId = null, contactId = null;
+    if (target.indexOf('circle:') === 0) circleId = target.slice(7);
+    else if (target.indexOf('contact:') === 0) contactId = target.slice(8);
+    else if (target) circleId = target; // backward-compat: bare circle id
     const result = await contactService.notifyCircle({
       bookId: bid,
-      circleId: (req.body.circleId || '').trim() || null,
+      circleId,
+      contactId,
       note: req.body.note,
       bookUrl,
       siteLabel,

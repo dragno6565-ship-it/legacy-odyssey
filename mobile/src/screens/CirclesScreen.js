@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Modal, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Contacts from 'expo-contacts';
-import { Users, Trash2, Send, UserPlus } from 'lucide-react-native';
+import * as SMS from 'expo-sms';
+import { Users, Trash2, Send, UserPlus, MessageSquare } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
 
@@ -16,7 +17,7 @@ export default function CirclesScreen() {
   const [circles, setCircles] = useState([]);
 
   // Send an Update (Phase 2)
-  const [notifyCircleId, setNotifyCircleId] = useState(null); // null = Everyone
+  const [notifyTarget, setNotifyTarget] = useState({ type: 'all' }); // {type:'all'|'circle'|'contact', id}
   const [notifyNote, setNotifyNote] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -100,6 +101,23 @@ export default function CirclesScreen() {
     ]);
   }
 
+  // Text an update from YOUR phone's Messages app (no server SMS — opens the
+  // native composer pre-filled with the person's private link). Server builds
+  // the message so the magic-link logic stays in one place.
+  async function textContact(p) {
+    if (!p.phone) { Alert.alert('No phone number', `Add a phone number to ${p.name}'s contact card first.`); return; }
+    try {
+      const available = await SMS.isAvailableAsync();
+      if (!available) { Alert.alert('Texting not available', "This device can't send text messages."); return; }
+      const res = await get('/api/contacts/mine/contacts/' + p.id + '/sms');
+      const phone = (res.data && res.data.phone) || p.phone;
+      const message = (res.data && res.data.message) || '';
+      await SMS.sendSMSAsync([phone], message);
+    } catch (e) {
+      Alert.alert('Could not open Messages', 'Please try again.');
+    }
+  }
+
   // ── Import from phone (expo-contacts) ────────────────────────────────────
   const _name = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
   const _email = (s) => (s || '').trim().toLowerCase();
@@ -175,9 +193,10 @@ export default function CirclesScreen() {
   // ── Send an Update (Phase 2) ─────────────────────────────────────────────
   const notifiable = contacts.filter((c) => c.email && c.notify_opt_in !== false && !c.unsubscribed_at);
   const notifiableInCircle = (c) => notifiable.filter((p) => (p.circle_ids || []).indexOf(c.id) !== -1).length;
-  const selectedCount = notifyCircleId
-    ? notifiableInCircle(circles.find((c) => c.id === notifyCircleId) || { id: notifyCircleId })
-    : notifiable.length;
+  const selectedCount =
+    notifyTarget.type === 'contact' ? 1 :
+    notifyTarget.type === 'circle' ? notifiableInCircle(circles.find((c) => c.id === notifyTarget.id) || { id: notifyTarget.id }) :
+    notifiable.length;
 
   function sendUpdate() {
     if (sending || !selectedCount) return;
@@ -189,7 +208,10 @@ export default function CirclesScreen() {
         { text: 'Send', onPress: async () => {
           setSending(true);
           try {
-            const res = await post('/api/contacts/mine/notify', { circleId: notifyCircleId || '', note: notifyNote.trim() });
+            const body = { note: notifyNote.trim() };
+            if (notifyTarget.type === 'circle') body.circleId = notifyTarget.id;
+            else if (notifyTarget.type === 'contact') body.contactId = notifyTarget.id;
+            const res = await post('/api/contacts/mine/notify', body);
             const sent = (res.data && res.data.sent) || 0;
             setNotifyNote('');
             Alert.alert('Sent', `Update sent to ${sent} ${sent === 1 ? 'person' : 'people'}.`);
@@ -239,15 +261,33 @@ export default function CirclesScreen() {
           <Text style={[styles.muted, { marginBottom: spacing.sm }]}>Let people know there’s something new in the book. Each person gets an email with their own private link — no password needed.</Text>
           <Text style={styles.label}>Who</Text>
           <View style={styles.chips}>
-            <TouchableOpacity onPress={() => setNotifyCircleId(null)} style={[styles.chip, !notifyCircleId && styles.chipOn]}>
-              <Text style={[styles.chipText, !notifyCircleId && styles.chipTextOn]}>Everyone ({notifiable.length})</Text>
+            <TouchableOpacity onPress={() => setNotifyTarget({ type: 'all' })} style={[styles.chip, notifyTarget.type === 'all' && styles.chipOn]}>
+              <Text style={[styles.chipText, notifyTarget.type === 'all' && styles.chipTextOn]}>Everyone ({notifiable.length})</Text>
             </TouchableOpacity>
-            {circles.map((c) => (
-              <TouchableOpacity key={c.id} onPress={() => setNotifyCircleId(c.id)} style={[styles.chip, notifyCircleId === c.id && styles.chipOn]}>
-                <Text style={[styles.chipText, notifyCircleId === c.id && styles.chipTextOn]}>{c.name} ({notifiableInCircle(c)})</Text>
-              </TouchableOpacity>
-            ))}
+            {circles.map((c) => {
+              const on = notifyTarget.type === 'circle' && notifyTarget.id === c.id;
+              return (
+                <TouchableOpacity key={c.id} onPress={() => setNotifyTarget({ type: 'circle', id: c.id })} style={[styles.chip, on && styles.chipOn]}>
+                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{c.name} ({notifiableInCircle(c)})</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
+          {notifiable.length ? (
+            <>
+              <Text style={[styles.label, { marginTop: spacing.xs }]}>Or one person</Text>
+              <View style={styles.chips}>
+                {notifiable.map((p) => {
+                  const on = notifyTarget.type === 'contact' && notifyTarget.id === p.id;
+                  return (
+                    <TouchableOpacity key={p.id} onPress={() => setNotifyTarget({ type: 'contact', id: p.id })} style={[styles.chip, on && styles.chipOn]}>
+                      <Text style={[styles.chipText, on && styles.chipTextOn]}>{p.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          ) : null}
           <TextInput
             style={styles.input}
             value={notifyNote}
@@ -315,6 +355,12 @@ export default function CirclesScreen() {
               <View style={styles.cardHead}>
                 <Text style={styles.cardTitle}>{p.name}</Text>
                 <View style={styles.rowEnd}>
+                  {p.phone ? (
+                    <TouchableOpacity onPress={() => textContact(p)} style={styles.textBtn}>
+                      <MessageSquare size={15} color={colors.gold} />
+                      <Text style={styles.link}>Text</Text>
+                    </TouchableOpacity>
+                  ) : null}
                   <TouchableOpacity onPress={() => startEdit(p)}><Text style={styles.link}>Edit</Text></TouchableOpacity>
                   <TouchableOpacity onPress={() => deleteContact(p)}><Trash2 size={18} color={colors.error} /></TouchableOpacity>
                 </View>
@@ -434,6 +480,7 @@ const styles = StyleSheet.create({
   btnSm: { backgroundColor: colors.gold, borderRadius: borderRadius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, justifyContent: 'center' },
   btnSmText: { color: '#fff', fontSize: typography.sizes.sm, fontWeight: typography.weights.semibold },
   dim: { opacity: 0.5 },
+  textBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   importRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalSheet: { backgroundColor: colors.background, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: spacing.lg, maxHeight: '88%' },

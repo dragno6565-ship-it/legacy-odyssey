@@ -250,23 +250,33 @@ async function unsubscribeByToken(token) {
  * NOTIFY_COOLDOWN_MIN minutes; writes a book_update_notifications audit row.
  * Shared by the web editor and the app API (parity rule).
  */
-async function notifyCircle({ bookId, circleId = null, note = '', bookUrl, siteLabel, senderName }) {
-  // Rate limit — protects the contacts from accidental double-blasts.
-  const { data: lastBlast } = await supabaseAdmin
-    .from('book_update_notifications')
-    .select('sent_at').eq('book_id', bookId)
-    .order('sent_at', { ascending: false }).limit(1);
-  if (lastBlast && lastBlast[0]) {
-    const ageMin = (Date.now() - new Date(lastBlast[0].sent_at).getTime()) / 60000;
-    if (ageMin < NOTIFY_COOLDOWN_MIN) {
-      throw new Error(`You just sent an update. To avoid flooding inboxes, you can send the next one in ${Math.ceil(NOTIFY_COOLDOWN_MIN - ageMin)} minute(s).`);
+async function notifyCircle({ bookId, circleId = null, contactId = null, note = '', bookUrl, siteLabel, senderName }) {
+  // Rate limit — protects inboxes from accidental double-blasts. Only applies to
+  // BROADCASTS (Everyone / a circle); sending to a single chosen contact is a
+  // deliberate one-off and skips the cooldown.
+  if (!contactId) {
+    const { data: lastBlast } = await supabaseAdmin
+      .from('book_update_notifications')
+      .select('sent_at').eq('book_id', bookId)
+      .order('sent_at', { ascending: false }).limit(1);
+    if (lastBlast && lastBlast[0]) {
+      const ageMin = (Date.now() - new Date(lastBlast[0].sent_at).getTime()) / 60000;
+      if (ageMin < NOTIFY_COOLDOWN_MIN) {
+        throw new Error(`You just sent an update. To avoid flooding inboxes, you can send the next one in ${Math.ceil(NOTIFY_COOLDOWN_MIN - ageMin)} minute(s).`);
+      }
     }
   }
 
-  // Resolve recipients.
+  // Resolve recipients: a single contact, a circle, or everyone.
   let contacts = await listContacts(bookId);
   let circleName = null;
-  if (circleId) {
+  if (contactId) {
+    const one = contacts.find((c) => c.id === contactId);
+    if (!one) throw new Error('That contact is no longer on your list.');
+    if (!one.email) throw new Error(`${one.name || 'That contact'} has no email address — add one on their contact card to send them an update.`);
+    if (one.notify_opt_in === false || one.unsubscribed_at) throw new Error(`${one.name || 'That contact'} has unsubscribed from updates.`);
+    contacts = [one];
+  } else if (circleId) {
     const circles = await listCircles(bookId);
     const circle = circles.find((c) => c.id === circleId);
     if (!circle) throw new Error('That circle no longer exists.');
