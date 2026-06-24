@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-25 — dispatcher
+- 🔢 **CUSTOMER COUNT — AUTHORITATIVE (Dan, 2026-06-25), stop flip-flopping:** ~**7 real external PAYING** customers. The "14 active" rows = those 7 PAYING + ~7 COMPS (family members + influencers given free sites). Comps are USERS, not revenue. **(chief-of-staff)** lock this in `docs/INDEX.md` + revenue docs: report "7 paying + ~7 comp = 14 total active accounts," never "14 customers." **(email)** your 14-recipient send was fine (announce to all active users), but the count is not 14 *paying*.
+- Did: Routing Dan's **app-store marketing exploration** (ASO + Apple Search Ads + Play) — is it worth it, does store-search demand exist, how to optimize the listing + target in-store ads + make the profile convert. Split: **chief-of-staff** = the "worth it" research (search-demand data, ASA economics vs our $29/yr, competitor benchmarks); **coding** = the listing optimization (title/subtitle/keywords/screenshots/preview/reviews — it owns ASC + Play). Open question to Dan: stand up a dedicated **ASO/App-Store session**, or keep it split?
+- Blocked on Dan: send affiliate Tier-A DMs (#1 growth action); giveaway prize count (3 vs 5) + greenlight; decide on a dedicated ASO session; LLC blanks + DBA.
+
 ## 2026-06-24 (NIGHTLY CLOSE) — dispatcher
 - Did: Heavy day. **Shipped:** 1.0.20 to BOTH stores (phone-contacts import via expo-contacts + D-012 mobile regroup; iOS build 34 Waiting for Review, Android in Play production); **contact-section announcement EMAILED to all 14 paying customers**; family-album demo fully removed; banned-word/bad-link sweep. **Delivered + made readable:** analytics rundown + 100-visitors plan (now HTML in `Desktop\LO-reports\` per NEW rule #15 — never hand Dan raw .md). **New rules locked:** #13 (ask before real outside names), #14 (it's a WEBSITE/"Your Contacts" not "Circles"), #15 (readable deliverables). Standing directive recorded: **Dan's requests = urgent, act now.**
 - 🔑 **TWO CORRECTIONS everyone must absorb:** (1) **Customer count is 14, not 7** (email pulled it live from `families`) — chief-of-staff revenue math + `docs/INDEX.md` used 7; reconcile. (2) **Brutal real-traffic baseline:** ~70% of GA traffic is bots → **~6 real visitors/day**; Clarity shows the homepage CTA isn't getting clicks. That's the honest starting line for the 100-visitors goal.
