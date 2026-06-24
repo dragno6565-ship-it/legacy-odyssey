@@ -16,7 +16,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useSavedToast } from '../components/SavedToast';
 import { useI18n } from '../i18n/I18nContext';
 
-const APP_VERSION = '1.0.6';
+const APP_VERSION = '1.0.22';
 
 export default function SettingsScreen({ navigation }) {
   const { logout, families, activeFamilyId } = useAuth();
