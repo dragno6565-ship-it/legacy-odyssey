@@ -6,11 +6,13 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import { I18nProvider, useI18n } from './src/i18n/I18nContext';
 import { colors, typography } from './src/theme';
 
 /** Eye icon button shown in the header of every editing screen */
 function PreviewButton() {
   const navigation = useNavigation();
+  const { t } = useI18n();
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('Preview')}
@@ -18,7 +20,7 @@ function PreviewButton() {
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
       <Text style={{ color: colors.gold, fontSize: 13, fontWeight: '600', letterSpacing: 0.3 }}>
-        👁 Preview
+        {t('appnav.preview_button')}
       </Text>
     </TouchableOpacity>
   );
@@ -100,6 +102,7 @@ function AuthNavigator() {
 // FamilyAlbumNavigator removed — Family Album product retired. Baby Book is the only product now.
 
 function AppNavigator() {
+  const { t } = useI18n();
   return (
     <AppStack.Navigator screenOptions={defaultScreenOptions}>
       <AppStack.Screen
@@ -107,44 +110,44 @@ function AppNavigator() {
         component={DashboardScreen}
         options={{ headerShown: false }}
       />
-      <AppStack.Screen name="ChildInfo" component={ChildInfoScreen} options={{ title: 'Child Info' }} />
-      <AppStack.Screen name="BeforeArrived" component={BeforeScreen} options={{ title: 'Before You Arrived' }} />
-      <AppStack.Screen name="BirthStory" component={BirthStoryScreen} options={{ title: 'Birth Story' }} />
-      <AppStack.Screen name="BirthDay" component={BirthDayScreen} options={{ title: 'Your Birth Day' }} />
-      <AppStack.Screen name="Moments" component={MomentsScreen} options={{ title: 'Video Moments' }} />
-      <AppStack.Screen name="Galleries" component={GalleriesScreen} options={{ title: 'Custom Galleries' }} />
-      <AppStack.Screen name="Circles" component={CirclesScreen} options={{ title: 'Your Contacts' }} />
-      <AppStack.Screen name="GalleryDetail" component={GalleryDetailScreen} options={{ title: 'Gallery' }} />
-      <AppStack.Screen name="Journey" component={JourneyScreen} options={{ title: 'Your Journey to Us' }} />
-      <AppStack.Screen name="ComingHome" component={ComingHomeScreen} options={{ title: 'Coming Home' }} />
-      <AppStack.Screen name="Months" component={MonthsScreen} options={{ title: 'Month by Month' }} />
+      <AppStack.Screen name="ChildInfo" component={ChildInfoScreen} options={{ title: t('appnav.child_info') }} />
+      <AppStack.Screen name="BeforeArrived" component={BeforeScreen} options={{ title: t('appnav.before') }} />
+      <AppStack.Screen name="BirthStory" component={BirthStoryScreen} options={{ title: t('appnav.birth_story') }} />
+      <AppStack.Screen name="BirthDay" component={BirthDayScreen} options={{ title: t('appnav.birth_day') }} />
+      <AppStack.Screen name="Moments" component={MomentsScreen} options={{ title: t('appnav.moments') }} />
+      <AppStack.Screen name="Galleries" component={GalleriesScreen} options={{ title: t('appnav.galleries') }} />
+      <AppStack.Screen name="Circles" component={CirclesScreen} options={{ title: t('appnav.contacts') }} />
+      <AppStack.Screen name="GalleryDetail" component={GalleryDetailScreen} options={{ title: t('appnav.gallery') }} />
+      <AppStack.Screen name="Journey" component={JourneyScreen} options={{ title: t('appnav.journey') }} />
+      <AppStack.Screen name="ComingHome" component={ComingHomeScreen} options={{ title: t('appnav.coming_home') }} />
+      <AppStack.Screen name="Months" component={MonthsScreen} options={{ title: t('appnav.months') }} />
       <AppStack.Screen
         name="MonthDetail"
         component={MonthDetailScreen}
-        options={({ route }) => ({ title: `Month ${route.params?.monthLabel || ''}` })}
+        options={({ route }) => ({ title: t('appnav.month_detail', { label: route.params?.monthLabel || '' }) })}
       />
-      <AppStack.Screen name="OurFamily" component={FamilyScreen} options={{ title: 'Our Family' }} />
+      <AppStack.Screen name="OurFamily" component={FamilyScreen} options={{ title: t('appnav.our_family') }} />
       <AppStack.Screen
         name="FamilyMember"
         component={FamilyMemberScreen}
-        options={({ route }) => ({ title: route.params?.memberName || 'Family Member' })}
+        options={({ route }) => ({ title: route.params?.memberName || t('appnav.family_member_default') })}
       />
-      <AppStack.Screen name="YourFirsts" component={FirstsScreen} options={{ title: 'Your Firsts' }} />
-      <AppStack.Screen name="Celebrations" component={CelebrationsScreen} options={{ title: 'Celebrations' }} />
-      <AppStack.Screen name="CelebrationYear" component={CelebrationYearScreen} options={{ title: 'Celebrations' }} />
-      <AppStack.Screen name="CelebrationDetail" component={CelebrationDetailScreen} options={{ title: 'Celebration' }} />
-      <AppStack.Screen name="Letters" component={LettersScreen} options={{ title: 'Letters to You' }} />
-      <AppStack.Screen name="FamilyRecipes" component={RecipesScreen} options={{ title: 'Family Recipes' }} />
-      <AppStack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ title: 'Recipe' }} />
-      <AppStack.Screen name="Keepsakes" component={KeepsakesScreen} options={{ title: 'Their Keepsakes' }} />
-      <AppStack.Screen name="KeepsakeDetail" component={KeepsakeDetailScreen} options={{ title: 'Keepsake' }} />
-      <AppStack.Screen name="TheVault" component={VaultScreen} options={{ title: 'The Vault' }} />
-      <AppStack.Screen name="ManageSections" component={ManageSectionsScreen} options={{ title: 'Website Sections' }} />
-      <AppStack.Screen name="NewWebsite" component={NewWebsiteScreen} options={{ title: 'New Website' }} />
-      <AppStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
-      <AppStack.Screen name="Help" component={HelpScreen} options={{ title: 'Help & Support' }} />
-      <AppStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Book Preview', headerRight: null }} />
-      <AppStack.Screen name="AdditionalDomain" component={AdditionalDomainScreen} options={{ title: 'Add Another Book' }} />
+      <AppStack.Screen name="YourFirsts" component={FirstsScreen} options={{ title: t('appnav.firsts') }} />
+      <AppStack.Screen name="Celebrations" component={CelebrationsScreen} options={{ title: t('appnav.celebrations') }} />
+      <AppStack.Screen name="CelebrationYear" component={CelebrationYearScreen} options={{ title: t('appnav.celebrations') }} />
+      <AppStack.Screen name="CelebrationDetail" component={CelebrationDetailScreen} options={{ title: t('appnav.celebration') }} />
+      <AppStack.Screen name="Letters" component={LettersScreen} options={{ title: t('appnav.letters') }} />
+      <AppStack.Screen name="FamilyRecipes" component={RecipesScreen} options={{ title: t('appnav.recipes') }} />
+      <AppStack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ title: t('appnav.recipe') }} />
+      <AppStack.Screen name="Keepsakes" component={KeepsakesScreen} options={{ title: t('appnav.keepsakes') }} />
+      <AppStack.Screen name="KeepsakeDetail" component={KeepsakeDetailScreen} options={{ title: t('appnav.keepsake') }} />
+      <AppStack.Screen name="TheVault" component={VaultScreen} options={{ title: t('appnav.vault') }} />
+      <AppStack.Screen name="ManageSections" component={ManageSectionsScreen} options={{ title: t('appnav.manage_sections') }} />
+      <AppStack.Screen name="NewWebsite" component={NewWebsiteScreen} options={{ title: t('appnav.new_website') }} />
+      <AppStack.Screen name="Settings" component={SettingsScreen} options={{ title: t('appnav.settings') }} />
+      <AppStack.Screen name="Help" component={HelpScreen} options={{ title: t('appnav.help') }} />
+      <AppStack.Screen name="Preview" component={PreviewScreen} options={{ title: t('appnav.preview'), headerRight: null }} />
+      <AppStack.Screen name="AdditionalDomain" component={AdditionalDomainScreen} options={{ title: t('appnav.additional_domain') }} />
     </AppStack.Navigator>
   );
 }
@@ -172,6 +175,7 @@ export default function App() {
   }, []);
 
   return (
+    <I18nProvider>
     <AuthProvider>
       <UploadProvider>
       <NavigationContainer
@@ -198,6 +202,7 @@ export default function App() {
       </NavigationContainer>
       </UploadProvider>
     </AuthProvider>
+    </I18nProvider>
   );
 }
 

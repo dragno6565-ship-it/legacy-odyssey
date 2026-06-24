@@ -4,8 +4,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Images, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function GalleriesScreen({ navigation }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [galleries, setGalleries] = useState([]);
   const [creating, setCreating] = useState(false);
@@ -14,7 +16,7 @@ export default function GalleriesScreen({ navigation }) {
     try {
       const res = await get('/api/galleries/mine');
       setGalleries((res.data && res.data.galleries) || []);
-    } catch (err) { if (err.status !== 404) Alert.alert('Error', 'Could not load galleries.'); }
+    } catch (err) { if (err.status !== 404) Alert.alert(t('app.galleries.error_title'), t('app.galleries.load_error')); }
     finally { setLoading(false); }
   }, []);
 
@@ -30,7 +32,7 @@ export default function GalleriesScreen({ navigation }) {
     next.splice(to, 0, g);
     setGalleries(next);
     try { await put('/api/galleries/mine/reorder', { order: next.map((x) => x.id) }); }
-    catch (e) { Alert.alert('Error', 'Could not save the new order.'); fetchGalleries(); }
+    catch (e) { Alert.alert(t('app.galleries.error_title'), t('app.galleries.reorder_error')); fetchGalleries(); }
   }
 
   // Create-then-name flow (matches web): the gallery is created untitled and
@@ -41,7 +43,7 @@ export default function GalleriesScreen({ navigation }) {
       const res = await post('/api/galleries/mine', {});
       const g = res.data || res;
       navigation.navigate('GalleryDetail', { galleryId: g.id, title: g.title });
-    } catch (err) { Alert.alert('Error', 'Could not create gallery.'); }
+    } catch (err) { Alert.alert(t('app.galleries.error_title'), t('app.galleries.create_error')); }
     finally { setCreating(false); }
   }
 
@@ -49,10 +51,10 @@ export default function GalleriesScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.pageTitle}>Custom Galleries</Text>
-      <Text style={styles.pageSubtitle}>Make your own photo galleries — name each one, up to 50 photos with captions.</Text>
+      <Text style={styles.pageTitle}>{t('app.galleries.page_title')}</Text>
+      <Text style={styles.pageSubtitle}>{t('app.galleries.page_subtitle')}</Text>
 
-      {galleries.length === 0 ? <Text style={styles.empty}>No galleries yet — create your first one below.</Text> : null}
+      {galleries.length === 0 ? <Text style={styles.empty}>{t('app.galleries.empty')}</Text> : null}
 
       {galleries.map((g, i) => (
         <TouchableOpacity key={g.id} style={styles.galRow} activeOpacity={0.8}
@@ -63,8 +65,8 @@ export default function GalleriesScreen({ navigation }) {
             <View style={[styles.cover, styles.coverEmpty]}><Images size={24} color={colors.gold} /></View>
           )}
           <View style={{ flex: 1 }}>
-            <Text style={styles.galTitle}>{g.title || 'Untitled Gallery'}</Text>
-            <Text style={styles.galCount}>{(g.photos || []).length} photo{(g.photos || []).length === 1 ? '' : 's'}</Text>
+            <Text style={styles.galTitle}>{g.title || t('app.galleries.untitled')}</Text>
+            <Text style={styles.galCount}>{(g.photos || []).length === 1 ? t('app.galleries.photo_count_one', { count: 1 }) : t('app.galleries.photo_count_other', { count: (g.photos || []).length })}</Text>
           </View>
           {galleries.length > 1 ? (
             <View style={styles.orderBtns}>
@@ -79,13 +81,13 @@ export default function GalleriesScreen({ navigation }) {
           <ChevronRight size={20} color={colors.textSecondary} />
         </TouchableOpacity>
       ))}
-      {galleries.length > 1 ? <Text style={styles.orderHint}>Use the arrows to reorder — this is the order visitors see.</Text> : null}
+      {galleries.length > 1 ? <Text style={styles.orderHint}>{t('app.galleries.order_hint')}</Text> : null}
 
       <View style={styles.createBox}>
         <TouchableOpacity style={[styles.btn, creating && styles.btnDisabled]} onPress={createGallery} disabled={creating}>
-          {creating ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>+ Create Gallery</Text>}
+          {creating ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('app.galleries.create_button')}</Text>}
         </TouchableOpacity>
-        <Text style={styles.createHint}>You'll name it on the next page, where you add your photos.</Text>
+        <Text style={styles.createHint}>{t('app.galleries.create_hint')}</Text>
       </View>
     </ScrollView>
   );

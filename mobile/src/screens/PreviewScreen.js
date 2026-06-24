@@ -9,10 +9,12 @@ import { WebView } from 'react-native-webview';
 import { colors, spacing, typography } from '../theme';
 import { BASE_URL } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function PreviewScreen({ route }) {
   const { slug, bookPassword, familyId } = route.params || {};
   const { user } = useAuth();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -45,14 +47,14 @@ export default function PreviewScreen({ route }) {
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color={colors.gold} />
-          <Text style={styles.loadingText}>Loading your book...</Text>
+          <Text style={styles.loadingText}>{t('app.preview.loading')}</Text>
         </View>
       )}
 
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
-            Failed to load book preview. Please check your connection and try again.
+            {t('app.preview.error')}
           </Text>
         </View>
       )}

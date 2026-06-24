@@ -15,6 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 // Lucide line-art icons replace emoji (v1.0.7 brand-consistency pass).
 // Each section's `icon` field is now a React component reference rendered
 // at size=22, color=#c8a96e, strokeWidth=1.5 — see card render below.
@@ -44,48 +45,51 @@ import {
 
 const FREE_SECTIONS = new Set(['childInfo', 'before', 'birth', 'birthday', 'moments', 'galleries', 'journey', 'manageSections', 'help', 'settings']);
 
+// `titleKey` is an i18n key resolved at render time via t(); the icon/screen
+// route names stay hardcoded.
 const SECTIONS = [
-  { key: 'childInfo',      title: 'Welcome / Child Info', icon: Sparkles,        screen: 'ChildInfo' },
-  { key: 'before',         title: 'Before You Arrived',   icon: Heart,           screen: 'BeforeArrived' },
-  { key: 'birth',          title: 'Birth Story',          icon: BookOpen,        screen: 'BirthStory' },
-  { key: 'birthday',       title: 'Your Birth Day',       icon: Camera,          screen: 'BirthDay' },
-  { key: 'moments',        title: 'Video Moments',        icon: Video,           screen: 'Moments' },
-  { key: 'galleries',      title: 'Custom Galleries',     icon: Images,          screen: 'Galleries' },
-  { key: 'journey',        title: 'Your Journey to Us',   icon: Compass,         screen: 'Journey' },
-  { key: 'comingHome',     title: 'Coming Home',          icon: Home,            screen: 'ComingHome' },
-  { key: 'months',         title: 'Month by Month',       icon: Calendar,        screen: 'Months' },
-  { key: 'family',         title: 'Our Family',           icon: Users,           screen: 'OurFamily' },
-  { key: 'firsts',         title: 'Your Firsts',          icon: Star,            screen: 'YourFirsts' },
-  { key: 'celebrations',   title: 'Celebrations',         icon: Gift,            screen: 'Celebrations' },
-  { key: 'letters',        title: 'Letters to You',       icon: Mail,            screen: 'Letters' },
-  { key: 'recipes',        title: 'Family Recipes',       icon: UtensilsCrossed, screen: 'FamilyRecipes' },
-  { key: 'keepsakes',      title: 'Their Keepsakes',      icon: Archive,         screen: 'Keepsakes' },
-  { key: 'vault',          title: 'The Vault',            icon: Lock,            screen: 'TheVault' },
-  { key: 'manageSections', title: 'Website Sections',     icon: Globe,           screen: 'ManageSections' },
-  { key: 'help',           title: 'Help & Support',       icon: LifeBuoy,        screen: 'Help' },
-  { key: 'settings',       title: 'Settings',             icon: SettingsIcon,    screen: 'Settings' },
+  { key: 'childInfo',      titleKey: 'app.dashboard.section_child_info', icon: Sparkles,        screen: 'ChildInfo' },
+  { key: 'before',         titleKey: 'app.dashboard.section_before',     icon: Heart,           screen: 'BeforeArrived' },
+  { key: 'birth',          titleKey: 'app.dashboard.section_birth',      icon: BookOpen,        screen: 'BirthStory' },
+  { key: 'birthday',       titleKey: 'app.dashboard.section_birthday',   icon: Camera,          screen: 'BirthDay' },
+  { key: 'moments',        titleKey: 'app.dashboard.section_moments',    icon: Video,           screen: 'Moments' },
+  { key: 'galleries',      titleKey: 'app.dashboard.section_galleries',  icon: Images,          screen: 'Galleries' },
+  { key: 'journey',        titleKey: 'app.dashboard.section_journey',    icon: Compass,         screen: 'Journey' },
+  { key: 'comingHome',     titleKey: 'app.dashboard.section_coming_home',icon: Home,            screen: 'ComingHome' },
+  { key: 'months',         titleKey: 'app.dashboard.section_months',     icon: Calendar,        screen: 'Months' },
+  { key: 'family',         titleKey: 'app.dashboard.section_family',     icon: Users,           screen: 'OurFamily' },
+  { key: 'firsts',         titleKey: 'app.dashboard.section_firsts',     icon: Star,            screen: 'YourFirsts' },
+  { key: 'celebrations',   titleKey: 'app.dashboard.section_celebrations',icon: Gift,           screen: 'Celebrations' },
+  { key: 'letters',        titleKey: 'app.dashboard.section_letters',    icon: Mail,            screen: 'Letters' },
+  { key: 'recipes',        titleKey: 'app.dashboard.section_recipes',    icon: UtensilsCrossed, screen: 'FamilyRecipes' },
+  { key: 'keepsakes',      titleKey: 'app.dashboard.section_keepsakes',  icon: Archive,         screen: 'Keepsakes' },
+  { key: 'vault',          titleKey: 'app.dashboard.section_vault',      icon: Lock,            screen: 'TheVault' },
+  { key: 'manageSections', titleKey: 'app.dashboard.section_manage',     icon: Globe,           screen: 'ManageSections' },
+  { key: 'help',           titleKey: 'app.dashboard.section_help',       icon: LifeBuoy,        screen: 'Help' },
+  { key: 'settings',       titleKey: 'app.dashboard.section_settings',   icon: SettingsIcon,    screen: 'Settings' },
 ];
 
 // Contact is its OWN top-level section (Contact List + Circles) — pulled out of
 // the book grid and rendered above it (D-012). key 'circles' keeps the existing
 // paid-feature lock + the CirclesScreen route; only the presentation changes.
-const CONTACT = { key: 'circles', title: 'Your Contacts', icon: Users, screen: 'Circles' };
+const CONTACT = { key: 'circles', titleKey: 'app.dashboard.your_contacts', icon: Users, screen: 'Circles' };
 
 // D-012 step 2: the flat section grid is regrouped into the SAME 4 groups as the
 // web My Book hub (account-book.ejs) — lockstep names + order. Family Intro is a
 // disabled "Coming soon" placeholder; utility rows go in a "Manage" footer group.
 const SECTION_BY_KEY = SECTIONS.reduce((m, s) => { m[s.key] = s; return m; }, {});
 const GROUPS = [
-  { title: 'Main page',         keys: ['childInfo', 'journey'], placeholder: { key: 'familyIntro', title: 'Family Intro', icon: ImageIcon } },
-  { title: 'Your Odyssey',      keys: ['before', 'birth', 'birthday', 'comingHome', 'months'] },
-  { title: 'Family & Memories', keys: ['family', 'firsts', 'celebrations', 'letters', 'recipes', 'keepsakes', 'vault', 'galleries', 'moments'] },
+  { titleKey: 'app.dashboard.group_main_page',    keys: ['childInfo', 'journey'], placeholder: { key: 'familyIntro', titleKey: 'app.dashboard.placeholder_family_intro', icon: ImageIcon } },
+  { titleKey: 'app.dashboard.group_your_odyssey', keys: ['before', 'birth', 'birthday', 'comingHome', 'months'] },
+  { titleKey: 'app.dashboard.group_family_memories', keys: ['family', 'firsts', 'celebrations', 'letters', 'recipes', 'keepsakes', 'vault', 'galleries', 'moments'] },
 ];
 const UTILITY_KEYS = ['manageSections', 'help', 'settings'];
 
-const DEMO_BOOK = { child: { first_name: 'Sophia', last_name: 'Smith' }, subdomain: 'sophiasmith', custom_domain: null };
+const DEMO_BOOK = { child: { first_name: 'Your', last_name: 'Baby' }, subdomain: 'yourbaby', custom_domain: null };
 
 export default function DashboardScreen({ navigation }) {
   const { user, families, activeFamilyId, switchFamily, refreshFamilies } = useAuth();
+  const { t } = useI18n();
   const isDemo = user?.isDemo;
   const [book, setBook] = useState(isDemo ? DEMO_BOOK : null);
   const [loading, setLoading] = useState(!isDemo);
@@ -105,7 +109,7 @@ export default function DashboardScreen({ navigation }) {
       const res = await get('/api/books/mine');
       setBook(res.data);
     } catch (err) {
-      setError(err.message || 'Failed to load book data.');
+      setError(err.message || t('app.dashboard.error_load_book'));
     }
   }
 
@@ -143,7 +147,7 @@ export default function DashboardScreen({ navigation }) {
       setLoading(true);
       await fetchBook();
     } catch (err) {
-      setError('Failed to switch books.');
+      setError(t('app.dashboard.error_switch_books'));
     } finally {
       setSwitching(false);
       setLoading(false);
@@ -152,12 +156,12 @@ export default function DashboardScreen({ navigation }) {
 
   function showUpgradePrompt(sectionTitle) {
     Alert.alert(
-      'Upgrade to Unlock',
-      `${sectionTitle} is available on the paid plan.\n\nUpgrade for $29 your first year to unlock all sections, add unlimited photos, and get your own custom domain.`,
+      t('app.dashboard.upgrade_title'),
+      t('app.dashboard.upgrade_message', { section: sectionTitle }),
       [
-        { text: 'Not Now', style: 'cancel' },
+        { text: t('app.common.not_now'), style: 'cancel' },
         {
-          text: 'Upgrade Now',
+          text: t('app.dashboard.upgrade_now'),
           onPress: () => Linking.openURL('https://legacyodyssey.com/#pricing'),
         },
       ]
@@ -190,7 +194,7 @@ export default function DashboardScreen({ navigation }) {
         activeOpacity={0.7}
         onPress={() => {
           if (isLocked) {
-            showUpgradePrompt(item.title);
+            showUpgradePrompt(t(item.titleKey));
           } else {
             navigation.navigate(item.screen, { book });
           }
@@ -201,9 +205,9 @@ export default function DashboardScreen({ navigation }) {
             ? <Lock size={22} color="#c8a96e" strokeWidth={1.5} />
             : <item.icon size={22} color="#c8a96e" strokeWidth={1.5} />}
         </View>
-        <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{item.title}</Text>
+        <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{t(item.titleKey)}</Text>
         <Text style={[styles.cardAction, isLocked && styles.cardActionLocked]}>
-          {isLocked ? 'Upgrade' : 'Edit'}
+          {isLocked ? t('app.common.upgrade') : t('app.common.edit')}
         </Text>
       </TouchableOpacity>
     );
@@ -216,16 +220,16 @@ export default function DashboardScreen({ navigation }) {
         <View style={styles.cardIcon}>
           <ph.icon size={22} color="#c8a96e" strokeWidth={1.5} />
         </View>
-        <Text style={styles.cardTitle}>{ph.title}</Text>
-        <Text style={styles.cardAction}>Coming soon</Text>
+        <Text style={styles.cardTitle}>{t(ph.titleKey)}</Text>
+        <Text style={styles.cardAction}>{t('app.dashboard.coming_soon')}</Text>
       </View>
     );
   }
 
   function renderGroup(group) {
     return (
-      <View key={group.title} style={styles.group}>
-        <Text style={styles.groupTitle}>{group.title}</Text>
+      <View key={group.titleKey} style={styles.group}>
+        <Text style={styles.groupTitle}>{t(group.titleKey)}</Text>
         <View style={styles.groupWrap}>
           {group.keys.map((k) => renderCard(SECTION_BY_KEY[k]))}
           {group.placeholder ? renderPlaceholder(group.placeholder) : null}
@@ -243,7 +247,7 @@ export default function DashboardScreen({ navigation }) {
           style={[styles.card, styles.contactCard, isLocked && styles.cardLocked]}
           activeOpacity={0.7}
           onPress={() => {
-            if (isLocked) showUpgradePrompt('Contact');
+            if (isLocked) showUpgradePrompt(t('app.dashboard.contact'));
             else navigation.navigate(CONTACT.screen, { book });
           }}
         >
@@ -252,9 +256,9 @@ export default function DashboardScreen({ navigation }) {
               ? <Lock size={22} color="#c8a96e" strokeWidth={1.5} />
               : <CONTACT.icon size={22} color="#c8a96e" strokeWidth={1.5} />}
           </View>
-          <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{CONTACT.title}</Text>
+          <Text style={[styles.cardTitle, isLocked && styles.cardTitleLocked]}>{t(CONTACT.titleKey)}</Text>
           <Text style={[styles.cardAction, isLocked && styles.cardActionLocked]}>
-            {isLocked ? 'Upgrade' : 'Contact List + Circles'}
+            {isLocked ? t('app.common.upgrade') : t('app.dashboard.contact_list_circles')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -265,7 +269,7 @@ export default function DashboardScreen({ navigation }) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={colors.gold} />
-        <Text style={styles.loadingText}>Loading your book...</Text>
+        <Text style={styles.loadingText}>{t('app.dashboard.loading')}</Text>
       </View>
     );
   }
@@ -282,9 +286,9 @@ export default function DashboardScreen({ navigation }) {
           <View style={styles.headerTitleArea}>
             <Text style={styles.headerTitle}>Legacy Odyssey</Text>
             {childName ? (
-              <Text style={styles.headerSubtitle}>{childName}'s Book</Text>
+              <Text style={styles.headerSubtitle}>{t('app.dashboard.childs_book', { name: childName })}</Text>
             ) : (
-              <Text style={styles.headerSubtitle}>Your Child's Story</Text>
+              <Text style={styles.headerSubtitle}>{t('app.dashboard.your_childs_story')}</Text>
             )}
           </View>
           <TouchableOpacity
@@ -293,7 +297,7 @@ export default function DashboardScreen({ navigation }) {
             activeOpacity={0.7}
           >
             <Text style={styles.switchIcon}>{'\u{1F4DA}'}</Text>
-            <Text style={styles.switchText}>{hasMultipleBooks ? 'Switch' : 'Sites'}</Text>
+            <Text style={styles.switchText}>{hasMultipleBooks ? t('app.dashboard.switch') : t('app.dashboard.sites')}</Text>
           </TouchableOpacity>
         </View>
         {domain ? (
@@ -307,7 +311,7 @@ export default function DashboardScreen({ navigation }) {
           >
             <View style={styles.upgradeBarRow}>
               <Sparkles size={13} color={colors.gold} strokeWidth={1.5} />
-              <Text style={[styles.upgradeBarText, styles.upgradeBarLabel]}>Free Plan — Tap to upgrade for full access</Text>
+              <Text style={[styles.upgradeBarText, styles.upgradeBarLabel]}>{t('app.dashboard.free_plan_bar')}</Text>
             </View>
           </TouchableOpacity>
         ) : null}
@@ -317,7 +321,7 @@ export default function DashboardScreen({ navigation }) {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity onPress={onRefresh}>
-            <Text style={styles.retryText}>Tap to retry</Text>
+            <Text style={styles.retryText}>{t('app.common.tap_to_retry')}</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -338,12 +342,12 @@ export default function DashboardScreen({ navigation }) {
         {GROUPS.map(renderGroup)}
 
         <View style={styles.group}>
-          <Text style={styles.groupTitle}>Your Contacts</Text>
+          <Text style={styles.groupTitle}>{t('app.dashboard.your_contacts')}</Text>
           {renderContactSection()}
         </View>
 
         <View style={styles.group}>
-          <Text style={styles.groupTitle}>Manage</Text>
+          <Text style={styles.groupTitle}>{t('app.dashboard.group_manage')}</Text>
           <View style={styles.groupWrap}>
             {UTILITY_KEYS.map((k) => renderCard(SECTION_BY_KEY[k]))}
           </View>
@@ -359,14 +363,14 @@ export default function DashboardScreen({ navigation }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Your Books</Text>
+            <Text style={styles.modalTitle}>{t('app.dashboard.your_books')}</Text>
             <Text style={styles.modalSubtitle}>
-              Select a book to edit
+              {t('app.dashboard.select_book')}
             </Text>
 
             {families.map((fam) => {
               const isActive = fam.id === activeFamilyId;
-              const label = fam.childName || fam.display_name || fam.subdomain || 'Untitled';
+              const label = fam.childName || fam.display_name || fam.subdomain || t('app.common.untitled');
               const domainLabel = fam.custom_domain
                 ? fam.custom_domain
                 : fam.subdomain
@@ -402,7 +406,7 @@ export default function DashboardScreen({ navigation }) {
               onPress={() => setShowSwitcher(false)}
               activeOpacity={0.8}
             >
-              <Text style={styles.modalCloseBtnText}>Close</Text>
+              <Text style={styles.modalCloseBtnText}>{t('app.common.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>

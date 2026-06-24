@@ -15,8 +15,10 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function BirthStoryScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ export default function BirthStoryScreen({ navigation }) {
         setPerson2Label(d.person2_label || '');
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load birth story.');
+          setError(err.message || t('app.birthstory.error_load'));
         }
       } finally {
         setLoading(false);
@@ -80,10 +82,10 @@ export default function BirthStoryScreen({ navigation }) {
         person1_label: person1Label.trim(),
         person2_label: person2Label.trim(),
       });
-      showToast('Birth story updated.');
+      showToast(t('app.birthstory.saved_toast'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.birthstory.error_save'));
     } finally {
       setSaving(false);
     }
@@ -109,8 +111,8 @@ export default function BirthStoryScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Birth Story</Text>
-        <Text style={styles.pageSubtitle}>The day everything changed</Text>
+        <Text style={styles.pageTitle}>{t('app.birthstory.page_title')}</Text>
+        <Text style={styles.pageSubtitle}>{t('app.birthstory.page_subtitle')}</Text>
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -118,88 +120,88 @@ export default function BirthStoryScreen({ navigation }) {
           </View>
         ) : null}
 
-        <Text style={styles.label}>First Held By</Text>
+        <Text style={styles.label}>{t('app.birthstory.first_held_by_label')}</Text>
         <TextInput
           style={styles.input}
           value={firstHeldBy}
           onChangeText={setFirstHeldBy}
-          placeholder="e.g., Mom / Dad"
+          placeholder={t('app.birthstory.first_held_by_placeholder')}
           placeholderTextColor={colors.placeholder}
         />
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>First Perspective</Text>
-          <Text style={styles.fieldLabel}>Perspective Label</Text>
+          <Text style={styles.sectionHeader}>{t('app.birthstory.first_perspective')}</Text>
+          <Text style={styles.fieldLabel}>{t('app.birthstory.perspective_label')}</Text>
           <TextInput
             style={styles.input}
             value={person1Label}
             onChangeText={setPerson1Label}
-            placeholder="Mom"
+            placeholder={t('app.birthstory.person1_placeholder')}
             placeholderTextColor={colors.placeholder}
             maxLength={40}
           />
-          <Text style={styles.helperText}>Shown as "From ___'s Point of View". Type any role — Mom, Mama, Dad, Papa, Grandma, etc.</Text>
-          <Text style={styles.fieldLabel}>Headline</Text>
+          <Text style={styles.helperText}>{t('app.birthstory.perspective_helper')}</Text>
+          <Text style={styles.fieldLabel}>{t('app.birthstory.headline_label')}</Text>
           <TextInput
             style={styles.input}
             value={momTitle}
             onChangeText={setMomTitle}
-            placeholder='"The moment I heard you cry..."'
+            placeholder={t('app.birthstory.headline1_placeholder')}
             placeholderTextColor={colors.placeholder}
             maxLength={120}
           />
-          <Text style={styles.fieldLabel}>Narrative</Text>
+          <Text style={styles.fieldLabel}>{t('app.birthstory.narrative_label')}</Text>
           <TextInput
             style={[styles.input, styles.narrativeInput]}
             value={momNarrative}
             onChangeText={setMomNarrative}
-            placeholder="The story from this perspective..."
+            placeholder={t('app.birthstory.narrative_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             numberOfLines={10}
             textAlignVertical="top"
           />
-          <Text style={styles.photoLabel}>Photo 1</Text>
+          <Text style={styles.photoLabel}>{t('app.birthstory.photo_1')}</Text>
           <PhotoPicker currentPhoto={momPhoto1} onPhotoSelected={setMomPhoto1} />
-          <Text style={styles.photoLabel}>Photo 2</Text>
+          <Text style={styles.photoLabel}>{t('app.birthstory.photo_2')}</Text>
           <PhotoPicker currentPhoto={momPhoto2} onPhotoSelected={setMomPhoto2} />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Second Perspective</Text>
-          <Text style={styles.fieldLabel}>Perspective Label</Text>
+          <Text style={styles.sectionHeader}>{t('app.birthstory.second_perspective')}</Text>
+          <Text style={styles.fieldLabel}>{t('app.birthstory.perspective_label')}</Text>
           <TextInput
             style={styles.input}
             value={person2Label}
             onChangeText={setPerson2Label}
-            placeholder="Dad"
+            placeholder={t('app.birthstory.person2_placeholder')}
             placeholderTextColor={colors.placeholder}
             maxLength={40}
           />
-          <Text style={styles.helperText}>Leave this whole perspective blank if your family has one voice — it won't appear.</Text>
-          <Text style={styles.fieldLabel}>Headline</Text>
+          <Text style={styles.helperText}>{t('app.birthstory.second_perspective_helper')}</Text>
+          <Text style={styles.fieldLabel}>{t('app.birthstory.headline_label')}</Text>
           <TextInput
             style={styles.input}
             value={dadTitle}
             onChangeText={setDadTitle}
-            placeholder='"I was completely unprepared for how I felt..."'
+            placeholder={t('app.birthstory.headline2_placeholder')}
             placeholderTextColor={colors.placeholder}
             maxLength={120}
           />
-          <Text style={styles.fieldLabel}>Narrative</Text>
+          <Text style={styles.fieldLabel}>{t('app.birthstory.narrative_label')}</Text>
           <TextInput
             style={[styles.input, styles.narrativeInput]}
             value={dadNarrative}
             onChangeText={setDadNarrative}
-            placeholder="The story from this perspective..."
+            placeholder={t('app.birthstory.narrative_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             numberOfLines={10}
             textAlignVertical="top"
           />
-          <Text style={styles.photoLabel}>Photo 1</Text>
+          <Text style={styles.photoLabel}>{t('app.birthstory.photo_1')}</Text>
           <PhotoPicker currentPhoto={dadPhoto1} onPhotoSelected={setDadPhoto1} />
-          <Text style={styles.photoLabel}>Photo 2</Text>
+          <Text style={styles.photoLabel}>{t('app.birthstory.photo_2')}</Text>
           <PhotoPicker currentPhoto={dadPhoto2} onPhotoSelected={setDadPhoto2} />
         </View>
 
@@ -212,7 +214,7 @@ export default function BirthStoryScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.birthstory.save')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

@@ -14,11 +14,18 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, put, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 const APP_VERSION = '1.0.6';
 
 export default function SettingsScreen({ navigation }) {
   const { logout, families, activeFamilyId } = useAuth();
+  const { t, pref, setPref } = useI18n();
+  const LANG_OPTIONS = [
+    { key: 'auto', label: t('settings.language_auto'), sub: t('settings.language_auto_sub') },
+    { key: 'en', label: t('settings.language_en') },
+    { key: 'es', label: t('settings.language_es') },
+  ];
   const activeFamily = families?.find(f => f.id === activeFamilyId) || families?.[0];
   const isFree = activeFamily ? (activeFamily.plan !== 'paid' && activeFamily.subscription_status !== 'active') : true;
   const [loading, setLoading] = useState(true);
@@ -36,7 +43,7 @@ export default function SettingsScreen({ navigation }) {
         setBookPassword(book.password || book.book_password || '');
         setBookSlug(book.slug || book.family_slug || '');
       } catch (err) {
-        setError(err.message || 'Failed to load settings.');
+        setError(err.message || t('app.settings.error_load'));
       } finally {
         setLoading(false);
       }
@@ -49,9 +56,9 @@ export default function SettingsScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine', { password: bookPassword.trim() });
-      showToast('Book password updated.');
+      showToast(t('app.settings.toast_password_saved'));
     } catch (err) {
-      setError(err.message || 'Failed to save password.');
+      setError(err.message || t('app.settings.error_save_password'));
     } finally {
       setSaving(false);
     }
@@ -61,15 +68,15 @@ export default function SettingsScreen({ navigation }) {
     if (bookSlug) {
       navigation.navigate('Preview', { slug: bookSlug });
     } else {
-      Alert.alert('No Book URL', 'Your book URL is not set up yet.');
+      Alert.alert(t('app.settings.no_book_url_title'), t('app.settings.no_book_url_msg'));
     }
   }
 
   function handleLogout() {
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('app.settings.logout_title'), t('app.settings.logout_msg'), [
+      { text: t('app.settings.cancel'), style: 'cancel' },
       {
-        text: 'Log Out',
+        text: t('app.settings.logout_confirm'),
         style: 'destructive',
         onPress: async () => {
           await logout();
@@ -85,7 +92,7 @@ export default function SettingsScreen({ navigation }) {
       });
       await Linking.openURL(res.data.url);
     } catch (err) {
-      Alert.alert('Error', 'Could not open subscription management. Please try again.');
+      Alert.alert(t('app.settings.error_title'), t('app.settings.error_portal'));
     }
   }
 
@@ -103,37 +110,37 @@ export default function SettingsScreen({ navigation }) {
     try {
       await post('/api/auth/cancel', body);
       Alert.alert(
-        'Subscription Cancelled',
-        "Check your email for confirmation. You'll be signed out now.",
-        [{ text: 'OK', onPress: async () => { await logout(); } }]
+        t('app.settings.cancelled_title'),
+        t('app.settings.cancelled_msg'),
+        [{ text: t('app.settings.ok'), onPress: async () => { await logout(); } }]
       );
     } catch (err) {
       // Server returns 400 + JSON {error: 'PROMOTE_OR_CANCEL_ALL_REQUIRED', otherFamilies: [...]}
       // when trying to cancel the primary while other sites exist.
       const data = err?.response?.data;
       if (data && onApiError) onApiError(data);
-      else Alert.alert('Could not cancel', err?.message || 'Please contact support@legacyodyssey.com.');
+      else Alert.alert(t('app.settings.could_not_cancel'), err?.message || t('app.settings.contact_support'));
     }
   }
 
   function confirmCancelSingle(family) {
     Alert.alert(
-      'Cancel Subscription',
-      "Cancel your Legacy Odyssey subscription?\n\n• You keep access until your next renewal date\n• Photos & stories preserved for 1 year — resubscribe anytime to restore\n• Custom domain auto-renewal stops\n• You will not be charged anything today",
+      t('app.settings.cancel_sub_title'),
+      t('app.settings.cancel_single_msg'),
       [
-        { text: 'Keep It', style: 'cancel' },
-        { text: 'Cancel Subscription', style: 'destructive', onPress: () => doCancel({ familyId: family.id }, handlePrimaryBlock) },
+        { text: t('app.settings.keep_it'), style: 'cancel' },
+        { text: t('app.settings.cancel_sub_title'), style: 'destructive', onPress: () => doCancel({ familyId: family.id }, handlePrimaryBlock) },
       ]
     );
   }
 
   function confirmCancelAll() {
     Alert.alert(
-      'Cancel ALL Sites?',
-      'This cancels every Legacy Odyssey site on your account.\n\n• Each site keeps access until its own renewal date\n• Photos & stories preserved for 1 year on every site\n• Custom domain auto-renewals stop\n• You will not be charged anything today',
+      t('app.settings.cancel_all_title'),
+      t('app.settings.cancel_all_msg'),
       [
-        { text: 'Keep Them', style: 'cancel' },
-        { text: 'Cancel All Sites', style: 'destructive', onPress: () => doCancel({ all: true }) },
+        { text: t('app.settings.keep_them'), style: 'cancel' },
+        { text: t('app.settings.cancel_all_sites'), style: 'destructive', onPress: () => doCancel({ all: true }) },
       ]
     );
   }
@@ -142,52 +149,52 @@ export default function SettingsScreen({ navigation }) {
   // Show the promotion picker with each non-archived secondary as a button.
   function handlePrimaryBlock(apiError) {
     if (apiError?.error !== 'PROMOTE_OR_CANCEL_ALL_REQUIRED') {
-      Alert.alert('Could not cancel', apiError?.message || 'Please try again.');
+      Alert.alert(t('app.settings.could_not_cancel'), apiError?.message || t('app.settings.please_try_again'));
       return;
     }
     const others = apiError.otherFamilies || [];
     const cancelTargetId = (families || []).find(f => f.subscription_status !== 'canceled' && !f.archived_at)?.id;
     const buttons = [
-      { text: 'Cancel', style: 'cancel' },
+      { text: t('app.settings.cancel'), style: 'cancel' },
       ...others.map(other => ({
-        text: `Promote "${other.display_name || other.subdomain || 'this site'}"`,
+        text: t('app.settings.promote_site', { site: other.display_name || other.subdomain || t('app.settings.this_site_lower') }),
         onPress: () => {
           // Confirm promotion before doing it
           Alert.alert(
-            'Confirm Promotion',
-            `${other.display_name || other.subdomain || 'This site'} will become your new Primary site.\n\n• Its billing rate stays the same until your current Primary's renewal date, then switches to the Primary rate\n• You will not be charged anything today\n• Your current Primary site will cancel at its next renewal`,
+            t('app.settings.confirm_promotion_title'),
+            t('app.settings.confirm_promotion_msg', { site: other.display_name || other.subdomain || t('app.settings.this_site_cap') }),
             [
-              { text: 'Back', style: 'cancel' },
-              { text: 'Promote & Cancel', style: 'destructive', onPress: () => doCancel({ familyId: cancelTargetId, promoteFamilyId: other.id }) },
+              { text: t('app.settings.back'), style: 'cancel' },
+              { text: t('app.settings.promote_and_cancel'), style: 'destructive', onPress: () => doCancel({ familyId: cancelTargetId, promoteFamilyId: other.id }) },
             ]
           );
         },
       })),
-      { text: 'Cancel ALL Sites Instead', style: 'destructive', onPress: confirmCancelAll },
+      { text: t('app.settings.cancel_all_sites_instead'), style: 'destructive', onPress: confirmCancelAll },
     ];
-    Alert.alert('This is your Primary site', `${apiError.message}\n\nWhich site should become your new Primary?`, buttons);
+    Alert.alert(t('app.settings.primary_site_title'), t('app.settings.primary_site_msg', { message: apiError.message }), buttons);
   }
 
   function handleCancelSubscription() {
     const liveFamilies = (families || []).filter(f => !f.archived_at && f.subscription_status !== 'canceled');
     if (liveFamilies.length === 0) {
-      Alert.alert('No active subscription', "Your account doesn't have an active subscription to cancel.");
+      Alert.alert(t('app.settings.no_active_sub_title'), t('app.settings.no_active_sub_msg'));
       return;
     }
     if (liveFamilies.length === 1) { confirmCancelSingle(liveFamilies[0]); return; }
 
     // Multi-site: present an action sheet to pick which site or cancel all
     const buttons = [
-      { text: 'Cancel', style: 'cancel' },
+      { text: t('app.settings.cancel'), style: 'cancel' },
       ...liveFamilies.map(f => ({
-        text: `Cancel "${f.display_name || f.subdomain || f.email || 'this site'}"`,
+        text: t('app.settings.cancel_named_site', { site: f.display_name || f.subdomain || f.email || t('app.settings.this_site_lower') }),
         onPress: () => confirmCancelSingle(f),
       })),
-      { text: 'Cancel ALL Sites', style: 'destructive', onPress: confirmCancelAll },
+      { text: t('app.settings.cancel_all_sites'), style: 'destructive', onPress: confirmCancelAll },
     ];
     Alert.alert(
-      'Cancel Subscription',
-      `You have ${liveFamilies.length} active sites. Which would you like to cancel?`,
+      t('app.settings.cancel_sub_title'),
+      t('app.settings.multi_site_msg', { count: liveFamilies.length }),
       buttons
     );
   }
@@ -206,7 +213,7 @@ export default function SettingsScreen({ navigation }) {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.pageTitle}>Settings</Text>
+      <Text style={styles.pageTitle}>{t('app.settings.page_title')}</Text>
 
       {error ? (
         <View style={styles.errorContainer}>
@@ -214,17 +221,40 @@ export default function SettingsScreen({ navigation }) {
         </View>
       ) : null}
 
+      {/* Language */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t('settings.language_title')}</Text>
+        <Text style={styles.sectionDescription}>{t('settings.language_desc')}</Text>
+        {LANG_OPTIONS.map((opt) => {
+          const active = pref === opt.key;
+          return (
+            <TouchableOpacity
+              key={opt.key}
+              style={[styles.langOption, active && styles.langOptionActive]}
+              onPress={() => setPref(opt.key)}
+              activeOpacity={0.8}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.langOptionText, active && styles.langOptionTextActive]}>{opt.label}</Text>
+                {opt.sub ? <Text style={styles.langOptionSub}>{opt.sub}</Text> : null}
+              </View>
+              {active ? <Text style={styles.langCheck}>✓</Text> : null}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
       {/* Book Password */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Book Password</Text>
+        <Text style={styles.sectionTitle}>{t('app.settings.book_password_title')}</Text>
         <Text style={styles.sectionDescription}>
-          Set a password that visitors need to view your book online.
+          {t('app.settings.book_password_desc')}
         </Text>
         <TextInput
           style={styles.input}
           value={bookPassword}
           onChangeText={setBookPassword}
-          placeholder="Enter book password"
+          placeholder={t('app.settings.book_password_placeholder')}
           placeholderTextColor={colors.placeholder}
         />
         <TouchableOpacity
@@ -236,35 +266,35 @@ export default function SettingsScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.goldButtonText}>Save Password</Text>
+            <Text style={styles.goldButtonText}>{t('app.settings.save_password')}</Text>
           )}
         </TouchableOpacity>
       </View>
 
       {/* Preview Book */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preview Book</Text>
+        <Text style={styles.sectionTitle}>{t('app.settings.preview_title')}</Text>
         <Text style={styles.sectionDescription}>
-          See how your book looks to visitors.
+          {t('app.settings.preview_desc')}
         </Text>
         <TouchableOpacity
           style={styles.outlineButton}
           onPress={handlePreview}
           activeOpacity={0.8}
         >
-          <Text style={styles.outlineButtonText}>Open Book Preview</Text>
+          <Text style={styles.outlineButtonText}>{t('app.settings.preview_button')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Help & Support */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Help & Support</Text>
+        <Text style={styles.sectionTitle}>{t('app.settings.help_title')}</Text>
         <TouchableOpacity
           style={styles.outlineButton}
           onPress={() => navigation.navigate('Help')}
           activeOpacity={0.8}
         >
-          <Text style={styles.outlineButtonText}>Get Help</Text>
+          <Text style={styles.outlineButtonText}>{t('app.settings.help_button')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -272,32 +302,32 @@ export default function SettingsScreen({ navigation }) {
       {isFree ? (
         <View style={styles.upgradeSection}>
           <View style={styles.upgradeBadge}>
-            <Text style={styles.upgradeBadgeText}>FREE PLAN</Text>
+            <Text style={styles.upgradeBadgeText}>{t('app.settings.free_plan_badge')}</Text>
           </View>
-          <Text style={styles.upgradeTitle}>Unlock Your Full Story</Text>
+          <Text style={styles.upgradeTitle}>{t('app.settings.upgrade_title')}</Text>
           <Text style={styles.upgradeDescription}>
-            Upgrade to access Coming Home, Month by Month, Our Family, Firsts, Celebrations, Letters, Recipes, and The Vault.
+            {t('app.settings.upgrade_desc')}
           </Text>
           <TouchableOpacity
             style={styles.goldButton}
             onPress={handleUpgrade}
             activeOpacity={0.8}
           >
-            <Text style={styles.goldButtonText}>Upgrade — From $4.99/mo</Text>
+            <Text style={styles.goldButtonText}>{t('app.settings.upgrade_button')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Subscription & Billing</Text>
+          <Text style={styles.sectionTitle}>{t('app.settings.billing_title')}</Text>
           <Text style={styles.sectionDescription}>
-            View your plan, update billing details, or cancel your subscription.
+            {t('app.settings.billing_desc')}
           </Text>
           <TouchableOpacity
             style={styles.outlineButton}
             onPress={handleManageSubscription}
             activeOpacity={0.8}
           >
-            <Text style={styles.outlineButtonText}>Manage Subscription</Text>
+            <Text style={styles.outlineButtonText}>{t('app.settings.manage_subscription')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -309,29 +339,29 @@ export default function SettingsScreen({ navigation }) {
           onPress={handleLogout}
           activeOpacity={0.8}
         >
-          <Text style={styles.logoutButtonText}>Log Out</Text>
+          <Text style={styles.logoutButtonText}>{t('app.settings.logout_button')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Cancel Subscription */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cancel Subscription</Text>
+        <Text style={styles.sectionTitle}>{t('app.settings.cancel_sub_title')}</Text>
         <Text style={styles.sectionDescription}>
-          Cancel your Legacy Odyssey subscription. Your photos and stories will be safely preserved for one year — you can reactivate anytime to restore everything. You will not be charged anything to cancel.
+          {t('app.settings.cancel_sub_desc')}
         </Text>
         <TouchableOpacity
           style={styles.deleteAccountButton}
           onPress={handleCancelSubscription}
           activeOpacity={0.8}
         >
-          <Text style={styles.deleteAccountButtonText}>Cancel Subscription</Text>
+          <Text style={styles.deleteAccountButtonText}>{t('app.settings.cancel_sub_title')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* App Info */}
       <View style={styles.infoSection}>
-        <Text style={styles.infoText}>Legacy Odyssey Mobile</Text>
-        <Text style={styles.infoText}>Version {APP_VERSION}</Text>
+        <Text style={styles.infoText}>{t('app.settings.app_name')}</Text>
+        <Text style={styles.infoText}>{t('app.settings.version', { version: APP_VERSION })}</Text>
       </View>
       {ToastComponent}
     </ScrollView>
@@ -504,5 +534,41 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     color: colors.textSecondary,
     marginBottom: spacing.xs,
+  },
+  langOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  langOptionActive: {
+    borderColor: colors.gold,
+    borderWidth: 2,
+    backgroundColor: colors.white,
+  },
+  langOptionText: {
+    fontSize: typography.sizes.md,
+    color: colors.textPrimary,
+    fontWeight: typography.weights.medium,
+  },
+  langOptionTextActive: {
+    color: colors.gold,
+    fontWeight: typography.weights.semibold,
+  },
+  langOptionSub: {
+    fontSize: typography.sizes.xs,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  langCheck: {
+    color: colors.gold,
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    marginLeft: spacing.sm,
   },
 });

@@ -10,6 +10,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../theme';
+import { useI18n } from '../i18n/I18nContext';
 import { get, put } from '../api/client';
 // Lucide line-art icons (v1.0.7 brand-consistency pass — replaces emoji).
 import {
@@ -30,25 +31,27 @@ import {
   Lock,
 } from 'lucide-react-native';
 
+// `labelKey` is resolved at render time via t(); icon stays hardcoded.
 const SECTION_TOGGLES = [
-  { key: 'before',    label: 'Before You Arrived', icon: Heart },
-  { key: 'birth',     label: 'Birth Story',         icon: BookOpen },
-  { key: 'birthday',  label: 'Your Birth Day',      icon: Camera },
-  { key: 'moments',   label: 'Video Moments',       icon: Video },
-  { key: 'galleries', label: 'Custom Galleries',    icon: Images },
-  { key: 'journey',   label: 'Your Journey to Us',  icon: Compass },
-  { key: 'home',      label: 'Coming Home',         icon: Home },
-  { key: 'months',    label: 'Month by Month',      icon: Calendar },
-  { key: 'family',    label: 'Our Family',          icon: Users },
-  { key: 'firsts',    label: 'Your Firsts',         icon: Star },
-  { key: 'holidays',  label: 'Celebrations',        icon: Gift },
-  { key: 'letters',   label: 'Letters to You',      icon: Mail },
-  { key: 'recipes',   label: 'Family Recipes',      icon: UtensilsCrossed },
-  { key: 'keepsakes', label: 'Their Keepsakes',     icon: Archive },
-  { key: 'vault',     label: 'The Vault',           icon: Lock },
+  { key: 'before',    labelKey: 'app.managesections.section_before',    icon: Heart },
+  { key: 'birth',     labelKey: 'app.managesections.section_birth',     icon: BookOpen },
+  { key: 'birthday',  labelKey: 'app.managesections.section_birthday',  icon: Camera },
+  { key: 'moments',   labelKey: 'app.managesections.section_moments',   icon: Video },
+  { key: 'galleries', labelKey: 'app.managesections.section_galleries', icon: Images },
+  { key: 'journey',   labelKey: 'app.managesections.section_journey',   icon: Compass },
+  { key: 'home',      labelKey: 'app.managesections.section_coming_home', icon: Home },
+  { key: 'months',    labelKey: 'app.managesections.section_months',    icon: Calendar },
+  { key: 'family',    labelKey: 'app.managesections.section_family',    icon: Users },
+  { key: 'firsts',    labelKey: 'app.managesections.section_firsts',    icon: Star },
+  { key: 'holidays',  labelKey: 'app.managesections.section_celebrations', icon: Gift },
+  { key: 'letters',   labelKey: 'app.managesections.section_letters',   icon: Mail },
+  { key: 'recipes',   labelKey: 'app.managesections.section_recipes',   icon: UtensilsCrossed },
+  { key: 'keepsakes', labelKey: 'app.managesections.section_keepsakes', icon: Archive },
+  { key: 'vault',     labelKey: 'app.managesections.section_vault',     icon: Lock },
 ];
 
 export default function ManageSectionsScreen() {
+  const { t } = useI18n();
   const [sections, setSections] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(null); // key of section currently saving
@@ -59,12 +62,12 @@ export default function ManageSectionsScreen() {
       const res = await get('/api/books/mine/sections');
       setSections(res.data || {});
     } catch (err) {
-      Alert.alert('Error', 'Could not load section settings.');
+      Alert.alert(t('app.common.error'), t('app.managesections.error_load'));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchSections();
@@ -82,7 +85,7 @@ export default function ManageSectionsScreen() {
     } catch (err) {
       // Revert on failure
       setSections((prev) => ({ ...prev, [key]: !value }));
-      Alert.alert('Error', 'Could not update section visibility.');
+      Alert.alert(t('app.common.error'), t('app.managesections.error_update'));
     } finally {
       setSaving(null);
     }
@@ -92,7 +95,7 @@ export default function ManageSectionsScreen() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.gold} />
-        <Text style={styles.loadingText}>Loading sections...</Text>
+        <Text style={styles.loadingText}>{t('app.managesections.loading')}</Text>
       </View>
     );
   }
@@ -112,11 +115,9 @@ export default function ManageSectionsScreen() {
         />
       }
     >
-      <Text style={styles.headerTitle}>Website Sections</Text>
+      <Text style={styles.headerTitle}>{t('app.managesections.title')}</Text>
       <Text style={styles.headerSubtitle}>
-        Choose which sections appear on your public website. Sections are
-        automatically shown when you add content, but you can toggle them
-        on or off here.
+        {t('app.managesections.subtitle')}
       </Text>
 
       <View style={styles.sectionsList}>
@@ -126,7 +127,7 @@ export default function ManageSectionsScreen() {
               <View style={styles.sectionIcon}>
                 <item.icon size={22} color="#c8a96e" strokeWidth={1.5} />
               </View>
-              <Text style={styles.sectionLabel}>{item.label}</Text>
+              <Text style={styles.sectionLabel}>{t(item.labelKey)}</Text>
             </View>
             <View style={styles.sectionControl}>
               {saving === item.key && (
@@ -151,8 +152,7 @@ export default function ManageSectionsScreen() {
       </View>
 
       <Text style={styles.footerNote}>
-        Sections that are turned off will not appear in the navigation or
-        content of your book website.
+        {t('app.managesections.footer_note')}
       </Text>
     </ScrollView>
   );

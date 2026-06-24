@@ -14,8 +14,10 @@ import {
 import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useAuth } from './AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function LoginScreen({ navigation }) {
+  const { t } = useI18n();
   const { login, enterDemoMode } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,14 +28,14 @@ export default function LoginScreen({ navigation }) {
   async function handleLogin() {
     setError('');
     if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and password.');
+      setError(t('app.login.error_missing_credentials'));
       return;
     }
     setLoading(true);
     try {
       await login(email.trim(), password);
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.message || t('app.login.error_login_failed'));
     } finally {
       setLoading(false);
     }
@@ -52,12 +54,12 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.brandingContainer}>
           <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Legacy Odyssey</Text>
-          <Text style={styles.brandSubtitle}>Your child's story, beautifully told</Text>
+          <Text style={styles.brandSubtitle}>{t('app.login.brand_subtitle')}</Text>
         </View>
 
         {/* Login Form */}
         <View style={styles.formCard}>
-          <Text style={styles.formTitle}>Welcome Back</Text>
+          <Text style={styles.formTitle}>{t('app.login.form_title')}</Text>
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -65,10 +67,10 @@ export default function LoginScreen({ navigation }) {
             </View>
           ) : null}
 
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>{t('app.login.label_email')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="your@email.com"
+            placeholder={t('app.login.placeholder_email')}
             placeholderTextColor={colors.placeholder}
             value={email}
             onChangeText={setEmail}
@@ -78,11 +80,11 @@ export default function LoginScreen({ navigation }) {
             editable={!loading}
           />
 
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>{t('app.login.label_password')}</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
-              placeholder="Enter your password"
+              placeholder={t('app.login.placeholder_password')}
               placeholderTextColor={colors.placeholder}
               value={password}
               onChangeText={setPassword}
@@ -94,7 +96,7 @@ export default function LoginScreen({ navigation }) {
               onPress={() => setShowPassword(!showPassword)}
               activeOpacity={0.7}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? 'Hide' : 'Show'}</Text>
+              <Text style={styles.eyeIcon}>{showPassword ? t('app.login.hide_password') : t('app.login.show_password')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -107,7 +109,7 @@ export default function LoginScreen({ navigation }) {
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={styles.buttonText}>{t('app.login.sign_in')}</Text>
             )}
           </TouchableOpacity>
 
@@ -116,7 +118,7 @@ export default function LoginScreen({ navigation }) {
             onPress={() => navigation.navigate('ForgotPassword')}
             disabled={loading}
           >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>{t('app.login.forgot_password')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -127,7 +129,7 @@ export default function LoginScreen({ navigation }) {
           disabled={loading}
           activeOpacity={0.8}
         >
-          <Text style={styles.demoButtonText}>Browse Demo</Text>
+          <Text style={styles.demoButtonText}>{t('app.login.browse_demo')}</Text>
         </TouchableOpacity>
 
         {/* Sign Up Link */}
@@ -137,8 +139,8 @@ export default function LoginScreen({ navigation }) {
           disabled={loading}
         >
           <Text style={styles.linkText}>
-            Don't have an account?{' '}
-            <Text style={styles.linkBold}>Get Started</Text>
+            {t('app.login.no_account')}{' '}
+            <Text style={styles.linkBold}>{t('app.login.get_started')}</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>

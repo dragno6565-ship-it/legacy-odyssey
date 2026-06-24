@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, put, post, del, BASE_URL } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 /**
  * Per-recipe editor — all fields, ingredients, directions, multi-photo
@@ -27,6 +28,7 @@ import { useSavedToast } from '../components/SavedToast';
  * to the per-item CRUD endpoints; bulk PUTs are not called.
  */
 export default function RecipeDetailScreen({ navigation, route }) {
+  const { t } = useI18n();
   const { recipeId } = route.params;
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
@@ -52,8 +54,8 @@ export default function RecipeDetailScreen({ navigation, route }) {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
-    navigation.setOptions({ title: route.params?.title || 'Recipe' });
-  }, [navigation, route.params?.title]);
+    navigation.setOptions({ title: route.params?.title || t('app.recipedetail.header_fallback') });
+  }, [navigation, route.params?.title, t]);
 
   const fetchRecipe = useCallback(async () => {
     try {
@@ -87,7 +89,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
       setPhotos(Array.isArray(r.photos) ? r.photos : []);
     } catch (err) {
-      setError(err.message || 'Failed to load recipe.');
+      setError(err.message || t('app.recipedetail.load_error'));
     } finally {
       setLoading(false);
     }
@@ -112,7 +114,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
         .filter((d) => d.text);
 
       await put(`/api/books/mine/recipes/${recipeId}`, {
-        title: title.trim() || 'Untitled',
+        title: title.trim() || t('app.recipedetail.untitled'),
         origin_label: originLabel.trim(),
         description: description.trim(),
         story: story.trim(),
@@ -124,9 +126,9 @@ export default function RecipeDetailScreen({ navigation, route }) {
         ingredients: cleanIngredients,
         directions: cleanDirections,
       });
-      showToast('Recipe saved.');
+      showToast(t('app.recipedetail.saved_toast'));
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.recipedetail.save_error'));
     } finally {
       setSaving(false);
     }
@@ -134,11 +136,11 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
   function confirmDelete() {
     Alert.alert(
-      'Delete this recipe?',
-      'This removes the recipe and all its photos. This cannot be undone.',
+      t('app.recipedetail.delete_confirm_title'),
+      t('app.recipedetail.delete_confirm_message'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: handleDelete },
+        { text: t('app.recipedetail.cancel'), style: 'cancel' },
+        { text: t('app.recipedetail.delete'), style: 'destructive', onPress: handleDelete },
       ]
     );
   }
@@ -150,7 +152,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
       navigation.goBack();
     } catch (err) {
       setDeleting(false);
-      Alert.alert('Could not delete', err.message || 'Please try again.');
+      Alert.alert(t('app.recipedetail.delete_error_title'), err.message || t('app.recipedetail.try_again'));
     }
   }
 
@@ -212,14 +214,14 @@ export default function RecipeDetailScreen({ navigation, route }) {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const photoPath = upRes.data.url || upRes.data.path || upRes.data.storagePath;
-      if (!photoPath) throw new Error('Upload did not return a photo path.');
+      if (!photoPath) throw new Error(t('app.recipedetail.upload_no_path'));
 
       const created = await post(`/api/books/mine/recipes/${recipeId}/photos`, {
         photo_path: photoPath, caption: null,
       });
       setPhotos((prev) => [...prev, created.data]);
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photo.');
+      Alert.alert(t('app.recipedetail.upload_error_title'), err.message || t('app.recipedetail.upload_error_message'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -234,27 +236,27 @@ export default function RecipeDetailScreen({ navigation, route }) {
       await put(`/api/books/mine/recipe-photos/${photo.id}`, {
         caption: photo.caption || null,
       });
-      showToast('Caption saved.');
+      showToast(t('app.recipedetail.caption_saved_toast'));
     } catch (err) {
-      Alert.alert('Could not save caption', err.message || 'Please try again.');
+      Alert.alert(t('app.recipedetail.caption_error_title'), err.message || t('app.recipedetail.try_again'));
     }
   }
 
   function confirmRemovePhoto(photo) {
     Alert.alert(
-      'Remove this photo?',
+      t('app.recipedetail.remove_photo_title'),
       null,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('app.recipedetail.cancel'), style: 'cancel' },
         {
-          text: 'Remove',
+          text: t('app.recipedetail.remove'),
           style: 'destructive',
           onPress: async () => {
             try {
               await del(`/api/books/mine/recipe-photos/${photo.id}`);
               setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
             } catch (err) {
-              Alert.alert('Could not remove', err.message || 'Please try again.');
+              Alert.alert(t('app.recipedetail.remove_error_title'), err.message || t('app.recipedetail.try_again'));
             }
           },
         },
@@ -276,7 +278,11 @@ export default function RecipeDetailScreen({ navigation, route }) {
     );
   }
 
-  const difficulties = ['', 'Easy', 'Medium', 'Hard'];
+  const difficulties = [
+    { value: 'Easy',   label: t('app.recipedetail.difficulty_easy') },
+    { value: 'Medium', label: t('app.recipedetail.difficulty_medium') },
+    { value: 'Hard',   label: t('app.recipedetail.difficulty_hard') },
+  ];
 
   return (
     <KeyboardAvoidingView
@@ -298,32 +304,32 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
         {/* The basics */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>The basics</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.basics_title')}</Text>
 
-          <Text style={styles.label}>Recipe name</Text>
+          <Text style={styles.label}>{t('app.recipedetail.name_label')}</Text>
           <TextInput
             style={styles.input}
             value={title}
             onChangeText={setTitle}
-            placeholder="e.g. Grandma's Pancakes"
+            placeholder={t('app.recipedetail.name_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>From whom</Text>
+          <Text style={styles.label}>{t('app.recipedetail.from_whom_label')}</Text>
           <TextInput
             style={styles.input}
             value={originLabel}
             onChangeText={setOriginLabel}
-            placeholder="e.g. Grandma Sarah"
+            placeholder={t('app.recipedetail.from_whom_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Short description</Text>
+          <Text style={styles.label}>{t('app.recipedetail.description_label')}</Text>
           <TextInput
             style={[styles.input, styles.descInput]}
             value={description}
             onChangeText={setDescription}
-            placeholder="A short tagline that appears under the title."
+            placeholder={t('app.recipedetail.description_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
@@ -332,42 +338,42 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
         {/* The story */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>The story</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.story_title')}</Text>
           <TextInput
             style={[styles.input, styles.storyInput]}
             value={story}
             onChangeText={setStory}
-            placeholder="Where the recipe came from, why it matters, what you'll remember."
+            placeholder={t('app.recipedetail.story_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
           />
-          <Text style={styles.hint}>Optional. Press Enter twice between paragraphs.</Text>
+          <Text style={styles.hint}>{t('app.recipedetail.story_hint')}</Text>
         </View>
 
         {/* Cooking details */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Cooking details</Text>
-          <Text style={styles.hint}>All optional.</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.cooking_title')}</Text>
+          <Text style={styles.hint}>{t('app.recipedetail.all_optional')}</Text>
 
           <View style={styles.row2}>
             <View style={styles.row2col}>
-              <Text style={styles.label}>Prep time</Text>
+              <Text style={styles.label}>{t('app.recipedetail.prep_label')}</Text>
               <TextInput
                 style={styles.input}
                 value={prepTime}
                 onChangeText={setPrepTime}
-                placeholder="e.g. 15 min"
+                placeholder={t('app.recipedetail.prep_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
             <View style={styles.row2col}>
-              <Text style={styles.label}>Cook time</Text>
+              <Text style={styles.label}>{t('app.recipedetail.cook_label')}</Text>
               <TextInput
                 style={styles.input}
                 value={cookTime}
                 onChangeText={setCookTime}
-                placeholder="e.g. 45 min"
+                placeholder={t('app.recipedetail.cook_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
@@ -375,35 +381,35 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
           <View style={styles.row2}>
             <View style={styles.row2col}>
-              <Text style={styles.label}>Serves</Text>
+              <Text style={styles.label}>{t('app.recipedetail.serves_label')}</Text>
               <TextInput
                 style={styles.input}
                 value={servings}
                 onChangeText={setServings}
-                placeholder="e.g. 4–6"
+                placeholder={t('app.recipedetail.serves_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
             <View style={styles.row2col}>
-              <Text style={styles.label}>Difficulty</Text>
+              <Text style={styles.label}>{t('app.recipedetail.difficulty_label')}</Text>
               <View style={styles.difficultyRow}>
-                {difficulties.slice(1).map((d) => (
+                {difficulties.map((d) => (
                   <TouchableOpacity
-                    key={d}
-                    onPress={() => setDifficulty(difficulty === d ? '' : d)}
+                    key={d.value}
+                    onPress={() => setDifficulty(difficulty === d.value ? '' : d.value)}
                     style={[
                       styles.difficultyChip,
-                      difficulty === d && styles.difficultyChipActive,
+                      difficulty === d.value && styles.difficultyChipActive,
                     ]}
                     activeOpacity={0.8}
                   >
                     <Text
                       style={[
                         styles.difficultyChipText,
-                        difficulty === d && styles.difficultyChipTextActive,
+                        difficulty === d.value && styles.difficultyChipTextActive,
                       ]}
                     >
-                      {d}
+                      {d.label}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -414,8 +420,8 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
         {/* Ingredients */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Ingredients</Text>
-          <Text style={styles.hint}>Amount on the left, ingredient on the right.</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.ingredients_title')}</Text>
+          <Text style={styles.hint}>{t('app.recipedetail.ingredients_hint')}</Text>
 
           {ingredients.map((ing, i) => (
             <View key={i} style={styles.ingRow}>
@@ -423,14 +429,14 @@ export default function RecipeDetailScreen({ navigation, route }) {
                 style={[styles.input, styles.ingAmount]}
                 value={ing.amount}
                 onChangeText={(v) => updateIngredient(i, 'amount', v)}
-                placeholder="2 cups"
+                placeholder={t('app.recipedetail.ingredient_amount_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
               <TextInput
                 style={[styles.input, styles.ingItem]}
                 value={ing.item}
                 onChangeText={(v) => updateIngredient(i, 'item', v)}
-                placeholder="all-purpose flour"
+                placeholder={t('app.recipedetail.ingredient_item_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
               <TouchableOpacity
@@ -444,14 +450,14 @@ export default function RecipeDetailScreen({ navigation, route }) {
           ))}
 
           <TouchableOpacity style={styles.addRowBtn} onPress={addIngredient} activeOpacity={0.8}>
-            <Text style={styles.addRowBtnText}>+ Add ingredient</Text>
+            <Text style={styles.addRowBtnText}>{t('app.recipedetail.add_ingredient')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Directions */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Directions</Text>
-          <Text style={styles.hint}>Steps will be numbered automatically.</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.directions_title')}</Text>
+          <Text style={styles.hint}>{t('app.recipedetail.directions_hint')}</Text>
 
           {directions.map((step, i) => (
             <View key={i} style={styles.directionRow}>
@@ -462,7 +468,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
                 style={[styles.input, styles.directionInput]}
                 value={step.text}
                 onChangeText={(v) => updateDirection(i, v)}
-                placeholder={`Step ${i + 1}`}
+                placeholder={t('app.recipedetail.step_placeholder', { number: i + 1 })}
                 placeholderTextColor={colors.placeholder}
                 multiline
                 textAlignVertical="top"
@@ -478,18 +484,18 @@ export default function RecipeDetailScreen({ navigation, route }) {
           ))}
 
           <TouchableOpacity style={styles.addRowBtn} onPress={addDirection} activeOpacity={0.8}>
-            <Text style={styles.addRowBtnText}>+ Add step</Text>
+            <Text style={styles.addRowBtnText}>{t('app.recipedetail.add_step')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Notes */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Notes & memories</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.notes_title')}</Text>
           <TextInput
             style={[styles.input, styles.notesInput]}
             value={notes}
             onChangeText={setNotes}
-            placeholder="Tips, variations, little memories."
+            placeholder={t('app.recipedetail.notes_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
@@ -498,11 +504,11 @@ export default function RecipeDetailScreen({ navigation, route }) {
 
         {/* Photos */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Photos</Text>
-          <Text style={styles.hint}>The first photo becomes the cover on the published page.</Text>
+          <Text style={styles.cardTitle}>{t('app.recipedetail.photos_title')}</Text>
+          <Text style={styles.hint}>{t('app.recipedetail.photos_hint')}</Text>
 
           {photos.length === 0 && (
-            <Text style={styles.emptyText}>No photos yet. Add some below.</Text>
+            <Text style={styles.emptyText}>{t('app.recipedetail.photos_empty')}</Text>
           )}
 
           {photos.map((p) => {
@@ -513,14 +519,14 @@ export default function RecipeDetailScreen({ navigation, route }) {
                   <Image source={{ uri }} style={styles.photoImg} resizeMode="cover" />
                 ) : (
                   <View style={[styles.photoImg, styles.photoPlaceholder]}>
-                    <Text style={{ color: colors.gold }}>No image</Text>
+                    <Text style={{ color: colors.gold }}>{t('app.recipedetail.no_image')}</Text>
                   </View>
                 )}
                 <TextInput
                   style={styles.captionInput}
                   value={p.caption || ''}
                   onChangeText={(v) => updatePhotoCaption(p.id, v)}
-                  placeholder="Caption (optional)"
+                  placeholder={t('app.recipedetail.caption_placeholder')}
                   placeholderTextColor={colors.placeholder}
                 />
                 <View style={styles.photoActions}>
@@ -529,14 +535,14 @@ export default function RecipeDetailScreen({ navigation, route }) {
                     onPress={() => savePhotoCaption(p)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.smallButtonText}>Save caption</Text>
+                    <Text style={styles.smallButtonText}>{t('app.recipedetail.save_caption')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.smallButton, styles.smallButtonDanger]}
                     onPress={() => confirmRemovePhoto(p)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.smallButtonText, { color: colors.error }]}>Remove</Text>
+                    <Text style={[styles.smallButtonText, { color: colors.error }]}>{t('app.recipedetail.remove')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -552,7 +558,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
             {uploadingPhoto ? (
               <ActivityIndicator color={colors.gold} />
             ) : (
-              <Text style={styles.addPhotoText}>+ Add Photo</Text>
+              <Text style={styles.addPhotoText}>{t('app.recipedetail.add_photo')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -567,7 +573,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <Text style={styles.saveButtonText}>{t('app.recipedetail.save_button')}</Text>
           )}
         </TouchableOpacity>
 
@@ -581,7 +587,7 @@ export default function RecipeDetailScreen({ navigation, route }) {
           {deleting ? (
             <ActivityIndicator color={colors.error} />
           ) : (
-            <Text style={styles.deleteButtonText}>Delete recipe</Text>
+            <Text style={styles.deleteButtonText}>{t('app.recipedetail.delete_button')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

@@ -14,12 +14,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Folder } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, BASE_URL } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 /**
  * List every keepsake. Tap one to edit; use the "Add" row to create.
  * Uses per-item CRUD endpoints exclusively.
  */
 export default function KeepsakesScreen({ navigation }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [keepsakes, setKeepsakes] = useState([]);
   const [newTitle, setNewTitle] = useState('');
@@ -52,7 +54,7 @@ export default function KeepsakesScreen({ navigation }) {
       setNewTitle('');
       navigation.navigate('KeepsakeDetail', { keepsakeId: res.data.id, title });
     } catch (err) {
-      Alert.alert('Could not add keepsake', err.message || 'Please try again.');
+      Alert.alert(t('app.keepsakes.add_error_title'), err.message || t('app.keepsakes.try_again'));
     } finally {
       setAdding(false);
     }
@@ -65,7 +67,12 @@ export default function KeepsakesScreen({ navigation }) {
   }
 
   function categoryLabel(c) {
-    const map = { artwork: 'Artwork', schoolwork: 'Schoolwork', award: 'Award', memorabilia: 'Memorabilia' };
+    const map = {
+      artwork: t('app.keepsakes.category_artwork'),
+      schoolwork: t('app.keepsakes.category_schoolwork'),
+      award: t('app.keepsakes.category_award'),
+      memorabilia: t('app.keepsakes.category_memorabilia'),
+    };
     if (!c) return null;
     return map[c] || (c.charAt(0).toUpperCase() + c.slice(1));
   }
@@ -85,20 +92,20 @@ export default function KeepsakesScreen({ navigation }) {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.pageTitle}>Their Keepsakes</Text>
+      <Text style={styles.pageTitle}>{t('app.keepsakes.page_title')}</Text>
       <Text style={styles.pageSubtitle}>
-        Photos of drawings, awards, certificates, handprints — the small treasures you can't keep forever.
+        {t('app.keepsakes.page_subtitle')}
       </Text>
 
       {keepsakes.length === 0 && (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No keepsakes yet. Add your first one below.</Text>
+          <Text style={styles.emptyStateText}>{t('app.keepsakes.empty')}</Text>
         </View>
       )}
 
       {keepsakes.map((k) => {
         const uri = photoUri(k.cover_photo);
-        const title = k.title && k.title !== '(untitled)' ? k.title : 'Untitled';
+        const title = k.title && k.title !== '(untitled)' ? k.title : t('app.keepsakes.untitled');
         const cat = categoryLabel(k.category);
         return (
           <TouchableOpacity
@@ -130,13 +137,13 @@ export default function KeepsakesScreen({ navigation }) {
       })}
 
       <View style={styles.addCard}>
-        <Text style={styles.addCardTitle}>Add a keepsake</Text>
+        <Text style={styles.addCardTitle}>{t('app.keepsakes.add_card_title')}</Text>
         <View style={styles.addRow}>
           <TextInput
             style={styles.addInput}
             value={newTitle}
             onChangeText={setNewTitle}
-            placeholder="e.g. First finger painting"
+            placeholder={t('app.keepsakes.title_placeholder')}
             placeholderTextColor={colors.placeholder}
             returnKeyType="done"
             onSubmitEditing={handleAdd}
@@ -150,7 +157,7 @@ export default function KeepsakesScreen({ navigation }) {
             {adding ? (
               <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Text style={styles.addButtonText}>+ Add</Text>
+              <Text style={styles.addButtonText}>{t('app.keepsakes.add_button')}</Text>
             )}
           </TouchableOpacity>
         </View>

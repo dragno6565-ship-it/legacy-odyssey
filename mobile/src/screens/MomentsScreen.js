@@ -6,10 +6,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, put, del } from '../api/client';
 import { useUpload } from '../upload/UploadContext';
+import { useI18n } from '../i18n/I18nContext';
 
 const MAX_SEC = 120;
 
 export default function MomentsScreen() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [videos, setVideos] = useState([]);
   const [totalSec, setTotalSec] = useState(0);
@@ -23,7 +25,7 @@ export default function MomentsScreen() {
       setTotalSec((res.data && res.data.totalSec) || 0);
       setCapSec((res.data && res.data.capSec) || 60000);
     } catch (err) {
-      if (err.status !== 404) Alert.alert('Error', 'Could not load videos.');
+      if (err.status !== 404) Alert.alert(t('app.moments.error_title'), t('app.moments.load_error'));
     } finally { setLoading(false); }
   }, []);
 
@@ -32,29 +34,29 @@ export default function MomentsScreen() {
   useFocusEffect(useCallback(() => { fetchVideos(); }, [fetchVideos]));
 
   async function pickAndUpload() {
-    if (isBusy) { Alert.alert('Please wait', 'Another video is still uploading.'); return; }
-    if (totalSec >= capSec) { Alert.alert('Limit reached', 'This site has reached its 1,000-minute video limit. Delete a clip to add another.'); return; }
+    if (isBusy) { Alert.alert(t('app.moments.please_wait_title'), t('app.moments.please_wait_body')); return; }
+    if (totalSec >= capSec) { Alert.alert(t('app.moments.limit_reached_title'), t('app.moments.limit_reached_body')); return; }
     const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['videos'], quality: 1 });
     if (picked.canceled || !picked.assets || !picked.assets.length) return;
     const asset = picked.assets[0];
     const durSec = asset.duration ? asset.duration / 1000 : 0;
     if (durSec && durSec > MAX_SEC + 1) {
-      Alert.alert('Too long', `That clip is ${Math.round(durSec)} seconds. Please choose a video up to ${MAX_SEC} seconds (${MAX_SEC / 60} minutes).`);
+      Alert.alert(t('app.moments.too_long_title'), t('app.moments.too_long_body', { seconds: Math.round(durSec), maxSeconds: MAX_SEC, maxMinutes: MAX_SEC / 60 }));
       return;
     }
     // Kick off the background upload and let the user keep using the app.
     startUpload({ asset, context: 'moments', onComplete: fetchVideos });
-    Alert.alert('Uploading', 'Your video is uploading in the background — you can keep using the app. We’ll add it to your book when it’s ready.');
+    Alert.alert(t('app.moments.uploading_title'), t('app.moments.uploading_body'));
   }
 
   async function saveCaption(v, caption) {
     try { await put(`/api/videos/mine/${v.id}/caption`, { caption }); } catch (e) {}
   }
   function confirmDelete(v) {
-    Alert.alert('Delete this video?', null, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => {
-        try { await del(`/api/videos/mine/${v.id}`); fetchVideos(); } catch (e) { Alert.alert('Could not delete', 'Please try again.'); }
+    Alert.alert(t('app.moments.delete_confirm_title'), null, [
+      { text: t('app.moments.cancel'), style: 'cancel' },
+      { text: t('app.moments.delete'), style: 'destructive', onPress: async () => {
+        try { await del(`/api/videos/mine/${v.id}`); fetchVideos(); } catch (e) { Alert.alert(t('app.moments.delete_failed_title'), t('app.moments.try_again')); }
       } },
     ]);
   }
@@ -66,9 +68,9 @@ export default function MomentsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.pageTitle}>Video Moments</Text>
-      <Text style={styles.pageSubtitle}>Short clips — first steps, first words, the laugh. Up to {MAX_SEC / 60} minutes each.</Text>
-      <Text style={styles.cap}>{usedMin} of {capMin.toLocaleString()} minutes used</Text>
+      <Text style={styles.pageTitle}>{t('app.moments.page_title')}</Text>
+      <Text style={styles.pageSubtitle}>{t('app.moments.page_subtitle', { maxMinutes: MAX_SEC / 60 })}</Text>
+      <Text style={styles.cap}>{t('app.moments.minutes_used', { used: usedMin, cap: capMin.toLocaleString() })}</Text>
 
       {videos.map((v) => (
         <View key={v.id} style={styles.card}>
@@ -82,21 +84,21 @@ export default function MomentsScreen() {
                 domStorageEnabled
               />
             ) : (
-              <View style={styles.processing}><Text style={styles.processingText}>Processing…</Text></View>
+              <View style={styles.processing}><Text style={styles.processingText}>{t('app.moments.processing')}</Text></View>
             )}
           </View>
           <TextInput
             style={styles.input}
             defaultValue={v.caption || ''}
-            placeholder="Caption (optional)"
+            placeholder={t('app.moments.caption_placeholder')}
             placeholderTextColor={colors.placeholder}
             onEndEditing={(e) => saveCaption(v, e.nativeEvent.text)}
           />
-          <TouchableOpacity onPress={() => confirmDelete(v)}><Text style={styles.removeLink}>Remove</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => confirmDelete(v)}><Text style={styles.removeLink}>{t('app.moments.remove')}</Text></TouchableOpacity>
         </View>
       ))}
 
-      {videos.length === 0 ? <Text style={styles.empty}>No videos yet — add your first clip below.</Text> : null}
+      {videos.length === 0 ? <Text style={styles.empty}>{t('app.moments.empty')}</Text> : null}
 
       <TouchableOpacity
         style={[styles.addButton, (isBusy || totalSec >= capSec) && styles.addButtonDisabled]}
@@ -104,7 +106,7 @@ export default function MomentsScreen() {
         disabled={isBusy || totalSec >= capSec}
         activeOpacity={0.8}
       >
-        <Text style={styles.addButtonText}>{totalSec >= capSec ? 'Video limit reached' : `+ Add a video (up to ${MAX_SEC / 60} min)`}</Text>
+        <Text style={styles.addButtonText}>{totalSec >= capSec ? t('app.moments.add_button_limit') : t('app.moments.add_button', { maxMinutes: MAX_SEC / 60 })}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

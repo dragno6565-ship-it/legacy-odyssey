@@ -17,10 +17,12 @@ import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { pickAndUploadPhotos } from '../utils/multiPhoto';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 const BLANK_CARD = () => ({ photo_path: '', title: '', subtitle: '', body: '' });
 
 export default function ComingHomeScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function ComingHomeScreen({ navigation }) {
         setCards(merged);
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load data.');
+          setError(err.message || t('app.cominghome.error_load'));
         }
       } finally {
         setLoading(false);
@@ -79,7 +81,7 @@ export default function ComingHomeScreen({ navigation }) {
     try {
       const { canceled, paths } = await pickAndUploadPhotos({
         limit: 20,
-        onProgress: (done, total) => setPhotoProgress(`Uploading ${Math.min(done + 1, total)} of ${total}…`),
+        onProgress: (done, total) => setPhotoProgress(t('app.cominghome.uploading_progress', { current: Math.min(done + 1, total), total })),
       });
       if (canceled || paths.length === 0) return;
       const newCards = paths.map((p) => ({ photo_path: p, title: '', subtitle: '', body: '' }));
@@ -89,7 +91,7 @@ export default function ComingHomeScreen({ navigation }) {
         return [...base, ...newCards];
       });
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photos.');
+      Alert.alert(t('app.cominghome.upload_failed_title'), err.message || t('app.cominghome.upload_failed_body'));
     } finally {
       setAddingPhotos(false);
       setPhotoProgress('');
@@ -101,10 +103,10 @@ export default function ComingHomeScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine/coming-home', { cards });
-      showToast('Coming Home updated.');
+      showToast(t('app.cominghome.toast_saved'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.cominghome.error_save'));
     } finally {
       setSaving(false);
     }
@@ -130,8 +132,8 @@ export default function ComingHomeScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Coming Home</Text>
-        <Text style={styles.pageSubtitle}>The journey from hospital to home</Text>
+        <Text style={styles.pageTitle}>{t('app.cominghome.page_title')}</Text>
+        <Text style={styles.pageSubtitle}>{t('app.cominghome.page_subtitle')}</Text>
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -142,10 +144,10 @@ export default function ComingHomeScreen({ navigation }) {
         {cards.map((card, index) => (
           <View key={index} style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardNumber}>Card {index + 1}</Text>
+              <Text style={styles.cardNumber}>{t('app.cominghome.card_number', { number: index + 1 })}</Text>
               {cards.length > 1 && (
                 <TouchableOpacity onPress={() => removeCard(index)} activeOpacity={0.7}>
-                  <Text style={styles.removeText}>Remove</Text>
+                  <Text style={styles.removeText}>{t('app.cominghome.remove')}</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -155,30 +157,30 @@ export default function ComingHomeScreen({ navigation }) {
               onPhotoSelected={(path) => updateCard(index, 'photo_path', path)}
             />
 
-            <Text style={styles.label}>Subtitle / Label</Text>
+            <Text style={styles.label}>{t('app.cominghome.label_subtitle')}</Text>
             <TextInput
               style={styles.input}
               value={card.subtitle}
               onChangeText={(val) => updateCard(index, 'subtitle', val)}
-              placeholder="e.g., The First Night"
+              placeholder={t('app.cominghome.placeholder_subtitle')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>{t('app.cominghome.label_title')}</Text>
             <TextInput
               style={styles.input}
               value={card.title}
               onChangeText={(val) => updateCard(index, 'title', val)}
-              placeholder="e.g., A House Becomes a Home"
+              placeholder={t('app.cominghome.placeholder_title')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Body</Text>
+            <Text style={styles.label}>{t('app.cominghome.label_body')}</Text>
             <TextInput
               style={[styles.input, styles.bodyInput]}
               value={card.body}
               onChangeText={(val) => updateCard(index, 'body', val)}
-              placeholder="Tell the story..."
+              placeholder={t('app.cominghome.placeholder_body')}
               placeholderTextColor={colors.placeholder}
               multiline
               numberOfLines={4}
@@ -188,7 +190,7 @@ export default function ComingHomeScreen({ navigation }) {
         ))}
 
         <TouchableOpacity style={styles.addButton} onPress={addCard} activeOpacity={0.8}>
-          <Text style={styles.addButtonText}>+ Add Card</Text>
+          <Text style={styles.addButtonText}>{t('app.cominghome.add_card')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -200,10 +202,10 @@ export default function ComingHomeScreen({ navigation }) {
           {addingPhotos ? (
             <View style={styles.uploadingRow}>
               <ActivityIndicator color={colors.gold} size="small" />
-              <Text style={styles.addButtonText}>{photoProgress || 'Uploading…'}</Text>
+              <Text style={styles.addButtonText}>{photoProgress || t('app.cominghome.uploading')}</Text>
             </View>
           ) : (
-            <Text style={styles.addButtonText}>+ Add multiple photos</Text>
+            <Text style={styles.addButtonText}>{t('app.cominghome.add_multiple_photos')}</Text>
           )}
         </TouchableOpacity>
 
@@ -216,7 +218,7 @@ export default function ComingHomeScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.cominghome.save')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

@@ -17,12 +17,14 @@ import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { pickAndUploadPhotos } from '../utils/multiPhoto';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 const BLANK_CARD = () => ({ photo_path: '', title: '', subtitle: '', body: '' });
 // New books start with a few prompt cards; existing books load whatever they saved.
 const DEFAULT_CARDS = [BLANK_CARD(), BLANK_CARD(), BLANK_CARD(), BLANK_CARD()];
 
 export default function BeforeScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ export default function BeforeScreen({ navigation }) {
         );
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load data.');
+          setError(err.message || t('app.before.error_load'));
         }
       } finally {
         setLoading(false);
@@ -91,7 +93,7 @@ export default function BeforeScreen({ navigation }) {
     try {
       const { canceled, paths } = await pickAndUploadPhotos({
         limit: 20,
-        onProgress: (done, total) => setPhotoProgress(`Uploading ${Math.min(done + 1, total)} of ${total}…`),
+        onProgress: (done, total) => setPhotoProgress(t('app.before.uploading_progress', { done: Math.min(done + 1, total), total })),
       });
       if (canceled || paths.length === 0) return;
       const newCards = paths.map((p) => ({ photo_path: p, title: '', subtitle: '', body: '' }));
@@ -101,7 +103,7 @@ export default function BeforeScreen({ navigation }) {
         return [...base, ...newCards];
       });
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photos.');
+      Alert.alert(t('app.before.upload_failed_title'), err.message || t('app.before.upload_failed_body'));
     } finally {
       setAddingPhotos(false);
       setPhotoProgress('');
@@ -132,10 +134,10 @@ export default function BeforeScreen({ navigation }) {
         cards,
         checklist: checklist.filter((item) => item.label.trim()),
       });
-      showToast('Before You Arrived updated.');
+      showToast(t('app.before.saved_toast'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.before.error_save'));
     } finally {
       setSaving(false);
     }
@@ -161,8 +163,8 @@ export default function BeforeScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Before You Arrived</Text>
-        <Text style={styles.pageSubtitle}>The story of how we prepared for you</Text>
+        <Text style={styles.pageTitle}>{t('app.before.page_title')}</Text>
+        <Text style={styles.pageSubtitle}>{t('app.before.page_subtitle')}</Text>
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -173,10 +175,10 @@ export default function BeforeScreen({ navigation }) {
         {cards.map((card, index) => (
           <View key={index} style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardNumber}>Card {index + 1}</Text>
+              <Text style={styles.cardNumber}>{t('app.before.card_number', { number: index + 1 })}</Text>
               {cards.length > 1 && (
                 <TouchableOpacity onPress={() => removeCard(index)} activeOpacity={0.7}>
-                  <Text style={styles.removeText}>Remove</Text>
+                  <Text style={styles.removeText}>{t('app.before.remove')}</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -186,30 +188,30 @@ export default function BeforeScreen({ navigation }) {
               onPhotoSelected={(path) => updateCard(index, 'photo_path', path)}
             />
 
-            <Text style={styles.label}>Subtitle / Label</Text>
+            <Text style={styles.label}>{t('app.before.subtitle_label')}</Text>
             <TextInput
               style={styles.input}
               value={card.subtitle}
               onChangeText={(val) => updateCard(index, 'subtitle', val)}
-              placeholder="e.g., The Nursery"
+              placeholder={t('app.before.subtitle_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>{t('app.before.title_label')}</Text>
             <TextInput
               style={styles.input}
               value={card.title}
               onChangeText={(val) => updateCard(index, 'title', val)}
-              placeholder="e.g., Painting Clouds on the Ceiling"
+              placeholder={t('app.before.title_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Body</Text>
+            <Text style={styles.label}>{t('app.before.body_label')}</Text>
             <TextInput
               style={[styles.input, styles.bodyInput]}
               value={card.body}
               onChangeText={(val) => updateCard(index, 'body', val)}
-              placeholder="Tell the story..."
+              placeholder={t('app.before.body_placeholder')}
               placeholderTextColor={colors.placeholder}
               multiline
               numberOfLines={4}
@@ -219,7 +221,7 @@ export default function BeforeScreen({ navigation }) {
         ))}
 
         <TouchableOpacity style={styles.addBtn} onPress={addCard} activeOpacity={0.8}>
-          <Text style={styles.addBtnText}>+ Add Card</Text>
+          <Text style={styles.addBtnText}>{t('app.before.add_card')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -231,15 +233,15 @@ export default function BeforeScreen({ navigation }) {
           {addingPhotos ? (
             <View style={styles.uploadingRow}>
               <ActivityIndicator color={colors.gold} size="small" />
-              <Text style={styles.addBtnText}>{photoProgress || 'Uploading…'}</Text>
+              <Text style={styles.addBtnText}>{photoProgress || t('app.before.uploading')}</Text>
             </View>
           ) : (
-            <Text style={styles.addBtnText}>+ Add multiple photos</Text>
+            <Text style={styles.addBtnText}>{t('app.before.add_multiple_photos')}</Text>
           )}
         </TouchableOpacity>
 
         {/* Checklist Section */}
-        <Text style={styles.sectionHeader}>Getting-Ready Checklist</Text>
+        <Text style={styles.sectionHeader}>{t('app.before.checklist_header')}</Text>
         {checklist.map((item, index) => (
           <View key={index} style={styles.checklistRow}>
             <TouchableOpacity
@@ -252,7 +254,7 @@ export default function BeforeScreen({ navigation }) {
               style={styles.checklistInput}
               value={item.label}
               onChangeText={(val) => updateChecklistItem(index, 'label', val)}
-              placeholder="Checklist item..."
+              placeholder={t('app.before.checklist_item_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
             <TouchableOpacity onPress={() => removeChecklistItem(index)}>
@@ -261,7 +263,7 @@ export default function BeforeScreen({ navigation }) {
           </View>
         ))}
         <TouchableOpacity style={styles.addBtn} onPress={addChecklistItem}>
-          <Text style={styles.addBtnText}>+ Add Checklist Item</Text>
+          <Text style={styles.addBtnText}>{t('app.before.add_checklist_item')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -273,7 +275,7 @@ export default function BeforeScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.before.save')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

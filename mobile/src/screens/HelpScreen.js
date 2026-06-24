@@ -13,16 +13,17 @@ import {
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { post } from '../api/client';
-
-const TOPICS = [
-  { value: 'general', label: 'General Question' },
-  { value: 'account', label: 'Account Help' },
-  { value: 'billing', label: 'Billing Question' },
-  { value: 'bug', label: 'Report a Problem' },
-  { value: 'feature', label: 'Feature Request' },
-];
+import { useI18n } from '../i18n/I18nContext';
 
 export default function HelpScreen({ navigation }) {
+  const { t } = useI18n();
+  const TOPICS = [
+    { value: 'general', label: t('app.help.topic_general') },
+    { value: 'account', label: t('app.help.topic_account') },
+    { value: 'billing', label: t('app.help.topic_billing') },
+    { value: 'bug', label: t('app.help.topic_bug') },
+    { value: 'feature', label: t('app.help.topic_feature') },
+  ];
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [topic, setTopic] = useState('general');
@@ -31,18 +32,18 @@ export default function HelpScreen({ navigation }) {
 
   async function handleSubmit() {
     if (!name.trim() || !email.trim() || !message.trim()) {
-      Alert.alert('Missing Info', 'Please fill in your name, email, and message.');
+      Alert.alert(t('app.help.alert_missing_title'), t('app.help.alert_missing_message'));
       return;
     }
 
     setSending(true);
     try {
       await post('/api/contact', { name: name.trim(), email: email.trim(), topic, message: message.trim() });
-      Alert.alert('Message Sent', "Thanks! We'll get back to you within 24 hours.", [
-        { text: 'OK', onPress: () => navigation.goBack() },
+      Alert.alert(t('app.help.alert_sent_title'), t('app.help.alert_sent_message'), [
+        { text: t('app.help.alert_ok'), onPress: () => navigation.goBack() },
       ]);
     } catch (err) {
-      Alert.alert('Error', 'Failed to send message. Please try emailing us directly at help@legacyodyssey.com');
+      Alert.alert(t('app.help.alert_error_title'), t('app.help.alert_error_message'));
     } finally {
       setSending(false);
     }
@@ -54,29 +55,29 @@ export default function HelpScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>How can we help?</Text>
+        <Text style={styles.heading}>{t('app.help.heading')}</Text>
         <Text style={styles.subtext}>
-          Send us a message and we'll get back to you within 24 hours.
+          {t('app.help.subtext')}
         </Text>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Your Name</Text>
+          <Text style={styles.label}>{t('app.help.label_name')}</Text>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
-            placeholder="Jane Smith"
+            placeholder={t('app.help.placeholder_name')}
             placeholderTextColor={colors.placeholder}
           />
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Your Email</Text>
+          <Text style={styles.label}>{t('app.help.label_email')}</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="jane@example.com"
+            placeholder={t('app.help.placeholder_email')}
             placeholderTextColor={colors.placeholder}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -84,7 +85,7 @@ export default function HelpScreen({ navigation }) {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Topic</Text>
+          <Text style={styles.label}>{t('app.help.label_topic')}</Text>
           <View style={styles.topicRow}>
             {TOPICS.map((t) => (
               <TouchableOpacity
@@ -101,12 +102,12 @@ export default function HelpScreen({ navigation }) {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Message</Text>
+          <Text style={styles.label}>{t('app.help.label_message')}</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
             value={message}
             onChangeText={setMessage}
-            placeholder="Tell us what's going on..."
+            placeholder={t('app.help.placeholder_message')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
@@ -119,12 +120,12 @@ export default function HelpScreen({ navigation }) {
           disabled={sending}
           activeOpacity={0.8}
         >
-          <Text style={styles.submitButtonText}>{sending ? 'Sending...' : 'Send Message'}</Text>
+          <Text style={styles.submitButtonText}>{sending ? t('app.help.sending') : t('app.help.send_message')}</Text>
         </TouchableOpacity>
 
         <View style={styles.divider} />
 
-        <Text style={styles.orText}>Or email us directly</Text>
+        <Text style={styles.orText}>{t('app.help.or_email')}</Text>
         <TouchableOpacity onPress={() => Linking.openURL('mailto:help@legacyodyssey.com')}>
           <Text style={styles.emailLink}>help@legacyodyssey.com</Text>
         </TouchableOpacity>

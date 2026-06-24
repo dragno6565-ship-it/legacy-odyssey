@@ -2,7 +2,7 @@
   "expo": {
     "name": "Legacy Odyssey",
     "slug": "legacy-odyssey",
-    "version": "1.0.21",
+    "version": "1.0.22",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -50,6 +50,9 @@
     },
     "updates": {
       "url": "https://u.expo.dev/14daf713-2b41-4ac0-b413-1179afa6e6a9"
-    }
+    },
+    "plugins": [
+      "expo-localization"
+    ]
   }
 }

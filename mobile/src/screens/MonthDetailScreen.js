@@ -15,8 +15,10 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function MonthDetailScreen({ route, navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const { monthNum, monthLabel } = route.params;
@@ -43,7 +45,7 @@ export default function MonthDetailScreen({ route, navigation }) {
       } catch (err) {
         // Month data may not exist yet - that's OK
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load month data.');
+          setError(err.message || t('app.monthdetail.error_load'));
         }
       } finally {
         setLoading(false);
@@ -63,10 +65,10 @@ export default function MonthDetailScreen({ route, navigation }) {
         note: note.trim(),
         photo_path: photoPath,
       });
-      showToast(`Month ${monthLabel} updated successfully.`);
+      showToast(t('app.monthdetail.toast_saved', { label: monthLabel }));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save. Please try again.');
+      setError(err.message || t('app.monthdetail.error_save'));
     } finally {
       setSaving(false);
     }
@@ -92,8 +94,8 @@ export default function MonthDetailScreen({ route, navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionTitle}>Month {monthLabel}</Text>
-        <Text style={styles.subtitle}>Month {monthNum} milestones and memories</Text>
+        <Text style={styles.sectionTitle}>{t('app.monthdetail.title', { label: monthLabel })}</Text>
+        <Text style={styles.subtitle}>{t('app.monthdetail.subtitle', { number: monthNum })}</Text>
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -101,53 +103,53 @@ export default function MonthDetailScreen({ route, navigation }) {
           </View>
         ) : null}
 
-        <Text style={styles.label}>Highlight / Title</Text>
+        <Text style={styles.label}>{t('app.monthdetail.label_highlight')}</Text>
         <TextInput
           style={styles.input}
           value={highlight}
           onChangeText={setHighlight}
-          placeholder="What made this month special?"
+          placeholder={t('app.monthdetail.placeholder_highlight')}
           placeholderTextColor={colors.placeholder}
         />
 
         <View style={styles.row}>
           <View style={styles.halfField}>
-            <Text style={styles.label}>Weight</Text>
+            <Text style={styles.label}>{t('app.monthdetail.label_weight')}</Text>
             <TextInput
               style={styles.input}
               value={weight}
               onChangeText={setWeight}
-              placeholder="lbs"
+              placeholder={t('app.monthdetail.placeholder_weight')}
               placeholderTextColor={colors.placeholder}
               keyboardType="numeric"
             />
           </View>
           <View style={styles.halfField}>
-            <Text style={styles.label}>Length</Text>
+            <Text style={styles.label}>{t('app.monthdetail.label_length')}</Text>
             <TextInput
               style={styles.input}
               value={length}
               onChangeText={setLength}
-              placeholder="inches"
+              placeholder={t('app.monthdetail.placeholder_length')}
               placeholderTextColor={colors.placeholder}
               keyboardType="numeric"
             />
           </View>
         </View>
 
-        <Text style={styles.label}>Notes</Text>
+        <Text style={styles.label}>{t('app.monthdetail.label_notes')}</Text>
         <TextInput
           style={[styles.input, styles.multilineInput]}
           value={note}
           onChangeText={setNote}
-          placeholder="Write about this month's milestones, funny moments, new skills..."
+          placeholder={t('app.monthdetail.placeholder_notes')}
           placeholderTextColor={colors.placeholder}
           multiline
           numberOfLines={6}
           textAlignVertical="top"
         />
 
-        <Text style={styles.label}>Photo</Text>
+        <Text style={styles.label}>{t('app.monthdetail.label_photo')}</Text>
         <PhotoPicker
           currentPhoto={photoPath}
           onPhotoSelected={(path) => setPhotoPath(path)}
@@ -162,7 +164,7 @@ export default function MonthDetailScreen({ route, navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.monthdetail.save')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

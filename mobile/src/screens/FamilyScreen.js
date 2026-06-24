@@ -13,6 +13,7 @@ import { User } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get } from '../api/client';
 import { BASE_URL } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 function getPhotoUri(path) {
   if (!path) return null;
@@ -21,6 +22,7 @@ function getPhotoUri(path) {
 }
 
 export default function FamilyScreen({ navigation }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [error, setError] = useState('');
@@ -32,7 +34,7 @@ export default function FamilyScreen({ navigation }) {
       setMembers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       if (err.status !== 404) {
-        setError(err.message || 'Failed to load family members.');
+        setError(err.message || t('app.family.error_load'));
       }
     }
   }
@@ -71,7 +73,7 @@ export default function FamilyScreen({ navigation }) {
           {item.name || item.member_key}
         </Text>
         <Text style={styles.memberRelation} numberOfLines={1}>
-          {item.relation || 'Family'}
+          {item.relation || t('app.family.default_relation')}
         </Text>
       </TouchableOpacity>
     );
@@ -88,8 +90,8 @@ export default function FamilyScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.pageTitle}>Our Family</Text>
-        <Text style={styles.pageSubtitle}>The people who love you most</Text>
+        <Text style={styles.pageTitle}>{t('app.family.page_title')}</Text>
+        <Text style={styles.pageSubtitle}>{t('app.family.page_subtitle')}</Text>
       </View>
 
       {error ? (
@@ -107,7 +109,7 @@ export default function FamilyScreen({ navigation }) {
         contentContainerStyle={styles.grid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No family members yet. Add the people who matter most to your child.</Text>
+          <Text style={styles.emptyText}>{t('app.family.empty')}</Text>
         }
         ListFooterComponent={
           <TouchableOpacity
@@ -117,13 +119,13 @@ export default function FamilyScreen({ navigation }) {
               const newKey = `member_${Date.now()}`;
               navigation.navigate('FamilyMember', {
                 memberKey: newKey,
-                memberName: 'New Family Member',
+                memberName: t('app.family.new_member_name'),
                 isNew: true,
               });
             }}
           >
             <Text style={styles.addButtonIcon}>+</Text>
-            <Text style={styles.addButtonText}>Add Family Member</Text>
+            <Text style={styles.addButtonText}>{t('app.family.add_member')}</Text>
           </TouchableOpacity>
         }
       />

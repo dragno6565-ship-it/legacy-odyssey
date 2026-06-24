@@ -14,6 +14,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 const DEFAULT_FIRSTS = Array.from({ length: 9 }, () => ({
   emoji: '',
@@ -23,6 +24,7 @@ const DEFAULT_FIRSTS = Array.from({ length: 9 }, () => ({
 }));
 
 export default function FirstsScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export default function FirstsScreen({ navigation }) {
         setFirsts(merged);
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load firsts.');
+          setError(err.message || t('app.firsts.error_load'));
         }
       } finally {
         setLoading(false);
@@ -66,10 +68,10 @@ export default function FirstsScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine/firsts', { items: firsts });
-      showToast('Firsts updated.');
+      showToast(t('app.firsts.toast_saved'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.firsts.error_save'));
     } finally {
       setSaving(false);
     }
@@ -95,8 +97,8 @@ export default function FirstsScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Your Firsts</Text>
-        <Text style={styles.pageSubtitle}>Every milestone, big and small</Text>
+        <Text style={styles.pageTitle}>{t('app.firsts.page_title')}</Text>
+        <Text style={styles.pageSubtitle}>{t('app.firsts.page_subtitle')}</Text>
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -116,34 +118,34 @@ export default function FirstsScreen({ navigation }) {
                 maxLength={4}
               />
               <View style={styles.cardHeaderRight}>
-                <Text style={styles.milestoneNum}>Milestone {index + 1}</Text>
+                <Text style={styles.milestoneNum}>{t('app.firsts.milestone_num', { number: index + 1 })}</Text>
               </View>
             </View>
 
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>{t('app.firsts.label_title')}</Text>
             <TextInput
               style={styles.input}
               value={first.title}
               onChangeText={(val) => updateFirst(index, 'title', val)}
-              placeholder="e.g., First Smile"
+              placeholder={t('app.firsts.placeholder_title')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Date</Text>
+            <Text style={styles.label}>{t('app.firsts.label_date')}</Text>
             <TextInput
               style={styles.input}
               value={first.date_text}
               onChangeText={(val) => updateFirst(index, 'date_text', val)}
-              placeholder="e.g., 6 weeks old"
+              placeholder={t('app.firsts.placeholder_date')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Note</Text>
+            <Text style={styles.label}>{t('app.firsts.label_note')}</Text>
             <TextInput
               style={[styles.input, styles.noteInput]}
               value={first.note}
               onChangeText={(val) => updateFirst(index, 'note', val)}
-              placeholder="What happened..."
+              placeholder={t('app.firsts.placeholder_note')}
               placeholderTextColor={colors.placeholder}
               multiline
               numberOfLines={3}
@@ -161,7 +163,7 @@ export default function FirstsScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save All Firsts</Text>
+            <Text style={styles.saveButtonText}>{t('app.firsts.save_all')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

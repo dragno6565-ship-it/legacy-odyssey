@@ -14,10 +14,12 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 const BLANK_LETTER = () => ({ from_label: '', salutation: '', body: '', signature: '' });
 
 export default function LettersScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function LettersScreen({ navigation }) {
         setLetters(merged);
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load letters.');
+          setError(err.message || t('app.letters.load_error'));
         }
       } finally {
         setLoading(false);
@@ -73,10 +75,10 @@ export default function LettersScreen({ navigation }) {
     setError('');
     try {
       await put('/api/books/mine/letters', { items: letters });
-      showToast('Letters updated successfully.');
+      showToast(t('app.letters.save_success'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save. Please try again.');
+      setError(err.message || t('app.letters.save_error'));
     } finally {
       setSaving(false);
     }
@@ -102,9 +104,9 @@ export default function LettersScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Letters to You</Text>
+        <Text style={styles.pageTitle}>{t('app.letters.page_title')}</Text>
         <Text style={styles.pageSubtitle}>
-          Words from the people who love you most
+          {t('app.letters.page_subtitle')}
         </Text>
 
         {error ? (
@@ -116,57 +118,57 @@ export default function LettersScreen({ navigation }) {
         {letters.map((letter, index) => (
           <View key={index} style={styles.letterCard}>
             <View style={styles.cardHeader}>
-              <Text style={styles.letterNumber}>Letter {index + 1}</Text>
+              <Text style={styles.letterNumber}>{t('app.letters.letter_number', { number: index + 1 })}</Text>
               {letters.length > 1 && (
                 <TouchableOpacity onPress={() => removeLetter(index)} activeOpacity={0.7}>
-                  <Text style={styles.removeText}>Remove</Text>
+                  <Text style={styles.removeText}>{t('app.letters.remove')}</Text>
                 </TouchableOpacity>
               )}
             </View>
 
-            <Text style={styles.label}>From</Text>
+            <Text style={styles.label}>{t('app.letters.from_label')}</Text>
             <TextInput
               style={styles.input}
               value={letter.from_label}
               onChangeText={(val) => updateLetter(index, 'from_label', val)}
-              placeholder="e.g., Mom, Dad, Grandma"
+              placeholder={t('app.letters.from_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Salutation</Text>
+            <Text style={styles.label}>{t('app.letters.salutation_label')}</Text>
             <TextInput
               style={styles.input}
               value={letter.salutation}
               onChangeText={(val) => updateLetter(index, 'salutation', val)}
-              placeholder="e.g., Dear little one,"
+              placeholder={t('app.letters.salutation_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
 
-            <Text style={styles.label}>Body</Text>
+            <Text style={styles.label}>{t('app.letters.body_label')}</Text>
             <TextInput
               style={[styles.input, styles.bodyInput]}
               value={letter.body}
               onChangeText={(val) => updateLetter(index, 'body', val)}
-              placeholder="Write your letter here..."
+              placeholder={t('app.letters.body_placeholder')}
               placeholderTextColor={colors.placeholder}
               multiline
               numberOfLines={8}
               textAlignVertical="top"
             />
 
-            <Text style={styles.label}>Signature</Text>
+            <Text style={styles.label}>{t('app.letters.signature_label')}</Text>
             <TextInput
               style={styles.input}
               value={letter.signature}
               onChangeText={(val) => updateLetter(index, 'signature', val)}
-              placeholder="e.g., With all my love, Mom"
+              placeholder={t('app.letters.signature_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
           </View>
         ))}
 
         <TouchableOpacity style={styles.addButton} onPress={addLetter} activeOpacity={0.8}>
-          <Text style={styles.addButtonText}>+ Add Letter</Text>
+          <Text style={styles.addButtonText}>{t('app.letters.add_letter')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -178,7 +180,7 @@ export default function LettersScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save All Letters</Text>
+            <Text style={styles.saveButtonText}>{t('app.letters.save_all')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

@@ -19,6 +19,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, put, post, del, BASE_URL } from '../api/client';
 import { pickAndUploadPhotos } from '../utils/multiPhoto';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 import VideoBlock from '../components/VideoBlock';
 import RepositionModal from '../components/RepositionModal';
 
@@ -29,6 +30,7 @@ import RepositionModal from '../components/RepositionModal';
  */
 export default function CelebrationDetailScreen({ navigation, route }) {
   const { celebrationId, yearLabel } = route.params;
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
 
@@ -50,7 +52,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
   const [repo, setRepo] = useState(null);
 
   useEffect(() => {
-    navigation.setOptions({ title: route.params?.title || 'Celebration' });
+    navigation.setOptions({ title: route.params?.title || t('app.celebrationdetail.nav_title') });
   }, [navigation, route.params?.title]);
 
   const fetchCelebration = useCallback(async () => {
@@ -68,7 +70,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
       );
       setPhotos(Array.isArray(c.photos) ? c.photos : []);
     } catch (err) {
-      setError(err.message || 'Failed to load celebration.');
+      setError(err.message || t('app.celebrationdetail.error_load'));
     } finally {
       setLoading(false);
     }
@@ -99,19 +101,19 @@ export default function CelebrationDetailScreen({ navigation, route }) {
         celebration_date: validDate,
         year_label: yearLabel,
       });
-      showToast('Celebration saved.');
+      showToast(t('app.celebrationdetail.toast_saved'));
       if (trimmedDate && !validDate) {
         // Heads-up so they know why the date didn't stick
         setTimeout(() => {
           Alert.alert(
-            'Date format',
-            'The date was saved as blank because the format wasn\'t YYYY-MM-DD. Try "2026-12-25" for December 25, 2026.'
+            t('app.celebrationdetail.date_format_title'),
+            t('app.celebrationdetail.date_format_msg')
           );
         }, 100);
       }
       // Stay on the page so the user can continue editing / managing photos
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.celebrationdetail.error_save'));
     } finally {
       setSaving(false);
     }
@@ -119,11 +121,11 @@ export default function CelebrationDetailScreen({ navigation, route }) {
 
   function confirmDelete() {
     Alert.alert(
-      'Delete this celebration?',
-      'This removes the celebration and all its photos. This cannot be undone.',
+      t('app.celebrationdetail.delete_title'),
+      t('app.celebrationdetail.delete_msg'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: handleDelete },
+        { text: t('app.celebrationdetail.cancel'), style: 'cancel' },
+        { text: t('app.celebrationdetail.delete'), style: 'destructive', onPress: handleDelete },
       ]
     );
   }
@@ -135,7 +137,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
       navigation.goBack();
     } catch (err) {
       setDeleting(false);
-      Alert.alert('Could not delete', err.message || 'Please try again.');
+      Alert.alert(t('app.celebrationdetail.delete_fail_title'), err.message || t('app.celebrationdetail.please_try_again'));
     }
   }
 
@@ -146,7 +148,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
       // Pick several at once → upload each, then attach to this celebration.
       const { canceled, paths } = await pickAndUploadPhotos({
         limit: 20,
-        onProgress: (done, total) => setPhotoProgress(`Uploading ${Math.min(done + 1, total)} of ${total}…`),
+        onProgress: (done, total) => setPhotoProgress(t('app.celebrationdetail.uploading_progress', { current: Math.min(done + 1, total), total })),
       });
       if (canceled || paths.length === 0) return;
       const created = [];
@@ -159,7 +161,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
       }
       if (created.length) setPhotos((prev) => [...prev, ...created]);
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photos.');
+      Alert.alert(t('app.celebrationdetail.upload_fail_title'), err.message || t('app.celebrationdetail.upload_fail_msg'));
     } finally {
       setUploadingPhoto(false);
       setPhotoProgress('');
@@ -175,27 +177,27 @@ export default function CelebrationDetailScreen({ navigation, route }) {
       await put(`/api/books/mine/celebration-photos/${photo.id}`, {
         caption: photo.caption || null,
       });
-      showToast('Caption saved.');
+      showToast(t('app.celebrationdetail.caption_saved'));
     } catch (err) {
-      Alert.alert('Could not save caption', err.message || 'Please try again.');
+      Alert.alert(t('app.celebrationdetail.caption_fail_title'), err.message || t('app.celebrationdetail.please_try_again'));
     }
   }
 
   function confirmRemovePhoto(photo) {
     Alert.alert(
-      'Remove this photo?',
+      t('app.celebrationdetail.remove_photo_title'),
       null,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('app.celebrationdetail.cancel'), style: 'cancel' },
         {
-          text: 'Remove',
+          text: t('app.celebrationdetail.remove'),
           style: 'destructive',
           onPress: async () => {
             try {
               await del(`/api/books/mine/celebration-photos/${photo.id}`);
               setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
             } catch (err) {
-              Alert.alert('Could not remove', err.message || 'Please try again.');
+              Alert.alert(t('app.celebrationdetail.remove_fail_title'), err.message || t('app.celebrationdetail.please_try_again'));
             }
           },
         },
@@ -237,96 +239,96 @@ export default function CelebrationDetailScreen({ navigation, route }) {
 
         {/* Basics */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Details</Text>
+          <Text style={styles.cardTitle}>{t('app.celebrationdetail.details_title')}</Text>
 
-          <Text style={styles.label}>Title</Text>
+          <Text style={styles.label}>{t('app.celebrationdetail.label_title')}</Text>
           <TextInput
             style={styles.input}
             value={title}
             onChangeText={setTitle}
-            placeholder="e.g. First Christmas"
+            placeholder={t('app.celebrationdetail.placeholder_title')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Eyebrow / sub-label</Text>
+          <Text style={styles.label}>{t('app.celebrationdetail.label_eyebrow')}</Text>
           <TextInput
             style={styles.input}
             value={eyebrow}
             onChangeText={setEyebrow}
-            placeholder="e.g. Christmas Day · December 25, 2025"
+            placeholder={t('app.celebrationdetail.placeholder_eyebrow')}
             placeholderTextColor={colors.placeholder}
           />
-          <Text style={styles.hint}>Small text above the title on the published page.</Text>
+          <Text style={styles.hint}>{t('app.celebrationdetail.hint_eyebrow')}</Text>
 
-          <Text style={styles.label}>Date</Text>
+          <Text style={styles.label}>{t('app.celebrationdetail.label_date')}</Text>
           <TextInput
             style={styles.input}
             value={celebrationDate}
             onChangeText={setCelebrationDate}
-            placeholder="YYYY-MM-DD (optional)"
+            placeholder={t('app.celebrationdetail.placeholder_date')}
             placeholderTextColor={colors.placeholder}
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Where it was</Text>
+          <Text style={styles.label}>{t('app.celebrationdetail.label_location')}</Text>
           <TextInput
             style={styles.input}
             value={location}
             onChangeText={setLocation}
-            placeholder="e.g. Grandma & Grandpa's house"
+            placeholder={t('app.celebrationdetail.placeholder_location')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Who was there</Text>
+          <Text style={styles.label}>{t('app.celebrationdetail.label_attendees')}</Text>
           <TextInput
             style={styles.input}
             value={attendees}
             onChangeText={setAttendees}
-            placeholder="e.g. Mom, Dad, Grandma Pat"
+            placeholder={t('app.celebrationdetail.placeholder_attendees')}
             placeholderTextColor={colors.placeholder}
           />
           <Text style={styles.hint}>
-            Comma-separated names. Each shows as a little tag on the published page.
+            {t('app.celebrationdetail.hint_attendees')}
           </Text>
         </View>
 
         {/* Story */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>The story</Text>
+          <Text style={styles.cardTitle}>{t('app.celebrationdetail.story_title')}</Text>
           <TextInput
             style={[styles.input, styles.bodyInput]}
             value={body}
             onChangeText={setBody}
-            placeholder="Tell the story of the day — what happened, what was special."
+            placeholder={t('app.celebrationdetail.placeholder_body')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
           />
-          <Text style={styles.hint}>Press Enter twice between paragraphs.</Text>
+          <Text style={styles.hint}>{t('app.celebrationdetail.hint_body')}</Text>
         </View>
 
         {/* Presents */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Presents</Text>
+          <Text style={styles.cardTitle}>{t('app.celebrationdetail.presents_title')}</Text>
           <TextInput
             style={[styles.input, styles.giftsInput]}
             value={gifts}
             onChangeText={setGifts}
-            placeholder={'One gift per line.\ne.g. Handmade quilt from Grandma\nWooden blocks'}
+            placeholder={t('app.celebrationdetail.placeholder_gifts')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
           />
-          <Text style={styles.hint}>One per line. Shown as a bulleted list.</Text>
+          <Text style={styles.hint}>{t('app.celebrationdetail.hint_gifts')}</Text>
         </View>
 
         {/* Photo gallery */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Photos</Text>
-          <Text style={styles.hint}>The first photo becomes the cover on the published page.</Text>
+          <Text style={styles.cardTitle}>{t('app.celebrationdetail.photos_title')}</Text>
+          <Text style={styles.hint}>{t('app.celebrationdetail.photos_hint')}</Text>
 
           {photos.length === 0 && (
-            <Text style={styles.emptyText}>No photos yet. Add some below.</Text>
+            <Text style={styles.emptyText}>{t('app.celebrationdetail.photos_empty')}</Text>
           )}
 
           {photos.map((p, idx) => {
@@ -337,14 +339,14 @@ export default function CelebrationDetailScreen({ navigation, route }) {
                   <Image source={{ uri }} style={styles.photoImg} resizeMode="cover" />
                 ) : (
                   <View style={[styles.photoImg, styles.photoPlaceholder]}>
-                    <Text style={{ color: colors.gold }}>No image</Text>
+                    <Text style={{ color: colors.gold }}>{t('app.celebrationdetail.no_image')}</Text>
                   </View>
                 )}
                 <TextInput
                   style={styles.captionInput}
                   value={p.caption || ''}
                   onChangeText={(v) => updatePhotoCaption(p.id, v)}
-                  placeholder="Caption (optional)"
+                  placeholder={t('app.celebrationdetail.caption_placeholder')}
                   placeholderTextColor={colors.placeholder}
                 />
                 <View style={styles.photoActions}>
@@ -353,21 +355,21 @@ export default function CelebrationDetailScreen({ navigation, route }) {
                     onPress={() => savePhotoCaption(p)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.smallButtonText}>Save caption</Text>
+                    <Text style={styles.smallButtonText}>{t('app.celebrationdetail.save_caption')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.smallButton}
                     onPress={() => setRepo({ uri, path: p.photo_path })}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.smallButtonText}>Reposition</Text>
+                    <Text style={styles.smallButtonText}>{t('app.celebrationdetail.reposition')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.smallButton, styles.smallButtonDanger]}
                     onPress={() => confirmRemovePhoto(p)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.smallButtonText, { color: colors.error }]}>Remove</Text>
+                    <Text style={[styles.smallButtonText, { color: colors.error }]}>{t('app.celebrationdetail.remove')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -383,10 +385,10 @@ export default function CelebrationDetailScreen({ navigation, route }) {
             {uploadingPhoto ? (
               <View style={styles.uploadingRow}>
                 <ActivityIndicator color={colors.gold} size="small" />
-                <Text style={styles.addPhotoText}>{photoProgress || 'Uploading…'}</Text>
+                <Text style={styles.addPhotoText}>{photoProgress || t('app.celebrationdetail.uploading')}</Text>
               </View>
             ) : (
-              <Text style={styles.addPhotoText}>+ Add Photos</Text>
+              <Text style={styles.addPhotoText}>{t('app.celebrationdetail.add_photos')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -403,7 +405,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <Text style={styles.saveButtonText}>{t('app.celebrationdetail.save_changes')}</Text>
           )}
         </TouchableOpacity>
 
@@ -417,7 +419,7 @@ export default function CelebrationDetailScreen({ navigation, route }) {
           {deleting ? (
             <ActivityIndicator color={colors.error} />
           ) : (
-            <Text style={styles.deleteButtonText}>Delete celebration</Text>
+            <Text style={styles.deleteButtonText}>{t('app.celebrationdetail.delete_celebration')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

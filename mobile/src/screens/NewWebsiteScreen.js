@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 import { BookOpen, ArrowLeft } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function NewWebsiteScreen({ navigation }) {
+  const { t } = useI18n();
   function handleGetStarted() {
     Linking.openURL('https://legacyodyssey.com');
   }
@@ -20,19 +22,17 @@ export default function NewWebsiteScreen({ navigation }) {
       <View style={styles.content}>
         <View style={styles.brandingContainer}>
           <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
-          <Text style={styles.brandTitle}>Add Another Book</Text>
+          <Text style={styles.brandTitle}>{t('app.newwebsite.brand_title')}</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Start a New Site</Text>
+          <Text style={styles.cardTitle}>{t('app.newwebsite.card_title')}</Text>
           <Text style={styles.cardBody}>
-            Each Legacy Odyssey site is its own subscription with its own{' '}
-            <Text style={styles.cardHighlight}>.com domain</Text>. Pick a name,
-            claim the domain, and your new book is ready in minutes.
+            {t('app.newwebsite.body1_before')}{' '}
+            <Text style={styles.cardHighlight}>{t('app.newwebsite.body1_domain')}</Text>{t('app.newwebsite.body1_after')}
           </Text>
           <Text style={styles.cardBody}>
-            Plans start at just <Text style={styles.cardHighlight}>$29 for the first year</Text>.
-            Set it up at legacyodyssey.com.
+            {t('app.newwebsite.body2_before')} <Text style={styles.cardHighlight}>{t('app.newwebsite.body2_price')}</Text>{t('app.newwebsite.body2_after')}
           </Text>
         </View>
 
@@ -41,7 +41,7 @@ export default function NewWebsiteScreen({ navigation }) {
           onPress={handleGetStarted}
           activeOpacity={0.85}
         >
-          <Text style={styles.buttonText}>Continue at legacyodyssey.com</Text>
+          <Text style={styles.buttonText}>{t('app.newwebsite.continue')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -50,7 +50,7 @@ export default function NewWebsiteScreen({ navigation }) {
         >
           <View style={styles.backRow}>
             <ArrowLeft size={16} color={colors.gold} strokeWidth={2} />
-            <Text style={[styles.linkText, styles.linkBold, styles.backLabel]}>Back</Text>
+            <Text style={[styles.linkText, styles.linkBold, styles.backLabel]}>{t('app.newwebsite.back')}</Text>
           </View>
         </TouchableOpacity>
       </View>

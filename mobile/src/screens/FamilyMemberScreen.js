@@ -17,8 +17,10 @@ import { get, put, del } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import VideoBlock from '../components/VideoBlock';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function FamilyMemberScreen({ route, navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const { memberKey } = route.params;
@@ -75,7 +77,7 @@ export default function FamilyMemberScreen({ route, navigation }) {
         }
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load member.');
+          setError(err.message || t('app.familymember.error_load'));
         }
       } finally {
         setLoading(false);
@@ -127,10 +129,10 @@ export default function FamilyMemberScreen({ route, navigation }) {
         album_3_path: albumPhotos[2].path,
         album_3_caption: albumPhotos[2].caption.trim(),
       });
-      showToast('Family member updated.');
+      showToast(t('app.familymember.toast_saved'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.familymember.error_save'));
     } finally {
       setSaving(false);
     }
@@ -164,33 +166,33 @@ export default function FamilyMemberScreen({ route, navigation }) {
 
         {/* Basic Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Basic Info</Text>
+          <Text style={styles.sectionHeader}>{t('app.familymember.section_basic')}</Text>
           <PhotoPicker currentPhoto={photoPath} onPhotoSelected={setPhotoPath} />
 
           <View style={styles.row}>
             <View style={styles.halfField}>
-              <Text style={styles.label}>Name</Text>
-              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Name" placeholderTextColor={colors.placeholder} />
+              <Text style={styles.label}>{t('app.familymember.label_name')}</Text>
+              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder={t('app.familymember.placeholder_name')} placeholderTextColor={colors.placeholder} />
             </View>
             <View style={styles.halfField}>
-              <Text style={styles.label}>Relation</Text>
-              <TextInput style={styles.input} value={relation} onChangeText={setRelation} placeholder="e.g., Mom" placeholderTextColor={colors.placeholder} />
+              <Text style={styles.label}>{t('app.familymember.label_relation')}</Text>
+              <TextInput style={styles.input} value={relation} onChangeText={setRelation} placeholder={t('app.familymember.placeholder_relation')} placeholderTextColor={colors.placeholder} />
             </View>
           </View>
         </View>
 
         {/* Meta Facts */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Quick Facts</Text>
+          <Text style={styles.sectionHeader}>{t('app.familymember.section_facts')}</Text>
           {meta.map((m, i) => (
             <View key={i} style={styles.row}>
               <View style={styles.halfField}>
-                <Text style={styles.label}>Label {i + 1}</Text>
-                <TextInput style={styles.input} value={m.label} onChangeText={(val) => updateMeta(i, 'label', val)} placeholder="e.g., Birthday" placeholderTextColor={colors.placeholder} />
+                <Text style={styles.label}>{t('app.familymember.label_fact', { number: i + 1 })}</Text>
+                <TextInput style={styles.input} value={m.label} onChangeText={(val) => updateMeta(i, 'label', val)} placeholder={t('app.familymember.placeholder_fact_label')} placeholderTextColor={colors.placeholder} />
               </View>
               <View style={styles.halfField}>
-                <Text style={styles.label}>Value</Text>
-                <TextInput style={styles.input} value={m.value} onChangeText={(val) => updateMeta(i, 'value', val)} placeholder="e.g., March 15" placeholderTextColor={colors.placeholder} />
+                <Text style={styles.label}>{t('app.familymember.label_value')}</Text>
+                <TextInput style={styles.input} value={m.value} onChangeText={(val) => updateMeta(i, 'value', val)} placeholder={t('app.familymember.placeholder_fact_value')} placeholderTextColor={colors.placeholder} />
               </View>
             </View>
           ))}
@@ -198,31 +200,31 @@ export default function FamilyMemberScreen({ route, navigation }) {
 
         {/* Stories */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Stories</Text>
-          <Text style={styles.label}>Story 1</Text>
-          <TextInput style={[styles.input, styles.storyInput]} value={story} onChangeText={setStory} placeholder="Their story..." placeholderTextColor={colors.placeholder} multiline numberOfLines={6} textAlignVertical="top" />
-          <Text style={styles.label}>Story 2</Text>
-          <TextInput style={[styles.input, styles.storyInput]} value={story2} onChangeText={setStory2} placeholder="Another story..." placeholderTextColor={colors.placeholder} multiline numberOfLines={6} textAlignVertical="top" />
+          <Text style={styles.sectionHeader}>{t('app.familymember.section_stories')}</Text>
+          <Text style={styles.label}>{t('app.familymember.label_story1')}</Text>
+          <TextInput style={[styles.input, styles.storyInput]} value={story} onChangeText={setStory} placeholder={t('app.familymember.placeholder_story1')} placeholderTextColor={colors.placeholder} multiline numberOfLines={6} textAlignVertical="top" />
+          <Text style={styles.label}>{t('app.familymember.label_story2')}</Text>
+          <TextInput style={[styles.input, styles.storyInput]} value={story2} onChangeText={setStory2} placeholder={t('app.familymember.placeholder_story2')} placeholderTextColor={colors.placeholder} multiline numberOfLines={6} textAlignVertical="top" />
         </View>
 
         {/* Quote */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Quote</Text>
-          <Text style={styles.label}>Quote Text</Text>
-          <TextInput style={[styles.input, styles.quoteInput]} value={quoteText} onChangeText={setQuoteText} placeholder="A meaningful quote..." placeholderTextColor={colors.placeholder} multiline numberOfLines={3} textAlignVertical="top" />
-          <Text style={styles.label}>Attribution</Text>
-          <TextInput style={styles.input} value={quoteCite} onChangeText={setQuoteCite} placeholder="— Who said it" placeholderTextColor={colors.placeholder} />
+          <Text style={styles.sectionHeader}>{t('app.familymember.section_quote')}</Text>
+          <Text style={styles.label}>{t('app.familymember.label_quote_text')}</Text>
+          <TextInput style={[styles.input, styles.quoteInput]} value={quoteText} onChangeText={setQuoteText} placeholder={t('app.familymember.placeholder_quote_text')} placeholderTextColor={colors.placeholder} multiline numberOfLines={3} textAlignVertical="top" />
+          <Text style={styles.label}>{t('app.familymember.label_attribution')}</Text>
+          <TextInput style={styles.input} value={quoteCite} onChangeText={setQuoteCite} placeholder={t('app.familymember.placeholder_attribution')} placeholderTextColor={colors.placeholder} />
         </View>
 
         {/* Album Photos */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Photo Album</Text>
+          <Text style={styles.sectionHeader}>{t('app.familymember.section_album')}</Text>
           {albumPhotos.map((photo, i) => (
             <View key={i} style={styles.albumItem}>
-              <Text style={styles.label}>Photo {i + 1}</Text>
+              <Text style={styles.label}>{t('app.familymember.label_photo', { number: i + 1 })}</Text>
               <PhotoPicker currentPhoto={photo.path} onPhotoSelected={(path) => updateAlbumPhoto(i, 'path', path)} />
-              <Text style={styles.label}>Caption</Text>
-              <TextInput style={styles.input} value={photo.caption} onChangeText={(val) => updateAlbumPhoto(i, 'caption', val)} placeholder="Photo caption..." placeholderTextColor={colors.placeholder} />
+              <Text style={styles.label}>{t('app.familymember.label_caption')}</Text>
+              <TextInput style={styles.input} value={photo.caption} onChangeText={(val) => updateAlbumPhoto(i, 'caption', val)} placeholder={t('app.familymember.placeholder_caption')} placeholderTextColor={colors.placeholder} />
             </View>
           ))}
         </View>
@@ -240,7 +242,7 @@ export default function FamilyMemberScreen({ route, navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.familymember.save')}</Text>
           )}
         </TouchableOpacity>
 
@@ -249,16 +251,16 @@ export default function FamilyMemberScreen({ route, navigation }) {
             style={styles.removeButton}
             activeOpacity={0.7}
             onPress={() => {
-              Alert.alert('Remove from family?', `Remove ${name || 'this person'} from your family list? Their page and photos are deleted.`, [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Remove', style: 'destructive', onPress: async () => {
+              Alert.alert(t('app.familymember.remove_confirm_title'), t('app.familymember.remove_confirm_body', { name: name || t('app.familymember.this_person') }), [
+                { text: t('app.familymember.cancel'), style: 'cancel' },
+                { text: t('app.familymember.remove'), style: 'destructive', onPress: async () => {
                   try { await del(`/api/books/mine/family/${memberKey}`); navigation.goBack(); }
-                  catch (e) { Alert.alert('Error', 'Could not remove. Please try again.'); }
+                  catch (e) { Alert.alert(t('app.familymember.error_title'), t('app.familymember.remove_error')); }
                 } },
               ]);
             }}
           >
-            <Text style={styles.removeButtonText}>Remove from family</Text>
+            <Text style={styles.removeButtonText}>{t('app.familymember.remove_from_family')}</Text>
           </TouchableOpacity>
         ) : null}
       </ScrollView>

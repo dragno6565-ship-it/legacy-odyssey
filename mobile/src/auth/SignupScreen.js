@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function SignupScreen({ navigation }) {
+  const { t } = useI18n();
   function handleGetStarted() {
     Linking.openURL('https://legacyodyssey.com');
   }
@@ -22,21 +24,22 @@ export default function SignupScreen({ navigation }) {
         <View style={styles.brandingContainer}>
           <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>Legacy Odyssey</Text>
-          <Text style={styles.brandSubtitle}>Your child's story, beautifully told</Text>
+          <Text style={styles.brandSubtitle}>{t('app.signup.brand_subtitle')}</Text>
         </View>
 
         {/* Pitch */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Get Your Own Family Book</Text>
+          <Text style={styles.cardTitle}>{t('app.signup.card_title')}</Text>
           <Text style={styles.cardBody}>
-            Every Legacy Odyssey subscription includes your own personal{' '}
-            <Text style={styles.cardHighlight}>.com domain</Text> — so your family's
-            book lives at a real address like{' '}
-            <Text style={styles.cardHighlight}>your-childs-name.com</Text>.
+            {t('app.signup.card_body_domain_pre')}{' '}
+            <Text style={styles.cardHighlight}>{t('app.signup.card_body_domain_highlight')}</Text>
+            {t('app.signup.card_body_domain_mid')}{' '}
+            <Text style={styles.cardHighlight}>{t('app.signup.card_body_domain_example')}</Text>
+            {t('app.signup.card_body_domain_post')}
           </Text>
           <Text style={styles.cardBody}>
-            Plans start at just <Text style={styles.cardHighlight}>$29 for your first year</Text>.
-            Sign up takes 2 minutes on our website.
+            {t('app.signup.card_body_price_pre')} <Text style={styles.cardHighlight}>{t('app.signup.card_body_price_highlight')}</Text>
+            {t('app.signup.card_body_price_post')}
           </Text>
         </View>
 
@@ -46,7 +49,7 @@ export default function SignupScreen({ navigation }) {
           onPress={handleGetStarted}
           activeOpacity={0.85}
         >
-          <Text style={styles.buttonText}>Get Started at legacyodyssey.com</Text>
+          <Text style={styles.buttonText}>{t('app.signup.cta_button')}</Text>
         </TouchableOpacity>
 
         {/* Already have account */}
@@ -55,8 +58,8 @@ export default function SignupScreen({ navigation }) {
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.linkText}>
-            Already have an account?{' '}
-            <Text style={styles.linkBold}>Sign In</Text>
+            {t('app.signup.have_account')}{' '}
+            <Text style={styles.linkBold}>{t('app.signup.sign_in')}</Text>
           </Text>
         </TouchableOpacity>
       </View>

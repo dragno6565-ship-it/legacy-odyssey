@@ -12,6 +12,7 @@ import {
   Switch,
 } from 'react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
+import { useI18n } from '../i18n/I18nContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
@@ -50,17 +51,19 @@ function formatTime(hour, minute, ampm) {
 // Welcome-page vital-stat tiles the owner can show/hide on their book's cover.
 // Blank fields hide automatically; these toggles also hide a field that
 // does have a value.
+// `labelKey` is resolved at render time via t().
 const WELCOME_STAT_FIELDS = [
-  { key: 'born', label: 'Birthday' },
-  { key: 'time', label: 'Time of Birth' },
-  { key: 'weight', label: 'Weight' },
-  { key: 'length', label: 'Length' },
-  { key: 'birthplace', label: 'Birthplace' },
-  { key: 'hospital', label: 'Hospital' },
+  { key: 'born', labelKey: 'app.childinfo.stat_birthday' },
+  { key: 'time', labelKey: 'app.childinfo.stat_time_of_birth' },
+  { key: 'weight', labelKey: 'app.childinfo.stat_weight' },
+  { key: 'length', labelKey: 'app.childinfo.stat_length' },
+  { key: 'birthplace', labelKey: 'app.childinfo.stat_birthplace' },
+  { key: 'hospital', labelKey: 'app.childinfo.stat_hospital' },
 ];
 
 export default function ChildInfoScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
+  const { t } = useI18n();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -132,7 +135,7 @@ export default function ChildInfoScreen({ navigation }) {
           hospital: wf.hospital !== false,
         });
       } catch (err) {
-        setError(err.message || 'Failed to load child info.');
+        setError(err.message || t('app.childinfo.error_load'));
       } finally {
         setLoading(false);
       }
@@ -166,10 +169,10 @@ export default function ChildInfoScreen({ navigation }) {
           name_meaning: nameMeaning.trim(),
         },
       });
-      showToast('Child information updated successfully.');
+      showToast(t('app.childinfo.saved_toast'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save. Please try again.');
+      setError(err.message || t('app.common.error_save'));
     } finally {
       setSaving(false);
     }
@@ -195,11 +198,11 @@ export default function ChildInfoScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionTitle}>Child Information</Text>
+        <Text style={styles.sectionTitle}>{t('app.childinfo.title')}</Text>
 
-        <Text style={styles.label}>Hero Photo</Text>
+        <Text style={styles.label}>{t('app.childinfo.hero_photo')}</Text>
         <Text style={styles.helperText}>
-          This photo appears on the Welcome page of your book website
+          {t('app.childinfo.hero_photo_helper')}
         </Text>
         <PhotoPicker
           currentPhoto={heroImage}
@@ -215,42 +218,42 @@ export default function ChildInfoScreen({ navigation }) {
         {/* ── Name ── */}
         <View style={styles.row}>
           <View style={styles.thirdField}>
-            <Text style={styles.label}>First Name</Text>
+            <Text style={styles.label}>{t('app.childinfo.first_name')}</Text>
             <TextInput
               style={styles.input}
               value={firstName}
               onChangeText={setFirstName}
-              placeholder="First"
+              placeholder={t('app.childinfo.first_name_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
           </View>
           <View style={styles.thirdField}>
-            <Text style={styles.label}>Middle Name</Text>
+            <Text style={styles.label}>{t('app.childinfo.middle_name')}</Text>
             <TextInput
               style={styles.input}
               value={middleName}
               onChangeText={setMiddleName}
-              placeholder="Middle"
+              placeholder={t('app.childinfo.middle_name_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
           </View>
           <View style={styles.thirdField}>
-            <Text style={styles.label}>Last Name</Text>
+            <Text style={styles.label}>{t('app.childinfo.last_name')}</Text>
             <TextInput
               style={styles.input}
               value={lastName}
               onChangeText={setLastName}
-              placeholder="Last"
+              placeholder={t('app.childinfo.last_name_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
           </View>
         </View>
 
         {/* ── Birth Date ── */}
-        <Text style={styles.label}>Birth Date</Text>
+        <Text style={styles.label}>{t('app.childinfo.birth_date')}</Text>
         <View style={styles.row}>
           <View style={styles.thirdField}>
-            <Text style={styles.helperText}>Month</Text>
+            <Text style={styles.helperText}>{t('app.childinfo.month')}</Text>
             <TextInput
               style={styles.input}
               value={birthDate ? String(parseInt(birthDate.split('-')[1]) || '') : ''}
@@ -266,7 +269,7 @@ export default function ChildInfoScreen({ navigation }) {
             />
           </View>
           <View style={styles.thirdField}>
-            <Text style={styles.helperText}>Day</Text>
+            <Text style={styles.helperText}>{t('app.childinfo.day')}</Text>
             <TextInput
               style={styles.input}
               value={birthDate ? String(parseInt(birthDate.split('-')[2]) || '') : ''}
@@ -282,7 +285,7 @@ export default function ChildInfoScreen({ navigation }) {
             />
           </View>
           <View style={styles.thirdField}>
-            <Text style={styles.helperText}>Year</Text>
+            <Text style={styles.helperText}>{t('app.childinfo.year')}</Text>
             <TextInput
               style={styles.input}
               value={birthDate ? birthDate.split('-')[0] : ''}
@@ -300,10 +303,10 @@ export default function ChildInfoScreen({ navigation }) {
         </View>
 
         {/* ── Birth Time (12-hour) ── */}
-        <Text style={styles.label}>Birth Time</Text>
+        <Text style={styles.label}>{t('app.childinfo.birth_time')}</Text>
         <View style={styles.timeRow}>
           <View style={styles.timeHourWrap}>
-            <Text style={styles.helperText}>Hour</Text>
+            <Text style={styles.helperText}>{t('app.childinfo.hour')}</Text>
             <TextInput
               style={styles.input}
               value={birthHour}
@@ -319,7 +322,7 @@ export default function ChildInfoScreen({ navigation }) {
           </View>
           <Text style={styles.timeColon}>:</Text>
           <View style={styles.timeMinuteWrap}>
-            <Text style={styles.helperText}>Minute</Text>
+            <Text style={styles.helperText}>{t('app.childinfo.minute')}</Text>
             <TextInput
               style={styles.input}
               value={birthMinute}
@@ -334,7 +337,7 @@ export default function ChildInfoScreen({ navigation }) {
             />
           </View>
           <View style={styles.ampmWrap}>
-            <Text style={styles.helperText}>AM/PM</Text>
+            <Text style={styles.helperText}>{t('app.childinfo.ampm')}</Text>
             <View style={styles.ampmToggle}>
               <TouchableOpacity
                 style={[styles.ampmBtn, birthAmpm === 'AM' && styles.ampmBtnActive]}
@@ -355,7 +358,7 @@ export default function ChildInfoScreen({ navigation }) {
         {/* ── Stats ── */}
         <View style={styles.row}>
           <View style={styles.thirdField}>
-            <Text style={styles.label}>Weight (lbs)</Text>
+            <Text style={styles.label}>{t('app.childinfo.weight_lbs')}</Text>
             <TextInput
               style={styles.input}
               value={weightLbs}
@@ -366,7 +369,7 @@ export default function ChildInfoScreen({ navigation }) {
             />
           </View>
           <View style={styles.thirdField}>
-            <Text style={styles.label}>Weight (oz)</Text>
+            <Text style={styles.label}>{t('app.childinfo.weight_oz')}</Text>
             <TextInput
               style={styles.input}
               value={weightOz}
@@ -377,7 +380,7 @@ export default function ChildInfoScreen({ navigation }) {
             />
           </View>
           <View style={styles.thirdField}>
-            <Text style={styles.label}>Length (in)</Text>
+            <Text style={styles.label}>{t('app.childinfo.length_in')}</Text>
             <TextInput
               style={styles.input}
               value={lengthInches}
@@ -391,42 +394,42 @@ export default function ChildInfoScreen({ navigation }) {
 
         <View style={styles.row}>
           <View style={styles.halfField}>
-            <Text style={styles.label}>City</Text>
+            <Text style={styles.label}>{t('app.childinfo.city')}</Text>
             <TextInput
               style={styles.input}
               value={city}
               onChangeText={setCity}
-              placeholder="City"
+              placeholder={t('app.childinfo.city_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
           </View>
           <View style={styles.halfField}>
-            <Text style={styles.label}>State</Text>
+            <Text style={styles.label}>{t('app.childinfo.state')}</Text>
             <TextInput
               style={styles.input}
               value={state}
               onChangeText={setState}
-              placeholder="State"
+              placeholder={t('app.childinfo.state_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
           </View>
         </View>
 
-        <Text style={styles.label}>Hospital</Text>
+        <Text style={styles.label}>{t('app.childinfo.hospital')}</Text>
         <TextInput
           style={styles.input}
           value={hospital}
           onChangeText={setHospital}
-          placeholder="Hospital name"
+          placeholder={t('app.childinfo.hospital_placeholder')}
           placeholderTextColor={colors.placeholder}
         />
 
-        <Text style={styles.label}>Name Meaning</Text>
+        <Text style={styles.label}>{t('app.childinfo.name_meaning')}</Text>
         <TextInput
           style={[styles.input, styles.multilineInput]}
           value={nameMeaning}
           onChangeText={setNameMeaning}
-          placeholder="What does the name mean to your family?"
+          placeholder={t('app.childinfo.name_meaning_placeholder')}
           placeholderTextColor={colors.placeholder}
           multiline
           numberOfLines={4}
@@ -435,51 +438,50 @@ export default function ChildInfoScreen({ navigation }) {
 
         {/* ── Welcome Page Customization ── */}
         <View style={styles.sectionDivider} />
-        <Text style={styles.sectionTitle}>Welcome Page</Text>
+        <Text style={styles.sectionTitle}>{t('app.childinfo.welcome_page')}</Text>
         <Text style={styles.sectionSubtitle}>
-          Customize the text that appears on your book's cover page
+          {t('app.childinfo.welcome_page_subtitle')}
         </Text>
 
-        <Text style={styles.label}>Name Subtitle</Text>
+        <Text style={styles.label}>{t('app.childinfo.name_subtitle')}</Text>
         <Text style={styles.helperText}>
-          Shown under your child's name. Leave blank for the default.
+          {t('app.childinfo.name_subtitle_helper')}
         </Text>
         <TextInput
           style={styles.input}
           value={nameQuote}
           onChangeText={setNameQuote}
-          placeholder="A name chosen with love, meaning, and intention"
+          placeholder={t('app.childinfo.name_subtitle_placeholder')}
           placeholderTextColor={colors.placeholder}
         />
 
-        <Text style={styles.label}>Family Message</Text>
+        <Text style={styles.label}>{t('app.childinfo.family_message')}</Text>
         <Text style={styles.helperText}>
-          The quote shown at the bottom of the welcome page.
+          {t('app.childinfo.family_message_helper')}
         </Text>
         <TextInput
           style={[styles.input, styles.multilineInput]}
           value={parentQuote}
           onChangeText={setParentQuote}
-          placeholder="From the moment we first saw your face, our world was never the same..."
+          placeholder={t('app.childinfo.family_message_placeholder')}
           placeholderTextColor={colors.placeholder}
           multiline
           numberOfLines={4}
           textAlignVertical="top"
         />
 
-        <Text style={styles.label}>Message By</Text>
+        <Text style={styles.label}>{t('app.childinfo.message_by')}</Text>
         <TextInput
           style={styles.input}
           value={parentQuoteAttribution}
           onChangeText={setParentQuoteAttribution}
-          placeholder="Mom & Dad"
+          placeholder={t('app.childinfo.message_by_placeholder')}
           placeholderTextColor={colors.placeholder}
         />
 
-        <Text style={styles.label}>Birth Details on Cover</Text>
+        <Text style={styles.label}>{t('app.childinfo.birth_details_cover')}</Text>
         <Text style={styles.helperText}>
-          Choose which details appear on your book's welcome page. Fields left
-          blank are hidden automatically.
+          {t('app.childinfo.birth_details_cover_helper')}
         </Text>
         <View style={styles.toggleCard}>
           {WELCOME_STAT_FIELDS.map((f, i) => (
@@ -490,7 +492,7 @@ export default function ChildInfoScreen({ navigation }) {
                 i === WELCOME_STAT_FIELDS.length - 1 && styles.toggleRowLast,
               ]}
             >
-              <Text style={styles.toggleLabel}>{f.label}</Text>
+              <Text style={styles.toggleLabel}>{t(f.labelKey)}</Text>
               <Switch
                 value={welcomeFields[f.key]}
                 onValueChange={(val) =>
@@ -512,7 +514,7 @@ export default function ChildInfoScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.common.save')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

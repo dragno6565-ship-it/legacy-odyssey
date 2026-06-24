@@ -13,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { PartyPopper, Pencil } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 /**
  * Top-level Celebrations screen — list of celebration years.
@@ -23,6 +24,7 @@ import { get, post, put, del } from '../api/client';
  * which always exists).
  */
 export default function CelebrationsScreen({ navigation }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState(['Your First Year']);
   const [newYearLabel, setNewYearLabel] = useState('');
@@ -79,7 +81,7 @@ export default function CelebrationsScreen({ navigation }) {
     const label = newYearLabel.trim();
     if (!label) return;
     if (years.includes(label)) {
-      Alert.alert('Already exists', `"${label}" is already in your year list.`);
+      Alert.alert(t('app.celebrations.already_exists_title'), t('app.celebrations.already_exists_msg', { label }));
       return;
     }
     setAdding(true);
@@ -88,7 +90,7 @@ export default function CelebrationsScreen({ navigation }) {
       setYears(Array.isArray(res.data) ? res.data : [...years, label]);
       setNewYearLabel('');
     } catch (err) {
-      Alert.alert('Could not add year', err.message || 'Please try again.');
+      Alert.alert(t('app.celebrations.add_year_fail_title'), err.message || t('app.celebrations.please_try_again'));
     } finally {
       setAdding(false);
     }
@@ -105,26 +107,26 @@ export default function CelebrationsScreen({ navigation }) {
       setCounts((c) => { const n = { ...c, [newLabel]: c[oldLabel] || 0 }; delete n[oldLabel]; return n; });
       setRenamingYear(null);
     } catch (err) {
-      const msg = (err.response && err.response.data && err.response.data.error) || 'Please try again.';
-      Alert.alert('Could not rename', msg);
+      const msg = (err.response && err.response.data && err.response.data.error) || t('app.celebrations.please_try_again');
+      Alert.alert(t('app.celebrations.rename_fail_title'), msg);
     }
   }
 
   function handleDeleteYear(label) {
     Alert.alert(
-      `Delete "${label}"?`,
-      'This will remove every celebration in this year, including all photos. This cannot be undone.',
+      t('app.celebrations.delete_year_title', { label }),
+      t('app.celebrations.delete_year_msg'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('app.celebrations.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('app.celebrations.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               const res = await del('/api/books/mine/celebration-years', { data: { label } });
               setYears(Array.isArray(res.data) ? res.data : years.filter((y) => y !== label));
             } catch (err) {
-              Alert.alert('Could not delete', err.message || 'Please try again.');
+              Alert.alert(t('app.celebrations.delete_fail_title'), err.message || t('app.celebrations.please_try_again'));
             }
           },
         },
@@ -147,9 +149,9 @@ export default function CelebrationsScreen({ navigation }) {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.pageTitle}>Celebrations</Text>
+      <Text style={styles.pageTitle}>{t('app.celebrations.page_title')}</Text>
       <Text style={styles.pageSubtitle}>
-        Holidays, birthdays, traditions. Organized by year, with as many celebrations per year as you'd like.
+        {t('app.celebrations.page_subtitle')}
       </Text>
 
       {years.map((label) => {
@@ -172,10 +174,10 @@ export default function CelebrationsScreen({ navigation }) {
                   onSubmitEditing={() => saveRenameYear(label)}
                 />
                 <TouchableOpacity style={styles.renameSave} onPress={() => saveRenameYear(label)}>
-                  <Text style={styles.renameSaveText}>Save</Text>
+                  <Text style={styles.renameSaveText}>{t('app.celebrations.save')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setRenamingYear(null)}>
-                  <Text style={styles.renameCancel}>Cancel</Text>
+                  <Text style={styles.renameCancel}>{t('app.celebrations.cancel')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -194,9 +196,9 @@ export default function CelebrationsScreen({ navigation }) {
               <View style={styles.yearTextWrap}>
                 <Text style={styles.yearLabel}>{label}</Text>
                 <Text style={styles.yearHint}>
-                  {count === 0 ? 'No celebrations yet' :
-                   count === 1 ? '1 celebration' :
-                   `${count} celebrations`}
+                  {count === 0 ? t('app.celebrations.count_none') :
+                   count === 1 ? t('app.celebrations.count_one') :
+                   t('app.celebrations.count_many', { count })}
                 </Text>
               </View>
             </View>
@@ -209,16 +211,16 @@ export default function CelebrationsScreen({ navigation }) {
       })}
 
       <View style={styles.addYearCard}>
-        <Text style={styles.addYearTitle}>Add another year</Text>
+        <Text style={styles.addYearTitle}>{t('app.celebrations.add_year_title')}</Text>
         <Text style={styles.addYearHint}>
-          Use the actual year ("2026") or a label like "Toddler years."
+          {t('app.celebrations.add_year_hint')}
         </Text>
         <View style={styles.addYearRow}>
           <TextInput
             style={styles.addYearInput}
             value={newYearLabel}
             onChangeText={setNewYearLabel}
-            placeholder="e.g. 2026"
+            placeholder={t('app.celebrations.add_year_placeholder')}
             placeholderTextColor={colors.placeholder}
             returnKeyType="done"
             onSubmitEditing={handleAddYear}
@@ -232,13 +234,13 @@ export default function CelebrationsScreen({ navigation }) {
             {adding ? (
               <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Text style={styles.addYearButtonText}>+ Add</Text>
+              <Text style={styles.addYearButtonText}>{t('app.celebrations.add_button')}</Text>
             )}
           </TouchableOpacity>
         </View>
       </View>
 
-      <Text style={styles.hint}>Long-press a year to delete it.</Text>
+      <Text style={styles.hint}>{t('app.celebrations.long_press_hint')}</Text>
     </ScrollView>
   );
 }

@@ -18,11 +18,13 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, post, put, del, BASE_URL } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
 import RepositionModal from '../components/RepositionModal';
+import { useI18n } from '../i18n/I18nContext';
 
 // "Your Birth Day" — a captioned photo gallery (parity with the web editor).
 // Multi-select up to 20 at once; caption / remove each. Backed by
 // /api/books/mine/birthday* (needs migration 024's birthday_photos table).
 export default function BirthDayScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ export default function BirthDayScreen({ navigation }) {
         const res = await get('/api/books/mine/birthday');
         setPhotos((res.data && res.data.photos) || []);
       } catch (err) {
-        if (err.status !== 404) setError(err.message || 'Failed to load photos.');
+        if (err.status !== 404) setError(err.message || t('app.birthday.error_load'));
       } finally {
         setLoading(false);
       }
@@ -79,7 +81,7 @@ export default function BirthDayScreen({ navigation }) {
       }
       if (added.length) setPhotos((prev) => [...prev, ...added]);
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photos.');
+      Alert.alert(t('app.birthday.upload_failed_title'), err.message || t('app.birthday.upload_failed_body'));
     } finally {
       setUploading(false);
     }
@@ -92,24 +94,24 @@ export default function BirthDayScreen({ navigation }) {
   async function saveCaption(photo) {
     try {
       await put(`/api/books/mine/birthday-photos/${photo.id}`, { caption: photo.caption || null });
-      showToast('Caption saved.');
+      showToast(t('app.birthday.caption_saved'));
     } catch (err) {
-      Alert.alert('Could not save caption', err.message || 'Please try again.');
+      Alert.alert(t('app.birthday.caption_save_failed_title'), err.message || t('app.birthday.try_again'));
     }
   }
 
   function confirmRemove(photo) {
-    Alert.alert('Remove this photo?', null, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('app.birthday.remove_confirm_title'), null, [
+      { text: t('app.birthday.cancel'), style: 'cancel' },
       {
-        text: 'Remove',
+        text: t('app.birthday.remove'),
         style: 'destructive',
         onPress: async () => {
           try {
             await del(`/api/books/mine/birthday-photos/${photo.id}`);
             setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
           } catch (err) {
-            Alert.alert('Could not remove', err.message || 'Please try again.');
+            Alert.alert(t('app.birthday.remove_failed_title'), err.message || t('app.birthday.try_again'));
           }
         },
       },
@@ -136,9 +138,9 @@ export default function BirthDayScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Your Birth Day</Text>
+        <Text style={styles.pageTitle}>{t('app.birthday.page_title')}</Text>
         <Text style={styles.pageSubtitle}>
-          The day you arrived — who was there, the hospital, the doctor, your first moments.
+          {t('app.birthday.page_subtitle')}
         </Text>
 
         {error ? (
@@ -150,31 +152,31 @@ export default function BirthDayScreen({ navigation }) {
             {photoUri(photo.photo_path) ? (
               <Image source={{ uri: photoUri(photo.photo_path) }} style={styles.photo} resizeMode="cover" />
             ) : null}
-            <Text style={styles.label}>Caption</Text>
+            <Text style={styles.label}>{t('app.birthday.caption_label')}</Text>
             <TextInput
               style={styles.input}
               value={photo.caption || ''}
               onChangeText={(val) => updateCaption(photo.id, val)}
               onBlur={() => saveCaption(photo)}
-              placeholder="e.g. The doctor who delivered you"
+              placeholder={t('app.birthday.caption_placeholder')}
               placeholderTextColor={colors.placeholder}
             />
             <View style={styles.cardActions}>
               <TouchableOpacity onPress={() => saveCaption(photo)}>
-                <Text style={styles.saveLink}>Save caption</Text>
+                <Text style={styles.saveLink}>{t('app.birthday.save_caption')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setRepoUri({ uri: photoUri(photo.photo_path), path: photo.photo_path })}>
-                <Text style={styles.saveLink}>Reposition</Text>
+                <Text style={styles.saveLink}>{t('app.birthday.reposition')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => confirmRemove(photo)}>
-                <Text style={styles.removeLink}>Remove</Text>
+                <Text style={styles.removeLink}>{t('app.birthday.remove')}</Text>
               </TouchableOpacity>
             </View>
           </View>
         ))}
 
         {photos.length === 0 ? (
-          <Text style={styles.emptyText}>No photos yet — add several at once below.</Text>
+          <Text style={styles.emptyText}>{t('app.birthday.empty')}</Text>
         ) : null}
 
         <TouchableOpacity
@@ -186,10 +188,10 @@ export default function BirthDayScreen({ navigation }) {
           {uploading ? (
             <View style={styles.uploadingRow}>
               <ActivityIndicator color={colors.gold} size="small" />
-              <Text style={styles.addButtonText}>Uploading…</Text>
+              <Text style={styles.addButtonText}>{t('app.birthday.uploading')}</Text>
             </View>
           ) : (
-            <Text style={styles.addButtonText}>+ Add photos (up to 20)</Text>
+            <Text style={styles.addButtonText}>{t('app.birthday.add_photos')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

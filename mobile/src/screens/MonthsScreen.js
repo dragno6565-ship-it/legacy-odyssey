@@ -11,13 +11,16 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get } from '../api/client';
-
-const MONTH_LABELS = [
-  'One', 'Two', 'Three', 'Four', 'Five', 'Six',
-  'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve',
-];
+import { useI18n } from '../i18n/I18nContext';
 
 export default function MonthsScreen({ navigation }) {
+  const { t } = useI18n();
+  const MONTH_LABELS = [
+    t('app.months.month_1'), t('app.months.month_2'), t('app.months.month_3'),
+    t('app.months.month_4'), t('app.months.month_5'), t('app.months.month_6'),
+    t('app.months.month_7'), t('app.months.month_8'), t('app.months.month_9'),
+    t('app.months.month_10'), t('app.months.month_11'), t('app.months.month_12'),
+  ];
   const [months, setMonths] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -70,13 +73,13 @@ export default function MonthsScreen({ navigation }) {
         }
       >
         <Text style={styles.monthNumber}>{num}</Text>
-        <Text style={styles.monthLabel}>Month {MONTH_LABELS[num - 1]}</Text>
+        <Text style={styles.monthLabel}>{t('app.months.month_label', { label: MONTH_LABELS[num - 1] })}</Text>
         {highlight ? (
           <Text style={styles.highlight} numberOfLines={2}>
             {highlight}
           </Text>
         ) : (
-          <Text style={styles.emptyLabel}>Tap to add</Text>
+          <Text style={styles.emptyLabel}>{t('app.months.tap_to_add')}</Text>
         )}
       </TouchableOpacity>
     );

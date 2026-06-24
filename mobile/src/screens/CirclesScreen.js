@@ -6,11 +6,13 @@ import * as SMS from 'expo-sms';
 import { Users, Trash2, Send, UserPlus, MessageSquare } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 // Phases 1 + 2: manage contacts + circles, and send update emails (each
 // opted-in person gets their private magic link — no password needed).
 // Mirrors the web /account/book/circles page. Calls the JWT API at /api/contacts/*.
 export default function CirclesScreen() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [contacts, setContacts] = useState([]);
@@ -47,7 +49,7 @@ export default function CirclesScreen() {
       const res = await get('/api/contacts/mine');
       setContacts((res.data && res.data.contacts) || []);
       setCircles((res.data && res.data.circles) || []);
-    } catch (err) { if (err.status !== 404) Alert.alert('Error', 'Could not load your circles.'); }
+    } catch (err) { if (err.status !== 404) Alert.alert(t('app.circles.error_title'), t('app.circles.error_load')); }
     finally { setLoading(false); }
   }, []);
   useFocusEffect(useCallback(() => { fetchAll(); }, [fetchAll]));
@@ -58,17 +60,17 @@ export default function CirclesScreen() {
     if (!newCircle.trim() || busy) return;
     setBusy(true);
     try { await post('/api/contacts/mine/circles', { name: newCircle.trim() }); setNewCircle(''); await fetchAll(); }
-    catch (e) { Alert.alert('Error', 'Could not add circle.'); } finally { setBusy(false); }
+    catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_add_circle')); } finally { setBusy(false); }
   }
   async function saveRename(id) {
     setBusy(true);
-    try { await put('/api/contacts/mine/circles/' + id, { name: renameVal.trim() || 'Circle' }); setRenameId(null); await fetchAll(); }
-    catch (e) { Alert.alert('Error', 'Could not rename.'); } finally { setBusy(false); }
+    try { await put('/api/contacts/mine/circles/' + id, { name: renameVal.trim() || t('app.circles.default_circle_name') }); setRenameId(null); await fetchAll(); }
+    catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_rename')); } finally { setBusy(false); }
   }
   function deleteCircle(c) {
-    Alert.alert('Delete circle?', `Delete the “${c.name}” circle? Your contacts stay — they’re just removed from it.`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { try { await del('/api/contacts/mine/circles/' + c.id); await fetchAll(); } catch (e) { Alert.alert('Error', 'Could not delete.'); } } },
+    Alert.alert(t('app.circles.delete_circle_title'), t('app.circles.delete_circle_msg', { name: c.name }), [
+      { text: t('app.circles.cancel'), style: 'cancel' },
+      { text: t('app.circles.delete'), style: 'destructive', onPress: async () => { try { await del('/api/contacts/mine/circles/' + c.id); await fetchAll(); } catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_delete')); } } },
     ]);
   }
 
@@ -81,7 +83,7 @@ export default function CirclesScreen() {
       if (id && newSel.length) await put('/api/contacts/mine/contacts/' + id + '/circles', { circleIds: newSel });
       setCName(''); setCEmail(''); setCPhone(''); setNewSel([]);
       await fetchAll();
-    } catch (e) { Alert.alert('Error', 'Could not add person.'); } finally { setBusy(false); }
+    } catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_add_person')); } finally { setBusy(false); }
   }
   function startEdit(p) {
     setEditId(p.id); setEditName(p.name || ''); setEditEmail(p.email || ''); setEditPhone(p.phone || ''); setEditSel(p.circle_ids || []);
@@ -92,12 +94,12 @@ export default function CirclesScreen() {
       await put('/api/contacts/mine/contacts/' + id, { name: editName.trim(), email: editEmail.trim(), phone: editPhone.trim() });
       await put('/api/contacts/mine/contacts/' + id + '/circles', { circleIds: editSel });
       setEditId(null); await fetchAll();
-    } catch (e) { Alert.alert('Error', 'Could not save.'); } finally { setBusy(false); }
+    } catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_save')); } finally { setBusy(false); }
   }
   function deleteContact(p) {
-    Alert.alert('Remove person?', `Remove ${p.name}? Their view link will stop working.`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: async () => { try { await del('/api/contacts/mine/contacts/' + p.id); await fetchAll(); } catch (e) { Alert.alert('Error', 'Could not remove.'); } } },
+    Alert.alert(t('app.circles.remove_person_title'), t('app.circles.remove_person_msg', { name: p.name }), [
+      { text: t('app.circles.cancel'), style: 'cancel' },
+      { text: t('app.circles.remove'), style: 'destructive', onPress: async () => { try { await del('/api/contacts/mine/contacts/' + p.id); await fetchAll(); } catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_remove')); } } },
     ]);
   }
 
@@ -105,16 +107,16 @@ export default function CirclesScreen() {
   // native composer pre-filled with the person's private link). Server builds
   // the message so the magic-link logic stays in one place.
   async function textContact(p) {
-    if (!p.phone) { Alert.alert('No phone number', `Add a phone number to ${p.name}'s contact card first.`); return; }
+    if (!p.phone) { Alert.alert(t('app.circles.no_phone_title'), t('app.circles.no_phone_msg', { name: p.name })); return; }
     try {
       const available = await SMS.isAvailableAsync();
-      if (!available) { Alert.alert('Texting not available', "This device can't send text messages."); return; }
+      if (!available) { Alert.alert(t('app.circles.texting_unavailable_title'), t('app.circles.texting_unavailable_msg')); return; }
       const res = await get('/api/contacts/mine/contacts/' + p.id + '/sms');
       const phone = (res.data && res.data.phone) || p.phone;
       const message = (res.data && res.data.message) || '';
       await SMS.sendSMSAsync([phone], message);
     } catch (e) {
-      Alert.alert('Could not open Messages', 'Please try again.');
+      Alert.alert(t('app.circles.cant_open_messages_title'), t('app.circles.please_try_again'));
     }
   }
 
@@ -138,9 +140,9 @@ export default function CirclesScreen() {
       const { status } = await Contacts.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Contacts permission needed',
-          'To add people from your phone, allow Legacy Odyssey to access your contacts.',
-          [{ text: 'Not now', style: 'cancel' }, { text: 'Open Settings', onPress: () => Linking.openSettings() }]
+          t('app.circles.permission_title'),
+          t('app.circles.permission_msg'),
+          [{ text: t('app.circles.not_now'), style: 'cancel' }, { text: t('app.circles.open_settings'), onPress: () => Linking.openSettings() }]
         );
         return;
       }
@@ -159,7 +161,7 @@ export default function CirclesScreen() {
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
       setDeviceContacts(mapped);
     } catch (e) {
-      Alert.alert('Error', 'Could not open your contacts.');
+      Alert.alert(t('app.circles.error_title'), t('app.circles.error_open_contacts'));
       setShowImport(false);
     } finally {
       setImportLoading(false);
@@ -179,12 +181,16 @@ export default function CirclesScreen() {
       const skipped = (res.data && res.data.skipped) || 0;
       setShowImport(false);
       await fetchAll();
+      const addedText = imported === 1
+        ? t('app.circles.import_added_one', { count: imported })
+        : t('app.circles.import_added_many', { count: imported });
+      const skippedText = skipped ? t('app.circles.import_skipped', { count: skipped }) : '';
       Alert.alert(
-        'Import complete',
-        `${imported} ${imported === 1 ? 'contact' : 'contacts'} added${skipped ? `, ${skipped} skipped (already on your list)` : ''}.`
+        t('app.circles.import_complete_title'),
+        t('app.circles.import_complete_msg', { added: addedText, skipped: skippedText })
       );
     } catch (e) {
-      Alert.alert('Error', 'Could not import contacts. Please try again.');
+      Alert.alert(t('app.circles.error_title'), t('app.circles.error_import'));
     } finally {
       setImportBusy(false);
     }
@@ -201,11 +207,13 @@ export default function CirclesScreen() {
   function sendUpdate() {
     if (sending || !selectedCount) return;
     Alert.alert(
-      'Send the update email now?',
-      `${selectedCount} ${selectedCount === 1 ? 'person' : 'people'} will each get their own private link.`,
+      t('app.circles.send_confirm_title'),
+      selectedCount === 1
+        ? t('app.circles.send_confirm_msg_one', { count: selectedCount })
+        : t('app.circles.send_confirm_msg_many', { count: selectedCount }),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Send', onPress: async () => {
+        { text: t('app.circles.cancel'), style: 'cancel' },
+        { text: t('app.circles.send'), onPress: async () => {
           setSending(true);
           try {
             const body = { note: notifyNote.trim() };
@@ -214,10 +222,15 @@ export default function CirclesScreen() {
             const res = await post('/api/contacts/mine/notify', body);
             const sent = (res.data && res.data.sent) || 0;
             setNotifyNote('');
-            Alert.alert('Sent', `Update sent to ${sent} ${sent === 1 ? 'person' : 'people'}.`);
+            Alert.alert(
+              t('app.circles.sent_title'),
+              sent === 1
+                ? t('app.circles.sent_msg_one', { count: sent })
+                : t('app.circles.sent_msg_many', { count: sent })
+            );
           } catch (e) {
-            const msg = (e.response && e.response.data && e.response.data.error) || 'Could not send the update.';
-            Alert.alert('Not sent', msg);
+            const msg = (e.response && e.response.data && e.response.data.error) || t('app.circles.error_send');
+            Alert.alert(t('app.circles.not_sent_title'), msg);
           } finally { setSending(false); }
         } },
       ]
@@ -248,34 +261,34 @@ export default function CirclesScreen() {
   return (
     <>
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-      <Text style={styles.pageTitle}>Your Contacts</Text>
-      <Text style={styles.pageSubtitle}>Your Contact List and Circles — keep a private list of who can see the book, grouped into circles like “Grandparents.”</Text>
+      <Text style={styles.pageTitle}>{t('app.circles.page_title')}</Text>
+      <Text style={styles.pageSubtitle}>{t('app.circles.page_subtitle')}</Text>
 
       {/* SEND AN UPDATE (Phase 2) */}
       {notifiable.length > 0 ? (
         <View style={[styles.card, styles.notifyCard]}>
           <View style={styles.row}>
             <Send size={18} color={colors.gold} />
-            <Text style={styles.cardTitle}>Send an Update</Text>
+            <Text style={styles.cardTitle}>{t('app.circles.send_update_title')}</Text>
           </View>
-          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>Let people know there’s something new in the book. Each person gets an email with their own private link — no password needed.</Text>
-          <Text style={styles.label}>Who</Text>
+          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>{t('app.circles.send_update_desc')}</Text>
+          <Text style={styles.label}>{t('app.circles.who_label')}</Text>
           <View style={styles.chips}>
             <TouchableOpacity onPress={() => setNotifyTarget({ type: 'all' })} style={[styles.chip, notifyTarget.type === 'all' && styles.chipOn]}>
-              <Text style={[styles.chipText, notifyTarget.type === 'all' && styles.chipTextOn]}>Everyone ({notifiable.length})</Text>
+              <Text style={[styles.chipText, notifyTarget.type === 'all' && styles.chipTextOn]}>{t('app.circles.everyone', { count: notifiable.length })}</Text>
             </TouchableOpacity>
             {circles.map((c) => {
               const on = notifyTarget.type === 'circle' && notifyTarget.id === c.id;
               return (
                 <TouchableOpacity key={c.id} onPress={() => setNotifyTarget({ type: 'circle', id: c.id })} style={[styles.chip, on && styles.chipOn]}>
-                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{c.name} ({notifiableInCircle(c)})</Text>
+                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{t('app.circles.circle_with_count', { name: c.name, count: notifiableInCircle(c) })}</Text>
                 </TouchableOpacity>
               );
             })}
           </View>
           {notifiable.length ? (
             <>
-              <Text style={[styles.label, { marginTop: spacing.xs }]}>Or one person</Text>
+              <Text style={[styles.label, { marginTop: spacing.xs }]}>{t('app.circles.or_one_person')}</Text>
               <View style={styles.chips}>
                 {notifiable.map((p) => {
                   const on = notifyTarget.type === 'contact' && notifyTarget.id === p.id;
@@ -292,35 +305,35 @@ export default function CirclesScreen() {
             style={styles.input}
             value={notifyNote}
             onChangeText={setNotifyNote}
-            placeholder="Add a short note (optional)"
+            placeholder={t('app.circles.note_placeholder')}
             placeholderTextColor={colors.placeholder}
             maxLength={500}
           />
           <TouchableOpacity style={[styles.btn, (sending || !selectedCount) && styles.dim]} onPress={sendUpdate} disabled={sending || !selectedCount}>
-            {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Send Update</Text>}
+            {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('app.circles.send_update_button')}</Text>}
           </TouchableOpacity>
-          <Text style={[styles.muted, { marginTop: spacing.xs, fontSize: typography.sizes.xs }]}>One update per 10 minutes, so inboxes stay friendly.</Text>
+          <Text style={[styles.muted, { marginTop: spacing.xs, fontSize: typography.sizes.xs }]}>{t('app.circles.rate_limit_note')}</Text>
         </View>
       ) : null}
 
       {/* CIRCLES */}
-      <Text style={styles.h2}>Circles</Text>
-      {circles.length === 0 ? <Text style={styles.empty}>No circles yet — create one below.</Text> : null}
+      <Text style={styles.h2}>{t('app.circles.circles_heading')}</Text>
+      {circles.length === 0 ? <Text style={styles.empty}>{t('app.circles.no_circles')}</Text> : null}
       {circles.map((c) => (
         <View key={c.id} style={styles.card}>
           {renameId === c.id ? (
             <View style={styles.row}>
               <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} value={renameVal} onChangeText={setRenameVal} maxLength={120} />
-              <TouchableOpacity style={styles.btnSm} onPress={() => saveRename(c.id)}><Text style={styles.btnSmText}>Save</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.btnSm} onPress={() => saveRename(c.id)}><Text style={styles.btnSmText}>{t('app.circles.save')}</Text></TouchableOpacity>
             </View>
           ) : (
             <View style={styles.cardHead}>
               <View>
                 <Text style={styles.cardTitle}>{c.name}</Text>
-                <Text style={styles.muted}>{c.member_count} {c.member_count === 1 ? 'person' : 'people'}</Text>
+                <Text style={styles.muted}>{c.member_count === 1 ? t('app.circles.member_count_one', { count: c.member_count }) : t('app.circles.member_count_many', { count: c.member_count })}</Text>
               </View>
               <View style={styles.rowEnd}>
-                <TouchableOpacity onPress={() => { setRenameId(c.id); setRenameVal(c.name); }}><Text style={styles.link}>Rename</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => { setRenameId(c.id); setRenameVal(c.name); }}><Text style={styles.link}>{t('app.circles.rename')}</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => deleteCircle(c)}><Trash2 size={18} color={colors.error} /></TouchableOpacity>
               </View>
             </View>
@@ -329,25 +342,25 @@ export default function CirclesScreen() {
       ))}
       <View style={styles.card}>
         <View style={styles.row}>
-          <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} value={newCircle} onChangeText={setNewCircle} placeholder="e.g. Grandparents" placeholderTextColor={colors.placeholder} maxLength={120} />
-          <TouchableOpacity style={[styles.btnSm, (!newCircle.trim() || busy) && styles.dim]} onPress={addCircle} disabled={!newCircle.trim() || busy}><Text style={styles.btnSmText}>+ Add</Text></TouchableOpacity>
+          <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} value={newCircle} onChangeText={setNewCircle} placeholder={t('app.circles.new_circle_placeholder')} placeholderTextColor={colors.placeholder} maxLength={120} />
+          <TouchableOpacity style={[styles.btnSm, (!newCircle.trim() || busy) && styles.dim]} onPress={addCircle} disabled={!newCircle.trim() || busy}><Text style={styles.btnSmText}>{t('app.circles.add')}</Text></TouchableOpacity>
         </View>
       </View>
 
       {/* CONTACT LIST */}
-      <Text style={styles.h2}>Contact List</Text>
-      {contacts.length === 0 ? <Text style={styles.empty}>No contacts yet — add the first person below.</Text> : null}
+      <Text style={styles.h2}>{t('app.circles.contact_list_heading')}</Text>
+      {contacts.length === 0 ? <Text style={styles.empty}>{t('app.circles.no_contacts')}</Text> : null}
       {contacts.map((p) => (
         <View key={p.id} style={styles.card}>
           {editId === p.id ? (
             <View>
-              <TextInput style={styles.input} value={editName} onChangeText={setEditName} placeholder="Name" placeholderTextColor={colors.placeholder} />
-              <TextInput style={styles.input} value={editEmail} onChangeText={setEditEmail} placeholder="Email" placeholderTextColor={colors.placeholder} autoCapitalize="none" keyboardType="email-address" />
-              <TextInput style={styles.input} value={editPhone} onChangeText={setEditPhone} placeholder="Phone (optional)" placeholderTextColor={colors.placeholder} keyboardType="phone-pad" />
-              {circles.length ? <><Text style={styles.label}>Circles</Text><Chips selected={editSel} onToggle={(id) => setEditSel((s) => toggle(s, id))} /></> : null}
+              <TextInput style={styles.input} value={editName} onChangeText={setEditName} placeholder={t('app.circles.name_placeholder')} placeholderTextColor={colors.placeholder} />
+              <TextInput style={styles.input} value={editEmail} onChangeText={setEditEmail} placeholder={t('app.circles.email_placeholder')} placeholderTextColor={colors.placeholder} autoCapitalize="none" keyboardType="email-address" />
+              <TextInput style={styles.input} value={editPhone} onChangeText={setEditPhone} placeholder={t('app.circles.phone_placeholder')} placeholderTextColor={colors.placeholder} keyboardType="phone-pad" />
+              {circles.length ? <><Text style={styles.label}>{t('app.circles.circles_label')}</Text><Chips selected={editSel} onToggle={(id) => setEditSel((s) => toggle(s, id))} /></> : null}
               <View style={styles.rowEnd}>
-                <TouchableOpacity onPress={() => setEditId(null)}><Text style={styles.link}>Cancel</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.btnSm} onPress={() => saveContact(p.id)}><Text style={styles.btnSmText}>Save</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setEditId(null)}><Text style={styles.link}>{t('app.circles.cancel')}</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.btnSm} onPress={() => saveContact(p.id)}><Text style={styles.btnSmText}>{t('app.circles.save')}</Text></TouchableOpacity>
               </View>
             </View>
           ) : (
@@ -358,14 +371,14 @@ export default function CirclesScreen() {
                   {p.phone ? (
                     <TouchableOpacity onPress={() => textContact(p)} style={styles.textBtn}>
                       <MessageSquare size={15} color={colors.gold} />
-                      <Text style={styles.link}>Text</Text>
+                      <Text style={styles.link}>{t('app.circles.text')}</Text>
                     </TouchableOpacity>
                   ) : null}
-                  <TouchableOpacity onPress={() => startEdit(p)}><Text style={styles.link}>Edit</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => startEdit(p)}><Text style={styles.link}>{t('app.circles.edit')}</Text></TouchableOpacity>
                   <TouchableOpacity onPress={() => deleteContact(p)}><Trash2 size={18} color={colors.error} /></TouchableOpacity>
                 </View>
               </View>
-              <Text style={styles.muted}>{p.email || 'no email'}{p.phone ? ' · ' + p.phone : ''}</Text>
+              <Text style={styles.muted}>{p.email || t('app.circles.no_email')}{p.phone ? ' · ' + p.phone : ''}</Text>
               {(p.circle_ids || []).length ? (
                 <View style={styles.chips}>
                   {circles.filter((c) => (p.circle_ids || []).indexOf(c.id) !== -1).map((c) => (
@@ -380,19 +393,19 @@ export default function CirclesScreen() {
       <TouchableOpacity style={[styles.card, styles.importRow]} onPress={openImporter} activeOpacity={0.7} disabled={importBusy}>
         <UserPlus size={22} color={colors.gold} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.cardTitle}>Import from your phone</Text>
-          <Text style={styles.muted}>Pick people from your contacts instead of typing each one.</Text>
+          <Text style={styles.cardTitle}>{t('app.circles.import_from_phone_title')}</Text>
+          <Text style={styles.muted}>{t('app.circles.import_from_phone_desc')}</Text>
         </View>
       </TouchableOpacity>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Add a person</Text>
-        <TextInput style={styles.input} value={cName} onChangeText={setCName} placeholder="Full name" placeholderTextColor={colors.placeholder} />
-        <TextInput style={styles.input} value={cEmail} onChangeText={setCEmail} placeholder="Email" placeholderTextColor={colors.placeholder} autoCapitalize="none" keyboardType="email-address" />
-        <TextInput style={styles.input} value={cPhone} onChangeText={setCPhone} placeholder="Phone (optional)" placeholderTextColor={colors.placeholder} keyboardType="phone-pad" />
-        {circles.length ? <><Text style={styles.label}>Add to circles</Text><Chips selected={newSel} onToggle={(id) => setNewSel((s) => toggle(s, id))} /></> : null}
+        <Text style={styles.label}>{t('app.circles.add_person_label')}</Text>
+        <TextInput style={styles.input} value={cName} onChangeText={setCName} placeholder={t('app.circles.full_name_placeholder')} placeholderTextColor={colors.placeholder} />
+        <TextInput style={styles.input} value={cEmail} onChangeText={setCEmail} placeholder={t('app.circles.email_placeholder')} placeholderTextColor={colors.placeholder} autoCapitalize="none" keyboardType="email-address" />
+        <TextInput style={styles.input} value={cPhone} onChangeText={setCPhone} placeholder={t('app.circles.phone_placeholder')} placeholderTextColor={colors.placeholder} keyboardType="phone-pad" />
+        {circles.length ? <><Text style={styles.label}>{t('app.circles.add_to_circles_label')}</Text><Chips selected={newSel} onToggle={(id) => setNewSel((s) => toggle(s, id))} /></> : null}
         <TouchableOpacity style={[styles.btn, (!cName.trim() || busy) && styles.dim]} onPress={addContact} disabled={!cName.trim() || busy}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>+ Add Person</Text>}
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('app.circles.add_person_button')}</Text>}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -402,15 +415,15 @@ export default function CirclesScreen() {
       <View style={styles.modalOverlay}>
         <View style={styles.modalSheet}>
           <View style={styles.modalHead}>
-            <Text style={styles.modalTitle}>Import Contacts</Text>
-            <TouchableOpacity onPress={() => setShowImport(false)}><Text style={styles.link}>Close</Text></TouchableOpacity>
+            <Text style={styles.modalTitle}>{t('app.circles.import_modal_title')}</Text>
+            <TouchableOpacity onPress={() => setShowImport(false)}><Text style={styles.link}>{t('app.circles.close')}</Text></TouchableOpacity>
           </View>
-          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>Tap the people you want to add to your Contact List. Anyone already on your list is marked.</Text>
+          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>{t('app.circles.import_modal_desc')}</Text>
           <TextInput
             style={styles.input}
             value={importSearch}
             onChangeText={setImportSearch}
-            placeholder="Search your contacts"
+            placeholder={t('app.circles.search_placeholder')}
             placeholderTextColor={colors.placeholder}
             autoCapitalize="none"
           />
@@ -422,7 +435,7 @@ export default function CirclesScreen() {
               keyExtractor={(item) => String(item.id)}
               keyboardShouldPersistTaps="handled"
               style={styles.pickList}
-              ListEmptyComponent={<Text style={[styles.muted, { textAlign: 'center', padding: spacing.lg }]}>No contacts found on this phone.</Text>}
+              ListEmptyComponent={<Text style={[styles.muted, { textAlign: 'center', padding: spacing.lg }]}>{t('app.circles.no_device_contacts')}</Text>}
               renderItem={({ item }) => {
                 const added = isAlreadyAdded(item);
                 const on = !!importSel[item.id];
@@ -433,16 +446,16 @@ export default function CirclesScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.pickName}>{item.name}</Text>
-                      <Text style={styles.muted} numberOfLines={1}>{item.email || item.phone || 'no email or phone'}</Text>
+                      <Text style={styles.muted} numberOfLines={1}>{item.email || item.phone || t('app.circles.no_email_or_phone')}</Text>
                     </View>
-                    {added ? <Text style={styles.addedTag}>Added</Text> : null}
+                    {added ? <Text style={styles.addedTag}>{t('app.circles.added_tag')}</Text> : null}
                   </TouchableOpacity>
                 );
               }}
             />
           )}
           <TouchableOpacity style={[styles.btn, (!selectedImportCount || importBusy) && styles.dim]} onPress={doImport} disabled={!selectedImportCount || importBusy}>
-            {importBusy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{selectedImportCount ? `Import (${selectedImportCount})` : 'Import'}</Text>}
+            {importBusy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{selectedImportCount ? t('app.circles.import_with_count', { count: selectedImportCount }) : t('app.circles.import_button')}</Text>}
           </TouchableOpacity>
         </View>
       </View>

@@ -17,12 +17,14 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { get, put, post, del } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 // "Your Journey to Us" — single story page for non-traditional families
 // (adoption, surrogacy, fostering, etc.). Mirrors the web editor at
 // /account/book/journey. Text + milestones save together; photos are
 // added/removed immediately via their own API calls.
 export default function JourneyScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
   const [loading, setLoading] = useState(true);
@@ -57,7 +59,7 @@ export default function JourneyScreen({ navigation }) {
       );
       setPhotos(Array.isArray(d.photos) ? d.photos : []);
     } catch (err) {
-      if (err.status !== 404) setError(err.message || 'Failed to load.');
+      if (err.status !== 404) setError(err.message || t('app.journey.error_load'));
     } finally {
       setLoading(false);
     }
@@ -90,10 +92,10 @@ export default function JourneyScreen({ navigation }) {
           (m) => (m.label || '').trim() || (m.date || '').trim()
         ),
       });
-      showToast('Your Journey to Us updated.');
+      showToast(t('app.journey.saved_toast'));
       setTimeout(() => navigation.goBack(), 1800);
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.journey.error_save'));
     } finally {
       setSaving(false);
     }
@@ -108,16 +110,16 @@ export default function JourneyScreen({ navigation }) {
       setPhotos(Array.isArray(res.data && res.data.photos) ? res.data.photos : []);
       setPhotoKey((k) => k + 1);
     } catch (err) {
-      Alert.alert('Error', 'Could not add the photo. Please try again.');
+      Alert.alert(t('app.journey.error_title'), t('app.journey.photo_add_failed'));
     } finally {
       setPhotoBusy(false);
     }
   }
 
   function confirmDeletePhoto(id) {
-    Alert.alert('Remove photo', 'Remove this photo from the page?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => deletePhoto(id) },
+    Alert.alert(t('app.journey.remove_photo_title'), t('app.journey.remove_photo_body'), [
+      { text: t('app.journey.cancel'), style: 'cancel' },
+      { text: t('app.journey.remove'), style: 'destructive', onPress: () => deletePhoto(id) },
     ]);
   }
   async function deletePhoto(id) {
@@ -126,7 +128,7 @@ export default function JourneyScreen({ navigation }) {
       await del('/api/books/mine/journey-photos/' + id);
       setPhotos((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
-      Alert.alert('Error', 'Could not remove the photo.');
+      Alert.alert(t('app.journey.error_title'), t('app.journey.photo_remove_failed'));
     } finally {
       setPhotoBusy(false);
     }
@@ -152,9 +154,9 @@ export default function JourneyScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Your Journey to Us</Text>
+        <Text style={styles.pageTitle}>{t('app.journey.page_title')}</Text>
         <Text style={styles.pageSubtitle}>
-          An optional story page — for adoption, surrogacy, fostering, and every path home
+          {t('app.journey.page_subtitle')}
         </Text>
 
         {error ? (
@@ -163,24 +165,24 @@ export default function JourneyScreen({ navigation }) {
           </View>
         ) : null}
 
-        <Text style={styles.label}>Page Title</Text>
+        <Text style={styles.label}>{t('app.journey.page_title_label')}</Text>
         <TextInput
           style={styles.input}
           value={title}
           onChangeText={setTitle}
-          placeholder="Your Journey to Us"
+          placeholder={t('app.journey.page_title_placeholder')}
           placeholderTextColor={colors.placeholder}
         />
         <Text style={styles.helperText}>
-          Name it whatever fits — "The Adoption Story", "Our Surrogacy Story", etc. Leave blank for the default.
+          {t('app.journey.page_title_helper')}
         </Text>
 
-        <Text style={styles.label}>Intro Line</Text>
+        <Text style={styles.label}>{t('app.journey.intro_label')}</Text>
         <TextInput
           style={[styles.input, styles.shortMultiline]}
           value={intro}
           onChangeText={setIntro}
-          placeholder="A sentence or two to open the page."
+          placeholder={t('app.journey.intro_placeholder')}
           placeholderTextColor={colors.placeholder}
           multiline
           textAlignVertical="top"
@@ -188,24 +190,24 @@ export default function JourneyScreen({ navigation }) {
 
         {/* Milestones */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Milestone Dates</Text>
+          <Text style={styles.sectionHeader}>{t('app.journey.milestones_header')}</Text>
           <Text style={styles.helperText}>
-            Optional dated moments — the day you were matched, homecoming day, the day it was finalized.
+            {t('app.journey.milestones_helper')}
           </Text>
           {milestones.map((m, i) => (
             <View key={i} style={styles.msRow}>
               <TextInput
                 style={[styles.input, styles.msLabel]}
                 value={m.label}
-                onChangeText={(t) => updateMilestone(i, 'label', t)}
-                placeholder="Label"
+                onChangeText={(val) => updateMilestone(i, 'label', val)}
+                placeholder={t('app.journey.milestone_label_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
               <TextInput
                 style={[styles.input, styles.msDate]}
                 value={m.date}
-                onChangeText={(t) => updateMilestone(i, 'date', t)}
-                placeholder="Date"
+                onChangeText={(val) => updateMilestone(i, 'date', val)}
+                placeholder={t('app.journey.milestone_date_placeholder')}
                 placeholderTextColor={colors.placeholder}
               />
               <TouchableOpacity style={styles.msRemove} onPress={() => removeMilestone(i)}>
@@ -214,27 +216,27 @@ export default function JourneyScreen({ navigation }) {
             </View>
           ))}
           <TouchableOpacity style={styles.addBtn} onPress={addMilestone} activeOpacity={0.8}>
-            <Text style={styles.addBtnText}>+ Add a milestone</Text>
+            <Text style={styles.addBtnText}>{t('app.journey.add_milestone')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* The Story */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>The Story</Text>
-          <Text style={styles.fieldLabel}>Story Heading</Text>
+          <Text style={styles.sectionHeader}>{t('app.journey.story_header')}</Text>
+          <Text style={styles.fieldLabel}>{t('app.journey.story_heading_label')}</Text>
           <TextInput
             style={styles.input}
             value={storyTitle}
             onChangeText={setStoryTitle}
-            placeholder="How you came home"
+            placeholder={t('app.journey.story_heading_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
-          <Text style={styles.fieldLabel}>Your Story</Text>
+          <Text style={styles.fieldLabel}>{t('app.journey.your_story_label')}</Text>
           <TextInput
             style={[styles.input, styles.narrativeInput]}
             value={story}
             onChangeText={setStory}
-            placeholder="Tell the story in your own words. Leave a blank line between paragraphs."
+            placeholder={t('app.journey.your_story_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
@@ -243,7 +245,7 @@ export default function JourneyScreen({ navigation }) {
 
         {/* Photos */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Photos</Text>
+          <Text style={styles.sectionHeader}>{t('app.journey.photos_header')}</Text>
           {photos.length ? (
             <View style={styles.photoGrid}>
               {photos.map((p) => (
@@ -260,9 +262,9 @@ export default function JourneyScreen({ navigation }) {
               ))}
             </View>
           ) : (
-            <Text style={styles.helperText}>No photos yet.</Text>
+            <Text style={styles.helperText}>{t('app.journey.no_photos')}</Text>
           )}
-          <Text style={styles.fieldLabel}>Add a Photo</Text>
+          <Text style={styles.fieldLabel}>{t('app.journey.add_photo_label')}</Text>
           <PhotoPicker key={photoKey} currentPhoto={''} onPhotoSelected={handleAddPhoto} />
           {photoBusy ? (
             <ActivityIndicator color={colors.gold} style={{ marginTop: spacing.sm }} />
@@ -271,23 +273,23 @@ export default function JourneyScreen({ navigation }) {
 
         {/* A Letter to You */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>A Letter to You (optional)</Text>
-          <Text style={styles.fieldLabel}>Letter</Text>
+          <Text style={styles.sectionHeader}>{t('app.journey.letter_header')}</Text>
+          <Text style={styles.fieldLabel}>{t('app.journey.letter_label')}</Text>
           <TextInput
             style={[styles.input, styles.shortMultiline]}
             value={letterText}
             onChangeText={setLetterText}
-            placeholder="A few lines straight to your child."
+            placeholder={t('app.journey.letter_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
           />
-          <Text style={styles.fieldLabel}>Signed</Text>
+          <Text style={styles.fieldLabel}>{t('app.journey.signed_label')}</Text>
           <TextInput
             style={styles.input}
             value={letterSign}
             onChangeText={setLetterSign}
-            placeholder="e.g. With all our love"
+            placeholder={t('app.journey.signed_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
         </View>
@@ -301,7 +303,7 @@ export default function JourneyScreen({ navigation }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{t('app.journey.save')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

@@ -15,6 +15,7 @@ import { PartyPopper } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post } from '../api/client';
 import { BASE_URL } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 /**
  * List every celebration inside a single year. Tap one to open the per-
@@ -25,6 +26,7 @@ import { BASE_URL } from '../api/client';
  * call the legacy bulk PUT endpoint.
  */
 export default function CelebrationYearScreen({ navigation, route }) {
+  const { t } = useI18n();
   const yearLabel = route.params?.yearLabel || 'Your First Year';
   const [loading, setLoading] = useState(true);
   const [celebrations, setCelebrations] = useState([]);
@@ -72,7 +74,7 @@ export default function CelebrationYearScreen({ navigation, route }) {
         title,
       });
     } catch (err) {
-      Alert.alert('Could not add celebration', err.message || 'Please try again.');
+      Alert.alert(t('app.celebrationyear.add_fail_title'), err.message || t('app.celebrationyear.please_try_again'));
     } finally {
       setAdding(false);
     }
@@ -101,18 +103,18 @@ export default function CelebrationYearScreen({ navigation, route }) {
     >
       <Text style={styles.pageTitle}>{yearLabel}</Text>
       <Text style={styles.pageSubtitle}>
-        Add as many celebrations as you'd like — birthdays, holidays, special days.
+        {t('app.celebrationyear.page_subtitle')}
       </Text>
 
       {celebrations.length === 0 && (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No celebrations yet. Add your first one below.</Text>
+          <Text style={styles.emptyStateText}>{t('app.celebrationyear.empty')}</Text>
         </View>
       )}
 
       {celebrations.map((c) => {
         const uri = photoUri(c.photo_path);
-        const displayTitle = c.title && c.title !== '(untitled)' ? c.title : 'Untitled';
+        const displayTitle = c.title && c.title !== '(untitled)' ? c.title : t('app.celebrationyear.untitled');
         return (
           <TouchableOpacity
             key={c.id}
@@ -148,13 +150,13 @@ export default function CelebrationYearScreen({ navigation, route }) {
       })}
 
       <View style={styles.addCard}>
-        <Text style={styles.addCardTitle}>Add a celebration</Text>
+        <Text style={styles.addCardTitle}>{t('app.celebrationyear.add_card_title')}</Text>
         <View style={styles.addRow}>
           <TextInput
             style={styles.addInput}
             value={newTitle}
             onChangeText={setNewTitle}
-            placeholder="e.g. First Christmas"
+            placeholder={t('app.celebrationyear.add_placeholder')}
             placeholderTextColor={colors.placeholder}
             returnKeyType="done"
             onSubmitEditing={handleAddCelebration}
@@ -168,7 +170,7 @@ export default function CelebrationYearScreen({ navigation, route }) {
             {adding ? (
               <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Text style={styles.addButtonText}>+ Add</Text>
+              <Text style={styles.addButtonText}>{t('app.celebrationyear.add_button')}</Text>
             )}
           </TouchableOpacity>
         </View>

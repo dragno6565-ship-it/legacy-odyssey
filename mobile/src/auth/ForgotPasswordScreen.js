@@ -13,8 +13,10 @@ import {
 import { Mail, Lock } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import api from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 export default function ForgotPasswordScreen({ navigation }) {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -23,7 +25,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   async function handleResetPassword() {
     setError('');
     if (!email.trim()) {
-      setError('Please enter your email address.');
+      setError(t('app.forgotpassword.error_missing_email'));
       return;
     }
     setLoading(true);
@@ -44,15 +46,15 @@ export default function ForgotPasswordScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.brandingContainer}>
             <Mail size={48} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
-            <Text style={styles.brandTitle}>Check Your Email</Text>
+            <Text style={styles.brandTitle}>{t('app.forgotpassword.success_title')}</Text>
             <Text style={styles.brandSubtitle}>
-              If an account exists for {email}, we've sent a password reset link. Check your inbox and follow the instructions.
+              {t('app.forgotpassword.success_subtitle', { email })}
             </Text>
           </View>
 
           <View style={styles.formCard}>
             <Text style={styles.tipText}>
-              Didn't receive an email? Check your spam folder, or try again with a different email address.
+              {t('app.forgotpassword.tip_no_email')}
             </Text>
 
             <TouchableOpacity
@@ -60,7 +62,7 @@ export default function ForgotPasswordScreen({ navigation }) {
               onPress={() => navigation.navigate('Login')}
               activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Back to Login</Text>
+              <Text style={styles.buttonText}>{t('app.forgotpassword.back_to_login')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -68,7 +70,7 @@ export default function ForgotPasswordScreen({ navigation }) {
               onPress={() => { setSuccess(false); setEmail(''); }}
               activeOpacity={0.8}
             >
-              <Text style={styles.secondaryButtonText}>Try Another Email</Text>
+              <Text style={styles.secondaryButtonText}>{t('app.forgotpassword.try_another_email')}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -87,9 +89,9 @@ export default function ForgotPasswordScreen({ navigation }) {
       >
         <View style={styles.brandingContainer}>
           <Lock size={48} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
-          <Text style={styles.brandTitle}>Reset Password</Text>
+          <Text style={styles.brandTitle}>{t('app.forgotpassword.title')}</Text>
           <Text style={styles.brandSubtitle}>
-            Enter the email address associated with your account and we'll send you a link to reset your password.
+            {t('app.forgotpassword.subtitle')}
           </Text>
         </View>
 
@@ -100,10 +102,10 @@ export default function ForgotPasswordScreen({ navigation }) {
             </View>
           ) : null}
 
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>{t('app.forgotpassword.label_email')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="your@email.com"
+            placeholder={t('app.forgotpassword.placeholder_email')}
             placeholderTextColor={colors.placeholder}
             value={email}
             onChangeText={setEmail}
@@ -123,7 +125,7 @@ export default function ForgotPasswordScreen({ navigation }) {
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Send Reset Link</Text>
+              <Text style={styles.buttonText}>{t('app.forgotpassword.send_reset_link')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -134,7 +136,7 @@ export default function ForgotPasswordScreen({ navigation }) {
           disabled={loading}
         >
           <Text style={styles.linkText}>
-            Remember your password? <Text style={styles.linkHighlight}>Sign In</Text>
+            {t('app.forgotpassword.remember_password')} <Text style={styles.linkHighlight}>{t('app.forgotpassword.sign_in')}</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>

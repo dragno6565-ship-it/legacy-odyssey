@@ -18,12 +18,14 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import client, { get, put, post, del, BASE_URL } from '../api/client';
 import { useSavedToast } from '../components/SavedToast';
+import { useI18n } from '../i18n/I18nContext';
 
 /**
  * Per-keepsake editor — title, category, who/when/where, story, photo gallery.
  * Uses per-item CRUD endpoints exclusively.
  */
 export default function KeepsakeDetailScreen({ navigation, route }) {
+  const { t } = useI18n();
   const { keepsakeId } = route.params;
   const headerHeight = useHeaderHeight();
   const { showToast, ToastComponent } = useSavedToast();
@@ -44,8 +46,8 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
-    navigation.setOptions({ title: route.params?.title || 'Keepsake' });
-  }, [navigation, route.params?.title]);
+    navigation.setOptions({ title: route.params?.title || t('app.keepsakedetail.header_fallback') });
+  }, [navigation, route.params?.title, t]);
 
   const fetchKeepsake = useCallback(async () => {
     try {
@@ -60,7 +62,7 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
       setStory(k.story || '');
       setPhotos(Array.isArray(k.photos) ? k.photos : []);
     } catch (err) {
-      setError(err.message || 'Failed to load keepsake.');
+      setError(err.message || t('app.keepsakedetail.load_error'));
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
       const validDate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedDate) ? trimmedDate : null;
 
       await put(`/api/books/mine/keepsakes/${keepsakeId}`, {
-        title: title.trim() || 'Untitled',
+        title: title.trim() || t('app.keepsakedetail.untitled'),
         category: (category || '').trim().toLowerCase() || null,
         description: description.trim() || null,
         attribution: attribution.trim() || null,
@@ -85,17 +87,17 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
         date_made: validDate,
         story: story.trim() || null,
       });
-      showToast('Keepsake saved.');
+      showToast(t('app.keepsakedetail.saved_toast'));
       if (trimmedDate && !validDate) {
         setTimeout(() => {
           Alert.alert(
-            'Date format',
-            'The date was saved as blank because the format wasn\'t YYYY-MM-DD. Try "2028-03-15" for March 15, 2028.'
+            t('app.keepsakedetail.date_format_title'),
+            t('app.keepsakedetail.date_format_message')
           );
         }, 100);
       }
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.keepsakedetail.save_error'));
     } finally {
       setSaving(false);
     }
@@ -103,11 +105,11 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
 
   function confirmDelete() {
     Alert.alert(
-      'Delete this keepsake?',
-      'This removes the keepsake and all its photos. This cannot be undone.',
+      t('app.keepsakedetail.delete_confirm_title'),
+      t('app.keepsakedetail.delete_confirm_message'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: handleDelete },
+        { text: t('app.keepsakedetail.cancel'), style: 'cancel' },
+        { text: t('app.keepsakedetail.delete'), style: 'destructive', onPress: handleDelete },
       ]
     );
   }
@@ -119,7 +121,7 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
       navigation.goBack();
     } catch (err) {
       setDeleting(false);
-      Alert.alert('Could not delete', err.message || 'Please try again.');
+      Alert.alert(t('app.keepsakedetail.delete_error_title'), err.message || t('app.keepsakedetail.try_again'));
     }
   }
 
@@ -144,14 +146,14 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const photoPath = upRes.data.url || upRes.data.path || upRes.data.storagePath;
-      if (!photoPath) throw new Error('Upload did not return a photo path.');
+      if (!photoPath) throw new Error(t('app.keepsakedetail.upload_no_path'));
 
       const created = await post(`/api/books/mine/keepsakes/${keepsakeId}/photos`, {
         photo_path: photoPath, caption: null,
       });
       setPhotos((prev) => [...prev, created.data]);
     } catch (err) {
-      Alert.alert('Upload failed', err.message || 'Could not add photo.');
+      Alert.alert(t('app.keepsakedetail.upload_error_title'), err.message || t('app.keepsakedetail.upload_error_message'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -166,27 +168,27 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
       await put(`/api/books/mine/keepsake-photos/${photo.id}`, {
         caption: photo.caption || null,
       });
-      showToast('Caption saved.');
+      showToast(t('app.keepsakedetail.caption_saved_toast'));
     } catch (err) {
-      Alert.alert('Could not save caption', err.message || 'Please try again.');
+      Alert.alert(t('app.keepsakedetail.caption_error_title'), err.message || t('app.keepsakedetail.try_again'));
     }
   }
 
   function confirmRemovePhoto(photo) {
     Alert.alert(
-      'Remove this photo?',
+      t('app.keepsakedetail.remove_photo_title'),
       null,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('app.keepsakedetail.cancel'), style: 'cancel' },
         {
-          text: 'Remove',
+          text: t('app.keepsakedetail.remove'),
           style: 'destructive',
           onPress: async () => {
             try {
               await del(`/api/books/mine/keepsake-photos/${photo.id}`);
               setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
             } catch (err) {
-              Alert.alert('Could not remove', err.message || 'Please try again.');
+              Alert.alert(t('app.keepsakedetail.remove_error_title'), err.message || t('app.keepsakedetail.try_again'));
             }
           },
         },
@@ -209,10 +211,10 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
   }
 
   const categories = [
-    { value: 'artwork',     label: 'Artwork' },
-    { value: 'schoolwork',  label: 'Schoolwork' },
-    { value: 'award',       label: 'Award' },
-    { value: 'memorabilia', label: 'Memorabilia' },
+    { value: 'artwork',     label: t('app.keepsakedetail.category_artwork') },
+    { value: 'schoolwork',  label: t('app.keepsakedetail.category_schoolwork') },
+    { value: 'award',       label: t('app.keepsakedetail.category_award') },
+    { value: 'memorabilia', label: t('app.keepsakedetail.category_memorabilia') },
   ];
 
   return (
@@ -235,18 +237,18 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
 
         {/* The basics */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>The basics</Text>
+          <Text style={styles.cardTitle}>{t('app.keepsakedetail.basics_title')}</Text>
 
-          <Text style={styles.label}>Title</Text>
+          <Text style={styles.label}>{t('app.keepsakedetail.title_label')}</Text>
           <TextInput
             style={styles.input}
             value={title}
             onChangeText={setTitle}
-            placeholder="e.g. First finger painting"
+            placeholder={t('app.keepsakedetail.title_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Category</Text>
+          <Text style={styles.label}>{t('app.keepsakedetail.category_label')}</Text>
           <View style={styles.categoryRow}>
             {categories.map((c) => (
               <TouchableOpacity
@@ -270,45 +272,45 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
             ))}
           </View>
 
-          <Text style={styles.label}>Short description</Text>
+          <Text style={styles.label}>{t('app.keepsakedetail.description_label')}</Text>
           <TextInput
             style={styles.input}
             value={description}
             onChangeText={setDescription}
-            placeholder="A short tagline shown under the title."
+            placeholder={t('app.keepsakedetail.description_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
         </View>
 
         {/* Who, when, where */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Who, when, where</Text>
-          <Text style={styles.hint}>All optional. Anything you fill in shows up in the meta strip.</Text>
+          <Text style={styles.cardTitle}>{t('app.keepsakedetail.whowhenwhere_title')}</Text>
+          <Text style={styles.hint}>{t('app.keepsakedetail.whowhenwhere_hint')}</Text>
 
-          <Text style={styles.label}>Made by</Text>
+          <Text style={styles.label}>{t('app.keepsakedetail.made_by_label')}</Text>
           <TextInput
             style={styles.input}
             value={attribution}
             onChangeText={setAttribution}
-            placeholder="e.g. Sophia"
+            placeholder={t('app.keepsakedetail.made_by_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Age or grade</Text>
+          <Text style={styles.label}>{t('app.keepsakedetail.age_label')}</Text>
           <TextInput
             style={styles.input}
             value={ageText}
             onChangeText={setAgeText}
-            placeholder="e.g. Age 4 or Kindergarten"
+            placeholder={t('app.keepsakedetail.age_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Date created</Text>
+          <Text style={styles.label}>{t('app.keepsakedetail.date_label')}</Text>
           <TextInput
             style={styles.input}
             value={dateMade}
             onChangeText={setDateMade}
-            placeholder="YYYY-MM-DD (optional)"
+            placeholder={t('app.keepsakedetail.date_placeholder')}
             placeholderTextColor={colors.placeholder}
             autoCapitalize="none"
           />
@@ -316,26 +318,26 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
 
         {/* Story */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>The story</Text>
+          <Text style={styles.cardTitle}>{t('app.keepsakedetail.story_title')}</Text>
           <TextInput
             style={[styles.input, styles.storyInput]}
             value={story}
             onChangeText={setStory}
-            placeholder="What was happening, why it matters, what you'll want to remember."
+            placeholder={t('app.keepsakedetail.story_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             textAlignVertical="top"
           />
-          <Text style={styles.hint}>Optional. Press Enter twice between paragraphs.</Text>
+          <Text style={styles.hint}>{t('app.keepsakedetail.story_hint')}</Text>
         </View>
 
         {/* Photos */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Photos</Text>
-          <Text style={styles.hint}>The first photo becomes the cover on the published page.</Text>
+          <Text style={styles.cardTitle}>{t('app.keepsakedetail.photos_title')}</Text>
+          <Text style={styles.hint}>{t('app.keepsakedetail.photos_hint')}</Text>
 
           {photos.length === 0 && (
-            <Text style={styles.emptyText}>No photos yet. Add some below.</Text>
+            <Text style={styles.emptyText}>{t('app.keepsakedetail.photos_empty')}</Text>
           )}
 
           {photos.map((p) => {
@@ -346,14 +348,14 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
                   <Image source={{ uri }} style={styles.photoImg} resizeMode="cover" />
                 ) : (
                   <View style={[styles.photoImg, styles.photoPlaceholder]}>
-                    <Text style={{ color: colors.gold }}>No image</Text>
+                    <Text style={{ color: colors.gold }}>{t('app.keepsakedetail.no_image')}</Text>
                   </View>
                 )}
                 <TextInput
                   style={styles.captionInput}
                   value={p.caption || ''}
                   onChangeText={(v) => updatePhotoCaption(p.id, v)}
-                  placeholder="Caption (optional)"
+                  placeholder={t('app.keepsakedetail.caption_placeholder')}
                   placeholderTextColor={colors.placeholder}
                 />
                 <View style={styles.photoActions}>
@@ -362,14 +364,14 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
                     onPress={() => savePhotoCaption(p)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.smallButtonText}>Save caption</Text>
+                    <Text style={styles.smallButtonText}>{t('app.keepsakedetail.save_caption')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.smallButton, styles.smallButtonDanger]}
                     onPress={() => confirmRemovePhoto(p)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.smallButtonText, { color: colors.error }]}>Remove</Text>
+                    <Text style={[styles.smallButtonText, { color: colors.error }]}>{t('app.keepsakedetail.remove')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -385,7 +387,7 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
             {uploadingPhoto ? (
               <ActivityIndicator color={colors.gold} />
             ) : (
-              <Text style={styles.addPhotoText}>+ Add Photo</Text>
+              <Text style={styles.addPhotoText}>{t('app.keepsakedetail.add_photo')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -400,7 +402,7 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
           {saving ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <Text style={styles.saveButtonText}>{t('app.keepsakedetail.save_button')}</Text>
           )}
         </TouchableOpacity>
 
@@ -414,7 +416,7 @@ export default function KeepsakeDetailScreen({ navigation, route }) {
           {deleting ? (
             <ActivityIndicator color={colors.error} />
           ) : (
-            <Text style={styles.deleteButtonText}>Delete keepsake</Text>
+            <Text style={styles.deleteButtonText}>{t('app.keepsakedetail.delete_button')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

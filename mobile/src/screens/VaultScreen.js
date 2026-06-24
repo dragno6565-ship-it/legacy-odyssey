@@ -15,10 +15,12 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { get, post } from '../api/client';
 import PhotoPicker from '../components/PhotoPicker';
+import { useI18n } from '../i18n/I18nContext';
 
 const ITEM_TYPES = ['letter', 'photo', 'memory', 'message'];
 
 export default function VaultScreen({ navigation }) {
+  const { t } = useI18n();
   const headerHeight = useHeaderHeight();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -39,7 +41,7 @@ export default function VaultScreen({ navigation }) {
         setItems(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         if (err.status !== 404) {
-          setError(err.message || 'Failed to load vault.');
+          setError(err.message || t('app.vault.load_error'));
         }
       } finally {
         setLoading(false);
@@ -50,7 +52,7 @@ export default function VaultScreen({ navigation }) {
 
   async function handleAddItem() {
     if (!title.trim()) {
-      Alert.alert('Required', 'Please enter a title for this vault item.');
+      Alert.alert(t('app.vault.required_title'), t('app.vault.required_body'));
       return;
     }
     setSaving(true);
@@ -69,9 +71,9 @@ export default function VaultScreen({ navigation }) {
       setBody('');
       setPhotoPath('');
       setSealedBy('');
-      Alert.alert('Sealed', 'Item added to the vault.');
+      Alert.alert(t('app.vault.sealed_title'), t('app.vault.sealed_body'));
     } catch (err) {
-      setError(err.message || 'Failed to save.');
+      setError(err.message || t('app.vault.save_error'));
     } finally {
       setSaving(false);
     }
@@ -97,10 +99,9 @@ export default function VaultScreen({ navigation }) {
         keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>{'\u{1F512}'} The Legacy Vault</Text>
+        <Text style={styles.pageTitle}>{'\u{1F512}'} {t('app.vault.page_title')}</Text>
         <Text style={styles.pageSubtitle}>
-          Sealed until their 18th birthday. Add letters, photos, and memories
-          that will wait for the day they're ready.
+          {t('app.vault.page_subtitle')}
         </Text>
 
         {error ? (
@@ -113,7 +114,7 @@ export default function VaultScreen({ navigation }) {
         {items.length > 0 && (
           <View style={styles.existingSection}>
             <Text style={styles.sectionHeader}>
-              Sealed Items ({items.length})
+              {t('app.vault.sealed_items_header', { count: items.length })}
             </Text>
             {items.map((item, index) => (
               <View key={item.id || index} style={styles.sealedItem}>
@@ -121,7 +122,7 @@ export default function VaultScreen({ navigation }) {
                 <View style={styles.sealedInfo}>
                   <Text style={styles.sealedTitle}>{item.title}</Text>
                   <Text style={styles.sealedMeta}>
-                    {item.item_type} {item.sealed_by ? `\u2022 by ${item.sealed_by}` : ''}
+                    {t(`app.vault.type_${item.item_type}`)} {item.sealed_by ? t('app.vault.sealed_by_meta', { name: item.sealed_by }) : ''}
                   </Text>
                 </View>
               </View>
@@ -131,9 +132,9 @@ export default function VaultScreen({ navigation }) {
 
         {/* Add new item form */}
         <View style={styles.formSection}>
-          <Text style={styles.sectionHeader}>Add New Vault Item</Text>
+          <Text style={styles.sectionHeader}>{t('app.vault.add_item_header')}</Text>
 
-          <Text style={styles.label}>Type</Text>
+          <Text style={styles.label}>{t('app.vault.type_label')}</Text>
           <View style={styles.typeRow}>
             {ITEM_TYPES.map((type) => (
               <TouchableOpacity
@@ -147,27 +148,27 @@ export default function VaultScreen({ navigation }) {
                     itemType === type && styles.typeBtnTextActive,
                   ]}
                 >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                  {t(`app.vault.type_${type}`)}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={styles.label}>Title</Text>
+          <Text style={styles.label}>{t('app.vault.title_label')}</Text>
           <TextInput
             style={styles.input}
             value={title}
             onChangeText={setTitle}
-            placeholder="e.g., A Letter for Your 18th Birthday"
+            placeholder={t('app.vault.title_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
-          <Text style={styles.label}>Content</Text>
+          <Text style={styles.label}>{t('app.vault.content_label')}</Text>
           <TextInput
             style={[styles.input, styles.bodyInput]}
             value={body}
             onChangeText={setBody}
-            placeholder="Write your message..."
+            placeholder={t('app.vault.content_placeholder')}
             placeholderTextColor={colors.placeholder}
             multiline
             numberOfLines={8}
@@ -176,17 +177,17 @@ export default function VaultScreen({ navigation }) {
 
           {(itemType === 'photo' || itemType === 'memory') && (
             <>
-              <Text style={styles.label}>Photo</Text>
+              <Text style={styles.label}>{t('app.vault.photo_label')}</Text>
               <PhotoPicker currentPhoto={photoPath} onPhotoSelected={setPhotoPath} />
             </>
           )}
 
-          <Text style={styles.label}>Sealed By</Text>
+          <Text style={styles.label}>{t('app.vault.sealed_by_label')}</Text>
           <TextInput
             style={styles.input}
             value={sealedBy}
             onChangeText={setSealedBy}
-            placeholder="e.g., Mom & Dad"
+            placeholder={t('app.vault.sealed_by_placeholder')}
             placeholderTextColor={colors.placeholder}
           />
 
@@ -199,7 +200,7 @@ export default function VaultScreen({ navigation }) {
             {saving ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.sealButtonText}>{'\u{1F512}'} Seal in Vault</Text>
+              <Text style={styles.sealButtonText}>{'\u{1F512}'} {t('app.vault.seal_button')}</Text>
             )}
           </TouchableOpacity>
         </View>

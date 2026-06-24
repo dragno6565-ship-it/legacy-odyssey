@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { UtensilsCrossed } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, BASE_URL } from '../api/client';
+import { useI18n } from '../i18n/I18nContext';
 
 /**
  * List every recipe. Tap one to open the per-recipe editor; use the
@@ -22,6 +23,7 @@ import { get, post, BASE_URL } from '../api/client';
  * Uses per-item CRUD endpoints exclusively.
  */
 export default function RecipesScreen({ navigation }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [recipes, setRecipes] = useState([]);
   const [newTitle, setNewTitle] = useState('');
@@ -57,7 +59,7 @@ export default function RecipesScreen({ navigation }) {
         title,
       });
     } catch (err) {
-      Alert.alert('Could not add recipe', err.message || 'Please try again.');
+      Alert.alert(t('app.recipes.add_error_title'), err.message || t('app.recipes.try_again'));
     } finally {
       setAdding(false);
     }
@@ -84,20 +86,20 @@ export default function RecipesScreen({ navigation }) {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.pageTitle}>Family Recipes</Text>
+      <Text style={styles.pageTitle}>{t('app.recipes.page_title')}</Text>
       <Text style={styles.pageSubtitle}>
-        The dishes that mean home. Each recipe gets its own page with photos, a story, ingredients, and directions.
+        {t('app.recipes.page_subtitle')}
       </Text>
 
       {recipes.length === 0 && (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No recipes yet. Add your first one below.</Text>
+          <Text style={styles.emptyStateText}>{t('app.recipes.empty')}</Text>
         </View>
       )}
 
       {recipes.map((r) => {
         const uri = photoUri(r.photo_path);
-        const displayTitle = r.title && r.title !== '(untitled)' ? r.title : 'Untitled';
+        const displayTitle = r.title && r.title !== '(untitled)' ? r.title : t('app.recipes.untitled');
         const ingredientCount = Array.isArray(r.ingredients) ? r.ingredients.length : 0;
         const stepCount = Array.isArray(r.directions) ? r.directions.length : 0;
         return (
@@ -119,13 +121,13 @@ export default function RecipesScreen({ navigation }) {
             <View style={styles.rowInfo}>
               <Text style={styles.rowTitle} numberOfLines={1}>{displayTitle}</Text>
               {r.origin_label ? (
-                <Text style={styles.rowMeta} numberOfLines={1}>From {r.origin_label}</Text>
+                <Text style={styles.rowMeta} numberOfLines={1}>{t('app.recipes.from_origin', { origin: r.origin_label })}</Text>
               ) : null}
               {(ingredientCount > 0 || stepCount > 0) ? (
                 <Text style={styles.rowMeta} numberOfLines={1}>
-                  {ingredientCount > 0 ? `${ingredientCount} ingredient${ingredientCount === 1 ? '' : 's'}` : ''}
+                  {ingredientCount > 0 ? (ingredientCount === 1 ? t('app.recipes.ingredient_count_one', { count: ingredientCount }) : t('app.recipes.ingredient_count_other', { count: ingredientCount })) : ''}
                   {ingredientCount > 0 && stepCount > 0 ? ' · ' : ''}
-                  {stepCount > 0 ? `${stepCount} step${stepCount === 1 ? '' : 's'}` : ''}
+                  {stepCount > 0 ? (stepCount === 1 ? t('app.recipes.step_count_one', { count: stepCount }) : t('app.recipes.step_count_other', { count: stepCount })) : ''}
                 </Text>
               ) : null}
             </View>
@@ -135,13 +137,13 @@ export default function RecipesScreen({ navigation }) {
       })}
 
       <View style={styles.addCard}>
-        <Text style={styles.addCardTitle}>Add a recipe</Text>
+        <Text style={styles.addCardTitle}>{t('app.recipes.add_card_title')}</Text>
         <View style={styles.addRow}>
           <TextInput
             style={styles.addInput}
             value={newTitle}
             onChangeText={setNewTitle}
-            placeholder="e.g. Grandma's Pancakes"
+            placeholder={t('app.recipes.title_placeholder')}
             placeholderTextColor={colors.placeholder}
             returnKeyType="done"
             onSubmitEditing={handleAddRecipe}
@@ -155,7 +157,7 @@ export default function RecipesScreen({ navigation }) {
             {adding ? (
               <ActivityIndicator color={colors.white} size="small" />
             ) : (
-              <Text style={styles.addButtonText}>+ Add</Text>
+              <Text style={styles.addButtonText}>{t('app.recipes.add_button')}</Text>
             )}
           </TouchableOpacity>
         </View>
