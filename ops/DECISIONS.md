@@ -22,6 +22,9 @@ Last updated: 2026-06-04
 - **Why it still matters:** without EIN + op agreement + separated banking,
   the AZ LLC may not shield Dan personally.
 - **Owner:** Dan. ~20 minutes to dig out / confirm.
+- **2026-06-17:** Dan opened this up to work on it → see **`ops/LLC-CHECKLIST.md`**
+  (step-by-step: confirm AZ formation, EIN, operating agreement, business banking).
+  I offered to draft the single-member operating agreement on his go.
 
 ### D-011 — ClickBank as a second affiliate channel: ✅ RESOLVED 2026-06-15 — REJECT
 - **Dan's decision (2026-06-15, via Dispatcher): NOT using ClickBank.** Matches the
@@ -57,18 +60,46 @@ Last updated: 2026-06-04
   variant where the domain-purchase flow doesn't apply. Both hypothetical.
 - **What I need from Dan:** "agreed, REJECT" or "I want to revisit."
 
-### D-009 — Verify REAL Stripe sales — ⏳ COUNT DONE, $ STILL BLOCKED (2026-06-16)
-- **Customer count RESOLVED via Supabase:** **7 real paying customers (6 annual
-  + 1 monthly)** — matches Dan's ground truth exactly. DB had 16 "paid" rows;
-  the other 9 = owner + 2 demos + 4 influencer comps + 2 early no-Stripe-sub
-  rows. Full detail in `ops/TRAFFIC-AND-REVENUE-2026-06-16.md`; docs/INDEX.md fixed.
-- **Revenue $ STILL OPEN:** couldn't pull actual Stripe $ — dashboard blocked in
-  browser tool, Railway API token 403 (no key), local .env has no Stripe key,
-  CLI not logged in. **Blocked on Dan:** paste a read-only Stripe key, OR
-  `stripe login` the CLI, OR read lifetime/30d gross + active-sub count off the
-  dashboard, OR fix the Railway token scope.
-- **Real conversion rate ≈ 0.2–0.3%** (≈3 new payers / ~1,167–1,856 sessions).
-  Landing pages DO sell — tiny volume, not zero (GA's $0 is a tracking artifact).
+### D-009 — Verify REAL Stripe sales — ✅ FULLY RESOLVED 2026-06-17
+- **Customers:** 7 real external paying (6 annual + 1 monthly), confirmed.
+- **Revenue (live Stripe pull):** lifetime **$503.87 gross / $215.92 refunded /
+  $287.95 NET**; last 30d **$67.98 gross / $33.99 net**; 24 charges since 2026-03-29.
+  Subscriptions: 9 active, 7 trialing (gifts/comps), 8 canceled, 4 incomplete.
+- **Method note:** the prior "403" was a missing User-Agent header on the Railway
+  API call, not a dead token. Read-only `STRIPE_SECRET_KEY` fetch works.
+- **Headline:** net lifetime revenue (~$288) is a FRACTION of one month's past Meta
+  spend (~$1,142). Detail in `ops/TRAFFIC-AND-REVENUE-2026-06-16.md`.
+
+### D-011 — GA consent-mode timing — ✅ APPROVED by Dan 2026-06-17
+- Dan approved making the GA change so conversion tracking is trustworthy.
+- **Routed to CODING** (their lane) to implement. Chief-of-staff just records the call.
+
+### D-012 — App/admin editor IA revamp — ✅ APPROVED by Dan 2026-06-17 (routed to coding)
+Approved structure (must land on app + web in lockstep; admin where relevant; nothing
+to customers without Dan's review):
+- **Main page** (front door — pick one): Child Info · Your Journey to Us · **Family Intro (NEW)**
+  = a family-photo-album-style front page. NOTE: this is ONLY a main-page option, NOT the full
+  family-sites product (that's D-014).
+- **Your Odyssey** (chronological; renamed from the rejected "The Book"/"Your Journey" to avoid
+  clashing with the "Your Journey to Us" section): Before You Arrived · Birth Story · Your Birth
+  Day · Coming Home · Month by Month.
+- **Family & Memories**: Our Family · Your Firsts · Celebrations · Letters · Recipes · The Vault ·
+  Custom Galleries · Video Moments.
+- **Contact** (its OWN section, pulled out of "My Book"): Contact List + Circles. Plumbing already
+  exists (Circles Phase 1+2) — this is re-home + declutter.
+- **Notify-after-section prompt:** when a whole NEW section is added, prompt "notify a circle or
+  one contact?" — user chooses each time; NOT after every edit; revisit the 10-min cooldown.
+- **Build order:** (1) Contact section, (2) editor regroup. Mockup approved 2026-06-17.
+
+### D-013 — Web staging environment — ✅ APPROVED 2026-06-17 (routed to coding/infra)
+- Stand up a non-customer-facing staging copy of the web app so web changes are reviewed before
+  production (web currently deploys straight to prod on push). App already has TestFlight + Play
+  internal testing as its pre-release gate.
+
+### D-014 — Full family sites — DEFERRED to its own future project (Dan, 2026-06-17)
+- NOT in this revamp. This revamp adds only the "Family Intro" main-page option (D-012).
+- Dan intends to market full family sites eventually. When it becomes a project: prior retired
+  `family_album` book_type code exists in the backend — decide revive vs rebuild first.
 
 ### D-010 — Affiliate commission: ✅ RESOLVED 2026-06-11
 - **Dan's decision (2026-06-11, via Dispatcher): 35% recurring stands.** The

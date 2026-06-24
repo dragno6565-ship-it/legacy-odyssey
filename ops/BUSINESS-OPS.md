@@ -22,7 +22,10 @@
 | [CALENDAR.md](CALENDAR.md) | Dated obligations: tax, annual reports, vendor renewals, Apple Dev. |
 | [SALES-BLOCKERS.md](SALES-BLOCKERS.md) | What's stopping/depressing sales — tiered by revenue impact. |
 | [PROJECT-MAP.md](PROJECT-MAP.md) | Drive inventory (E: + F:) + the cleanup/organization plan. |
-| [TRAFFIC-AND-REVENUE-2026-06-16.md](TRAFFIC-AND-REVENUE-2026-06-16.md) | GA4 traffic snapshot + Stripe/Supabase customer reconciliation (7 real payers). |
+| [TRAFFIC-AND-REVENUE-2026-06-16.md](TRAFFIC-AND-REVENUE-2026-06-16.md) | GA4 traffic snapshot + Stripe revenue ($287.95 net lifetime) + customer reconciliation. |
+| [LLC-CHECKLIST.md](LLC-CHECKLIST.md) | D-001 do-this checklist for Dan: EIN, operating agreement, business banking. |
+| [ANALYTICS-RUNDOWN-2026-06-23.md](ANALYTICS-RUNDOWN-2026-06-23.md) | GA4 + Clarity + Stripe snapshot. ~70% bot traffic; real floor ≈6 visitors/day. |
+| [GROWTH-100-VISITORS-PLAN.md](GROWTH-100-VISITORS-PLAN.md) | $/visitor-ranked plan to reach 100 real visitors/day (organic; paid excluded). |
 
 ---
 

@@ -3,7 +3,7 @@
 > Business operations: formation/legal, filings, costs, vendors, hardware, calendar,
 > decisions, and business-level analytics/diagnosis. Does NOT write feature code.
 
-**Last session:** 2026-06-16 (traffic report + Stripe/Supabase customer reconciliation D-009)
+**Last session:** 2026-06-23 (deep analytics rundown + full 100-visitors growth plan)
 
 ## Scope
 - Owns the entire `ops/` directory — the business source of truth.
@@ -54,23 +54,41 @@
 - PROJECT-MAP Phase 0 done (Dispatcher, 2026-06-10). Phases 1–4 pending — Phase 1 (move
   `Legacy Odyssey Logins.docx` + `Project_Accounts.pdf` into `F:\_secrets\`) is the priority.
 
-## Open items (next session — refreshed 2026-06-16)
-- **Stripe $ pull (D-009 revenue half) — BLOCKED ON DAN.** Customer count DONE (7 real
-  paying = 6 annual + 1 monthly). Still need actual lifetime + 30d gross $: needs Dan to
-  paste a read-only Stripe key / `stripe login` the CLI in `F:\tools\` / read the figures
-  off the dashboard / fix the Railway token scope. First thing to finish when unblocked.
-- **GA consent-mode timing — BLOCKED ON DAN.** The gate for trustworthy conversion data
-  (all GA conversions read $0 because purchase can fire before consent). Coding owns the
-  fix; Dan owns the go.
-- **D-001 LLC paperwork — BLOCKED ON DAN** (EIN + signed operating agreement + separated
-  business banking). Top business risk.
-- **Secrets → `F:\_secrets\` (PROJECT-MAP Phase 1) — BLOCKED ON DAN.**
+## Open items (next session — refreshed 2026-06-23)
+- **🚀 GROWTH IS THE PRIORITY.** Plan is written (`ops/GROWTH-100-VISITORS-PLAN.md`). The 3
+  start-today moves: (1) **Dan sends the affiliate Tier-A DM pack** — highest-ROI, $0, ready;
+  (2) **coding ships the customer-site "start your own" badge** + **GA bot filter** (step 0) +
+  publishes the 3 feature blog posts + share-optimizes `/demo`; (3) **content-organic starts the
+  Reels→/demo cadence**. Then Pinterest click-through fix, SEO buyer-keywords. Next CoS session:
+  chase whether these started + measure REAL (bot-filtered) visitors vs the ~6/day baseline.
+- **D-009 — DONE** (revenue $287.95 net lifetime / $4.99 net last 30d; 7 payers). No action.
+- **GA consent-mode fix — shipped, but GA still reads $0 conversions** → coding still needs the
+  bot filter + verify purchase key-event actually registers. Routed to coding.
+- **D-001 LLC paperwork — BLOCKED ON DAN.** Formation+EIN confirmed (AZ). Remaining: the 5
+  operating-agreement blanks (draft ready in `ops/operating-agreement-DRAFT.md`) + Trade Name
+  (DBA) yes/no. Offer to render the OA to a Word doc on his answers.
 - Mine, unblocked: 90-day plan P1/P2 in `ops/BUSINESS-OPS.md` (Stripe Tax, insurance,
   trademark, bookkeeping). Keep paid Meta/Google OFF.
 - Not mine: coding owns the new-customer entity files (arloboos/zoraporter/emmabeine + 4
   comps) + emmacherry/roypatrickthompson Stripe-sub verification.
 
 ## Log
+- **2026-06-23 (PM, deeper)** — On Dan's two URGENT re-asks, deepened both deliverables.
+  **Analytics:** added GA today (4) / 7d (67, ~10/day, 2s) / 28d (851); Clarity per-page
+  heatmaps — homepage 7 views→1 click (on "Affiliates", not the CTA), ~57% leave before 40%
+  scroll, only ~29% pass halfway; /gift has no real data (dead post-campaign). Clarity + GA
+  consent fix both only ~8 days old → directional. Rewrote `ops/ANALYTICS-RUNDOWN-2026-06-23.md`
+  as the full top-to-bottom report w/ 3 takeaways. **Plan:** rewrote `ops/GROWTH-100-VISITORS-PLAN.md`
+  full version — $/visitor ranking (all ~$0 organic), per-channel concrete inputs, yields,
+  30/60/90 ramp, time-to-results, exec summary. Honest baseline: ~6 real visitors/day → 100 is ~16×.
+- **2026-06-23** — Dispatcher's 2 asks. Analytics rundown (GA4+Clarity+Stripe):
+  traffic falling (851/28d), **~70% bots** (Clarity excluded 41/59 in 3d → ~6 real
+  visitors/day), page fine (0 rage/dead clicks), last-30d net **$4.99**. Authored
+  `ops/GROWTH-100-VISITORS-PLAN.md` ranked by $/visitor (affiliates #1, organic social #2,
+  Pinterest click-fix #3, SEO #4) — paid excluded. Both in `ops/`; routed levers to the
+  marketing sessions via STATUS. Earlier this session: routed the editor IA revamp + staging
+  (D-012/13/14), resolved D-009 revenue, moved last secret file to `F:\_secrets\`, drafted
+  the operating agreement + LLC checklist.
 - **2026-06-16** — Traffic report + D-009 Stripe pull. GA4 (28d: 1,167 sess/11s/25% eng;
   7d: 177 sess/4s, paid OFF; home 79%, /gift 14%, all conversions $0 = tracking artifact per
   yesterday's GA fix + consent-timing caveat). **Stripe $ BLOCKED** (dashboard blocked, Railway

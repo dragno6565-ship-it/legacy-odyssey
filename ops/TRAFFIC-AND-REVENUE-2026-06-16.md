@@ -88,12 +88,22 @@ Stripped to reality:
 - **Growth signal:** 3 of the 7 (arloboos May 6, zoraporter May 11, emmabeine
   May 12) are NEW since the docs were written → the base did grow.
 
-### Revenue — ESTIMATE only (Stripe $ still needed)
-- Rough lifetime subscription revenue from the 7 payers: ~6 × $29 first-year
-  intro + 1 × $4.99/mo ≈ **low-to-mid hundreds of dollars**, plus 5 `purchased`
-  gift codes (1 refunded) and any additional-domain purchases. **This is an
-  estimate — get the real figure from Stripe.**
-- GA4's $14.97 (prior period) / $0 (now) is NOT real revenue — tracking gap.
+### Revenue — REAL Stripe figures (pulled live 2026-06-17, read-only via Railway-stored key)
+- **LIFETIME gross: $503.87** (24 succeeded charges, first sale 2026-03-29 → latest 2026-06-14)
+- **LIFETIME refunds: $215.92** (43% of gross — largely Dan's own E2E test purchases)
+- **LIFETIME NET (money actually kept): $287.95**
+- **Last 30 days: $67.98 gross / $33.99 net** (4 charges)
+- Charge mix: 15 × $29.00 (annual intro), 5 × $4.99 (monthly recurring),
+  4 × $10.98 (monthly first payment = $4.99 + $5.99 setup).
+- **Subscriptions: 9 active, 7 trialing (= gifts/comps in their free year), 8 canceled,
+  4 incomplete_expired.** The 16 active+trialing exactly matches the 16 Supabase "paid" rows ✓.
+  The 7 trialing = the comps/gifted years ($0 collected now; would bill at renewal unless cancelled).
+- **GA4's $14.97 / $0 was a tracking artifact — real gross is $503.87.** Confirmed: trust Stripe, not GA.
+
+### ⚠️ The number that matters most
+**Net lifetime revenue is ~$288. Meta ad spend in ONE month (May) was ~$1,142.**
+The business has spent multiples of its entire lifetime net revenue on paid ads. Keeping paid
+OFF (already done) is the single most important financial decision in play.
 
 ### The real conversion rate (Dan's question)
 - ~3 real new paying customers in roughly the last 30 days against ~1,167–1,856
@@ -105,8 +115,8 @@ Stripped to reality:
 
 ---
 
-## What's still needed from Dan
-- **Stripe $ figure:** unblock ONE of — (a) paste a read-only/restricted Stripe
-  key, (b) `stripe login` the CLI in `F:\tools\`, (c) read lifetime gross +
-  last-30d gross + active-subscription count off the Stripe dashboard, or
-  (d) fix the Railway token scope so I can fetch the prod Stripe key.
+## Status
+- **D-009 fully RESOLVED 2026-06-17** — both customer count (7 real external paying) and
+  revenue ($503.87 gross / $287.95 net lifetime) now confirmed from live Stripe.
+- Method: read-only pull using the prod `STRIPE_SECRET_KEY` fetched via the Railway API
+  token (the earlier 403 was a missing User-Agent header, not a dead token).
