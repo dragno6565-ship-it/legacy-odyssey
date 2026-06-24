@@ -27,15 +27,15 @@
 %>
 <section id="page-recipes" class="page-section">
   <div class="page-header">
-    <h2 class="page-header-title"><em>Recipes</em> &amp; Traditions</h2>
-    <p class="page-header-sub">The flavors of home. The dishes that mark every celebration, every Sunday, every season.</p>
+    <h2 class="page-header-title"><%- t('recipes.header_title') %></h2>
+    <p class="page-header-sub"><%= t('recipes.header_sub') %></p>
   </div>
   <div class="recipes-intro">
-    <p class="recipes-intro-text">Food is memory. These are the recipes that will always mean home &mdash; the ones that fill a kitchen with a particular smell and a particular feeling.</p>
+    <p class="recipes-intro-text"><%- t('recipes.intro_text') %></p>
   </div>
 
   <% if (visibleRecipes.length === 0) { %>
-    <p style="text-align:center;color:var(--ink-light);font-style:italic;margin-top:2rem;">No recipes yet.</p>
+    <p style="text-align:center;color:var(--ink-light);font-style:italic;margin-top:2rem;"><%= t('recipes.empty_state') %></p>
   <% } else { %>
     <div class="recipes-grid">
       <% visibleRecipes.forEach(function(r) {
@@ -73,7 +73,7 @@
                   <span><i data-lucide="users"></i> <%= r.servings %></span>
                 <% } %>
                 <% if (stepCount > 0) { %>
-                  <span><i data-lucide="list-checks"></i> <%= stepCount %> step<%= stepCount === 1 ? '' : 's' %></span>
+                  <span><i data-lucide="list-checks"></i> <%= stepCount === 1 ? t('recipes.step_count_one', { count: stepCount }) : t('recipes.step_count_other', { count: stepCount }) %></span>
                 <% } %>
               </div>
             <% } %>

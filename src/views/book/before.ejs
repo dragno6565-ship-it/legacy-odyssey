@@ -1,7 +1,7 @@
 <section id="page-before" class="page-section">
   <div class="page-header">
-    <h2 class="page-header-title"><em>Before</em> You Arrived</h2>
-    <p class="page-header-sub">The months of anticipation, preparation, and love that came before your first breath.</p>
+    <h2 class="page-header-title"><%- t('before.title') %></h2>
+    <p class="page-header-sub"><%= t('before.subtitle') %></p>
   </div>
   <div class="page-body">
     <div class="before-grid">
@@ -25,7 +25,7 @@
 
     <% if (checklist && checklist.length) { %>
       <div class="checklist">
-        <div class="checklist-title">Getting Ready For You &#10003;</div>
+        <div class="checklist-title"><%= t('before.checklist_title') %> &#10003;</div>
         <div class="checklist-grid">
           <% checklist.forEach(item => { %>
             <div class="check-item">

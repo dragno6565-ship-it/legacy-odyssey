@@ -1,11 +1,11 @@
 <section id="page-family" class="page-section">
   <div class="page-header">
-    <h2 class="page-header-title"><em>Our</em> Family</h2>
-    <p class="page-header-sub">The people who loved your child before they even had a name.</p>
+    <h2 class="page-header-title"><%= t('family.header_title') %></h2>
+    <p class="page-header-sub"><%= t('family.header_sub') %></p>
   </div>
   <div class="family-intro">
-    <div class="family-tree-label">The People Who Make Up Your World</div>
-    <p class="family-tree-sub">Every person in this section is someone whose life changed the day you were born. They come from different places, carry different stories, and together they form the village that will help raise you.</p>
+    <div class="family-tree-label"><%= t('family.tree_label') %></div>
+    <p class="family-tree-sub"><%= t('family.tree_sub') %></p>
   </div>
 
   <%
@@ -15,7 +15,7 @@
   %>
 
   <% if (parents.length) { %>
-    <div class="family-section-title">&#10022; Mom &amp; Dad</div>
+    <div class="family-section-title">&#10022; <%= t('family.mom_and_dad') %></div>
     <div class="family-cards">
       <% parents.forEach(fm => { %>
         <div class="family-card" onclick="openFamilyDetail('<%= fm.member_key %>')">
@@ -29,7 +29,7 @@
           <div class="family-card-body">
             <div class="family-card-name"><%= fm.name %></div>
             <div class="family-card-relation"><%= fm.relation %></div>
-            <p class="family-card-bio">Tap to read more.</p>
+            <p class="family-card-bio"><%= t('common.tap_to_read_more') %></p>
           </div>
         </div>
       <% }); %>
@@ -50,7 +50,7 @@
           <div class="family-card-body">
             <div class="family-card-name"><%= fm.name %></div>
             <div class="family-card-relation"><%= fm.relation %></div>
-            <p class="family-card-bio">Tap to read more.</p>
+            <p class="family-card-bio"><%= t('common.tap_to_read_more') %></p>
           </div>
         </div>
       <% }); %>
@@ -62,7 +62,7 @@
 <div id="family-detail">
   <div class="fdetail-hero">
     <div class="fdetail-hero-overlay"></div>
-    <button class="fdetail-back" onclick="closeFamilyDetail()">&#8592; Back to Family</button>
+    <button class="fdetail-back" onclick="closeFamilyDetail()">&#8592; <%= t('family.back_to_family') %></button>
     <div class="fdetail-hero-text">
       <div class="fdetail-relation" id="fdetail-relation"></div>
       <div class="fdetail-name" id="fdetail-name"></div>
@@ -71,7 +71,7 @@
   <div class="fdetail-body">
     <div class="fdetail-meta" id="fdetail-meta"></div>
     <div class="fdetail-portrait-wrap" id="fdetail-portrait-wrap"></div>
-    <div class="fdetail-story-label">&#10022; Their Story</div>
+    <div class="fdetail-story-label">&#10022; <%= t('family.their_story') %></div>
     <div class="fdetail-story" id="fdetail-story"></div>
     <div class="fdetail-quote" id="fdetail-quote"></div>
     <div class="fdetail-story" id="fdetail-story2"></div>

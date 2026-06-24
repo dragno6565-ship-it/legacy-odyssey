@@ -1,15 +1,15 @@
 <section id="page-months" class="page-section">
   <div class="page-header">
-    <div class="page-header-eyebrow">The First Year</div>
-    <h2 class="page-header-title">Month <em>by</em> Month</h2>
-    <p class="page-header-sub">Twelve months. Every milestone, every measurement, every moment that made up the most important year of your life so far. Click any month to open the full entry.</p>
+    <div class="page-header-eyebrow"><%= t('months.eyebrow') %></div>
+    <h2 class="page-header-title"><%= t('months.header_title') %></h2>
+    <p class="page-header-sub"><%= t('months.header_sub') %></p>
   </div>
   <div style="background:var(--ink); border-bottom:1px solid rgba(184,147,90,0.2); padding:1rem 4rem; display:flex; gap:2rem; align-items:center;">
-    <span style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold);">Year One</span>
+    <span style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold);"><%= t('months.year_one') %></span>
     <div style="flex:1; height:3px; background:rgba(184,147,90,0.15); border-radius:2px; position:relative;">
       <div style="position:absolute; left:0; top:0; height:100%; width:100%; background:linear-gradient(to right, var(--gold), rgba(184,147,90,0.3)); border-radius:2px;"></div>
     </div>
-    <span style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-light);">Birth &rarr; First Birthday</span>
+    <span style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-light);"><%= t('months.birth_to_first_birthday') %></span>
   </div>
   <div class="months-grid" id="monthsGrid"></div>
 </section>

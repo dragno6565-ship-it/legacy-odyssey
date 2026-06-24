@@ -3,29 +3,29 @@
     <div class="vault-bg" style="background-image: url('<%= book.hero_image_path ? imageUrl(book.hero_image_path) : '' %>');"></div>
     <div class="vault-content">
       <div class="vault-icon">&#128274;</div>
-      <div class="vault-eyebrow">&#10022; The Legacy Vault</div>
-      <h2 class="vault-title">Sealed Until Your<br><em>18th Birthday</em></h2>
-      <p class="vault-text">Behind this lock are letters, memories, photos, and words written specifically for the adult you will become &mdash; not the child you are now. They were placed here with love and intention, and they will wait as long as they need to.<br><br>On your 18th birthday, this vault will open. Everything inside was written for you &mdash; and only for you.</p>
+      <div class="vault-eyebrow">&#10022; <%= t('vault.eyebrow') %></div>
+      <h2 class="vault-title"><%= t('vault.title_pre') %><br><em><%= t('vault.title_em') %></em></h2>
+      <p class="vault-text"><%= t('vault.text_p1') %><br><br><%= t('vault.text_p2') %></p>
       <div class="vault-countdown">
-        <div class="vault-countdown-label">Unlocks In</div>
+        <div class="vault-countdown-label"><%= t('vault.unlocks_in') %></div>
         <div class="countdown-digits" id="countdownDigits">
           <div class="countdown-unit">
             <span class="countdown-num" id="cdYears">--</span>
-            <div class="countdown-unit-label">Years</div>
+            <div class="countdown-unit-label"><%= t('vault.years') %></div>
           </div>
           <div class="countdown-unit">
             <span class="countdown-num" id="cdMonths">--</span>
-            <div class="countdown-unit-label">Months</div>
+            <div class="countdown-unit-label"><%= t('vault.months') %></div>
           </div>
           <div class="countdown-unit">
             <span class="countdown-num" id="cdDays">--</span>
-            <div class="countdown-unit-label">Days</div>
+            <div class="countdown-unit-label"><%= t('vault.days') %></div>
           </div>
         </div>
       </div>
       <div class="vault-seal">
         <span>&#128274;</span>
-        <span>Sealed by Legacy Odyssey &middot; Kept Private</span>
+        <span><%= t('vault.seal', { brand: 'Legacy Odyssey' }) %></span>
       </div>
     </div>
   </div>

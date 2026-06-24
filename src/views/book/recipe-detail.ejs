@@ -30,9 +30,9 @@
 <section class="recipe-detail-page">
   <!-- Breadcrumb -->
   <div class="recipe-breadcrumb">
-    <a class="bc-link" href="/">Home</a>
+    <a class="bc-link" href="/"><%= t('common.breadcrumb_home') %></a>
     <span class="bc-sep">/</span>
-    <a class="bc-link" href="/#recipes">Family Recipes</a>
+    <a class="bc-link" href="/#recipes"><%= t('nav.recipes') %></a>
     <span class="bc-sep">/</span>
     <span class="bc-current"><%= r.title %></span>
   </div>
@@ -61,28 +61,28 @@
       <% if (r.prep_time && r.prep_time.trim()) { %>
         <div class="recipe-stat">
           <div class="recipe-stat-icon"><i data-lucide="clock"></i></div>
-          <div class="recipe-stat-label">Prep</div>
+          <div class="recipe-stat-label"><%= t('recipes.stat_prep') %></div>
           <div class="recipe-stat-value"><%= r.prep_time %></div>
         </div>
       <% } %>
       <% if (r.cook_time && r.cook_time.trim()) { %>
         <div class="recipe-stat">
           <div class="recipe-stat-icon"><i data-lucide="flame"></i></div>
-          <div class="recipe-stat-label">Cook</div>
+          <div class="recipe-stat-label"><%= t('recipes.stat_cook') %></div>
           <div class="recipe-stat-value"><%= r.cook_time %></div>
         </div>
       <% } %>
       <% if (r.servings && r.servings.trim()) { %>
         <div class="recipe-stat">
           <div class="recipe-stat-icon"><i data-lucide="users"></i></div>
-          <div class="recipe-stat-label">Serves</div>
+          <div class="recipe-stat-label"><%= t('recipes.stat_serves') %></div>
           <div class="recipe-stat-value"><%= r.servings %></div>
         </div>
       <% } %>
       <% if (r.difficulty && r.difficulty.trim()) { %>
         <div class="recipe-stat">
           <div class="recipe-stat-icon"><i data-lucide="bar-chart-3"></i></div>
-          <div class="recipe-stat-label">Difficulty</div>
+          <div class="recipe-stat-label"><%= t('recipes.stat_difficulty') %></div>
           <div class="recipe-stat-value"><%= r.difficulty %></div>
         </div>
       <% } %>
@@ -92,7 +92,7 @@
   <!-- The Story -->
   <% if (hasStory) { %>
     <div class="recipe-section recipe-story">
-      <div class="recipe-section-eyebrow">The Story</div>
+      <div class="recipe-section-eyebrow"><%= t('common.the_story') %></div>
       <% (r.story || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean).forEach(function(para, i) { %>
         <p<% if (i === 0) { %> class="story-lead"<% } %>><%- para.replace(/\n/g, '<br>') %></p>
       <% }); %>
@@ -104,8 +104,8 @@
     <div class="recipe-content">
       <% if (hasIngredients) { %>
         <div class="recipe-ingredients-block">
-          <div class="recipe-section-eyebrow">Ingredients</div>
-          <h2 class="recipe-section-title">What you need</h2>
+          <div class="recipe-section-eyebrow"><%= t('recipes.ingredients_eyebrow') %></div>
+          <h2 class="recipe-section-title"><%= t('recipes.ingredients_title') %></h2>
           <div class="ingredients-card">
             <ul class="ingredients-list">
               <% ingredients.forEach(function(ing) { %>
@@ -123,8 +123,8 @@
 
       <% if (hasDirections) { %>
         <div class="recipe-directions-block">
-          <div class="recipe-section-eyebrow">Directions</div>
-          <h2 class="recipe-section-title">How to make it</h2>
+          <div class="recipe-section-eyebrow"><%= t('recipes.directions_eyebrow') %></div>
+          <h2 class="recipe-section-title"><%= t('recipes.directions_title') %></h2>
           <ol class="directions-list">
             <% directions.forEach(function(step) { %>
               <li><%- (step.text || '').replace(/\n/g, '<br>') %></li>
@@ -138,7 +138,7 @@
   <!-- Notes / memories -->
   <% if (hasNotes) { %>
     <div class="recipe-section">
-      <div class="recipe-section-eyebrow">Notes &amp; Memories</div>
+      <div class="recipe-section-eyebrow"><%- t('recipes.notes_eyebrow') %></div>
       <div class="recipe-notes">
         <%- (r.notes || '').replace(/\n/g, '<br>') %>
       </div>
@@ -148,8 +148,8 @@
   <!-- Additional photos (hero photo is shown above, so we skip it here) -->
   <% if (galleryPhotos.length > 0) { %>
     <div class="recipe-section">
-      <div class="recipe-section-eyebrow">In the Kitchen</div>
-      <h2 class="recipe-section-title">Photos</h2>
+      <div class="recipe-section-eyebrow"><%= t('recipes.gallery_eyebrow') %></div>
+      <h2 class="recipe-section-title"><%= t('common.photos') %></h2>
       <div class="recipe-photo-gallery">
         <% galleryPhotos.forEach(function(p) { %>
           <div class="recipe-photo-card">
@@ -168,7 +168,7 @@
     <div class="recipe-pager">
       <% if (prevRecipe) { %>
         <a href="/recipes/<%= recipeSlugOf(prevRecipe) %>" class="prev">
-          <div class="recipe-pager-label">← Previous recipe</div>
+          <div class="recipe-pager-label"><%= t('recipes.pager_prev') %></div>
           <div class="recipe-pager-title"><%= prevRecipe.title %></div>
         </a>
       <% } else { %>
@@ -176,7 +176,7 @@
       <% } %>
       <% if (nextRecipe) { %>
         <a href="/recipes/<%= recipeSlugOf(nextRecipe) %>" class="next">
-          <div class="recipe-pager-label">Next recipe →</div>
+          <div class="recipe-pager-label"><%= t('recipes.pager_next') %></div>
           <div class="recipe-pager-title"><%= nextRecipe.title %></div>
         </a>
       <% } %>

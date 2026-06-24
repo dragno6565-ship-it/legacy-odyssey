@@ -1,15 +1,15 @@
 <section id="page-birthday" class="page-section">
   <div class="page-header">
-    <div class="page-header-eyebrow">The day you arrived</div>
-    <h2 class="page-header-title">Your <em>Birth Day</em></h2>
-    <p class="page-header-sub">The people, the place, and the first moments of the day you were born.</p>
+    <div class="page-header-eyebrow"><%= t('birthday.eyebrow') %></div>
+    <h2 class="page-header-title"><%- t('birthday.title') %></h2>
+    <p class="page-header-sub"><%= t('birthday.subtitle') %></p>
   </div>
   <div class="page-body">
     <% if (birthdayPhotos && birthdayPhotos.length) { %>
       <div class="birthday-gallery">
         <% birthdayPhotos.forEach(function(p) { %>
           <figure class="birthday-photo">
-            <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || 'Birth day photo' %>" loading="lazy" style="<%= photoPos(p.photo_path) %>">
+            <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || t('birthday.photo_alt') %>" loading="lazy" style="<%= photoPos(p.photo_path) %>">
             <% if (p.caption) { %><figcaption><%= p.caption %></figcaption><% } %>
           </figure>
         <% }); %>

@@ -38,10 +38,10 @@
 <section class="celebration-detail-page">
   <!-- Breadcrumb -->
   <div class="celebration-breadcrumb">
-    <a href="/#" onclick="document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));document.getElementById('page-holidays').classList.add('active');window.scrollTo(0,0);return false;" style="display:none;">Celebrations</a>
-    <a href="/" class="bc-link">Book</a>
+    <a href="/#" onclick="document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));document.getElementById('page-holidays').classList.add('active');window.scrollTo(0,0);return false;" style="display:none;"><%= t('celebration.breadcrumb_celebrations') %></a>
+    <a href="/" class="bc-link"><%= t('celebration.breadcrumb_book') %></a>
     <span class="bc-sep">›</span>
-    <a href="/#celebrations" class="bc-link">Celebrations</a>
+    <a href="/#celebrations" class="bc-link"><%= t('celebration.breadcrumb_celebrations') %></a>
     <span class="bc-sep">›</span>
     <a href="/#celebrations" class="bc-link"><%= yearLabel %></a>
     <span class="bc-sep">›</span>
@@ -82,7 +82,7 @@
   <!-- The Story -->
   <% if (hasStory) { %>
     <div class="celebration-section">
-      <div class="celebration-section-label"><span class="cs-rule"></span>The Story</div>
+      <div class="celebration-section-label"><span class="cs-rule"></span><%= t('common.the_story') %></div>
       <div class="celebration-story">
         <% c.body.split(/\n\n+/).forEach(function(para) { %>
           <p><%- para.trim().replace(/\n/g, '<br>') %></p>
@@ -94,7 +94,7 @@
   <!-- Who Was There -->
   <% if (hasAttendees) { %>
     <div class="celebration-section">
-      <div class="celebration-section-label"><span class="cs-rule"></span>Who Was There</div>
+      <div class="celebration-section-label"><span class="cs-rule"></span><%= t('celebration.who_was_there') %></div>
       <div class="celebration-attendees">
         <% attendeesList.forEach(function(name) { %>
           <span class="celebration-pill"><%= name %></span>
@@ -106,7 +106,7 @@
   <!-- Presents -->
   <% if (hasGifts) { %>
     <div class="celebration-section">
-      <div class="celebration-section-label"><span class="cs-rule"></span>Presents</div>
+      <div class="celebration-section-label"><span class="cs-rule"></span><%= t('celebration.presents') %></div>
       <ul class="celebration-gifts">
         <% giftsList.forEach(function(g) { %>
           <li><%= g %></li>
@@ -119,7 +119,7 @@
   <% if (hasPhotos) { %>
     <div class="celebration-section">
       <div class="celebration-section-label">
-        <span class="cs-rule"></span>The Album <span class="cs-meta">· <%= photos.length %> photo<%= photos.length === 1 ? '' : 's' %></span>
+        <span class="cs-rule"></span><%= t('celebration.album') %> <span class="cs-meta">· <%= photos.length === 1 ? t('common.photo_count_one', { count: photos.length }) : t('common.photo_count_other', { count: photos.length }) %></span>
       </div>
       <div class="celebration-album">
         <% photos.forEach(function(p) { %>
@@ -137,7 +137,7 @@
   <!-- Videos -->
   <% if (typeof celebrationVideos !== 'undefined' && celebrationVideos && celebrationVideos.length) { %>
     <div class="celebration-section">
-      <div class="celebration-section-label"><span class="cs-rule"></span>Video<%= celebrationVideos.length === 1 ? '' : 's' %></div>
+      <div class="celebration-section-label"><span class="cs-rule"></span><%= celebrationVideos.length === 1 ? t('celebration.video_label_one') : t('celebration.video_label_other') %></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;">
         <% celebrationVideos.forEach(function (v) { %>
           <figure style="margin:0;border:1px solid #e0d5c4;border-radius:12px;overflow:hidden;background:#fff;">
@@ -158,7 +158,7 @@
         <a class="cp-link cp-prev" href="/celebrations/<%= slugifyYearLabel(yearLabel) %>/<%= celebSlug(prevCelebration) %>">
           <span class="cp-arrow">‹</span>
           <span>
-            <div class="cp-label">Previous</div>
+            <div class="cp-label"><%= t('common.pager_previous') %></div>
             <div class="cp-title"><%= prevCelebration.title %></div>
           </span>
         </a>
@@ -166,7 +166,7 @@
       <% if (nextCelebration) { %>
         <a class="cp-link cp-next" href="/celebrations/<%= slugifyYearLabel(yearLabel) %>/<%= celebSlug(nextCelebration) %>">
           <span>
-            <div class="cp-label">Next</div>
+            <div class="cp-label"><%= t('common.pager_next') %></div>
             <div class="cp-title"><%= nextCelebration.title %></div>
           </span>
           <span class="cp-arrow">›</span>

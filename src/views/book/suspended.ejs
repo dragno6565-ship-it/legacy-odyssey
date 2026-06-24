@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-  <title>Account Suspended — Legacy Odyssey</title>
+  <title><%= t('suspended.title') %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -148,7 +148,7 @@
 
     <div class="icon">🔒</div>
 
-    <h1>This account has been suspended</h1>
+    <h1><%= t('suspended.heading') %></h1>
 
     <% if (family.custom_domain) { %>
       <div class="domain-badge">www.<%= family.custom_domain %></div>
@@ -157,8 +157,8 @@
     <% } %>
 
     <p class="subtitle">
-      The subscription for this Legacy Odyssey book has been cancelled.<br>
-      All memories, photos, and content are safely preserved.
+      <%= t('suspended.subtitle_line1') %><br>
+      <%= t('suspended.subtitle_line2') %>
     </p>
 
     <%
@@ -171,24 +171,24 @@
     %>
 
     <div class="data-notice">
-      <div class="label">Your data is safe</div>
+      <div class="label"><%= t('suspended.data_safe_label') %></div>
       <p>
-        All of your book content and photos are being held securely.
+        <%= t('suspended.data_safe_intro') %>
         <% if (retainDate) { %>
-          Your memories will be preserved until <span class="retain-date"><%= retainDate %></span>.
-          Reinstate your account before that date to restore full access — nothing will be lost.
+          <%= t('suspended.preserved_until') %> <span class="retain-date"><%= retainDate %></span>.
+          <%= t('suspended.reinstate_before_date') %>
         <% } else { %>
-          Reinstate your account at any time to restore full access — nothing will be lost.
+          <%= t('suspended.reinstate_anytime') %>
         <% } %>
       </p>
     </div>
 
     <a href="https://<%= appDomain %>/#pricing" class="btn-reinstate">
-      Reinstate My Account
+      <%= t('suspended.reinstate_btn') %>
     </a>
 
     <a href="mailto:hello@<%= appDomain %>" class="btn-contact">
-      Questions? Contact us
+      <%= t('suspended.contact_btn') %>
     </a>
 
   </div>

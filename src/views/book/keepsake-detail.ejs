@@ -16,14 +16,14 @@
   const cover = (photos[0] && photos[0].photo_path) || k.coverPhoto || null;
 
   const CATEGORY_DEFS = {
-    artwork:     { label: 'Artwork',     icon: 'palette',        tint: 'bg-artwork' },
-    schoolwork:  { label: 'Schoolwork',  icon: 'graduation-cap', tint: 'bg-schoolwork' },
-    award:       { label: 'Award',       icon: 'award',          tint: 'bg-award' },
-    memorabilia: { label: 'Memorabilia', icon: 'archive',        tint: 'bg-memorabilia' },
+    artwork:     { label: t('keepsakes.category_artwork'),     icon: 'palette',        tint: 'bg-artwork' },
+    schoolwork:  { label: t('keepsakes.category_schoolwork'),  icon: 'graduation-cap', tint: 'bg-schoolwork' },
+    award:       { label: t('keepsakes.category_award'),       icon: 'award',          tint: 'bg-award' },
+    memorabilia: { label: t('keepsakes.category_memorabilia'), icon: 'archive',        tint: 'bg-memorabilia' },
   };
   function catDef(c) {
     const key = (c || '').toString().toLowerCase().trim();
-    return CATEGORY_DEFS[key] || { label: c || 'Keepsake', icon: 'sparkles', tint: 'bg-memorabilia' };
+    return CATEGORY_DEFS[key] || { label: c || t('keepsakes.category_default'), icon: 'sparkles', tint: 'bg-memorabilia' };
   }
   const cat = catDef(k.category);
 
@@ -43,7 +43,7 @@
 %>
 <section class="keepsake-detail-page">
   <a class="detail-back" href="/#keepsakes">
-    <i data-lucide="chevron-left"></i> All keepsakes
+    <i data-lucide="chevron-left"></i> <%= t('keepsakes.back_all') %>
   </a>
 
   <div class="keepsake-hero">
@@ -72,28 +72,28 @@
       <% if (k.attribution && k.attribution.trim()) { %>
         <div class="km-cell">
           <div class="km-cell-icon"><i data-lucide="user"></i></div>
-          <div class="km-cell-label">Made by</div>
+          <div class="km-cell-label"><%= t('keepsakes.meta_made_by') %></div>
           <div class="km-cell-value"><%= k.attribution %></div>
         </div>
       <% } %>
       <% if (k.age_text && k.age_text.trim()) { %>
         <div class="km-cell">
           <div class="km-cell-icon"><i data-lucide="calendar"></i></div>
-          <div class="km-cell-label">Age</div>
+          <div class="km-cell-label"><%= t('keepsakes.meta_age') %></div>
           <div class="km-cell-value"><%= k.age_text %></div>
         </div>
       <% } %>
       <% if (k.date_made) { %>
         <div class="km-cell">
           <div class="km-cell-icon"><i data-lucide="clock"></i></div>
-          <div class="km-cell-label">Date</div>
+          <div class="km-cell-label"><%= t('keepsakes.meta_date') %></div>
           <div class="km-cell-value"><%= fmtDate(k.date_made) %></div>
         </div>
       <% } %>
       <% if (k.category) { %>
         <div class="km-cell">
           <div class="km-cell-icon"><i data-lucide="tag"></i></div>
-          <div class="km-cell-label">Category</div>
+          <div class="km-cell-label"><%= t('keepsakes.meta_category') %></div>
           <div class="km-cell-value"><%= cat.label %></div>
         </div>
       <% } %>
@@ -102,7 +102,7 @@
 
   <% if (hasStory) { %>
     <div class="keepsake-section keepsake-story">
-      <div class="keepsake-section-eyebrow">The Story</div>
+      <div class="keepsake-section-eyebrow"><%= t('common.the_story') %></div>
       <% (k.story || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean).forEach(function(para) { %>
         <p><%- para.replace(/\n/g, '<br>') %></p>
       <% }); %>
@@ -111,8 +111,8 @@
 
   <% if (galleryPhotos.length > 0) { %>
     <div class="keepsake-section">
-      <div class="keepsake-section-eyebrow">More photos</div>
-      <h2 class="keepsake-section-title">Different angles</h2>
+      <div class="keepsake-section-eyebrow"><%= t('keepsakes.more_photos_eyebrow') %></div>
+      <h2 class="keepsake-section-title"><%= t('keepsakes.more_photos_title') %></h2>
       <div class="photo-gallery">
         <% galleryPhotos.forEach(function(p) { %>
           <div class="photo-tile">
@@ -130,7 +130,7 @@
     <div class="keepsake-pager">
       <% if (prevKeepsake) { %>
         <a href="/keepsakes/<%= ksSlug(prevKeepsake) %>" class="prev">
-          <div class="keepsake-pager-label"><i data-lucide="chevron-left"></i> Previous</div>
+          <div class="keepsake-pager-label"><i data-lucide="chevron-left"></i> <%= t('common.pager_previous') %></div>
           <div class="keepsake-pager-title"><%= prevKeepsake.title %></div>
         </a>
       <% } else { %>
@@ -138,7 +138,7 @@
       <% } %>
       <% if (nextKeepsake) { %>
         <a href="/keepsakes/<%= ksSlug(nextKeepsake) %>" class="next">
-          <div class="keepsake-pager-label">Next <i data-lucide="chevron-right"></i></div>
+          <div class="keepsake-pager-label"><%= t('common.pager_next') %> <i data-lucide="chevron-right"></i></div>
           <div class="keepsake-pager-title"><%= nextKeepsake.title %></div>
         </a>
       <% } %>

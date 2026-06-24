@@ -1,7 +1,7 @@
 <section id="page-galleries" class="page-section">
   <div class="page-header">
-    <div class="page-header-eyebrow">Your collections</div>
-    <h2 class="page-header-title">Photo <em>Galleries</em></h2>
+    <div class="page-header-eyebrow"><%= t('galleries.eyebrow') %></div>
+    <h2 class="page-header-title"><%= t('galleries.title_pre') %> <em><%= t('galleries.title_em') %></em></h2>
   </div>
   <div class="page-body">
     <%
@@ -16,15 +16,15 @@
             <img src="<%= imageUrl(g.photos[0].photo_path) %>" alt="<%= g.title || '' %>" loading="lazy" style="<%= photoPos(g.photos[0].photo_path) %>">
           </div>
           <div class="cg-index-meta">
-            <div class="cg-index-title"><%= g.title || 'Untitled Gallery' %></div>
-            <div class="cg-index-count"><%= g.photos.length %> photo<%= g.photos.length === 1 ? '' : 's' %></div>
+            <div class="cg-index-title"><%= g.title || t('galleries.untitled') %></div>
+            <div class="cg-index-count"><%= g.photos.length %> <%= g.photos.length === 1 ? t('galleries.photo_one') : t('galleries.photo_many') %></div>
           </div>
         </div>
       <% }); %>
     </div>
 
     <!-- Detail: one block per gallery, hidden until opened -->
-    <button type="button" class="cg-back" id="cgBack" onclick="showGalleryIndex()" hidden>&#8592; All galleries</button>
+    <button type="button" class="cg-back" id="cgBack" onclick="showGalleryIndex()" hidden>&#8592; <%= t('galleries.all_galleries') %></button>
     <% _cgList.forEach(function (g) { %>
       <div class="cg-gallery-block" id="cg-<%= g.id %>" hidden>
         <% if (g.title) { %><h3 class="cg-gallery-title"><%= g.title %></h3><% } %>

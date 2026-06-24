@@ -3,7 +3,7 @@
     // "Your Journey to Us" — single story page for non-traditional families.
     var j = journeyStory || {};
     var jTitle = (j.title && j.title.trim()) ? j.title.trim() : '';
-    var jStoryTitle = (j.story_title && j.story_title.trim()) ? j.story_title.trim() : 'Our Story';
+    var jStoryTitle = (j.story_title && j.story_title.trim()) ? j.story_title.trim() : t('journey.story_title_default');
     var jMilestones = Array.isArray(j.milestones)
       ? j.milestones.filter(function (m) { return m && (m.label || m.date); })
       : [];
@@ -16,8 +16,8 @@
     }
   %>
   <div class="page-header">
-    <div class="page-header-eyebrow">&#10022; Your Beginning</div>
-    <h2 class="page-header-title"><% if (jTitle) { %><%= jTitle %><% } else { %>Your <em>Journey</em> to Us<% } %></h2>
+    <div class="page-header-eyebrow">&#10022; <%= t('journey.eyebrow') %></div>
+    <h2 class="page-header-title"><% if (jTitle) { %><%= jTitle %><% } else { %><%- t('journey.title_default') %><% } %></h2>
     <% if (j.intro && j.intro.trim()) { %>
     <p class="page-header-sub"><%= j.intro %></p>
     <% } %>
@@ -39,7 +39,7 @@
 
     <% if (j.story && j.story.trim()) { %>
     <div class="journey-section journey-story">
-      <div class="journey-section-eyebrow">Our Story</div>
+      <div class="journey-section-eyebrow"><%= t('journey.story_eyebrow') %></div>
       <h3 class="journey-section-title"><%= jStoryTitle %></h3>
       <% j.story.split(/\n\n+/).forEach(function (para) { if (para.trim()) { %>
       <p><%- para.trim().replace(/\n/g, '<br>') %></p>
@@ -49,11 +49,11 @@
 
     <% if (jPhotos.length) { %>
     <div class="journey-section">
-      <div class="journey-section-eyebrow">Photographs</div>
+      <div class="journey-section-eyebrow"><%= t('journey.photos_eyebrow') %></div>
       <div class="journey-gallery">
         <% jPhotos.forEach(function (p) { %>
         <div class="journey-tile">
-          <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || 'Journey photo' %>" loading="lazy"<% if (typeof photoPos === 'function') { %> style="<%= photoPos(p.photo_path) %>"<% } %>>
+          <img src="<%= imageUrl(p.photo_path) %>" alt="<%= p.caption || t('journey.photo_alt') %>" loading="lazy"<% if (typeof photoPos === 'function') { %> style="<%= photoPos(p.photo_path) %>"<% } %>>
         </div>
         <% }); %>
       </div>
@@ -62,7 +62,7 @@
 
     <% if (j.letter_text && j.letter_text.trim()) { %>
     <div class="journey-letter">
-      <div class="journey-letter-eyebrow"><i data-lucide="feather"></i> A letter to you</div>
+      <div class="journey-letter-eyebrow"><i data-lucide="feather"></i> <%= t('journey.letter_eyebrow') %></div>
       <p class="journey-letter-text"><%- j.letter_text.trim().replace(/\n/g, '<br>') %></p>
       <% if (j.letter_sign && j.letter_sign.trim()) { %>
       <div class="journey-letter-sign">&mdash; <%= j.letter_sign %></div>

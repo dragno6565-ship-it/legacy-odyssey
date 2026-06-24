@@ -1,7 +1,7 @@
 <section id="page-holidays" class="page-section">
   <div class="page-header">
-    <h2 class="page-header-title"><em>Celebrations</em> &amp; Traditions</h2>
-    <p class="page-header-sub">The holidays, cultural traditions, and family rituals that will mark every year of your life.</p>
+    <h2 class="page-header-title"><em><%= t('holidays.title_em') %></em> &amp; <%= t('holidays.title_post') %></h2>
+    <p class="page-header-sub"><%= t('holidays.subtitle') %></p>
   </div>
 
   <%
@@ -24,7 +24,7 @@
       const base = (c && c.title) ? c.title : 'celebration';
       return base.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'celebration';
     }
-    const yearGroups = celebrationsByYear && celebrationsByYear.length ? celebrationsByYear : [{label: 'Your First Year', items: celebrations || []}];
+    const yearGroups = celebrationsByYear && celebrationsByYear.length ? celebrationsByYear : [{label: t('holidays.first_year'), items: celebrations || []}];
     const yearsWithContent = yearGroups.filter(y => (y.items || []).some(meaningful));
   %>
   <% yearGroups.forEach(function(year) { %>
@@ -54,7 +54,7 @@
               <% if (c.body) { %>
                 <p class="holiday-text"><%- String(c.body).replace(/\n/g, '<br>') %></p>
               <% } %>
-              <span class="holiday-link">Read more →</span>
+              <span class="holiday-link"><%= t('common.read_more') %> →</span>
             </div>
           </a>
         <% }); %>

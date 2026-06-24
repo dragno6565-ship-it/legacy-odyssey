@@ -19,14 +19,14 @@
 
   // Map category → human label + Lucide icon name + tint class.
   const CATEGORY_DEFS = {
-    artwork:     { label: 'Artwork',     icon: 'palette',        tint: 'bg-artwork' },
-    schoolwork:  { label: 'Schoolwork',  icon: 'graduation-cap', tint: 'bg-schoolwork' },
-    award:       { label: 'Award',       icon: 'award',          tint: 'bg-award' },
-    memorabilia: { label: 'Memorabilia', icon: 'archive',        tint: 'bg-memorabilia' },
+    artwork:     { label: t('keepsakes.category_artwork'),     icon: 'palette',        tint: 'bg-artwork' },
+    schoolwork:  { label: t('keepsakes.category_schoolwork'),  icon: 'graduation-cap', tint: 'bg-schoolwork' },
+    award:       { label: t('keepsakes.category_award'),       icon: 'award',          tint: 'bg-award' },
+    memorabilia: { label: t('keepsakes.category_memorabilia'), icon: 'archive',        tint: 'bg-memorabilia' },
   };
   function catDef(c) {
     const key = (c || '').toString().toLowerCase().trim();
-    return CATEGORY_DEFS[key] || { label: c || 'Keepsake', icon: 'sparkles', tint: 'bg-memorabilia' };
+    return CATEGORY_DEFS[key] || { label: c || t('keepsakes.category_default'), icon: 'sparkles', tint: 'bg-memorabilia' };
   }
 
   // Which distinct categories actually appear (to show only relevant chips)
@@ -38,24 +38,24 @@
 %>
 <section id="page-keepsakes" class="page-section">
   <div class="page-header">
-    <h2 class="page-header-title">Their <em>Keepsakes</em></h2>
-    <p class="page-header-sub">Drawings, awards, certificates, handprints &mdash; the small things you can't keep forever, kept forever here.</p>
+    <h2 class="page-header-title"><%- t('keepsakes.header_title') %></h2>
+    <p class="page-header-sub"><%- t('keepsakes.header_sub') %></p>
   </div>
 
   <div class="keepsakes-body">
 
     <% if (visible.length === 0) { %>
-      <p style="text-align:center;color:var(--ink-light);font-style:italic;margin-top:2rem;padding:0 2rem;">No keepsakes added yet.</p>
+      <p style="text-align:center;color:var(--ink-light);font-style:italic;margin-top:2rem;padding:0 2rem;"><%= t('keepsakes.empty_state') %></p>
     <% } else { %>
 
       <div class="keepsakes-intro">
-        <p class="keepsakes-intro-text">A box in the closet only holds so much. Take a photo, add a note about what it meant, and let go of the original knowing it lives on here.</p>
+        <p class="keepsakes-intro-text"><%= t('keepsakes.intro_text') %></p>
       </div>
 
       <% if (usedCategories.size > 1) { %>
         <div class="keepsake-filters" id="keepsakeFilters">
           <button class="filter-chip active" data-filter="all">
-            <i data-lucide="layers"></i> All
+            <i data-lucide="layers"></i> <%= t('keepsakes.filter_all') %>
           </button>
           <% Object.keys(CATEGORY_DEFS).forEach(function(key) { if (usedCategories.has(key)) { %>
             <button class="filter-chip" data-filter="<%= key %>">

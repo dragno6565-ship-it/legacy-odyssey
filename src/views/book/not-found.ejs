@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-  <title>Book Not Found — Legacy Odyssey</title>
+  <title><%= t('notfound.title') %></title>
   <style>
     body { font-family: 'Jost', sans-serif; background: #1a1510; color: #f5f0eb; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
     h1 { font-size: 2rem; margin-bottom: 1rem; }
@@ -14,9 +14,9 @@
 </head>
 <body>
   <div>
-    <h1>Book Not Found</h1>
-    <p>This baby book doesn't exist or has been deactivated.</p>
-    <p><a href="https://legacyodyssey.com">Visit Legacy Odyssey</a></p>
+    <h1><%= t('notfound.heading') %></h1>
+    <p><%= t('notfound.body') %></p>
+    <p><a href="https://legacyodyssey.com"><%= t('common.visit_legacy_odyssey') %></a></p>
   </div>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-  <title>Subscription Expired — Legacy Odyssey</title>
+  <title><%= t('expired.title') %></title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -67,16 +67,16 @@
 <body>
   <div class="container">
     <div class="icon">&#128218;</div>
-    <h1>This Book is Currently Unavailable</h1>
+    <h1><%= t('expired.heading') %></h1>
     <% if (family.subscription_status === 'past_due') { %>
-      <p>There was a problem processing the payment for this book. The book owner can update their payment method to restore access.</p>
+      <p><%= t('expired.body_past_due') %></p>
     <% } else if (family.subscription_status === 'canceled') { %>
-      <p>The subscription for this book has been canceled. The book owner can reactivate their subscription to restore access.</p>
+      <p><%= t('expired.body_canceled') %></p>
     <% } else { %>
-      <p>The subscription for this book has expired. The book owner can reactivate their subscription to restore access.</p>
+      <p><%= t('expired.body_expired') %></p>
     <% } %>
-    <a href="https://legacyodyssey.com" class="reactivate-btn">Visit Legacy Odyssey</a>
-    <a href="mailto:help@legacyodyssey.com" class="help-link">Need help? Contact us</a>
+    <a href="https://legacyodyssey.com" class="reactivate-btn"><%= t('common.visit_legacy_odyssey') %></a>
+    <a href="mailto:help@legacyodyssey.com" class="help-link"><%= t('expired.need_help') %></a>
     <div class="brand">LEGACY ODYSSEY</div>
   </div>
 </body>

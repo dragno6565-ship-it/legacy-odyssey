@@ -1,7 +1,7 @@
 <section id="page-letters" class="page-section">
   <div class="page-header">
-    <h2 class="page-header-title">Letters <em>To You</em></h2>
-    <p class="page-header-sub">Words written across time, sealed with love, waiting for the day you're ready to read them.</p>
+    <h2 class="page-header-title"><%= t('letters.title_pre') %> <em><%= t('letters.title_em') %></em></h2>
+    <p class="page-header-sub"><%= t('letters.subtitle') %></p>
   </div>
   <div class="letters-container">
     <% (letters || []).forEach(l => { %>
