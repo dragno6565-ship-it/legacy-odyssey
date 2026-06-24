@@ -30,7 +30,6 @@
   "demo.banner_title": "This is a demo book.",
   "demo.banner_msg": "Start your own baby's book — get your own custom domain.",
   "demo.create_own_cta": "Create Your Own →",
-
   "common.mom_and_dad": "Mom & Dad",
   "common.tap_to_read_more": "Tap to read more.",
   "common.read_more": "Read more",
@@ -42,7 +41,6 @@
   "common.photo_count_one": "{count} photo",
   "common.photo_count_other": "{count} photos",
   "common.visit_legacy_odyssey": "Visit Legacy Odyssey",
-
   "welcome.eyebrow": "Welcome to the Book of",
   "welcome.name_meaning_default": "A name chosen with love, meaning, and intention",
   "welcome.stat_born": "Born",
@@ -52,11 +50,9 @@
   "welcome.stat_born_in": "Born In",
   "welcome.stat_hospital": "Hospital",
   "welcome.parent_quote_default": "From the moment we first saw your face, our world was never the same. This is your story — every moment, every milestone, every memory — written just for you.",
-
   "before.title": "<em>Before</em> You Arrived",
   "before.subtitle": "The months of anticipation, preparation, and love that came before your first breath.",
   "before.checklist_title": "Getting Ready For You",
-
   "birth.title": "The <em>Birth Story</em>",
   "birth.subtitle": "The day the world changed. Written by the people who were there.",
   "birth.stat_date": "Date",
@@ -68,12 +64,10 @@
   "birth.perspective_title_default_1": "\"The moment I heard you cry...\"",
   "birth.perspective_title_default_2": "\"I was completely unprepared for how I felt...\"",
   "birth.photo_alt": "{label}'s birth photo",
-
   "birthday.eyebrow": "The day you arrived",
   "birthday.title": "Your <em>Birth Day</em>",
   "birthday.subtitle": "The people, the place, and the first moments of the day you were born.",
   "birthday.photo_alt": "Birth day photo",
-
   "journey.story_title_default": "Our Story",
   "journey.eyebrow": "Your Beginning",
   "journey.title_default": "Your <em>Journey</em> to Us",
@@ -81,16 +75,13 @@
   "journey.photos_eyebrow": "Photographs",
   "journey.photo_alt": "Journey photo",
   "journey.letter_eyebrow": "A letter to you",
-
   "home.header_title": "Coming Home",
   "home.header_sub": "The first time you crossed the threshold and made our house a home in a whole new way.",
-
   "months.eyebrow": "The First Year",
   "months.header_title": "Month by Month",
   "months.header_sub": "Twelve months. Every milestone, every measurement, every moment that made up the most important year of your life so far. Click any month to open the full entry.",
   "months.year_one": "Year One",
   "months.birth_to_first_birthday": "Birth → First Birthday",
-
   "family.header_title": "Our Family",
   "family.header_sub": "The people who loved your child before they even had a name.",
   "family.tree_label": "The People Who Make Up Your World",
@@ -98,15 +89,12 @@
   "family.mom_and_dad": "Mom & Dad",
   "family.back_to_family": "Back to Family",
   "family.their_story": "Their Story",
-
   "firsts.header_title": "Your Firsts",
   "firsts.header_sub": "Every milestone is a door opening. Here are the ones we never want to forget.",
-
   "moments.eyebrow": "In motion",
   "moments.title_pre": "Video",
   "moments.title_em": "Moments",
   "moments.subtitle": "The clips words can't capture — first steps, first words, the laugh.",
-
   "galleries.eyebrow": "Your collections",
   "galleries.title_pre": "Photo",
   "galleries.title_em": "Galleries",
@@ -114,16 +102,13 @@
   "galleries.photo_one": "photo",
   "galleries.photo_many": "photos",
   "galleries.all_galleries": "All galleries",
-
   "holidays.title_em": "Celebrations",
   "holidays.title_post": "Traditions",
   "holidays.subtitle": "The holidays, cultural traditions, and family rituals that will mark every year of your life.",
   "holidays.first_year": "Your First Year",
-
   "letters.title_pre": "Letters",
   "letters.title_em": "To You",
   "letters.subtitle": "Words written across time, sealed with love, waiting for the day you're ready to read them.",
-
   "vault.eyebrow": "The Legacy Vault",
   "vault.title_pre": "Sealed Until Your",
   "vault.title_em": "18th Birthday",
@@ -134,7 +119,6 @@
   "vault.months": "Months",
   "vault.days": "Days",
   "vault.seal": "Sealed by {brand} · Kept Private",
-
   "recipes.header_title": "<em>Recipes</em> &amp; Traditions",
   "recipes.header_sub": "The flavors of home. The dishes that mark every celebration, every Sunday, every season.",
   "recipes.intro_text": "Food is memory. These are the recipes that will always mean home &mdash; the ones that fill a kitchen with a particular smell and a particular feeling.",
@@ -153,7 +137,6 @@
   "recipes.gallery_eyebrow": "In the Kitchen",
   "recipes.pager_prev": "← Previous recipe",
   "recipes.pager_next": "Next recipe →",
-
   "keepsakes.header_title": "Their <em>Keepsakes</em>",
   "keepsakes.header_sub": "Drawings, awards, certificates, handprints &mdash; the small treasures that fade with time, kept safe right here.",
   "keepsakes.empty_state": "No keepsakes added yet.",
@@ -171,7 +154,6 @@
   "keepsakes.meta_category": "Category",
   "keepsakes.more_photos_eyebrow": "More photos",
   "keepsakes.more_photos_title": "Different angles",
-
   "celebration.breadcrumb_book": "Book",
   "celebration.breadcrumb_celebrations": "Celebrations",
   "celebration.who_was_there": "Who Was There",
@@ -179,20 +161,17 @@
   "celebration.album": "The Album",
   "celebration.video_label_one": "Video",
   "celebration.video_label_other": "Videos",
-
   "password.subtitle": "A Living Baby Book & Digital Heirloom",
   "password.label": "Enter the Site Password to Continue",
   "password.submit": "Open Book →",
   "password.incorrect": "Incorrect password. Please try again.",
   "password.hint": "Enter the password shared by the site owner",
-
   "expired.title": "Subscription Expired — Legacy Odyssey",
   "expired.heading": "This Book is Currently Unavailable",
   "expired.body_past_due": "There was a problem processing the payment for this book. The book owner can update their payment method to restore access.",
   "expired.body_canceled": "The subscription for this book has been canceled. The book owner can reactivate their subscription to restore access.",
   "expired.body_expired": "The subscription for this book has expired. The book owner can reactivate their subscription to restore access.",
   "expired.need_help": "Need help? Contact us",
-
   "suspended.title": "Account Suspended — Legacy Odyssey",
   "suspended.heading": "This account has been suspended",
   "suspended.subtitle_line1": "The subscription for this Legacy Odyssey book has been cancelled.",
@@ -204,11 +183,54 @@
   "suspended.reinstate_anytime": "Reinstate your account at any time to restore full access — nothing will be lost.",
   "suspended.reinstate_btn": "Reinstate My Account",
   "suspended.contact_btn": "Questions? Contact us",
-
   "notfound.title": "Book Not Found — Legacy Odyssey",
   "notfound.heading": "Book Not Found",
   "notfound.body": "This baby book doesn't exist or has been deactivated.",
-
   "error.title": "Error — Legacy Odyssey",
-  "error.heading": "Something went wrong"
+  "error.heading": "Something went wrong",
+  "auth.title_login": "Account Login – Legacy Odyssey",
+  "auth.account_management": "Account Management",
+  "auth.signin_heading": "Sign in to your account",
+  "auth.email_label": "Email address",
+  "auth.email_placeholder": "you@example.com",
+  "auth.password_label": "Password",
+  "auth.show": "Show",
+  "auth.hide": "Hide",
+  "auth.signin_button": "Sign In",
+  "auth.forgot_link": "Forgot your password?",
+  "auth.back_to_lo": "← Back to Legacy Odyssey",
+  "auth.err_missing": "Please enter your email and password.",
+  "auth.err_incorrect": "Incorrect email or password. Please try again.",
+  "auth.err_no_account": "No account found for this email.",
+  "auth.err_generic": "Something went wrong. Please try again.",
+  "auth.title_forgot": "Forgot Password – Legacy Odyssey",
+  "auth.forgot_heading": "Forgot your password?",
+  "auth.forgot_desc": "Enter your email address and we'll send you a link to reset your password.",
+  "auth.forgot_sent_strong": "Check your inbox",
+  "auth.forgot_sent_body": "If an account exists for that email address, we've sent a password reset link. It may take a minute to arrive — check your spam folder if you don't see it.",
+  "auth.send_reset": "Send Reset Link",
+  "auth.back_to_signin": "← Back to Sign In",
+  "auth.err_missing_email": "Please enter your email address.",
+  "auth.title_reset": "Reset Password – Legacy Odyssey",
+  "auth.reset_heading": "Set a new password",
+  "auth.reset_desc": "Choose a new password for your Legacy Odyssey account. It must be at least 6 characters.",
+  "auth.new_password_label": "New password",
+  "auth.new_password_placeholder": "At least 6 characters",
+  "auth.confirm_password_label": "Confirm new password",
+  "auth.confirm_password_placeholder": "Repeat your new password",
+  "auth.update_password": "Update Password",
+  "auth.invalid_link": "This reset link is invalid or has expired.",
+  "auth.request_new_link": "Request a new link",
+  "auth.reset_success_strong": "Password updated!",
+  "auth.reset_success_body": "Your password has been changed. You can sign in two ways:",
+  "auth.from_web": "From your web browser",
+  "auth.from_web_desc": "Edit your book from any computer or phone browser.",
+  "auth.signin_web": "Sign in on the web →",
+  "auth.or_app": "Or use the mobile app",
+  "auth.or_app_desc": "Best for adding photos on the go.",
+  "auth.signin_now": "Sign in now →",
+  "auth.reset_err_invalid_link": "Invalid reset link. Please request a new one.",
+  "auth.reset_err_min6": "Password must be at least 6 characters.",
+  "auth.reset_err_mismatch": "Passwords do not match.",
+  "auth.reset_err_expired": "This reset link has expired or already been used. Please request a new one."
 }

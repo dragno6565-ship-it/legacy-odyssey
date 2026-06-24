@@ -78,16 +78,16 @@ router.get('/', (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.render('marketing/account-login', { error: 'Please enter your email and password.' });
+    return res.render('marketing/account-login', { error: res.locals.t('auth.err_missing') });
   }
   try {
     const { data, error } = await supabaseAnon.auth.signInWithPassword({ email, password });
     if (error) {
-      return res.render('marketing/account-login', { error: 'Incorrect email or password. Please try again.' });
+      return res.render('marketing/account-login', { error: res.locals.t('auth.err_incorrect') });
     }
     const family = await familyService.findByAuthUserId(data.user.id);
     if (!family) {
-      return res.render('marketing/account-login', { error: 'No account found for this email.' });
+      return res.render('marketing/account-login', { error: res.locals.t('auth.err_no_account') });
     }
     res.cookie(COOKIE_NAME, family.id, {
       signed: true,
@@ -98,7 +98,7 @@ router.post('/login', async (req, res) => {
     });
     res.redirect('/account/dashboard');
   } catch (err) {
-    res.render('marketing/account-login', { error: 'Something went wrong. Please try again.' });
+    res.render('marketing/account-login', { error: res.locals.t('auth.err_generic') });
   }
 });
 
@@ -222,7 +222,7 @@ router.get('/forgot-password', (req, res) => {
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) {
-    return res.render('marketing/account-forgot-password', { sent: false, error: 'Please enter your email address.' });
+    return res.render('marketing/account-forgot-password', { sent: false, error: res.locals.t('auth.err_missing_email') });
   }
   try {
     // Generate a branded recovery link via admin API
@@ -270,9 +270,9 @@ router.post('/reset-password', async (req, res) => {
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
   });
 
-  if (!token_hash) return renderError('Invalid reset link. Please request a new one.');
-  if (!new_password || new_password.length < 6) return renderError('Password must be at least 6 characters.');
-  if (new_password !== confirm_password) return renderError('Passwords do not match.');
+  if (!token_hash) return renderError(res.locals.t('auth.reset_err_invalid_link'));
+  if (!new_password || new_password.length < 6) return renderError(res.locals.t('auth.reset_err_min6'));
+  if (new_password !== confirm_password) return renderError(res.locals.t('auth.reset_err_mismatch'));
 
   try {
     // Create a temporary Supabase client to avoid polluting the shared anon client's session
@@ -288,7 +288,7 @@ router.post('/reset-password', async (req, res) => {
 
     if (verifyError || !data?.user) {
       console.error('verifyOtp error:', verifyError?.message);
-      return renderError('This reset link has expired or already been used. Please request a new one.');
+      return renderError(res.locals.t('auth.reset_err_expired'));
     }
 
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
@@ -307,7 +307,7 @@ router.post('/reset-password', async (req, res) => {
     });
   } catch (err) {
     console.error('Reset password error:', err.message);
-    return renderError('Something went wrong. Please try again.');
+    return renderError(res.locals.t('auth.err_generic'));
   }
 });
 

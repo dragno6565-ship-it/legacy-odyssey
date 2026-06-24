@@ -15,6 +15,7 @@ import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useAuth } from './AuthContext';
 import { useI18n } from '../i18n/I18nContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function LoginScreen({ navigation }) {
   const { t } = useI18n();
@@ -50,6 +51,8 @@ export default function LoginScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        <LanguageToggle style={{ marginBottom: spacing.lg }} />
+
         {/* Branding Header */}
         <View style={styles.brandingContainer}>
           <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />

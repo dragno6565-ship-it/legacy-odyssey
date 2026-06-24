@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= lang %>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Pinterest Domain Verification -->
   <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1"/>
-  <title>Account Login – Legacy Odyssey</title>
+  <title><%= t('auth.title_login') %></title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -124,13 +124,14 @@
 </head>
 <body>
   <div class="wrap">
+    <%- include('../partials/lang-toggle') %>
     <div class="logo">
       <h1>Legacy Odyssey</h1>
-      <p>Account Management</p>
+      <p><%= t('auth.account_management') %></p>
     </div>
 
     <div class="card">
-      <h2>Sign in to your account</h2>
+      <h2><%= t('auth.signin_heading') %></h2>
 
       <% if (error) { %>
         <div class="error"><%= error %></div>
@@ -138,33 +139,33 @@
 
       <form method="POST" action="/account/login">
         <div class="field">
-          <label for="email">Email address</label>
-          <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com">
+          <label for="email"><%= t('auth.email_label') %></label>
+          <input type="email" id="email" name="email" autocomplete="email" required placeholder="<%= t('auth.email_placeholder') %>">
         </div>
         <div class="field">
-          <label for="password">Password</label>
+          <label for="password"><%= t('auth.password_label') %></label>
           <div class="pw-wrap">
             <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••">
-            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password">Show</button>
+            <button type="button" class="pw-toggle" id="pwToggle" data-show="<%= t('auth.show') %>" data-hide="<%= t('auth.hide') %>" aria-label="Show password"><%= t('auth.show') %></button>
           </div>
         </div>
-        <button type="submit" class="btn">Sign In</button>
+        <button type="submit" class="btn"><%= t('auth.signin_button') %></button>
       </form>
       <script>
         document.getElementById('pwToggle').addEventListener('click', function() {
           var input = document.getElementById('password');
           var showing = input.type === 'text';
           input.type = showing ? 'password' : 'text';
-          this.textContent = showing ? 'Show' : 'Hide';
+          this.textContent = showing ? this.getAttribute('data-show') : this.getAttribute('data-hide');
           this.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
         });
       </script>
     </div>
 
     <div class="footer-links">
-      <a href="/account/forgot-password">Forgot your password?</a>
+      <a href="/account/forgot-password"><%= t('auth.forgot_link') %></a>
       &nbsp;&bull;&nbsp;
-      <a href="https://legacyodyssey.com">← Back to Legacy Odyssey</a>
+      <a href="https://legacyodyssey.com"><%= t('auth.back_to_lo') %></a>
     </div>
   </div>
 </body>

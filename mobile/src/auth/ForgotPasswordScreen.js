@@ -14,6 +14,7 @@ import { Mail, Lock } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import api from '../api/client';
 import { useI18n } from '../i18n/I18nContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const { t } = useI18n();
@@ -87,6 +88,8 @@ export default function ForgotPasswordScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        <LanguageToggle style={{ marginBottom: spacing.lg }} />
+
         <View style={styles.brandingContainer}>
           <Lock size={48} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />
           <Text style={styles.brandTitle}>{t('app.forgotpassword.title')}</Text>

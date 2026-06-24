@@ -10,6 +10,7 @@ import {
 import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useI18n } from '../i18n/I18nContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function SignupScreen({ navigation }) {
   const { t } = useI18n();
@@ -20,6 +21,8 @@ export default function SignupScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <LanguageToggle style={{ marginBottom: spacing.lg }} />
+
         {/* Branding */}
         <View style={styles.brandingContainer}>
           <BookOpen size={56} color={colors.gold} strokeWidth={1.5} style={styles.brandIcon} />

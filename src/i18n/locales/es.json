@@ -30,7 +30,6 @@
   "demo.banner_title": "Este es un libro de demostración.",
   "demo.banner_msg": "Crea el libro de tu bebé — con tu propio dominio personalizado.",
   "demo.create_own_cta": "Crea el Tuyo →",
-
   "common.mom_and_dad": "Mamá y Papá",
   "common.tap_to_read_more": "Toca para leer más.",
   "common.read_more": "Leer más",
@@ -42,7 +41,6 @@
   "common.photo_count_one": "{count} foto",
   "common.photo_count_other": "{count} fotos",
   "common.visit_legacy_odyssey": "Visita Legacy Odyssey",
-
   "welcome.eyebrow": "Bienvenido al Libro de",
   "welcome.name_meaning_default": "Un nombre elegido con amor, significado e intención",
   "welcome.stat_born": "Nació",
@@ -52,11 +50,9 @@
   "welcome.stat_born_in": "Nació En",
   "welcome.stat_hospital": "Hospital",
   "welcome.parent_quote_default": "Desde el momento en que vimos tu carita por primera vez, nuestro mundo nunca volvió a ser el mismo. Esta es tu historia — cada momento, cada logro, cada recuerdo — escrita solo para ti.",
-
   "before.title": "<em>Antes</em> de Tu Llegada",
   "before.subtitle": "Los meses de anticipación, preparación y amor que vinieron antes de tu primer respiro.",
   "before.checklist_title": "Preparándonos Para Ti",
-
   "birth.title": "La <em>Historia del Nacimiento</em>",
   "birth.subtitle": "El día que el mundo cambió. Escrito por las personas que estuvieron allí.",
   "birth.stat_date": "Fecha",
@@ -68,12 +64,10 @@
   "birth.perspective_title_default_1": "\"El momento en que te escuché llorar...\"",
   "birth.perspective_title_default_2": "\"No estaba para nada preparado para lo que sentí...\"",
   "birth.photo_alt": "Foto del nacimiento de {label}",
-
   "birthday.eyebrow": "El día que llegaste",
   "birthday.title": "Tu <em>Día de Nacimiento</em>",
   "birthday.subtitle": "Las personas, el lugar y los primeros momentos del día en que naciste.",
   "birthday.photo_alt": "Foto del día de nacimiento",
-
   "journey.story_title_default": "Nuestra Historia",
   "journey.eyebrow": "Tu Comienzo",
   "journey.title_default": "Tu <em>Camino</em> Hacia Nosotros",
@@ -81,16 +75,13 @@
   "journey.photos_eyebrow": "Fotografías",
   "journey.photo_alt": "Foto del camino",
   "journey.letter_eyebrow": "Una carta para ti",
-
   "home.header_title": "Llegando a Casa",
   "home.header_sub": "La primera vez que cruzaste el umbral e hiciste de nuestra casa un hogar de una manera completamente nueva.",
-
   "months.eyebrow": "El Primer Año",
   "months.header_title": "Mes a Mes",
   "months.header_sub": "Doce meses. Cada logro, cada medida, cada momento que formó el año más importante de tu vida hasta ahora. Toca cualquier mes para abrir la entrada completa.",
   "months.year_one": "Primer Año",
   "months.birth_to_first_birthday": "Nacimiento → Primer Cumpleaños",
-
   "family.header_title": "Nuestra Familia",
   "family.header_sub": "Las personas que te amaron incluso antes de que tuvieras un nombre.",
   "family.tree_label": "Las Personas Que Forman Tu Mundo",
@@ -98,15 +89,12 @@
   "family.mom_and_dad": "Mamá y Papá",
   "family.back_to_family": "Volver a la Familia",
   "family.their_story": "Su Historia",
-
   "firsts.header_title": "Tus Primeras Veces",
   "firsts.header_sub": "Cada logro es una puerta que se abre. Estas son las que nunca queremos olvidar.",
-
   "moments.eyebrow": "En movimiento",
   "moments.title_pre": "Momentos en",
   "moments.title_em": "Video",
   "moments.subtitle": "Los clips que las palabras no pueden capturar — los primeros pasos, las primeras palabras, la risa.",
-
   "galleries.eyebrow": "Tus colecciones",
   "galleries.title_pre": "Galerías de",
   "galleries.title_em": "Fotos",
@@ -114,16 +102,13 @@
   "galleries.photo_one": "foto",
   "galleries.photo_many": "fotos",
   "galleries.all_galleries": "Todas las galerías",
-
   "holidays.title_em": "Celebraciones",
   "holidays.title_post": "Tradiciones",
   "holidays.subtitle": "Las fiestas, las tradiciones culturales y los rituales familiares que marcarán cada año de tu vida.",
   "holidays.first_year": "Tu Primer Año",
-
   "letters.title_pre": "Cartas",
   "letters.title_em": "Para Ti",
   "letters.subtitle": "Palabras escritas a través del tiempo, selladas con amor, esperando el día en que estés listo para leerlas.",
-
   "vault.eyebrow": "La Bóveda del Legado",
   "vault.title_pre": "Sellado Hasta Tu",
   "vault.title_em": "Cumpleaños 18",
@@ -134,7 +119,6 @@
   "vault.months": "Meses",
   "vault.days": "Días",
   "vault.seal": "Sellado por {brand} · Privado",
-
   "recipes.header_title": "<em>Recetas</em> &amp; Tradiciones",
   "recipes.header_sub": "Los sabores de casa. Los platos que marcan cada celebración, cada domingo, cada temporada.",
   "recipes.intro_text": "La comida es memoria. Estas son las recetas que siempre sabrán a hogar &mdash; las que llenan una cocina de un aroma particular y una sensación particular.",
@@ -153,7 +137,6 @@
   "recipes.gallery_eyebrow": "En la Cocina",
   "recipes.pager_prev": "← Receta anterior",
   "recipes.pager_next": "Receta siguiente →",
-
   "keepsakes.header_title": "Sus <em>Recuerdos</em>",
   "keepsakes.header_sub": "Dibujos, premios, certificados, huellas de manos &mdash; los pequeños tesoros que el tiempo desgasta, guardados a salvo aquí mismo.",
   "keepsakes.empty_state": "Aún no se han agregado recuerdos.",
@@ -171,7 +154,6 @@
   "keepsakes.meta_category": "Categoría",
   "keepsakes.more_photos_eyebrow": "Más fotos",
   "keepsakes.more_photos_title": "Diferentes ángulos",
-
   "celebration.breadcrumb_book": "Libro",
   "celebration.breadcrumb_celebrations": "Celebraciones",
   "celebration.who_was_there": "Quiénes Estuvieron",
@@ -179,20 +161,17 @@
   "celebration.album": "El Álbum",
   "celebration.video_label_one": "Video",
   "celebration.video_label_other": "Videos",
-
   "password.subtitle": "Un Libro de Bebé Vivo y Tesoro Digital",
   "password.label": "Ingresa la Contraseña del Sitio para Continuar",
   "password.submit": "Abrir el Libro →",
   "password.incorrect": "Contraseña incorrecta. Por favor, inténtalo de nuevo.",
   "password.hint": "Ingresa la contraseña compartida por el propietario del sitio",
-
   "expired.title": "Suscripción Vencida — Legacy Odyssey",
   "expired.heading": "Este Libro No Está Disponible en Este Momento",
   "expired.body_past_due": "Hubo un problema al procesar el pago de este libro. El propietario del libro puede actualizar su método de pago para restaurar el acceso.",
   "expired.body_canceled": "La suscripción de este libro ha sido cancelada. El propietario del libro puede reactivar su suscripción para restaurar el acceso.",
   "expired.body_expired": "La suscripción de este libro ha vencido. El propietario del libro puede reactivar su suscripción para restaurar el acceso.",
   "expired.need_help": "¿Necesitas ayuda? Contáctanos",
-
   "suspended.title": "Cuenta Suspendida — Legacy Odyssey",
   "suspended.heading": "Esta cuenta ha sido suspendida",
   "suspended.subtitle_line1": "La suscripción de este libro de Legacy Odyssey ha sido cancelada.",
@@ -204,11 +183,54 @@
   "suspended.reinstate_anytime": "Reactiva tu cuenta en cualquier momento para restaurar el acceso completo — no se perderá nada.",
   "suspended.reinstate_btn": "Reactivar Mi Cuenta",
   "suspended.contact_btn": "¿Preguntas? Contáctanos",
-
   "notfound.title": "Libro No Encontrado — Legacy Odyssey",
   "notfound.heading": "Libro No Encontrado",
   "notfound.body": "Este libro de bebé no existe o ha sido desactivado.",
-
   "error.title": "Error — Legacy Odyssey",
-  "error.heading": "Algo salió mal"
+  "error.heading": "Algo salió mal",
+  "auth.title_login": "Acceso a la Cuenta – Legacy Odyssey",
+  "auth.account_management": "Gestión de la Cuenta",
+  "auth.signin_heading": "Inicia sesión en tu cuenta",
+  "auth.email_label": "Correo electrónico",
+  "auth.email_placeholder": "tu@correo.com",
+  "auth.password_label": "Contraseña",
+  "auth.show": "Mostrar",
+  "auth.hide": "Ocultar",
+  "auth.signin_button": "Iniciar Sesión",
+  "auth.forgot_link": "¿Olvidaste tu contraseña?",
+  "auth.back_to_lo": "← Volver a Legacy Odyssey",
+  "auth.err_missing": "Introduce tu correo electrónico y tu contraseña.",
+  "auth.err_incorrect": "Correo o contraseña incorrectos. Inténtalo de nuevo.",
+  "auth.err_no_account": "No se encontró una cuenta para este correo.",
+  "auth.err_generic": "Algo salió mal. Inténtalo de nuevo.",
+  "auth.title_forgot": "Contraseña Olvidada – Legacy Odyssey",
+  "auth.forgot_heading": "¿Olvidaste tu contraseña?",
+  "auth.forgot_desc": "Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+  "auth.forgot_sent_strong": "Revisa tu bandeja de entrada",
+  "auth.forgot_sent_body": "Si existe una cuenta para ese correo, te hemos enviado un enlace para restablecer la contraseña. Puede tardar un minuto en llegar; revisa tu carpeta de spam si no lo ves.",
+  "auth.send_reset": "Enviar Enlace de Restablecimiento",
+  "auth.back_to_signin": "← Volver a Iniciar Sesión",
+  "auth.err_missing_email": "Introduce tu correo electrónico.",
+  "auth.title_reset": "Restablecer Contraseña – Legacy Odyssey",
+  "auth.reset_heading": "Establece una nueva contraseña",
+  "auth.reset_desc": "Elige una nueva contraseña para tu cuenta de Legacy Odyssey. Debe tener al menos 6 caracteres.",
+  "auth.new_password_label": "Nueva contraseña",
+  "auth.new_password_placeholder": "Al menos 6 caracteres",
+  "auth.confirm_password_label": "Confirma la nueva contraseña",
+  "auth.confirm_password_placeholder": "Repite tu nueva contraseña",
+  "auth.update_password": "Actualizar Contraseña",
+  "auth.invalid_link": "Este enlace de restablecimiento no es válido o ha caducado.",
+  "auth.request_new_link": "Solicitar un nuevo enlace",
+  "auth.reset_success_strong": "¡Contraseña actualizada!",
+  "auth.reset_success_body": "Tu contraseña ha sido cambiada. Puedes iniciar sesión de dos formas:",
+  "auth.from_web": "Desde tu navegador web",
+  "auth.from_web_desc": "Edita tu libro desde cualquier navegador de computadora o teléfono.",
+  "auth.signin_web": "Iniciar sesión en la web →",
+  "auth.or_app": "O usa la app móvil",
+  "auth.or_app_desc": "Ideal para agregar fotos sobre la marcha.",
+  "auth.signin_now": "Inicia sesión ahora →",
+  "auth.reset_err_invalid_link": "Enlace de restablecimiento no válido. Solicita uno nuevo.",
+  "auth.reset_err_min6": "La contraseña debe tener al menos 6 caracteres.",
+  "auth.reset_err_mismatch": "Las contraseñas no coinciden.",
+  "auth.reset_err_expired": "Este enlace de restablecimiento ha caducado o ya se ha usado. Solicita uno nuevo."
 }
