@@ -39,5 +39,17 @@ remote connector — there is no config file to edit.**
 - To revisit GUI integration later: build a Stripe `.dxt`, or add `mcp.stripe.com` / the Stape GA4 URL as
   **claude.ai custom remote connectors** (Settings → Connectors).
 
+## Update — 2026-06-24: Supabase live + credential rotation
+- **Supabase connector added** (Dan created a Personal Access Token; stored as `SUPABASE_ACCESS_TOKEN` in `.env`,
+  gitignored). Health-green in the CLI. **Key win: the PAT lets us run DDL/migrations via the Management API**
+  (`POST https://api.supabase.com/v1/projects/{ref}/database/query`, ref `vesaydfwwdbbajydbzmq`) — the pending
+  **migration `030` was applied this way** (`book_contacts.source` verified). No more DDL-only-via-Chrome.
+- **🔐 Credential rotation (self-inflicted leak, remediated):** while setting up, two secrets leaked into the
+  session transcript — a masking-regex miss printed the Stripe secret key; a screenshot caught the Supabase PAT.
+  **Both rotated + verified dead/replaced.** `STRIPE_SECRET_KEY` was **rolled** (updated in Railway + CLI). The
+  first Supabase PAT was **revoked** and replaced. Anyone reading old transcript snippets: those secrets are dead.
+- **Masking rule:** never echo or screenshot a token. Mask with `sk_..._\S+` / explicit string slice — NOT
+  `[A-Za-z0-9]+` (it stops at the `_` in `sk_live_…` and leaks the rest).
+
 ## Related
 - `infrastructure/railway.md` (secret source), `infrastructure/supabase.md`, `infrastructure/cloudflare.md`.
