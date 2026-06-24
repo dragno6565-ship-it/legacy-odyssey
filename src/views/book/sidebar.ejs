@@ -1,6 +1,6 @@
 <!-- Mobile Header -->
 <header class="mobile-header">
-  <span class="mobile-logo"><%= book.child_first_name %>'s Book</span>
+  <span class="mobile-logo"><%= t('book.childs_book', { name: book.child_first_name }) %></span>
   <button class="hamburger" onclick="toggleNav()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -14,36 +14,40 @@
   <div class="sidebar-header">
     <div class="sidebar-logo">&#10022; Legacy Odyssey</div>
     <div class="sidebar-child-name"><%= book.child_first_name %><%= book.child_middle_name ? ' ' + book.child_middle_name : '' %> <%= book.child_last_name %></div>
-    <div class="sidebar-tagline">Born &middot; <%= book.birth_date ? new Date(book.birth_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '' %> &middot; <%= book.city || '' %></div>
+    <div class="sidebar-tagline"><%= t('book.born') %> &middot; <%= book.birth_date ? new Date(book.birth_date).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '' %> &middot; <%= book.city || '' %></div>
+    <div class="lang-toggle" style="margin-top:0.7rem;display:inline-flex;gap:2px;border:1px solid rgba(200,169,110,0.4);border-radius:999px;padding:2px;font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.05em;">
+      <a href="?lang=en" style="padding:2px 11px;border-radius:999px;text-decoration:none;<%= lang === 'en' ? 'background:#c8a96e;color:#1a1510;font-weight:600;' : 'color:#8a7e6b;' %>">EN</a>
+      <a href="?lang=es" style="padding:2px 11px;border-radius:999px;text-decoration:none;<%= lang === 'es' ? 'background:#c8a96e;color:#1a1510;font-weight:600;' : 'color:#8a7e6b;' %>">ES</a>
+    </div>
   </div>
   <div class="sidebar-nav">
-    <div class="nav-section-label">The Book</div>
+    <div class="nav-section-label"><%= t('nav.the_book') %></div>
     <a class="nav-item active" onclick="showPage('welcome')">
       <span class="nav-icon"><i data-lucide="sparkles"></i></span>
-      <span class="nav-label">Welcome</span>
+      <span class="nav-label"><%= t('nav.welcome') %></span>
     </a>
     <% if (visibleSections.before) { %>
     <a class="nav-item" onclick="showPage('before')">
       <span class="nav-icon"><i data-lucide="heart"></i></span>
-      <span class="nav-label">Before You Arrived</span>
+      <span class="nav-label"><%= t('nav.before') %></span>
     </a>
     <% } %>
     <% if (visibleSections.birth) { %>
     <a class="nav-item" onclick="showPage('birth')">
       <span class="nav-icon"><i data-lucide="book-open"></i></span>
-      <span class="nav-label">Birth Story</span>
+      <span class="nav-label"><%= t('nav.birth_story') %></span>
     </a>
     <% } %>
     <% if (visibleSections.birthday) { %>
     <a class="nav-item" onclick="showPage('birthday')">
       <span class="nav-icon"><i data-lucide="camera"></i></span>
-      <span class="nav-label">Your Birth Day</span>
+      <span class="nav-label"><%= t('nav.birth_day') %></span>
     </a>
     <% } %>
     <% if (visibleSections.journey) { %>
     <a class="nav-item" onclick="showPage('journey')">
       <span class="nav-icon"><i data-lucide="route"></i></span>
-      <span class="nav-label">Your Journey to Us</span>
+      <span class="nav-label"><%= t('nav.journey') %></span>
     </a>
     <% } %>
 
@@ -51,63 +55,63 @@
     <!-- Locked sections shown in sidebar for free users -->
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Coming Home</span>
+      <span class="nav-label"><%= t('nav.coming_home') %></span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Month by Month</span>
+      <span class="nav-label"><%= t('nav.month_by_month') %></span>
     </a>
-    <div class="nav-section-label">Family &amp; Memories</div>
+    <div class="nav-section-label"><%= t('nav.family_memories') %></div>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Our Family</span>
-    </a>
-    <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
-      <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Your Firsts</span>
+      <span class="nav-label"><%= t('nav.our_family') %></span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Celebrations</span>
+      <span class="nav-label"><%= t('nav.your_firsts') %></span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Letters To You</span>
+      <span class="nav-label"><%= t('nav.celebrations') %></span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Family Recipes</span>
+      <span class="nav-label"><%= t('nav.letters') %></span>
     </a>
     <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Their Keepsakes</span>
+      <span class="nav-label"><%= t('nav.recipes') %></span>
+    </a>
+    <a class="nav-item" onclick="showPage('home')" style="opacity:0.5;">
+      <span class="nav-icon"><i data-lucide="lock"></i></span>
+      <span class="nav-label"><%= t('nav.keepsakes') %></span>
     </a>
     <% } else { %>
     <% if (visibleSections.home) { %>
     <a class="nav-item" onclick="showPage('home')">
       <span class="nav-icon"><i data-lucide="home"></i></span>
-      <span class="nav-label">Coming Home</span>
+      <span class="nav-label"><%= t('nav.coming_home') %></span>
     </a>
     <% } %>
     <% if (visibleSections.months) { %>
     <a class="nav-item" onclick="showPage('months')">
       <span class="nav-icon"><i data-lucide="calendar"></i></span>
-      <span class="nav-label">Month by Month</span>
+      <span class="nav-label"><%= t('nav.month_by_month') %></span>
     </a>
     <% } %>
     <% if (visibleSections.family || visibleSections.moments || visibleSections.firsts || visibleSections.holidays || visibleSections.letters || visibleSections.recipes) { %>
-    <div class="nav-section-label">Family &amp; Memories</div>
+    <div class="nav-section-label"><%= t('nav.family_memories') %></div>
     <% } %>
     <% if (visibleSections.family) { %>
     <a class="nav-item" onclick="showPage('family')">
       <span class="nav-icon"><i data-lucide="users"></i></span>
-      <span class="nav-label">Our Family</span>
+      <span class="nav-label"><%= t('nav.our_family') %></span>
     </a>
     <% } %>
     <% if (visibleSections.moments) { %>
     <a class="nav-item" onclick="showPage('moments')">
       <span class="nav-icon"><i data-lucide="video"></i></span>
-      <span class="nav-label">Video Moments</span>
+      <span class="nav-label"><%= t('nav.video_moments') %></span>
     </a>
     <% } %>
     <% if (visibleSections.galleries) { %>
@@ -123,7 +127,7 @@
     <% if (_galsWithPhotos.length) { %>
     <div class="nav-parent" onclick="this.classList.toggle('open')">
       <span class="nav-icon"><i data-lucide="images"></i></span>
-      <a class="nav-label-link" onclick="event.stopPropagation();showPage('galleries');if(window.showGalleryIndex)showGalleryIndex();" style="flex:1;color:inherit;text-decoration:none;">Photo Galleries</a>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('galleries');if(window.showGalleryIndex)showGalleryIndex();" style="flex:1;color:inherit;text-decoration:none;"><%= t('nav.photo_galleries') %></a>
       <span class="nav-chevron">▸</span>
     </div>
     <div class="nav-children">
@@ -134,14 +138,14 @@
     <% } else { %>
     <a class="nav-item" onclick="showPage('galleries')">
       <span class="nav-icon"><i data-lucide="images"></i></span>
-      <span class="nav-label">Photo Galleries</span>
+      <span class="nav-label"><%= t('nav.photo_galleries') %></span>
     </a>
     <% } %>
     <% } %>
     <% if (visibleSections.firsts) { %>
     <a class="nav-item" onclick="showPage('firsts')">
       <span class="nav-icon"><i data-lucide="star"></i></span>
-      <span class="nav-label">Your Firsts</span>
+      <span class="nav-label"><%= t('nav.your_firsts') %></span>
     </a>
     <% } %>
     <% if (visibleSections.holidays) { %>
@@ -179,7 +183,7 @@
     <div class="nav-parent <%= isOnCelebrationDetail ? 'open active' : '' %>"
          onclick="this.classList.toggle('open')">
       <span class="nav-icon"><i data-lucide="gift"></i></span>
-      <a class="nav-label-link" onclick="event.stopPropagation();showPage('holidays')" style="flex:1;color:inherit;text-decoration:none;">Celebrations</a>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('holidays')" style="flex:1;color:inherit;text-decoration:none;"><%= t('nav.celebrations') %></a>
       <span class="nav-chevron">▸</span>
     </div>
     <div class="nav-children">
@@ -212,7 +216,7 @@
     <% if (visibleSections.letters) { %>
     <a class="nav-item" onclick="showPage('letters')">
       <span class="nav-icon"><i data-lucide="mail"></i></span>
-      <span class="nav-label">Letters To You</span>
+      <span class="nav-label"><%= t('nav.letters') %></span>
     </a>
     <% } %>
     <% if (visibleSections.recipes) { %>
@@ -244,7 +248,7 @@
     <div class="nav-parent <%= _isOnRecipeDetail ? 'open active' : '' %>"
          onclick="this.classList.toggle('open')">
       <span class="nav-icon"><i data-lucide="utensils-crossed"></i></span>
-      <a class="nav-label-link" onclick="event.stopPropagation();showPage('recipes')" style="flex:1;color:inherit;text-decoration:none;">Family Recipes</a>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('recipes')" style="flex:1;color:inherit;text-decoration:none;"><%= t('nav.recipes') %></a>
       <span class="nav-chevron">▸</span>
     </div>
     <div class="nav-children">
@@ -278,7 +282,7 @@
     <div class="nav-parent <%= _isOnKeepsakeDetail ? 'open active' : '' %>"
          onclick="this.classList.toggle('open')">
       <span class="nav-icon"><i data-lucide="archive"></i></span>
-      <a class="nav-label-link" onclick="event.stopPropagation();showPage('keepsakes')" style="flex:1;color:inherit;text-decoration:none;">Their Keepsakes</a>
+      <a class="nav-label-link" onclick="event.stopPropagation();showPage('keepsakes')" style="flex:1;color:inherit;text-decoration:none;"><%= t('nav.keepsakes') %></a>
       <span class="nav-chevron">▸</span>
     </div>
     <div class="nav-children">
@@ -289,29 +293,29 @@
     </div>
     <% } %>
     <% if (visibleSections.vault) { %>
-    <div class="nav-section-label">The Vault</div>
+    <div class="nav-section-label"><%= t('nav.the_vault') %></div>
     <a class="nav-item locked" onclick="showPage('vault')">
       <span class="nav-icon"><i data-lucide="lock"></i></span>
-      <span class="nav-label">Locked Until 18</span>
+      <span class="nav-label"><%= t('nav.locked_until_18') %></span>
     </a>
     <% } %>
     <% } %>
   </div>
   <div class="sidebar-footer">
     <% if (isDemoDomain) { %>
-    <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;">You're viewing a demo.<br>Create your own baby book.</p>
+    <p style="color:#d4bb8a;font-size:0.78rem;line-height:1.5;"><%= t('footer.demo_line') %><br><%= t('footer.create_own') %></p>
     <a href="https://www.legacyodyssey.com" target="_blank" class="sidebar-edit-link" style="background:#c8a96e;color:#1a1510;padding:0.4rem 0.75rem;border-radius:2px;font-weight:600;text-align:center;display:block;">
-      Get Your Own Book &rarr;
+      <%= t('footer.get_your_own') %>
     </a>
     <% } else if (isFree) { %>
-    <p style="color:#c8a96e;font-weight:600;">Free Plan</p>
+    <p style="color:#c8a96e;font-weight:600;"><%= t('footer.free_plan') %></p>
     <a href="https://legacyodyssey.com/#pricing" target="_blank" class="sidebar-edit-link" style="background:#c8a96e;color:#1a1510;padding:0.4rem 0.75rem;border-radius:2px;font-weight:600;">
-      Upgrade &rarr;
+      <%= t('footer.upgrade') %>
     </a>
     <% } else { %>
-    <p>Crafted with love by<br><span>Legacy Odyssey</span><br>legacyodyssey.com</p>
+    <p><%= t('footer.crafted_by') %><br><span>Legacy Odyssey</span><br>legacyodyssey.com</p>
     <a href="https://legacyodyssey.com/account" class="sidebar-edit-link" target="_blank" rel="noopener">
-      Edit My Book &rarr;
+      <%= t('footer.edit_my_book') %>
     </a>
     <% } %>
   </div>

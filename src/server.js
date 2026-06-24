@@ -65,6 +65,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Sets res.locals.consentRequired (true for EU/EEA/UK visitors) for all views.
 app.use(require('./middleware/consentRegion'));
 
+// i18n: resolves language (?lang= → lo_lang cookie → default) and exposes
+// res.locals.t / res.locals.lang to every template. Phase 1: public book sites.
+app.use(require('./i18n').middleware);
+
 // Rate limiting on auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
