@@ -11,6 +11,15 @@
  *   e.g.: node scripts/repair-apex-dns.js lotest1.com
  */
 require('dotenv').config();
+
+// ⛔ DEPRECATED 2026-06-24 — DO NOT RUN. Writes 151.101.2.15, the dead
+// pre-Cloudflare "Railway-via-Fastly" apex IP (retired; that path dying caused
+// the 2026-06-24 legacyodyssey.com apex outage). Customer apexes now use
+// Approximated (137.66.1.199 via spaceshipService.setupDns). Running this WILL
+// break a domain.
+console.error('DEPRECATED: writes the dead Fastly IP 151.101.2.15 and will break a domain. Customers use Approximated (137.66.1.199). Refusing to run — see docs/domains/legacyodyssey.com.md.');
+process.exit(1);
+
 const { spaceship } = require('../src/config/spaceship');
 const railwayService = require('../src/services/railwayService');
 

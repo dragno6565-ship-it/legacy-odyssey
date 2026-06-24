@@ -6,6 +6,14 @@
  * Usage: node scripts/delete-stale-a-records.js <domain>
  */
 require('dotenv').config();
+
+// ⛔ DEPRECATED 2026-06-24 — DO NOT RUN. Treats 151.101.2.15 (the dead
+// pre-Cloudflare "Railway-via-Fastly" apex IP) as the keep-value, deleting the
+// real records. That path is retired; customer apexes now use Approximated
+// (137.66.1.199). Running this WILL break a domain.
+console.error('DEPRECATED: keeps the dead Fastly IP 151.101.2.15 and deletes real records. Customers use Approximated (137.66.1.199). Refusing to run — see docs/domains/legacyodyssey.com.md.');
+process.exit(1);
+
 const { spaceship } = require('../src/config/spaceship');
 const RAILWAY_FASTLY_IP = '151.101.2.15';
 

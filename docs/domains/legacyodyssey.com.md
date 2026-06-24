@@ -26,15 +26,24 @@ The primary domain for the Legacy Odyssey business. Serves the marketing site, t
 - **Plan:** Cloudflare Pro (~$25/mo) — gives access to Cloudflare for SaaS (currently UNUSED, should cancel SaaS add-on)
 
 ## Key DNS records (Cloudflare)
-- `A @` / `CNAME @` → Railway (proxied through Cloudflare)
-- `CNAME www` → Railway
-- `*.legacyodyssey.com` → Railway (wildcard for subdomains)
+- `CNAME @` → `d3rlkmxd.up.railway.app` (proxied) — Railway's verified target for the apex. **Corrected 2026-06-24** (was `A @ → 151.101.2.15`, the dead pre-Cloudflare Fastly path — see History/incident).
+- `CNAME www` → `lnctfz23.up.railway.app` (proxied) — Railway
+- `*.legacyodyssey.com` → `y2f358qx.up.railway.app` (proxied) — Railway (wildcard for subdomains)
 - MX → Spacemail
 - TXT `spacemail._domainkey` → DKIM key
 - TXT `_acme-challenge` (Let's Encrypt for various)
 - TXT `_railway-verify` (Railway domain ownership)
 
 ## History
+- **2026-06-24 — APEX OUTAGE (site-wide 500s, ~16:25 UTC).** The apex (`legacyodyssey.com`) was still an
+  `A @ → 151.101.2.15` record — our legacy pre-Cloudflare "Railway-via-Fastly" path. `www` + wildcard had been
+  migrated to direct Railway CNAMEs in April, but the bare apex was left on the old Fastly route. That route
+  stopped working (~16:25), so the apex 500'd while origin + www stayed healthy. **NOT a hack** — Cloudflare
+  audit log showed zero DNS changes in 7 days (only the fix), account API tokens clean. **Fix:** repointed apex
+  to `CNAME @ → d3rlkmxd.up.railway.app` (proxied) via the Cloudflare API, matching www. Permanent. Also
+  deprecated the 3 Spaceship scripts that hardcoded `151.101.2.15` (`repair-apex-dns.js`,
+  `just-write-apex-dns.js`, `delete-stale-a-records.js` — now guarded to refuse to run). `RAILWAY_FASTLY_IP` in
+  `spaceshipService.js` is unused dead code (the live apex-pollution detector uses `clusterIp`).
 - 2026-02-20 — Domain registered via Spaceship; Railway service first deployed
 - 2026-04-26 — DNS authority moved Spaceship → Cloudflare. 14 records imported, 3 manually re-added (`_acme-challenge`, `_railway-verify`, `spacemail._domainkey`)
 - 2026-04-26 — Cloudflare for SaaS subscription enabled (no longer needed since Approximated migration; should cancel)
