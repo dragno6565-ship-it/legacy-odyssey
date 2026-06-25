@@ -52,44 +52,40 @@
     <% if (error) { %><div class="banner err"><%= (error === '1') ? 'Something went wrong. Please try again.' : error %></div><% } %>
 
     <% var emailable = (contacts || []).filter(function(c){ return c.email && c.notify_opt_in !== false && !c.unsubscribed_at; }); %>
-    <% if ((contacts || []).length) { %>
-    <!-- ===== SHARE AN UPDATE ===== -->
+    <% if (emailable.length) { %>
+    <!-- ===== SHARE AN UPDATE (web = email; texting is app-only) ===== -->
     <h2 style="margin-top:0.5rem;">Share an update</h2>
     <div class="card" style="border:1.5px solid #c8a96e;">
-      <p class="muted" style="margin-bottom:0.7rem;">Let people know there's something new on your website. <strong>Tick anyone with an email</strong> and send — each gets their own private link, no password. For anyone with a <strong>phone</strong>, tap <strong>Copy text</strong> and paste it into your Messages app.</p>
+      <p class="muted" style="margin-bottom:0.7rem;">Email an update to your contacts — each opens their own private link, no password needed. <strong>📱 To <em>text</em> updates, use the Legacy Odyssey app</strong> — the web editor sends by email.</p>
       <form action="/account/book/circles/notify" method="POST" id="loShareForm" onsubmit="return loShareSubmit();">
-        <label>Who do you want to share with?</label>
+        <label>Who do you want to email?</label>
         <div class="chips" style="margin:0.3rem 0 0.5rem;">
-          <button type="button" class="chip lo-quick" onclick="loPickAll()">Everyone with email (<%= emailable.length %>)</button>
+          <button type="button" class="chip lo-quick" onclick="loPickAll()">Everyone (<%= emailable.length %>)</button>
           <% (circles || []).forEach(function(c) { var n = emailable.filter(function(p){ return (p.circle_ids || []).indexOf(c.id) !== -1; }).length; if (n) { %>
             <button type="button" class="chip lo-quick" onclick="loPickCircle('<%= c.id %>')"><%= c.name %> (<%= n %>)</button>
           <% } }); %>
           <button type="button" class="chip lo-quick" onclick="loPickNone()">Clear</button>
         </div>
-        <input type="text" id="loShareSearch" placeholder="Search contacts…" oninput="loShareFilter()" autocomplete="off"
-          style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin-bottom:0.5rem;">
-        <div id="loShareList" style="max-height:280px; overflow:auto; border:1px solid #eee3d3; border-radius:8px; padding:0 0.7rem; margin-bottom:0.6rem;">
-          <% (contacts || []).forEach(function(p) { var canEmail = p.email && p.notify_opt_in !== false && !p.unsubscribed_at; %>
-            <div class="lo-prow" data-search="<%= ((p.name||'') + ' ' + (p.email||'') + ' ' + (p.phone||'')).toLowerCase().replace(/\"/g,'') %>" data-circles="<%= (p.circle_ids || []).join(',') %>"
-              style="display:flex; align-items:center; gap:0.55rem; padding:0.5rem 0; border-bottom:1px solid #f0ebe3;">
-              <% if (canEmail) { %>
-                <input type="checkbox" name="contactIds[]" value="<%= p.id %>" class="lo-pcb" onchange="loShareCount()" style="width:18px; height:18px; flex:none;" title="Email this person their private link">
-              <% } else { %>
-                <span style="width:18px; flex:none; text-align:center; color:#c8a96e;" title="No email — use Copy text">•</span>
-              <% } %>
-              <span style="flex:1; min-width:0;"><strong><%= p.name %></strong><span class="muted" style="font-size:0.85em;"><%= p.email ? ' · ' + p.email : '' %><%= p.phone ? ' · ' + p.phone : '' %><%= (!p.email && !p.phone) ? ' · no email or phone' : '' %></span></span>
-              <% if (p.phone) { %>
-                <button type="button" class="btn btn-sm" data-token="<%= p.access_token %>" onclick="loCopyText(this)" style="flex:none;">Copy text</button>
-              <% } %>
-            </div>
-          <% }); %>
+        <div style="position:relative;">
+          <input type="text" id="loShareSearch" placeholder="Search contacts to add…" autocomplete="off"
+            oninput="loDDFilter()" onfocus="loDDFilter()"
+            style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px;">
+          <div id="loDD" style="display:none; position:absolute; left:0; right:0; top:calc(100% + 2px); max-height:240px; overflow:auto; background:#fff; border:1.5px solid #e0d5c4; border-radius:8px; z-index:20; box-shadow:0 6px 18px rgba(0,0,0,0.10);"></div>
         </div>
+        <div id="loChips" class="chips" style="margin:0.55rem 0 0.3rem;"></div>
+        <div id="loHidden"></div>
         <input type="text" name="note" maxlength="500" placeholder="Add a short note (optional) — e.g. New first-birthday photos are up!"
-          style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin-bottom:0.6rem;">
+          style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin:0.3rem 0 0.6rem;">
         <button type="submit" class="btn" id="loShareBtn" disabled>Email <span id="loShareCount">0</span> selected</button>
-        <span class="muted" style="margin-left:0.6rem;">Tick people with an email to send links; use Copy text for phone numbers.</span>
       </form>
     </div>
+    <script>var LO_EMAILABLE = <%- JSON.stringify(emailable.map(function(p){ return { id:p.id, name:p.name||'', email:p.email||'', circles:(p.circle_ids||[]) }; })) %>;</script>
+    <% } else if ((contacts || []).length) { %>
+    <h2 style="margin-top:0.5rem;">Share an update</h2>
+    <div class="card" style="border:1.5px solid #c8a96e;">
+      <p class="muted">None of your contacts have an email address yet — add an email to a contact below to email them a private link. <strong>📱 To text updates, use the Legacy Odyssey app.</strong></p>
+    </div>
+    <script>var LO_EMAILABLE = [];</script>
     <% } %>
 
     <!-- ===== CIRCLES ===== -->
@@ -139,14 +135,9 @@
       <div class="card lo-contact-card" data-search="<%= ((p.name||'') + ' ' + (p.email||'') + ' ' + (p.phone||'')).toLowerCase().replace(/\"/g,'') %>">
         <div class="contact-head">
           <strong><%= p.name %></strong>
-          <span class="inline" style="display:inline-flex; gap:0.4rem;">
-            <% if (p.phone) { %>
-              <button type="button" class="btn btn-sm" data-token="<%= p.access_token %>" onclick="loCopyText(this)">Copy text</button>
-            <% } %>
-            <form action="/account/book/circles/contacts/<%= p.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Remove <%= p.name %> from your list? Their view link will stop working.');">
-              <button type="submit" class="btn btn-sm btn-danger">Remove</button>
-            </form>
-          </span>
+          <form action="/account/book/circles/contacts/<%= p.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Remove <%= p.name %> from your list? Their view link will stop working.');">
+            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
         </div>
         <div class="muted"><%= p.email || 'no email' %><%= p.phone ? ' · ' + p.phone : '' %></div>
         <% var pc = (circles || []).filter(function(c){ return (p.circle_ids || []).indexOf(c.id) !== -1; }); %>
@@ -198,35 +189,47 @@
   <style>
     .lo-quick { cursor:pointer; background:#fff; border:1.5px solid #c8a96e; color:#8a6d2f; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:600; padding:0.3rem 0.8rem; border-radius:999px; }
     .lo-quick:hover { background:#f7efe0; }
-    .lo-prow:hover { background:#faf7f2; }
+    .lo-ddrow:hover { background:#faf7f2; }
+    #loChips .chip { background:#c8a96e; color:#fff; border-color:#c8a96e; display:inline-flex; align-items:center; gap:0.35rem; }
+    #loChips .chip .x { cursor:pointer; font-weight:700; }
   </style>
   <script>
-    var LO_BOOK_URL = <%- JSON.stringify(bookUrl || '') %>;
-    var LO_SITE_LABEL = <%- JSON.stringify(siteLabel || 'your website') %>;
-    function loShareCount(){
-      var n = document.querySelectorAll('.lo-pcb:checked').length;
-      var c = document.getElementById('loShareCount'); if(c) c.textContent = n;
-      var b = document.getElementById('loShareBtn'); if(b) b.disabled = (n === 0);
+    var LO_EMAILABLE = (typeof LO_EMAILABLE !== 'undefined' && LO_EMAILABLE) || [];
+    var LO_SEL = [];
+    function loEsc(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; }); }
+    function loName(id){ for (var i=0;i<LO_EMAILABLE.length;i++){ if (LO_EMAILABLE[i].id===id) return LO_EMAILABLE[i].name; } return ''; }
+    function loRender(){
+      var chips = document.getElementById('loChips');
+      if (chips) chips.innerHTML = LO_SEL.map(function(id){
+        return '<span class="chip">' + loEsc(loName(id)) + ' <span class="x" onclick="loRemove(\'' + loEsc(id) + '\')">×</span></span>';
+      }).join('');
+      var hid = document.getElementById('loHidden');
+      if (hid) hid.innerHTML = LO_SEL.map(function(id){ return '<input type="hidden" name="contactIds[]" value="' + loEsc(id) + '">'; }).join('');
+      var c = document.getElementById('loShareCount'); if (c) c.textContent = LO_SEL.length;
+      var b = document.getElementById('loShareBtn'); if (b) b.disabled = (LO_SEL.length === 0);
     }
-    function loPickAll(){ document.querySelectorAll('#loShareList .lo-pcb').forEach(function(cb){ cb.checked = true; }); loShareCount(); }
-    function loPickNone(){ document.querySelectorAll('#loShareList .lo-pcb').forEach(function(cb){ cb.checked = false; }); loShareCount(); }
-    function loPickCircle(id){
-      document.querySelectorAll('#loShareList .lo-prow').forEach(function(row){
-        if((row.getAttribute('data-circles')||'').split(',').indexOf(id) !== -1){ var cb = row.querySelector('.lo-pcb'); if(cb) cb.checked = true; }
-      });
-      loShareCount();
-    }
-    function loShareFilter(){
+    function loAdd(id){ if (LO_SEL.indexOf(id) === -1) LO_SEL.push(id); var s = document.getElementById('loShareSearch'); if (s) s.value = ''; loDDClose(); loRender(); }
+    function loRemove(id){ LO_SEL = LO_SEL.filter(function(x){ return x !== id; }); loRender(); }
+    function loPickAll(){ LO_SEL = LO_EMAILABLE.map(function(p){ return p.id; }); loRender(); }
+    function loPickNone(){ LO_SEL = []; loRender(); }
+    function loPickCircle(cid){ LO_EMAILABLE.forEach(function(p){ if (p.circles.indexOf(cid) !== -1 && LO_SEL.indexOf(p.id) === -1) LO_SEL.push(p.id); }); loRender(); }
+    function loDDClose(){ var dd = document.getElementById('loDD'); if (dd) dd.style.display = 'none'; }
+    function loDDFilter(){
+      var dd = document.getElementById('loDD'); if (!dd) return;
       var q = (document.getElementById('loShareSearch').value || '').toLowerCase().trim();
-      document.querySelectorAll('#loShareList .lo-prow').forEach(function(row){
-        var hay = row.getAttribute('data-search') || '';
-        row.style.display = (!q || hay.indexOf(q) !== -1) ? 'flex' : 'none';
+      var m = LO_EMAILABLE.filter(function(p){
+        if (LO_SEL.indexOf(p.id) !== -1) return false;
+        return !q || (p.name + ' ' + p.email).toLowerCase().indexOf(q) !== -1;
       });
+      if (!m.length){ dd.innerHTML = '<div style="padding:0.6rem 0.8rem;color:#8a7e6b;">' + (q ? 'No matches' : 'Everyone is selected') + '</div>'; dd.style.display = 'block'; return; }
+      dd.innerHTML = m.slice(0, 50).map(function(p){
+        return '<div class="lo-ddrow" style="padding:0.5rem 0.8rem;cursor:pointer;border-bottom:1px solid #f0ebe3;" onmousedown="loAdd(\'' + loEsc(p.id) + '\')"><strong>' + loEsc(p.name) + '</strong> <span class="muted" style="font-size:0.85em;">· ' + loEsc(p.email) + '</span></div>';
+      }).join('');
+      dd.style.display = 'block';
     }
     function loShareSubmit(){
-      var n = document.querySelectorAll('.lo-pcb:checked').length;
-      if(!n){ alert('Pick at least one person to share with.'); return false; }
-      return confirm('Email an update to ' + n + ' ' + (n === 1 ? 'person' : 'people') + '? Each gets their own private link.');
+      if (!LO_SEL.length){ alert('Pick at least one person to email.'); return false; }
+      return confirm('Email an update to ' + LO_SEL.length + ' ' + (LO_SEL.length === 1 ? 'person' : 'people') + '?');
     }
     function loContactFilter(){
       var q = (document.getElementById('loContactSearch').value || '').toLowerCase().trim();
@@ -236,17 +239,13 @@
         card.style.display = match ? '' : 'none';
         if (match) shown++;
       });
-      var none = document.getElementById('loContactNone');
-      if (none) none.style.display = shown ? 'none' : 'block';
+      var none = document.getElementById('loContactNone'); if (none) none.style.display = shown ? 'none' : 'block';
     }
-    function loCopyText(btn){
-      var token = btn.getAttribute('data-token') || '';
-      var link = LO_BOOK_URL + '/?circle=' + token;
-      var msg = "There's something new on " + LO_SITE_LABEL + " — take a look (no password needed): " + link;
-      var done = function(){ var t = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = t; }, 1500); };
-      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(msg).then(done).catch(function(){ window.prompt('Copy this message to text:', msg); }); }
-      else { window.prompt('Copy this message to text:', msg); }
-    }
+    document.addEventListener('click', function(e){
+      var s = document.getElementById('loShareSearch'); var dd = document.getElementById('loDD');
+      if (!dd) return;
+      if (e.target !== s && !dd.contains(e.target)) loDDClose();
+    });
   </script>
 </body>
 </html>
