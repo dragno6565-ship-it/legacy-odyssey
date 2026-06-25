@@ -63,7 +63,14 @@ async function resolveFamily(req, res, next) {
   }
 
   if (!family) {
-    req.isMarketingSite = true;
+    // Only the REAL marketing host shows the marketing landing page. A book host
+    // (custom domain or *.legacyodyssey.com subdomain) that fails to resolve must
+    // NOT fall through to marketing — that page has a "Sign up" CTA, so a would-be
+    // VIEWER lands on an account-creation prompt instead of the book. Treat any
+    // other unresolved host as a not-found book domain. (Influencer bug, 2026-06-25.)
+    req.isMarketingSite =
+      host === appDomain || host === `www.${appDomain}` ||
+      host === 'localhost' || host === '127.0.0.1';
     return next();
   }
 
