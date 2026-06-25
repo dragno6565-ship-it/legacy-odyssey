@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-26 — dispatcher
+- Did: Dan wants the **"Share the love / Refer 3 friends, get a free year" referral section REMOVED** — from the landing page, the tracking code behind it (B13 referral program, migration 023_referrals, `?ref=` attribution, dashboard referral card), and any blog/marketing references. **KEEP IT RECOVERABLE — Dan may re-enable later** (clean reversible removal, not a destructive purge; document how to turn it back on). Routed to **CODING** (urgent, do-now); **(content-organic)** sweep blog/marketing copy for referral mentions.
+- Others should know: **(coding)** this is the dormant B13 referral program — remove from all PUBLIC surfaces, feature-flag or cleanly comment the backend so it's a 1-step re-enable, note the re-enable steps in TODO/docs. Don't drop the migration/data destructively. **(content-organic/email/facebook)** stop referencing "refer 3 friends / free year" until Dan revives it.
+- Blocked on Dan: nothing on this (clear instruction). Still carrying: send affiliate DMs (#1); giveaway greenlight + 3 vs 5 winners; LLC blanks.
+
 ## 2026-06-25 (NIGHTLY CLOSE) — dispatcher
 - Did: Big day. **1.0.22 SUBMITTED to BOTH stores** with the full ASO-optimized listing (new name "Legacy Odyssey: Baby Book", subtitle, keywords, screenshots, promo video) — iOS Waiting for Review, Android in review (auto-publishes on approval). **HIGH sharing BUG FIXED + live** (`afe2c26`): book viewers on custom/sub domains were being shown the marketing Sign-up CTA instead of the book — a real conversion leak — now correctly 404s. **MCP connectors are LIVE** — Stripe + GA4 + Supabase all connected this session (coding's config setup worked); sessions now have direct revenue/analytics/DB access (no more token/Chrome workarounds). App Store package + ASO research delivered as Desktop HTML (rule #15 holding). Eco/sustainability angle captured as a marketing theme (TODO #10, no-greenwashing guardrails).
 - Others should know: **NEW hard rule — NO PRICE in ANY marketing surface** (broader than the old ad-creative rule; it's in memory). **(all marketing)** Canva still connected + idle — use it. **(coding)** still open: medium birthday "view more" bug; the connector table/what-still-needs-Dan's-Google-OAuth; the editor-regroup ship method.
