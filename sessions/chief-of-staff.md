@@ -3,7 +3,7 @@
 > Business operations: formation/legal, filings, costs, vendors, hardware, calendar,
 > decisions, and business-level analytics/diagnosis. Does NOT write feature code.
 
-**Last session:** 2026-06-23 (deep analytics rundown + full 100-visitors growth plan)
+**Last session:** 2026-06-25 (App Store listing package: copy + screenshots + video)
 
 ## Scope
 - Owns the entire `ops/` directory — the business source of truth.
@@ -54,7 +54,14 @@
 - PROJECT-MAP Phase 0 done (Dispatcher, 2026-06-10). Phases 1–4 pending — Phase 1 (move
   `Legacy Odyssey Logins.docx` + `Project_Accounts.pdf` into `F:\_secrets\`) is the priority.
 
-## Open items (next session — refreshed 2026-06-23)
+## Open items (next session — refreshed 2026-06-25)
+- **App Store listing — copy APPROVED by Dan (may edit pre-submit).** Coding cleared to STAGE
+  metadata (promo text live now; name/subtitle/keywords ride next build); NO submit without Dan's go.
+  Remaining: coding captures a fresh "Your Contacts" screen → add a sharing screenshot. Package:
+  `Desktop\LO-reports\app-store-package.html`. Open offer to Dan: draft the review-request email (2→20+ ratings).
+- **2 influencer bugs routed to coding** — HIGH: sharing prompts account-creation (the flow we market);
+  medium: birthday "View more photos" error. Ask the influencer how she invited her husband (repro). Hold
+  scaling the "sharing" marketing push until fixed.
 - **🚀 GROWTH IS THE PRIORITY.** Plan is written (`ops/GROWTH-100-VISITORS-PLAN.md`). The 3
   start-today moves: (1) **Dan sends the affiliate Tier-A DM pack** — highest-ROI, $0, ready;
   (2) **coding ships the customer-site "start your own" badge** + **GA bot filter** (step 0) +
@@ -73,6 +80,16 @@
   comps) + emmacherry/roypatrickthompson Stripe-sub verification.
 
 ## Log
+- **2026-06-25** — App Store marketing push. Research brief "is ASA worth it" (verdict: ASO yes,
+  ASA only after listing converts; corrected the "Meta proved it" overreach). Built the full listing
+  package: keywords 100/100 (journal added), website-led dash-free no-price copy reflecting NEW
+  features (Custom Galleries 50, Your Contacts, Your Birth Day, Your Journey to Us), 6 real App Store
+  screenshots (Pillow + brand fonts, patched the live "CHAPTER" eyebrow out), and a real ~20s promo
+  video (ffmpeg-static). All in `Desktop\LO-reports\app-store-package.html` + `marketing/app-store/`
+  (reusable `make_screenshots.py` / `make_video.py`). **Dan approved the copy** (may edit pre-submit).
+  NEW HARD RULE saved: no price in any marketing (`feedback_no_price_in_marketing`). Routed 2 live
+  bugs from an influencer to coding (HIGH: sharing → account-creation prompt; medium: birthday
+  "View more photos" error). Dan's call: IGNORE the live "CHAPTER" eyebrows.
 - **2026-06-23 (PM, deeper)** — On Dan's two URGENT re-asks, deepened both deliverables.
   **Analytics:** added GA today (4) / 7d (67, ~10/day, 2s) / 28d (851); Clarity per-page
   heatmaps — homepage 7 views→1 click (on "Affiliates", not the CTA), ~57% leave before 40%

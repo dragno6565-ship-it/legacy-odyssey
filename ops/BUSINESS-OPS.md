@@ -26,6 +26,7 @@
 | [LLC-CHECKLIST.md](LLC-CHECKLIST.md) | D-001 do-this checklist for Dan: EIN, operating agreement, business banking. |
 | [ANALYTICS-RUNDOWN-2026-06-23.md](ANALYTICS-RUNDOWN-2026-06-23.md) | GA4 + Clarity + Stripe snapshot. ~70% bot traffic; real floor ≈6 visitors/day. |
 | [GROWTH-100-VISITORS-PLAN.md](GROWTH-100-VISITORS-PLAN.md) | $/visitor-ranked plan to reach 100 real visitors/day (organic; paid excluded). |
+| [APP-STORE-ASO-PLAN.md](APP-STORE-ASO-PLAN.md) | Paste-ready iOS/Android listing rewrite (keywords, copy, screenshots, reviews play). |
 
 ---
 
