@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-24 (nightly close; readability rule #15 + converter; growth=influencer-run giveaway; customer count corrected to 14)
+**Last session:** 2026-06-25 (nightly close; 1.0.22 ASO listing submitted both stores; Stripe/GA4/Supabase connectors live; sharing bug fixed)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
@@ -55,6 +55,15 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
+- **2026-06-25** — Nightly close. 1.0.22 submitted to both stores with the full ASO-optimized
+  listing (new name "Legacy Odyssey: Baby Book" + keywords/screenshots/video); App Store package
+  + ASO research delivered as Desktop HTML. HIGH sharing bug fixed + live (`afe2c26`) — viewers on
+  book domains were getting the marketing signup CTA, now 404s correctly. **MCP connectors went
+  live: Stripe + GA4 + Supabase** (coding's config setup worked) — sessions now have direct
+  revenue/analytics/DB access. New hard rule: no price in any marketing surface. Captured the
+  eco/sustainability angle (TODO #10). Routed connector-setup + ASO split (chief-of-staff strategy
+  / coding listing) earlier today. Still chasing Dan on: send the affiliate DMs (#1), giveaway
+  greenlight + prize count, LLC blanks.
 - **2026-06-24** — Nightly close. Day: 1.0.20 (phone-contacts import) submitted both stores;
   contact-section announcement emailed to all 14 customers; family-album demo removed. Set 3
   new CLAUDE.md hard rules — #13 (ask before real outside names), #14 (website/"Your Contacts"
