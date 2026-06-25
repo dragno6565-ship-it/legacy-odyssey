@@ -48,7 +48,7 @@
     <p class="section-desc">Your Contact List and Circles — keep a private list of the people who can see your website, organize them into Circles (like “Grandparents” or “Close Family”), and tell them when there's something new.</p>
 
     <% if (success) { %><div class="banner ok">Saved.</div><% } %>
-    <% if (typeof sent !== 'undefined' && sent) { %><div class="banner ok">Update sent to <%= sent %> <%= sent === '1' ? 'person' : 'people' %>. They each got their own private link.</div><% } %>
+    <% if (typeof sent !== 'undefined' && sent) { %><div class="banner ok">Update sent to <%= sent %> <%= sent === '1' ? 'person' : 'people' %>.</div><% } %>
     <% if (error) { %><div class="banner err"><%= (error === '1') ? 'Something went wrong. Please try again.' : error %></div><% } %>
 
     <% var emailable = (contacts || []).filter(function(c){ return c.email && c.notify_opt_in !== false && !c.unsubscribed_at; }); %>
@@ -58,6 +58,27 @@
     <div class="card" style="border:1.5px solid #c8a96e;">
       <p class="muted" style="margin-bottom:0.7rem;">Email an update to your contacts — each opens their own private link, no password needed. <strong>📱 To <em>text</em> updates, use the Legacy Odyssey app</strong> — the web editor sends by email.</p>
       <form action="/account/book/circles/notify" method="POST" id="loShareForm" onsubmit="return loShareSubmit();">
+        <label>What are you sharing?</label>
+        <select name="section" style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin:0.3rem 0 0.7rem; background:#fff; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416;">
+          <option value="">Your whole website</option>
+          <option value="welcome">Welcome</option>
+          <option value="before">Before You Arrived</option>
+          <option value="birth">Birth Story</option>
+          <option value="birthday">Your Birth Day</option>
+          <option value="journey">Your Journey to Us</option>
+          <option value="home">Coming Home</option>
+          <option value="months">Month by Month</option>
+          <option value="family">Our Family</option>
+          <option value="firsts">Your Firsts</option>
+          <option value="galleries">Photo Galleries</option>
+          <option value="holidays">Celebrations</option>
+          <option value="letters">Letters</option>
+          <option value="recipes">Recipes</option>
+          <option value="keepsakes">Keepsakes</option>
+          <option value="moments">Video Moments</option>
+          <option value="vault">The Vault</option>
+        </select>
+        <p class="muted" style="font-size:0.8em; margin:-0.4rem 0 0.7rem;">The link drops them right on that section. Pick “Your whole website” to share the whole site.</p>
         <label>Who do you want to email?</label>
         <div class="chips" style="margin:0.3rem 0 0.5rem;">
           <button type="button" class="chip lo-quick" onclick="loPickAll()">Everyone (<%= emailable.length %>)</button>
@@ -229,7 +250,9 @@
     }
     function loShareSubmit(){
       if (!LO_SEL.length){ alert('Pick at least one person to email.'); return false; }
-      return confirm('Email an update to ' + LO_SEL.length + ' ' + (LO_SEL.length === 1 ? 'person' : 'people') + '?');
+      var sel = document.querySelector('#loShareForm select[name="section"]');
+      var scope = (sel && sel.value) ? (' (' + sel.options[sel.selectedIndex].text + ')') : '';
+      return confirm('Email an update' + scope + ' to ' + LO_SEL.length + ' ' + (LO_SEL.length === 1 ? 'person' : 'people') + '?');
     }
     function loContactFilter(){
       var q = (document.getElementById('loContactSearch').value || '').toLowerCase().trim();
