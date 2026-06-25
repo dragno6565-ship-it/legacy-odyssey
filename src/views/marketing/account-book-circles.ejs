@@ -52,44 +52,43 @@
     <% if (error) { %><div class="banner err"><%= (error === '1') ? 'Something went wrong. Please try again.' : error %></div><% } %>
 
     <% var emailable = (contacts || []).filter(function(c){ return c.email && c.notify_opt_in !== false && !c.unsubscribed_at; }); %>
-    <% var phoneOnly = (contacts || []).filter(function(c){ return c.phone && !(c.email && c.notify_opt_in !== false && !c.unsubscribed_at); }); %>
     <% if ((contacts || []).length) { %>
     <!-- ===== SHARE AN UPDATE ===== -->
     <h2 style="margin-top:0.5rem;">Share an update</h2>
     <div class="card" style="border:1.5px solid #c8a96e;">
-      <p class="muted" style="margin-bottom:0.7rem;">Let people know there's something new on your website. Pick who to tell — each person gets their own private link, no password needed. Prefer to text? Use <strong>Copy text</strong> on anyone with a phone number (in the Contact List below).</p>
-      <% if (emailable.length) { %>
+      <p class="muted" style="margin-bottom:0.7rem;">Let people know there's something new on your website. <strong>Tick anyone with an email</strong> and send — each gets their own private link, no password. For anyone with a <strong>phone</strong>, tap <strong>Copy text</strong> and paste it into your Messages app.</p>
       <form action="/account/book/circles/notify" method="POST" id="loShareForm" onsubmit="return loShareSubmit();">
         <label>Who do you want to share with?</label>
         <div class="chips" style="margin:0.3rem 0 0.5rem;">
-          <button type="button" class="chip lo-quick" onclick="loPickAll()">Everyone (<%= emailable.length %>)</button>
+          <button type="button" class="chip lo-quick" onclick="loPickAll()">Everyone with email (<%= emailable.length %>)</button>
           <% (circles || []).forEach(function(c) { var n = emailable.filter(function(p){ return (p.circle_ids || []).indexOf(c.id) !== -1; }).length; if (n) { %>
             <button type="button" class="chip lo-quick" onclick="loPickCircle('<%= c.id %>')"><%= c.name %> (<%= n %>)</button>
           <% } }); %>
           <button type="button" class="chip lo-quick" onclick="loPickNone()">Clear</button>
         </div>
-        <input type="text" id="loShareSearch" placeholder="Search people…" oninput="loShareFilter()" autocomplete="off"
+        <input type="text" id="loShareSearch" placeholder="Search contacts…" oninput="loShareFilter()" autocomplete="off"
           style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin-bottom:0.5rem;">
-        <div id="loShareList" style="max-height:260px; overflow:auto; border:1px solid #eee3d3; border-radius:8px; padding:0 0.7rem; margin-bottom:0.6rem;">
-          <% emailable.forEach(function(p) { %>
-            <label class="lo-prow" data-search="<%= ((p.name||'') + ' ' + (p.email||'')).toLowerCase().replace(/\"/g,'') %>" data-circles="<%= (p.circle_ids || []).join(',') %>"
-              style="display:flex; align-items:center; gap:0.55rem; padding:0.5rem 0; border-bottom:1px solid #f0ebe3; cursor:pointer;">
-              <input type="checkbox" name="contactIds[]" value="<%= p.id %>" class="lo-pcb" onchange="loShareCount()" style="width:18px; height:18px;">
-              <span><strong><%= p.name %></strong> <span class="muted" style="font-size:0.85em;">· <%= p.email %></span></span>
-            </label>
+        <div id="loShareList" style="max-height:280px; overflow:auto; border:1px solid #eee3d3; border-radius:8px; padding:0 0.7rem; margin-bottom:0.6rem;">
+          <% (contacts || []).forEach(function(p) { var canEmail = p.email && p.notify_opt_in !== false && !p.unsubscribed_at; %>
+            <div class="lo-prow" data-search="<%= ((p.name||'') + ' ' + (p.email||'') + ' ' + (p.phone||'')).toLowerCase().replace(/\"/g,'') %>" data-circles="<%= (p.circle_ids || []).join(',') %>"
+              style="display:flex; align-items:center; gap:0.55rem; padding:0.5rem 0; border-bottom:1px solid #f0ebe3;">
+              <% if (canEmail) { %>
+                <input type="checkbox" name="contactIds[]" value="<%= p.id %>" class="lo-pcb" onchange="loShareCount()" style="width:18px; height:18px; flex:none;" title="Email this person their private link">
+              <% } else { %>
+                <span style="width:18px; flex:none; text-align:center; color:#c8a96e;" title="No email — use Copy text">•</span>
+              <% } %>
+              <span style="flex:1; min-width:0;"><strong><%= p.name %></strong><span class="muted" style="font-size:0.85em;"><%= p.email ? ' · ' + p.email : '' %><%= p.phone ? ' · ' + p.phone : '' %><%= (!p.email && !p.phone) ? ' · no email or phone' : '' %></span></span>
+              <% if (p.phone) { %>
+                <button type="button" class="btn btn-sm" data-token="<%= p.access_token %>" onclick="loCopyText(this)" style="flex:none;">Copy text</button>
+              <% } %>
+            </div>
           <% }); %>
         </div>
         <input type="text" name="note" maxlength="500" placeholder="Add a short note (optional) — e.g. New first-birthday photos are up!"
           style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin-bottom:0.6rem;">
         <button type="submit" class="btn" id="loShareBtn" disabled>Email <span id="loShareCount">0</span> selected</button>
-        <span class="muted" style="margin-left:0.6rem;">One broadcast per 10 minutes; a hand-picked group isn't limited.</span>
+        <span class="muted" style="margin-left:0.6rem;">Tick people with an email to send links; use Copy text for phone numbers.</span>
       </form>
-      <% } else { %>
-        <p class="muted">No one has an email address yet. Add an email to a contact to send them a private link — or use <strong>Copy text</strong> below to text anyone with a phone.</p>
-      <% } %>
-      <% if (phoneOnly.length) { %>
-        <p class="muted" style="margin-top:0.7rem; font-size:0.85em;"><%= phoneOnly.length %> <%= phoneOnly.length === 1 ? 'person has' : 'people have' %> only a phone number — text them with <strong>Copy text</strong> in the Contact List below.</p>
-      <% } %>
     </div>
     <% } %>
 
@@ -131,8 +130,13 @@
     <% if (!contacts || contacts.length === 0) { %>
       <div class="empty">No contacts yet — add the first person below.</div>
     <% } %>
+    <% if ((contacts || []).length > 3) { %>
+      <input type="text" id="loContactSearch" placeholder="Search contacts…" oninput="loContactFilter()" autocomplete="off"
+        style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin-bottom:0.7rem;">
+      <div id="loContactNone" class="muted" style="display:none; margin-bottom:0.7rem;">No contacts match that search.</div>
+    <% } %>
     <% (contacts || []).forEach(function(p) { %>
-      <div class="card">
+      <div class="card lo-contact-card" data-search="<%= ((p.name||'') + ' ' + (p.email||'') + ' ' + (p.phone||'')).toLowerCase().replace(/\"/g,'') %>">
         <div class="contact-head">
           <strong><%= p.name %></strong>
           <span class="inline" style="display:inline-flex; gap:0.4rem;">
@@ -223,6 +227,17 @@
       var n = document.querySelectorAll('.lo-pcb:checked').length;
       if(!n){ alert('Pick at least one person to share with.'); return false; }
       return confirm('Email an update to ' + n + ' ' + (n === 1 ? 'person' : 'people') + '? Each gets their own private link.');
+    }
+    function loContactFilter(){
+      var q = (document.getElementById('loContactSearch').value || '').toLowerCase().trim();
+      var shown = 0;
+      document.querySelectorAll('.lo-contact-card').forEach(function(card){
+        var match = !q || (card.getAttribute('data-search') || '').indexOf(q) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) shown++;
+      });
+      var none = document.getElementById('loContactNone');
+      if (none) none.style.display = shown ? 'none' : 'block';
     }
     function loCopyText(btn){
       var token = btn.getAttribute('data-token') || '';
