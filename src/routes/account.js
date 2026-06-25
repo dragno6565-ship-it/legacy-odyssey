@@ -613,8 +613,12 @@ router.get('/book/circles', requireAccountSession, async (req, res, next) => {
     const bid = await resolveBookId(req);
     const contacts = bid ? await contactService.listContacts(bid) : [];
     const circles = bid ? await contactService.listCircles(bid) : [];
+    const f = req.family;
+    const bookUrl = f.custom_domain ? `https://www.${f.custom_domain}` : `https://${f.subdomain}.legacyodyssey.com`;
+    const { computeSiteLabel } = require('../middleware/requireBookPassword');
+    const siteLabel = await computeSiteLabel(f);
     res.render('marketing/account-book-circles', {
-      contacts, circles,
+      contacts, circles, bookUrl, siteLabel,
       success: req.query.success || null, error: req.query.error || null,
       sent: req.query.sent || null,
     });
@@ -632,16 +636,24 @@ router.post('/book/circles/notify', requireAccountSession, async (req, res) => {
       : `https://${f.subdomain}.legacyodyssey.com`;
     const { computeSiteLabel } = require('../middleware/requireBookPassword');
     const siteLabel = await computeSiteLabel(f);
-    // "Who" submits a single value: "" = Everyone, "circle:<id>", or "contact:<id>".
+    // New flow submits a hand-picked list: contactIds[]. Legacy "target" ("" =
+    // Everyone, "circle:<id>", "contact:<id>") is still accepted for safety.
+    const contactIds = Array.isArray(req.body['contactIds[]']) ? req.body['contactIds[]']
+      : Array.isArray(req.body.contactIds) ? req.body.contactIds
+      : (req.body['contactIds[]'] ? [req.body['contactIds[]']] : (req.body.contactIds ? [req.body.contactIds] : null));
     const target = (req.body.target || req.body.circleId || '').trim();
     let circleId = null, contactId = null;
-    if (target.indexOf('circle:') === 0) circleId = target.slice(7);
-    else if (target.indexOf('contact:') === 0) contactId = target.slice(8);
-    else if (target) circleId = target; // backward-compat: bare circle id
+    if (!contactIds || !contactIds.length) {
+      if (target.indexOf('circle:') === 0) circleId = target.slice(7);
+      else if (target.indexOf('contact:') === 0) contactId = target.slice(8);
+      else if (target) circleId = target; // backward-compat: bare circle id
+    }
     const result = await contactService.notifyCircle({
       bookId: bid,
       circleId,
       contactId,
+      contactIds: (contactIds && contactIds.length) ? contactIds : null,
+      section: (req.body.section || '').trim() || null,
       note: req.body.note,
       bookUrl,
       siteLabel,

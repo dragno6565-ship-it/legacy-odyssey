@@ -55,9 +55,33 @@ router.get('/mine/contacts/:id/sms', async (req, res, next) => {
     const bookUrl = f.custom_domain ? `https://www.${f.custom_domain}` : `https://${f.subdomain}.legacyodyssey.com`;
     const { computeSiteLabel } = require('../../middleware/requireBookPassword');
     const siteLabel = await computeSiteLabel(f);
-    const link = `${bookUrl}/?circle=${c.access_token}`;
+    const section = (req.query.section || '').trim();
+    const anchor = /^[a-z0-9-]{1,64}$/i.test(section) ? `#${section}` : '';
+    const link = `${bookUrl}/?circle=${c.access_token}${anchor}`;
     const message = `There's something new on ${siteLabel} — take a look (no password needed): ${link}`;
     res.json({ phone: c.phone, name: c.name, message });
+  } catch (err) { next(err); }
+});
+// App-only: build the text for a GROUP share. One message to many recipients
+// can't carry each person's private magic link, so a group text uses the public
+// site link + the book password (which the owner is choosing to share). Optional
+// ?section=section-key deep-links to the page/section that changed.
+router.get('/mine/share-text', async (req, res, next) => {
+  try {
+    const id = await bid(req);
+    if (!id) return res.status(404).json({ error: 'No book found' });
+    const f = req.family;
+    const bookUrl = f.custom_domain ? `https://www.${f.custom_domain}` : `https://${f.subdomain}.legacyodyssey.com`;
+    const section = (req.query.section || '').trim();
+    const anchor = /^[a-z0-9-]{1,64}$/i.test(section) ? `#${section}` : '';
+    const link = `${bookUrl}/${anchor}`;
+    const { computeSiteLabel } = require('../../middleware/requireBookPassword');
+    const siteLabel = await computeSiteLabel(f);
+    const pw = f.book_password;
+    const message = pw
+      ? `There's something new on ${siteLabel} — take a look: ${link} (password: ${pw})`
+      : `There's something new on ${siteLabel} — take a look: ${link}`;
+    res.json({ message, siteUrl: link, hasPassword: !!pw });
   } catch (err) { next(err); }
 });
 router.put('/mine/contacts/:id', async (req, res, next) => {
@@ -89,6 +113,8 @@ router.post('/mine/notify', async (req, res) => {
       bookId: id,
       circleId: (req.body.circleId || '').trim() || null,
       contactId: (req.body.contactId || '').trim() || null,
+      contactIds: Array.isArray(req.body.contactIds) ? req.body.contactIds : null,
+      section: (req.body.section || '').trim() || null,
       note: req.body.note,
       bookUrl,
       siteLabel,

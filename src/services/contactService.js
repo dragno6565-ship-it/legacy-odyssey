@@ -250,11 +250,18 @@ async function unsubscribeByToken(token) {
  * NOTIFY_COOLDOWN_MIN minutes; writes a book_update_notifications audit row.
  * Shared by the web editor and the app API (parity rule).
  */
-async function notifyCircle({ bookId, circleId = null, contactId = null, note = '', bookUrl, siteLabel, senderName }) {
+async function notifyCircle({ bookId, circleId = null, contactId = null, contactIds = null, section = null, note = '', bookUrl, siteLabel, senderName }) {
+  // An explicit hand-picked selection (one contact, or a multi-select list) is a
+  // deliberate one-off — like single-contact, it skips the broadcast cooldown.
+  const pickedIds = Array.isArray(contactIds) ? contactIds.filter(Boolean) : null;
+  const isExplicitPick = !!contactId || (pickedIds && pickedIds.length > 0);
+  // Optional deep-link anchor (e.g. "section-birth") so an update can point at
+  // the specific page/section that changed. Sanitized to a safe id fragment.
+  const anchor = (section && /^[a-z0-9-]{1,64}$/i.test(String(section))) ? `#${section}` : '';
+
   // Rate limit — protects inboxes from accidental double-blasts. Only applies to
-  // BROADCASTS (Everyone / a circle); sending to a single chosen contact is a
-  // deliberate one-off and skips the cooldown.
-  if (!contactId) {
+  // BROADCASTS (Everyone / a circle); a hand-picked selection skips the cooldown.
+  if (!isExplicitPick) {
     const { data: lastBlast } = await supabaseAdmin
       .from('book_update_notifications')
       .select('sent_at').eq('book_id', bookId)
@@ -267,7 +274,7 @@ async function notifyCircle({ bookId, circleId = null, contactId = null, note = 
     }
   }
 
-  // Resolve recipients: a single contact, a circle, or everyone.
+  // Resolve recipients: a single contact, a hand-picked list, a circle, or everyone.
   let contacts = await listContacts(bookId);
   let circleName = null;
   if (contactId) {
@@ -276,6 +283,10 @@ async function notifyCircle({ bookId, circleId = null, contactId = null, note = 
     if (!one.email) throw new Error(`${one.name || 'That contact'} has no email address — add one on their contact card to send them an update.`);
     if (one.notify_opt_in === false || one.unsubscribed_at) throw new Error(`${one.name || 'That contact'} has unsubscribed from updates.`);
     contacts = [one];
+  } else if (pickedIds && pickedIds.length) {
+    const wanted = new Set(pickedIds);
+    contacts = contacts.filter((c) => wanted.has(c.id));
+    if (!contacts.length) throw new Error('None of the chosen people are on your list anymore.');
   } else if (circleId) {
     const circles = await listCircles(bookId);
     const circle = circles.find((c) => c.id === circleId);
@@ -293,8 +304,9 @@ async function notifyCircle({ bookId, circleId = null, contactId = null, note = 
     return true;
   });
   if (!recipients.length) {
-    throw new Error(circleId
-      ? 'No one in that circle has an email address (or they have unsubscribed).'
+    throw new Error(
+      circleId ? 'No one in that circle has an email address (or they have unsubscribed).'
+      : (pickedIds && pickedIds.length) ? 'None of the people you picked have an email address (or they have unsubscribed). You can still text them their link.'
       : 'No one to notify yet — add people with email addresses first.');
   }
 
@@ -309,7 +321,7 @@ async function notifyCircle({ bookId, circleId = null, contactId = null, note = 
       + (safeNote ? `<br><br><em>&ldquo;${safeNote.replace(/</g, '&lt;').replace(/>/g, '&gt;')}&rdquo;</em>` : '')
       + '<br><br>Use your private link below to take a look — no password needed.',
     ctaText: 'See What’s New',
-    ctaUrl: `${bookUrl}/?circle=${c.access_token}`,
+    ctaUrl: `${bookUrl}/?circle=${c.access_token}${anchor}`,
     unsubscribeUrl: `${bookUrl}/circle/unsubscribe/${c.access_token}`,
   })));
   const sent = results.filter((r) => r.status === 'fulfilled' && r.value).length;
