@@ -26,6 +26,12 @@
    below + add to the roster BEFORE handing Dan the brief.
 
 ## Open items
+- [ ] ⏰ **ACTIVE REMINDER for Dan (set 2026-06-26): FIX THE META ADS so they work best.** On hold while
+      coding handles a more pressing matter; Dan asked to be reminded later today/tomorrow. Surface at
+      EVERY agenda until done. Verified findings + fix-list in the 2026-06-26 "Meta readiness — VERIFIED,
+      ON HOLD" STATUS entry. Crux: Meta Pixel Purchase IS wired but UNPROVEN LIVE (no sale since Jun 14) —
+      verify end-to-end with one real/Stripe-test purchase BEFORE any spend; then CAPI on + gift-success
+      Pixel + real GA4 bot filters, then meta-ads designs the purchase-objective test spec.
 - [ ] **Blocked on Dan — delete zombie Railway service.** Identified as project
       `romantic-creation` (id `25a7cbc7-64da-4012-bf24-5b20a0bc4839`, service
       `a759cd1b-34ae-4171-8e4b-9259e0e95dda`, live at `legacy-odyssey-production-a9d1...`
