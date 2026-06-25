@@ -180,6 +180,43 @@
       </div>
     </a>
 
+    <!-- Share your book — the REAL book link (so customers don't grab the referral link below) -->
+    <% const bookShareUrl = family.custom_domain ? ('https://www.' + family.custom_domain) : ('https://' + family.subdomain + '.legacyodyssey.com'); %>
+    <div class="card" style="border: 1.5px solid #c8a96e;">
+      <h2 style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+        <span style="display:inline-flex;color:#c8a96e;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
+        Share your book
+      </h2>
+      <p style="font-size:0.88rem;color:#4a3f30;line-height:1.5;margin-bottom:14px;">Send this link to family and friends so they can visit your book.<% if (family.book_password) { %> They'll enter the book password below to open it.<% } %></p>
+
+      <label style="display:block;font-size:12px;color:#4a3f30;margin-bottom:6px;letter-spacing:0.04em;text-transform:uppercase;">Your book link</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input id="loBookLink" type="text" readonly value="<%= bookShareUrl %>" onclick="this.select()"
+          style="flex:1;min-width:220px;padding:11px 13px;border:1px solid #e0d5c4;border-radius:8px;background:#faf7f2;color:#2c2416;font-size:14px;" />
+        <button type="button" class="btn-gold" style="margin:0;white-space:nowrap;" onclick="loCopyBook(this)">Copy link</button>
+      </div>
+
+      <% if (family.book_password) { %>
+      <div style="margin-top:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:0.88rem;color:#4a3f30;">Book password:</span>
+        <code style="font-size:0.95rem;font-weight:600;color:#2c2416;background:#f5efe3;border:1px solid #e0d5c4;border-radius:6px;padding:4px 10px;letter-spacing:0.04em;"><%= family.book_password %></code>
+        <span style="font-size:0.8rem;color:#6b5f4f;">— share this too, so they can open the book</span>
+      </div>
+      <% } %>
+
+      <p class="portal-note" style="margin-top:14px;">Want to invite people one by one and let them know when there's something new? Use <a href="/account/book/circles" style="color:#c8a96e;font-weight:600;">Your Contacts</a> below — it sends each person their own private link, no password needed.</p>
+    </div>
+    <script>
+      function loCopyBook(btn) {
+        var input = document.getElementById('loBookLink');
+        input.select();
+        var done = function () { var t = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = t; }, 1600); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(input.value).then(done).catch(function(){ try { document.execCommand('copy'); done(); } catch(e){} });
+        } else { try { document.execCommand('copy'); done(); } catch(e){} }
+      }
+    </script>
+
     <!-- Your Contacts (Contact List + Circles) -->
     <a href="/account/book/circles" style="text-decoration:none;">
       <div class="card" style="border: 1.5px solid #c8a96e; cursor: pointer; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 16px rgba(0,0,0,0.06)'">
@@ -298,7 +335,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <input id="loRefLink" type="text" readonly value="<%= referral.link %>" onclick="this.select()"
           style="flex:1;min-width:220px;padding:11px 13px;border:1px solid #e0d5c4;border-radius:8px;background:#faf7f2;color:#2c2416;font-size:14px;" />
-        <button type="button" class="btn-gold" style="margin:0;white-space:nowrap;" onclick="loCopyRef(this)">Copy link</button>
+        <button type="button" class="btn-gold" style="margin:0;white-space:nowrap;" onclick="loCopyRef(this)">Copy referral link</button>
       </div>
 
       <div style="margin-top:18px;">
