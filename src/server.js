@@ -69,6 +69,12 @@ app.use(require('./middleware/consentRegion'));
 // res.locals.t / res.locals.lang to every template. Phase 1: public book sites.
 app.use(require('./i18n').middleware);
 
+// Feature flags → templates. Exposes res.locals.referralsEnabled (B13 referral
+// program) so every view shows/hides referral UI from one switch. Toggle via the
+// REFERRALS_ENABLED env var — see config/features.js + TODO.md.
+const features = require('./config/features');
+app.use((req, res, next) => { res.locals.referralsEnabled = features.REFERRALS_ENABLED; next(); });
+
 // Rate limiting on auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

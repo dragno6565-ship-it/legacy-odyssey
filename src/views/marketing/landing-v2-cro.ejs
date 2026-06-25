@@ -865,7 +865,8 @@
     </div>
   </section>
 
-  <!-- ====== REFERRAL (B13 — live) ====== -->
+  <!-- ====== REFERRAL (B13) — gated OFF via REFERRALS_ENABLED (Dan, 2026-06-26). Re-enable: set env REFERRALS_ENABLED=true. See TODO.md ====== -->
+  <% if (typeof referralsEnabled !== 'undefined' && referralsEnabled) { %>
   <section class="lo-referral lo-reveal">
     <div class="lo-referral-inner">
       <div class="lo-referral-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></div>
@@ -875,6 +876,7 @@
       <p class="lo-section-sub" style="margin:0 auto;font-size:.95rem;color:#8a7e6b;">Already have an account? Your referral link is waiting on your <a href="/account/dashboard" style="color:#b08e4a;text-decoration:underline;">account dashboard</a>.</p>
     </div>
   </section>
+  <% } %>
 
   <!-- ====== FAQ (D4#8 domain ownership transparency added) ====== -->
   <section class="lo-faq lo-reveal" id="help">
@@ -1248,6 +1250,7 @@
         return m ? decodeURIComponent(m[1]) : null;
       } catch (e) { return null; }
     }
+    <% if (typeof referralsEnabled !== 'undefined' && referralsEnabled) { %>
     (function captureReferral() {
       try {
         var code = new URLSearchParams(window.location.search).get('ref');
@@ -1258,6 +1261,7 @@
         document.cookie = 'lo_ref=' + encodeURIComponent(code) + '; expires=' + exp + '; path=/; SameSite=Lax';
       } catch (e) {}
     })();
+    <% } %>
   </script>
 
   <!-- ====== Hero search + contact form (preserved) ====== -->

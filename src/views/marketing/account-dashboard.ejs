@@ -326,7 +326,7 @@
       <% } %>
     </div>
 
-    <% if (typeof referral !== 'undefined' && referral && referral.code) { %>
+    <% if ((typeof referralsEnabled !== 'undefined' && referralsEnabled) && typeof referral !== 'undefined' && referral && referral.code) { %>
     <div class="card">
       <h2>Refer friends, get a free year</h2>
       <p style="font-size:14px;color:#4a4a5a;line-height:1.6;margin-bottom:14px;">Share your link below. When <strong><%= referral.threshold %> friends</strong> start a book of their own, we credit your account <strong><%= referral.rewardLabel %></strong> toward your next renewal — automatically. No limit: every <%= referral.threshold %> more is another year on us.</p>

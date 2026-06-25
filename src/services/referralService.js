@@ -1,7 +1,15 @@
 const { supabaseAdmin } = require('../config/supabase');
+const { REFERRALS_ENABLED } = require('../config/features');
 
 /**
  * Referral program (B13) — Stripe customer-balance credit model.
+ *
+ * FEATURE FLAG: the whole program is gated by REFERRALS_ENABLED (config/features).
+ * When OFF (the current default, set by Dan 2026-06-26) every public function
+ * below short-circuits to a no-op: no codes are generated, ?ref= attribution is
+ * ignored, no Stripe credits are issued, and getReferralStats returns null so the
+ * dashboard card hides. Existing referral DATA and migration 023 are untouched —
+ * flip REFERRALS_ENABLED=true to restore the program exactly as it was.
  *
  * Each family has a shareable `referral_code`. New customers who arrive via a
  * referral link (?ref=CODE) get tagged with `referred_by` at checkout. Once a
@@ -60,6 +68,7 @@ function randomCode() {
  * Find the family that owns a referral code. Returns null if none.
  */
 async function findByReferralCode(code) {
+  if (!REFERRALS_ENABLED) return null;
   if (referralSchemaMissing) return null;
   const normalized = normalizeCode(code);
   if (!normalized) return null;
@@ -78,6 +87,7 @@ async function findByReferralCode(code) {
  * Retries on the (rare) unique-index collision.
  */
 async function getOrCreateCodeForFamily(family) {
+  if (!REFERRALS_ENABLED) return null;
   if (referralSchemaMissing) return null;
   if (!family) return null;
   if (family.referral_code) return family.referral_code;
@@ -114,6 +124,7 @@ async function getOrCreateCodeForFamily(family) {
  * code is missing, invalid, self-referral, or the family is already attributed.
  */
 async function attributeSignup(newFamily, rawCode) {
+  if (!REFERRALS_ENABLED) return null;
   if (referralSchemaMissing) return null;
   const code = normalizeCode(rawCode);
   if (!newFamily || !code) return null;
@@ -137,6 +148,7 @@ async function attributeSignup(newFamily, rawCode) {
  * Safe to call repeatedly — only grants the delta between earned and granted.
  */
 async function grantEarnedCredits(referrer) {
+  if (!REFERRALS_ENABLED) return;
   if (!referrer) return;
   const qualified = referrer.referral_qualified_count || 0;
   const granted = referrer.referral_credits_granted || 0;
@@ -189,6 +201,7 @@ async function grantEarnedCredits(referrer) {
  * the referrer's qualified count and grants any newly-earned credits.
  */
 async function recordQualifiedReferral(referredFamily) {
+  if (!REFERRALS_ENABLED) return;
   if (referralSchemaMissing) return;
   if (!referredFamily || !referredFamily.referred_by) return;
   if (referredFamily.referral_counted_at) return; // already counted
@@ -226,6 +239,7 @@ async function recordQualifiedReferral(referredFamily) {
  * Build the referral stats object for the account dashboard.
  */
 function getReferralStats(family, appDomain) {
+  if (!REFERRALS_ENABLED) return null;
   const code = family.referral_code || null;
   const qualified = family.referral_qualified_count || 0;
   const creditsGranted = family.referral_credits_granted || 0;
