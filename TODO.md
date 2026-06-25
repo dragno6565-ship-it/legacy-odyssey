@@ -9,6 +9,15 @@
 
 ---
 
+## ⚠️ Known parity exception (2026-06-23)
+- **Import contacts from phone address book is APP-ONLY** (shipped in 1.0.20, `expo-contacts`). The web
+  editor (`/account/book/circles`) has NO equivalent — browsers can't read the OS address book. Web users
+  still add contacts manually. The shared server endpoint `POST /api/contacts/mine/contacts/import`
+  (de-dupe + bulk insert) is generic, so if a web path is ever wanted, it could drive a CSV/vCard upload.
+  This is an accepted lockstep exception (native-only capability), per Dan's spec.
+
+---
+
 ## 💡 Brainstorm backlog (Dan, 2026-06-11 — captured by Dispatcher; not yet scheduled)
 
 > Dan's forward-looking ideas. Each tagged with the owning session. When one gets
@@ -59,6 +68,13 @@
    future SMS) into the existing `book_contacts` model; de-dupe against contacts already added;
    privacy-careful (request least data, don't bulk-upload the whole address book silently — pick-and-confirm).
    Ties into Circles Phase 3 (the TODO §Circles "import phone contacts" line already anticipated this).
+
+10. **[marketing theme — content-organic / facebook / meta-ads / seo] Sustainability / "no paper" angle (Dan, 2026-06-25).**
+    Market the digital baby book as the eco choice: no paper to print, lose, tear, yellow, or throw away.
+    GUARDRAILS: secondary punch (lead with the real-.com hook, not "save trees"); NO overclaiming
+    (no "carbon neutral / zero impact / saves X trees" — greenwashing/unbackable); true claims only.
+    SEO wedge: "eco-friendly baby book", "sustainable baby keepsake", "paperless baby memories" (low-comp).
+    Pieces: blog post, eco creative, Earth Day/seasonal beat, fresh framing for the giveaway.
 
 ---
 

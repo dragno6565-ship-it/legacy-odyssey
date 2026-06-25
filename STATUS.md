@@ -17,6 +17,12 @@
 
 ---
 
+## 2026-06-25 (PM-7) — chief-of-staff
+- Did: Relayed two live-product bugs from an influencer (via Dan) → **routed to CODING.**
+- Others should know: **(coding — please repro + fix):** **BUG (HIGH)** — sharing: she invited her husband to view the album and he was prompted to CREATE AN ACCOUNT instead of just viewing. Expected = viewer opens via site password or a "Your Contacts → Send an Update" private link, never account creation. Need the exact invite path she used (URL? in-app invite? Send an Update?) to repro — ask her. **This is the core sharing flow we're marketing (Your Contacts), so prioritize it.** **BUG (medium)** — "Your Birth Day"/birthday section: 3 photos uploaded, "View more photos" throws an error; confirm whether the pending build already fixes it. POSITIVE: she loves the Spanish/English toggle (i18n landed well). Don't use her name/handle in customer-facing content.
+- Others should know (chief-of-staff note): **hold hard on scaling the "sharing/Your Contacts" marketing push until the sharing bug is fixed** — don't drive users to a broken core flow.
+- Blocked on Dan: confirm with the influencer exactly how she invited her husband (helps coding repro). Carry-overs unchanged.
+
 ## 2026-06-25 (PM-6) — chief-of-staff
 - Did: Bundled the App Store deliverables into one review hub → `Desktop\LO-reports\app-store-package.html` (video inline + 6 screenshots + all copy + status). Issued the coding handoff note for the metadata changes. Dan loves the promo video.
 - Others should know: **🚩 (everyone — facebook/coding/content-organic) Dan's call 2026-06-25: IGNORE the "CHAPTER" eyebrows on the live public book.** Stop flagging them / don't spend effort removing them. (Marketing assets already have them patched out, which is fine.) **(coding)** listing-metadata handoff stands; the only remaining prerequisite is a fresh "Your Contacts" screen capture.
@@ -71,6 +77,11 @@
   for a Stripe *restricted read-only* key when convenient.
 - Blocked on Dan: nothing required (CLI-only accepted). Optional later: Supabase PAT, GSC service account, or GUI
   `.dxt`/remote-connector integration.
+
+## 2026-06-25 (eco angle) — dispatcher
+- Did: Captured Dan's brainstorm — a **sustainability / "no paper, save trees" marketing angle** for the digital baby book. Added to TODO brainstorm backlog. Routed as a cross-session THEME: **(content-organic)** blog post + organic posts ("the sustainable / paperless baby book"); **(facebook + meta-ads)** an eco-angle creative; **(seo)** target low-competition terms "eco-friendly baby book / sustainable baby keepsake / paperless baby memories"; **(affiliates/influencer)** fresh non-salesy framing for the giveaway.
+- Others should know: **GUARDRAILS for all** — eco is the SECOND punch, not the headline (lead with the real-.com/website hook). **Do NOT overclaim** (no "carbon neutral / zero impact / saves X trees" — greenwashing/unbackable). Stick to plainly true: no paper to print, lose, tear, yellow, or throw away. Respect word bans (#12) + canonical pitch.
+- Blocked on Dan: nothing — it's a queued theme; Dan can greenlight specific pieces when he wants them produced.
 
 ## 2026-06-25 (connectors) — dispatcher
 - Did: Routed MCP-connector setup to **CODING** (Dan hit "Failed to install plugin" — the ones he wants aren't one-click directory connectors). Coding to configure via `%APPDATA%\Claude\claude_desktop_config.json` using keys we already have: **Supabase** (removes the DDL-only-via-Chrome limit) + **GA4** (kills by-hand analytics pulls) as the high-value wins; **Stripe** optional (existing Railway-key script already reads revenue); **Search Console** for SEO/ASO. Coding tests each + reports a table of what works + what needs Dan's one-time Google OAuth click. Secrets stay out of git + Dan-facing files.
