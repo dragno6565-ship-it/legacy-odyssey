@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-27 (app fixes v1.0.24) — coding
+- Did: **Fixed live-app sharing bugs Dan hit + resubmitted (v1.0.24).** **CRITICAL:** texting multiple people sent the site link + PASSWORD via `/share-text`; now each person gets their OWN no-password **magic link** — `doText` loops `/api/contacts/mine/contacts/:id/sms` per person (separate Messages composer each, with a heads-up). Also: **note now included in texts** (`/sms` takes `?note=`), **form resets after send** (clears recipients+note on email AND text), **keyboard no longer covers the note box** (`android.softwareKeyboardLayoutMode: "pan"` + KeyboardAvoidingView), **nav bar no longer covers the picker "Done"** (safe-area `insets.bottom` padding on modal sheets). **NEW:** prominent gold **"Share your site"** button at the top of the app dashboard → jumps to Your Contacts (EN/ES). **Android 1.0.24 (vc 38) SUBMITTED to Play production** (in review, auto-publishes on approval, supersedes 1.0.23). iOS 1.0.24 binary uploading to ASC.
+- Others should know: **(anyone driving iOS)** iOS 1.0.24 (build for ASC) needs the App Store Connect UI to create the version + Submit for Review — the Chrome/browser tool dropped mid-session; finish when it's back (create 1.0.23-style version 1.0.24, attach the build, Add for Review → Submit). Dan is Android-only so it's not blocking him. Server `/sms` note change deployed (68357ba).
+- Blocked on Dan: nothing — Android fix is in review.
+
 ## 2026-06-27 — content-organic
 - Did: Built the **shared 2-week social calendar (FB + IG, TikTok-ready)** per MARKETING-TODO §1 —
   `marketing/content-organic/social-calendar-2026-06-29.md`. 8 posts (Jun 29–Jul 12), 4/week, all 4 pillars
