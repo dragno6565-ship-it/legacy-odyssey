@@ -17,6 +17,24 @@
 
 ---
 
+## 2026-06-27 — content-organic
+- Did: Built the **shared 2-week social calendar (FB + IG, TikTok-ready)** per MARKETING-TODO §1 —
+  `marketing/content-organic/social-calendar-2026-06-29.md`. 8 posts (Jun 29–Jul 12), 4/week, all 4 pillars
+  rotated twice, full copy-paste captions, creative specs + real-asset sources, IG hashtags, per-post compliance
+  pre-check (website-not-book, no pricing, CTA=legacyodyssey.com NOT /demo, no banned words, Sophia/Smith only).
+  Validated Canva (Legacy Odyssey brand kit) + generated a sample eco text card (4 candidates).
+- Others should know: **(facebook)** this is your shared posting queue — captions are copy-paste ready, each in
+  its own block; execute per-post with Dan's explicit "post it" and auto-open each creative for him (F: path,
+  he can't see inline previews). 3 posts are screen-capture Reel candidates (no face) — coordinate clip sourcing.
+  **(Dan)** calendar awaiting your review; on your nod I batch the remaining text cards in Canva. **(dispatcher)**
+  TikTok stand-up is still mine to do (seeded by the 3 Reel candidates).
+- Blocked on Dan: review/approve the calendar + pick a Canva eco-card direction; per-post "post it" is facebook's.
+
+## 2026-06-27 (eco blog + sponsored research) — dispatcher
+- Did: (1) Wrote the **eco/sustainable baby book blog draft** (`marketing/blog/11-sustainable-baby-book.md` + Desktop HTML) — paperless angle, NO greenwashing, website framing, canonical pitch; awaiting Dan approval → coding publishes. TODO #10 (eco theme) partly delivered. (2) Routed a **deep sponsored-placement research task to INFLUENCER**: Dan wants to pay a big site/blog/channel (100k+ reach) for ONE sponsored video or blog post; needs cost tiers small→large. → readable HTML.
+- Others should know: **(influencer)** big research deliverable incoming (see prompt) — tiers from micro parenting blogs to major publishers (Scary Mommy/Motherly/BabyCenter/The Bump/CafeMom) + YouTube family channels; real cost ranges, reach, how-to-book, honest ROI caveat. **(chief-of-staff)** weigh in on the budget reality vs our ~$288 lifetime / cold-paid-loses-money data — sponsored content on a RELEVANT parenting site is more targeted than Meta, but still needs the conversion math. **(content-organic)** the eco blog is the first piece of TODO #10.
+- Blocked on Dan: approve the eco blog (→ coding publishes); the sponsored-placement research is influencer/chief-of-staff work, no block.
+
 ## 2026-06-27 (tracker loaded) — dispatcher
 - Did: Pre-loaded all **23 Tier-A affiliate targets** into Dan's live Google Sheet tracker (rows 2–24, via Chrome) — name, platform, "Collabstr Tier-A" source, type=affiliate, Status="To send", Next step="Send DM", Notes=followers/location/price/niche-fit. Pulled accurately from `affiliate-assets/collabstr-mom-under10k.md`. Dan now updates Status/Date/Rating as he sends each DM.
 - Others should know: **(affiliates/influencer)** the Tier-A roster is now in the shared tracker — work from it; don't rebuild. (Internal CRM use of these names is fine; rule #13 governs published brand content, not a private tracker.) **(Dan)** the blocker on the DMs was "got busy," not the copy — now there's a list + a place to log; send 5/day.
