@@ -26,7 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // page), open that section instead of defaulting to Welcome. Also match
   // the nav-item to mark it active.
   if (window.location.hash && window.location.hash.length > 1) {
-    const pageId = window.location.hash.slice(1);
+    let pageId = window.location.hash.slice(1);
+    // Deep-link to one specific gallery: #gallery-<id> opens the Galleries
+    // section and reveals just that gallery (used by "share this gallery").
+    let galleryId = null;
+    if (pageId.indexOf('gallery-') === 0) { galleryId = pageId.slice('gallery-'.length); pageId = 'galleries'; }
     if (document.getElementById('page-' + pageId)) {
       document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
       document.getElementById('page-' + pageId).classList.add('active');
@@ -35,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const handler = n.getAttribute('onclick') || '';
         if (handler.indexOf("'" + pageId + "'") !== -1) n.classList.add('active');
       });
+      if (galleryId) {
+        const openG = () => { if (window.showGallery) window.showGallery(galleryId); };
+        if (window.showGallery) openG(); else setTimeout(openG, 50);
+      }
     }
   }
 

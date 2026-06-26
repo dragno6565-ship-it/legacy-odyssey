@@ -70,7 +70,16 @@
         <label>What are you sharing?</label>
         <select name="section" style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin:0.3rem 0 0.7rem; background:#fff; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416;">
           <option value="">Your whole website</option>
-          <% shownSections.forEach(function(k){ %><option value="<%= k %>"><%= SECTION_LABELS[k] %></option><% }); %>
+          <% shownSections.forEach(function(k){ %>
+            <% if (k === 'galleries' && typeof galleries !== 'undefined' && galleries && galleries.length) { %>
+              <optgroup label="Photo Galleries">
+                <option value="galleries">All photo galleries</option>
+                <% galleries.forEach(function(g){ %><option value="gallery-<%= g.id %>"><%= g.title %></option><% }); %>
+              </optgroup>
+            <% } else { %>
+              <option value="<%= k %>"><%= SECTION_LABELS[k] %></option>
+            <% } %>
+          <% }); %>
         </select>
         <p class="muted" style="font-size:0.8em; margin:-0.4rem 0 0.7rem;">The link drops them right on that section. Pick “Your whole website” to share the whole site.</p>
         <% } %>
