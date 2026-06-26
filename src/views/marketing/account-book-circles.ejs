@@ -58,27 +58,22 @@
     <div class="card" style="border:1.5px solid #c8a96e;">
       <p class="muted" style="margin-bottom:0.7rem;">Email an update to your contacts — each opens their own private link, no password needed. <strong>📱 To <em>text</em> updates, use the Legacy Odyssey app</strong> — the web editor sends by email.</p>
       <form action="/account/book/circles/notify" method="POST" id="loShareForm" onsubmit="return loShareSubmit();">
+        <%
+          // Section picker lists ONLY the sections this book actually shows
+          // (visibleSections = has content). Welcome is always present.
+          var SECTION_LABELS = { welcome:'Welcome', before:'Before You Arrived', birth:'Birth Story', birthday:'Your Birth Day', journey:'Your Journey to Us', home:'Coming Home', months:'Month by Month', family:'Our Family', firsts:'Your Firsts', galleries:'Photo Galleries', holidays:'Celebrations', moments:'Video Moments', letters:'Letters', recipes:'Recipes', keepsakes:'Keepsakes', vault:'The Vault' };
+          var SECTION_ORDER = ['welcome','before','birth','birthday','journey','home','months','family','firsts','galleries','holidays','moments','letters','recipes','keepsakes','vault'];
+          var vs = (typeof visibleSections !== 'undefined' && visibleSections) || {};
+          var shownSections = SECTION_ORDER.filter(function(k){ return k === 'welcome' || vs[k]; });
+        %>
+        <% if (shownSections.length > 1) { %>
         <label>What are you sharing?</label>
         <select name="section" style="width:100%; padding:0.55rem 0.8rem; border:1.5px solid #e0d5c4; border-radius:8px; margin:0.3rem 0 0.7rem; background:#fff; font-family:'Inter',sans-serif; font-size:0.95rem; color:#2c2416;">
           <option value="">Your whole website</option>
-          <option value="welcome">Welcome</option>
-          <option value="before">Before You Arrived</option>
-          <option value="birth">Birth Story</option>
-          <option value="birthday">Your Birth Day</option>
-          <option value="journey">Your Journey to Us</option>
-          <option value="home">Coming Home</option>
-          <option value="months">Month by Month</option>
-          <option value="family">Our Family</option>
-          <option value="firsts">Your Firsts</option>
-          <option value="galleries">Photo Galleries</option>
-          <option value="holidays">Celebrations</option>
-          <option value="letters">Letters</option>
-          <option value="recipes">Recipes</option>
-          <option value="keepsakes">Keepsakes</option>
-          <option value="moments">Video Moments</option>
-          <option value="vault">The Vault</option>
+          <% shownSections.forEach(function(k){ %><option value="<%= k %>"><%= SECTION_LABELS[k] %></option><% }); %>
         </select>
         <p class="muted" style="font-size:0.8em; margin:-0.4rem 0 0.7rem;">The link drops them right on that section. Pick “Your whole website” to share the whole site.</p>
+        <% } %>
         <label>Who do you want to email?</label>
         <div class="chips" style="margin:0.3rem 0 0.5rem;">
           <button type="button" class="chip lo-quick" onclick="loPickAll()">Everyone (<%= emailable.length %>)</button>

@@ -617,8 +617,15 @@ router.get('/book/circles', requireAccountSession, async (req, res, next) => {
     const bookUrl = f.custom_domain ? `https://www.${f.custom_domain}` : `https://${f.subdomain}.legacyodyssey.com`;
     const { computeSiteLabel } = require('../middleware/requireBookPassword');
     const siteLabel = await computeSiteLabel(f);
+    // Which sections actually have content — so the "share a section" picker only
+    // lists sections this book really shows (matches the live site's nav).
+    let visibleSections = {};
+    if (bid) {
+      try { const fb = await bookService.getFullBook(bid); visibleSections = (fb && fb.visibleSections) || {}; }
+      catch (e) { console.error('circles: visibleSections load failed:', e.message); }
+    }
     res.render('marketing/account-book-circles', {
-      contacts, circles, bookUrl, siteLabel,
+      contacts, circles, bookUrl, siteLabel, visibleSections,
       success: req.query.success || null, error: req.query.error || null,
       sent: req.query.sent || null,
     });
