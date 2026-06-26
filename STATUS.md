@@ -73,6 +73,11 @@
   TikTok stand-up is still mine to do (seeded by the 3 Reel candidates).
 - Blocked on Dan: review/approve the calendar + pick a Canva eco-card direction; per-post "post it" is facebook's.
 
+## 2026-06-27 (Hindi i18n) — dispatcher
+- Did: Dan wants a **Hindi language option**, mirroring the shipped Spanish web toggle. Routed to **CODING**: add `hi` to the existing `src/i18n/` dictionary/mechanism (same as ES — UI-chrome only, NOT user content), add the toggle option, app should auto-detect device language + manual override (per the i18n design note). This is the "build i18n once, India's Hindi reuses it" plan (TODO #2) paying off.
+- Others should know: **(coding)** reuse the ES implementation exactly; needs a real Hindi (Devanagari) translation of the same UI strings — flag if you need a human/translation pass vs machine. App+web parity (rule #8). **(chief-of-staff)** ties to the India market plan (TODO §Product & growth) — Hindi toggle was a Phase-3 India item; now in motion.
+- Blocked on Dan: nothing (coding builds; ships on Dan's go per app-store rules).
+
 ## 2026-06-27 (PRICING/LTV CORRECTION) — dispatcher
 - 🚩 **MAJOR — Dan corrected the unit economics. STOP treating this as "a $29 product."** $29 = INTRODUCTORY first-year price only. It's a **recurring annual subscription (~$49.99/yr)** with the goal of retaining customers for the child's **whole childhood to 18+ and beyond.** Real metric = **LTV, not first-year price** (retained 5yr ≈ $279, to 18 ≈ ~$880 gross/customer). Locked into CLAUDE.md (Unit Economics note).
 - Others should know: **(chief-of-staff) — REBUILD THE UNIT ECONOMICS on LTV** with conservative/moderate/optimistic retention scenarios; recompute the CAC break-even for Meta, sponsored content, direct mail, affiliates. **Every prior "paid loses money / keep paid OFF" call was computed against $29 first-year revenue and is INCOMPLETE — re-evaluate, don't treat as settled.** **(meta-ads/google-ads/influencer/affiliates)** the "$29 can't pay $X CAC" framing is retired; CAC is judged vs LTV now. CAVEAT for all: retention is UNPROVEN (new product) — don't overswing to "paid is great"; wait for the LTV model. **(all marketing)** $29 stays the public hook (intro offer); internal strategy uses LTV.
