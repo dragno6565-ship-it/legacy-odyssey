@@ -348,11 +348,28 @@ router.get('/dashboard', async (req, res) => {
       referral = referralService.getReferralStats(family, APP_DOMAIN());
     } catch (err) { console.error('referral stats failed:', err.message); }
 
+    // Data for the "Share your website" card (the share-update partial): contacts,
+    // circles, and which sections/galleries this book actually has.
+    let contacts = [], circles = [], visibleSections = {}, galleries = [];
+    try {
+      const book = await bookService.getBookByFamilyId(family.id);
+      if (book) {
+        contacts = await contactService.listContacts(book.id);
+        circles = await contactService.listCircles(book.id);
+      }
+      const fb = await bookService.getFullBook(family.id);
+      visibleSections = (fb && fb.visibleSections) || {};
+      galleries = ((fb && fb.customGalleries) || [])
+        .filter((g) => g.photos && g.photos.length)
+        .map((g) => ({ id: g.id, title: g.title || 'Untitled gallery' }));
+    } catch (err) { console.error('dashboard share data failed:', err.message); }
+
     res.render('marketing/account-dashboard', {
       family,
       linkedFamilies,
       isPrimary,
       referral,
+      contacts, circles, visibleSections, galleries,
       appDomain: APP_DOMAIN(),
       error: null,
     });
