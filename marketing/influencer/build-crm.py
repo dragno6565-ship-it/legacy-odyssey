@@ -83,6 +83,12 @@ ROWS = [
      "—",
      "NOT on Collabstr or any marketplace; no public business email anywhere. Only outreach path = IG DM. Verify US audience before pursuing (US-first screen). Lane B: more realistic as organic/affiliate than a paid Collabstr post."],
 
+    # ---------- ACTIVE PROSPECTS (Dan-sourced) ----------
+    ["Hayley Carter", "@hayley__carter", "IG", "72.3k", "Dan-sourced / IG direct",
+     "Motherhood / lifestyle / wellness; mom of 4; Dallas TX", "unknown (she's US)", "unknown", "unknown (agency-quoted)", 4, "A", "prospect",
+     "—",
+     "PROVISIONAL rating 4 — strong on visible signals (US-based Dallas creator, motherhood niche, public 'Digital creator', healthy 72k/1.7k follow ratio) but engagement % and audience US-geo are UNVERIFIED. AGENCY-REPPED: outreach goes to teamhayley@itgirlagency.com (email is the front door, not a cold DM). Bio: 'faith family fitness fashion, relatable mom content + wellness + ootd.' linktr.ee/HayleyCarter. Ask the agency for a media kit (engagement + audience geography) BEFORE committing budget; wants a permanent feed post (stays on grid)."],
+
     # ---------- TOP-10 SHORTLIST (researched 2026-06-10, not yet contacted) ----------
     ["Kristen Corrao", "@kristen_corrao", "IG / TikTok", "1.2k IG / 22.8k TT", "Collabstr (parenting)",
      "Motherhood / parenting", "88%", "18.7%", "$70 feed", 5, "B", "prospect",
