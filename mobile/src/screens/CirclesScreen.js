@@ -1,47 +1,53 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Modal, ActivityIndicator, Alert, Linking } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import * as Contacts from 'expo-contacts';
 import * as SMS from 'expo-sms';
-import { Users, Trash2, Send, UserPlus, MessageSquare } from 'lucide-react-native';
+import { Trash2, Send, UserPlus, MessageSquare, Mail, Search, ChevronDown, Check } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, post, put, del } from '../api/client';
 import { useI18n } from '../i18n/I18nContext';
 
-// Phases 1 + 2: manage contacts + circles, and send update emails (each
-// opted-in person gets their private magic link — no password needed).
-// Mirrors the web /account/book/circles page. Calls the JWT API at /api/contacts/*.
+// Manage contacts + circles, and SHARE an update — the whole website, one
+// section, or a single photo gallery — by TEXT (native Messages) or EMAIL
+// (private magic links). Mirrors the web /account/book/circles + dashboard.
 export default function CirclesScreen() {
   const { t } = useI18n();
+  const route = useRoute();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [circles, setCircles] = useState([]);
 
-  // Send an Update (Phase 2)
-  const [notifyTarget, setNotifyTarget] = useState({ type: 'all' }); // {type:'all'|'circle'|'contact', id}
-  const [notifyNote, setNotifyNote] = useState('');
+  // ── Share an update ───────────────────────────────────────────────────────
+  const [targets, setTargets] = useState({ sections: [], galleries: [] });
+  const [scope, setScope] = useState({ type: 'all' }); // {type:'all'|'section'|'gallery', value/id, label/title}
+  const [shareSel, setShareSel] = useState([]);         // selected contact ids
+  const [shareNote, setShareNote] = useState('');
   const [sending, setSending] = useState(false);
+  const [showScope, setShowScope] = useState(false);
+  const [showRecip, setShowRecip] = useState(false);
+  const [recipSearch, setRecipSearch] = useState('');
 
   const [newCircle, setNewCircle] = useState('');
   const [cName, setCName] = useState('');
   const [cEmail, setCEmail] = useState('');
   const [cPhone, setCPhone] = useState('');
-  const [newSel, setNewSel] = useState([]);            // circle ids for the new contact
-  const [editId, setEditId] = useState(null);          // contact being edited
+  const [newSel, setNewSel] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [editSel, setEditSel] = useState([]);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPhone, setEditPhone] = useState('');
-  const [renameId, setRenameId] = useState(null);      // circle being renamed
+  const [renameId, setRenameId] = useState(null);
   const [renameVal, setRenameVal] = useState('');
 
-  // Import from phone (expo-contacts)
+  // Import from phone
   const [showImport, setShowImport] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [importBusy, setImportBusy] = useState(false);
   const [deviceContacts, setDeviceContacts] = useState([]);
-  const [importSel, setImportSel] = useState({});      // { [deviceId]: true }
+  const [importSel, setImportSel] = useState({});
   const [importSearch, setImportSearch] = useState('');
 
   const fetchAll = useCallback(async () => {
@@ -51,8 +57,23 @@ export default function CirclesScreen() {
       setCircles((res.data && res.data.circles) || []);
     } catch (err) { if (err.status !== 404) Alert.alert(t('app.circles.error_title'), t('app.circles.error_load')); }
     finally { setLoading(false); }
+    try {
+      const tg = await get('/api/contacts/mine/share-targets');
+      setTargets({ sections: (tg.data && tg.data.sections) || [], galleries: (tg.data && tg.data.galleries) || [] });
+    } catch (e) { /* non-fatal — scope just falls back to whole website */ }
   }, []);
   useFocusEffect(useCallback(() => { fetchAll(); }, [fetchAll]));
+
+  // Save-prompt readiness: a screen can navigate('Circles', { section }) or
+  // { gallery: {id,title} } to pre-select the scope.
+  useEffect(() => {
+    const p = route.params || {};
+    if (p.gallery && p.gallery.id) setScope({ type: 'gallery', id: p.gallery.id, title: p.gallery.title || t('app.share.a_gallery') });
+    else if (p.section) {
+      const found = (targets.sections || []).find((s) => s.value === p.section);
+      setScope({ type: 'section', value: p.section, label: (found && found.label) || p.section });
+    }
+  }, [route.params, targets.sections]);
 
   const toggle = (arr, id) => (arr.indexOf(id) === -1 ? [...arr, id] : arr.filter((x) => x !== id));
 
@@ -103,9 +124,78 @@ export default function CirclesScreen() {
     ]);
   }
 
-  // Text an update from YOUR phone's Messages app (no server SMS — opens the
-  // native composer pre-filled with the person's private link). Server builds
-  // the message so the magic-link logic stays in one place.
+  // ── Share helpers ─────────────────────────────────────────────────────────
+  // The `section` query/body value for the current scope (null = whole website).
+  function scopeParam() {
+    if (!scope || scope.type === 'all') return null;
+    if (scope.type === 'section') return scope.value;
+    if (scope.type === 'gallery') return 'gallery-' + scope.id;
+    return null;
+  }
+  function scopeLabel() {
+    if (!scope || scope.type === 'all') return t('app.share.whole_website');
+    return scope.type === 'gallery' ? scope.title : scope.label;
+  }
+
+  const selectedContacts = contacts.filter((c) => shareSel.indexOf(c.id) !== -1);
+  const emailables = selectedContacts.filter((c) => c.email && c.notify_opt_in !== false && !c.unsubscribed_at);
+  const textables = selectedContacts.filter((c) => c.phone);
+
+  function selectCircle(c) {
+    const ids = contacts.filter((p) => (p.circle_ids || []).indexOf(c.id) !== -1).map((p) => p.id);
+    setShareSel((prev) => Array.from(new Set([...prev, ...ids])));
+  }
+
+  async function doEmail() {
+    const ids = emailables.map((c) => c.id);
+    if (!ids.length || sending) return;
+    Alert.alert(
+      t('app.share.email_confirm_title'),
+      ids.length === 1 ? t('app.share.email_confirm_one', { scope: scopeLabel() }) : t('app.share.email_confirm_many', { count: ids.length, scope: scopeLabel() }),
+      [
+        { text: t('app.circles.cancel'), style: 'cancel' },
+        { text: t('app.share.send_email'), onPress: async () => {
+          setSending(true);
+          try {
+            const body = { contactIds: ids, note: shareNote.trim() };
+            const sec = scopeParam(); if (sec) body.section = sec;
+            const res = await post('/api/contacts/mine/notify', body);
+            const sent = (res.data && res.data.sent) || 0;
+            setShareSel([]); setShareNote('');
+            Alert.alert(t('app.share.sent_title'), sent === 1 ? t('app.circles.sent_msg_one', { count: sent }) : t('app.circles.sent_msg_many', { count: sent }));
+          } catch (e) {
+            const msg = (e.response && e.response.data && e.response.data.error) || t('app.circles.error_send');
+            Alert.alert(t('app.circles.not_sent_title'), msg);
+          } finally { setSending(false); }
+        } },
+      ]
+    );
+  }
+
+  async function doText() {
+    const people = textables;
+    if (!people.length || sending) return;
+    try {
+      const available = await SMS.isAvailableAsync();
+      if (!available) { Alert.alert(t('app.circles.texting_unavailable_title'), t('app.circles.texting_unavailable_msg')); return; }
+      const sec = scopeParam();
+      const q = sec ? ('?section=' + encodeURIComponent(sec)) : '';
+      if (people.length === 1) {
+        const res = await get('/api/contacts/mine/contacts/' + people[0].id + '/sms' + q);
+        const phone = (res.data && res.data.phone) || people[0].phone;
+        const message = (res.data && res.data.message) || '';
+        await SMS.sendSMSAsync([phone], message);
+      } else {
+        const res = await get('/api/contacts/mine/share-text' + q);
+        const message = (res.data && res.data.message) || '';
+        await SMS.sendSMSAsync(people.map((p) => p.phone), message);
+      }
+    } catch (e) {
+      Alert.alert(t('app.circles.cant_open_messages_title'), t('app.circles.please_try_again'));
+    }
+  }
+
+  // Per-contact quick text from the contact list (single private link).
   async function textContact(p) {
     if (!p.phone) { Alert.alert(t('app.circles.no_phone_title'), t('app.circles.no_phone_msg', { name: p.name })); return; }
     try {
@@ -120,12 +210,10 @@ export default function CirclesScreen() {
     }
   }
 
-  // ── Import from phone (expo-contacts) ────────────────────────────────────
+  // ── Import from phone ─────────────────────────────────────────────────────
   const _name = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
   const _email = (s) => (s || '').trim().toLowerCase();
   const _phone = (s) => (s || '').replace(/[^0-9]/g, '');
-
-  // True if a device contact already exists in the book's contact list.
   function isAlreadyAdded(c) {
     const e = _email(c.email), ph = _phone(c.phone), n = _name(c.name);
     return contacts.some((x) => {
@@ -133,43 +221,26 @@ export default function CirclesScreen() {
       return (e && xe && e === xe) || (ph && xph && ph === xph) || (!e && !ph && n && xn && n === xn);
     });
   }
-
   async function openImporter() {
     if (importBusy) return;
     try {
       const { status } = await Contacts.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
-          t('app.circles.permission_title'),
-          t('app.circles.permission_msg'),
-          [{ text: t('app.circles.not_now'), style: 'cancel' }, { text: t('app.circles.open_settings'), onPress: () => Linking.openSettings() }]
-        );
+        Alert.alert(t('app.circles.permission_title'), t('app.circles.permission_msg'),
+          [{ text: t('app.circles.not_now'), style: 'cancel' }, { text: t('app.circles.open_settings'), onPress: () => Linking.openSettings() }]);
         return;
       }
       setImportSel({}); setImportSearch(''); setShowImport(true); setImportLoading(true);
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.Name, Contacts.Fields.Emails, Contacts.Fields.PhoneNumbers],
-      });
+      const { data } = await Contacts.getContactsAsync({ fields: [Contacts.Fields.Name, Contacts.Fields.Emails, Contacts.Fields.PhoneNumbers] });
       const mapped = (data || [])
-        .map((c) => ({
-          id: c.id,
-          name: (c.name || [c.firstName, c.lastName].filter(Boolean).join(' ') || '').trim(),
-          email: (c.emails && c.emails[0] && c.emails[0].email) || '',
-          phone: (c.phoneNumbers && c.phoneNumbers[0] && c.phoneNumbers[0].number) || '',
-        }))
+        .map((c) => ({ id: c.id, name: (c.name || [c.firstName, c.lastName].filter(Boolean).join(' ') || '').trim(), email: (c.emails && c.emails[0] && c.emails[0].email) || '', phone: (c.phoneNumbers && c.phoneNumbers[0] && c.phoneNumbers[0].number) || '' }))
         .filter((c) => c.name)
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
       setDeviceContacts(mapped);
-    } catch (e) {
-      Alert.alert(t('app.circles.error_title'), t('app.circles.error_open_contacts'));
-      setShowImport(false);
-    } finally {
-      setImportLoading(false);
-    }
+    } catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_open_contacts')); setShowImport(false); }
+    finally { setImportLoading(false); }
   }
-
   const toggleImport = (id) => setImportSel((s) => ({ ...s, [id]: !s[id] }));
-
   async function doImport() {
     const chosen = deviceContacts.filter((c) => importSel[c.id] && !isAlreadyAdded(c));
     if (!chosen.length || importBusy) return;
@@ -179,62 +250,12 @@ export default function CirclesScreen() {
       const res = await post('/api/contacts/mine/contacts/import', { people });
       const imported = (res.data && res.data.imported) || 0;
       const skipped = (res.data && res.data.skipped) || 0;
-      setShowImport(false);
-      await fetchAll();
-      const addedText = imported === 1
-        ? t('app.circles.import_added_one', { count: imported })
-        : t('app.circles.import_added_many', { count: imported });
+      setShowImport(false); await fetchAll();
+      const addedText = imported === 1 ? t('app.circles.import_added_one', { count: imported }) : t('app.circles.import_added_many', { count: imported });
       const skippedText = skipped ? t('app.circles.import_skipped', { count: skipped }) : '';
-      Alert.alert(
-        t('app.circles.import_complete_title'),
-        t('app.circles.import_complete_msg', { added: addedText, skipped: skippedText })
-      );
-    } catch (e) {
-      Alert.alert(t('app.circles.error_title'), t('app.circles.error_import'));
-    } finally {
-      setImportBusy(false);
-    }
-  }
-
-  // ── Send an Update (Phase 2) ─────────────────────────────────────────────
-  const notifiable = contacts.filter((c) => c.email && c.notify_opt_in !== false && !c.unsubscribed_at);
-  const notifiableInCircle = (c) => notifiable.filter((p) => (p.circle_ids || []).indexOf(c.id) !== -1).length;
-  const selectedCount =
-    notifyTarget.type === 'contact' ? 1 :
-    notifyTarget.type === 'circle' ? notifiableInCircle(circles.find((c) => c.id === notifyTarget.id) || { id: notifyTarget.id }) :
-    notifiable.length;
-
-  function sendUpdate() {
-    if (sending || !selectedCount) return;
-    Alert.alert(
-      t('app.circles.send_confirm_title'),
-      selectedCount === 1
-        ? t('app.circles.send_confirm_msg_one', { count: selectedCount })
-        : t('app.circles.send_confirm_msg_many', { count: selectedCount }),
-      [
-        { text: t('app.circles.cancel'), style: 'cancel' },
-        { text: t('app.circles.send'), onPress: async () => {
-          setSending(true);
-          try {
-            const body = { note: notifyNote.trim() };
-            if (notifyTarget.type === 'circle') body.circleId = notifyTarget.id;
-            else if (notifyTarget.type === 'contact') body.contactId = notifyTarget.id;
-            const res = await post('/api/contacts/mine/notify', body);
-            const sent = (res.data && res.data.sent) || 0;
-            setNotifyNote('');
-            Alert.alert(
-              t('app.circles.sent_title'),
-              sent === 1
-                ? t('app.circles.sent_msg_one', { count: sent })
-                : t('app.circles.sent_msg_many', { count: sent })
-            );
-          } catch (e) {
-            const msg = (e.response && e.response.data && e.response.data.error) || t('app.circles.error_send');
-            Alert.alert(t('app.circles.not_sent_title'), msg);
-          } finally { setSending(false); }
-        } },
-      ]
-    );
+      Alert.alert(t('app.circles.import_complete_title'), t('app.circles.import_complete_msg', { added: addedText, skipped: skippedText }));
+    } catch (e) { Alert.alert(t('app.circles.error_title'), t('app.circles.error_import')); }
+    finally { setImportBusy(false); }
   }
 
   const Chips = ({ selected, onToggle }) => (
@@ -253,10 +274,11 @@ export default function CirclesScreen() {
   if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color={colors.gold} /></View>;
 
   const _q = importSearch.trim().toLowerCase();
-  const filteredDevice = _q
-    ? deviceContacts.filter((c) => (c.name + ' ' + c.email + ' ' + c.phone).toLowerCase().includes(_q))
-    : deviceContacts;
+  const filteredDevice = _q ? deviceContacts.filter((c) => (c.name + ' ' + c.email + ' ' + c.phone).toLowerCase().includes(_q)) : deviceContacts;
   const selectedImportCount = deviceContacts.filter((c) => importSel[c.id] && !isAlreadyAdded(c)).length;
+
+  const _rq = recipSearch.trim().toLowerCase();
+  const recipList = _rq ? contacts.filter((c) => (c.name + ' ' + (c.email || '') + ' ' + (c.phone || '')).toLowerCase().includes(_rq)) : contacts;
 
   return (
     <>
@@ -264,59 +286,61 @@ export default function CirclesScreen() {
       <Text style={styles.pageTitle}>{t('app.circles.page_title')}</Text>
       <Text style={styles.pageSubtitle}>{t('app.circles.page_subtitle')}</Text>
 
-      {/* SEND AN UPDATE (Phase 2) */}
-      {notifiable.length > 0 ? (
+      {/* ===== SHARE AN UPDATE ===== */}
+      {contacts.length > 0 ? (
         <View style={[styles.card, styles.notifyCard]}>
           <View style={styles.row}>
             <Send size={18} color={colors.gold} />
-            <Text style={styles.cardTitle}>{t('app.circles.send_update_title')}</Text>
+            <Text style={styles.cardTitle}>{t('app.share.title')}</Text>
           </View>
-          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>{t('app.circles.send_update_desc')}</Text>
-          <Text style={styles.label}>{t('app.circles.who_label')}</Text>
-          <View style={styles.chips}>
-            <TouchableOpacity onPress={() => setNotifyTarget({ type: 'all' })} style={[styles.chip, notifyTarget.type === 'all' && styles.chipOn]}>
-              <Text style={[styles.chipText, notifyTarget.type === 'all' && styles.chipTextOn]}>{t('app.circles.everyone', { count: notifiable.length })}</Text>
-            </TouchableOpacity>
-            {circles.map((c) => {
-              const on = notifyTarget.type === 'circle' && notifyTarget.id === c.id;
-              return (
-                <TouchableOpacity key={c.id} onPress={() => setNotifyTarget({ type: 'circle', id: c.id })} style={[styles.chip, on && styles.chipOn]}>
-                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{t('app.circles.circle_with_count', { name: c.name, count: notifiableInCircle(c) })}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          {notifiable.length ? (
-            <>
-              <Text style={[styles.label, { marginTop: spacing.xs }]}>{t('app.circles.or_one_person')}</Text>
-              <View style={styles.chips}>
-                {notifiable.map((p) => {
-                  const on = notifyTarget.type === 'contact' && notifyTarget.id === p.id;
-                  return (
-                    <TouchableOpacity key={p.id} onPress={() => setNotifyTarget({ type: 'contact', id: p.id })} style={[styles.chip, on && styles.chipOn]}>
-                      <Text style={[styles.chipText, on && styles.chipTextOn]}>{p.name}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </>
-          ) : null}
-          <TextInput
-            style={styles.input}
-            value={notifyNote}
-            onChangeText={setNotifyNote}
-            placeholder={t('app.circles.note_placeholder')}
-            placeholderTextColor={colors.placeholder}
-            maxLength={500}
-          />
-          <TouchableOpacity style={[styles.btn, (sending || !selectedCount) && styles.dim]} onPress={sendUpdate} disabled={sending || !selectedCount}>
-            {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('app.circles.send_update_button')}</Text>}
+          <Text style={[styles.muted, { marginBottom: spacing.sm }]}>{t('app.share.desc')}</Text>
+
+          <Text style={styles.label}>{t('app.share.what_label')}</Text>
+          <TouchableOpacity style={styles.scopeBtn} onPress={() => setShowScope(true)}>
+            <Text style={styles.scopeBtnText} numberOfLines={1}>{scopeLabel()}</Text>
+            <ChevronDown size={18} color={colors.textSecondary} />
           </TouchableOpacity>
-          <Text style={[styles.muted, { marginTop: spacing.xs, fontSize: typography.sizes.xs }]}>{t('app.circles.rate_limit_note')}</Text>
+
+          <Text style={[styles.label, { marginTop: spacing.sm }]}>{t('app.share.who_label')}</Text>
+          {circles.length ? (
+            <View style={styles.chips}>
+              {circles.map((c) => (
+                <TouchableOpacity key={c.id} onPress={() => selectCircle(c)} style={[styles.chip]}>
+                  <Text style={styles.chipText}>{t('app.circles.circle_with_count', { name: c.name, count: contacts.filter((p) => (p.circle_ids || []).indexOf(c.id) !== -1).length })}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
+          <TouchableOpacity style={styles.chooseBtn} onPress={() => { setRecipSearch(''); setShowRecip(true); }}>
+            <UserPlus size={16} color={colors.gold} />
+            <Text style={styles.chooseBtnText}>{shareSel.length ? t('app.share.people_selected', { count: shareSel.length }) : t('app.share.choose_people')}</Text>
+          </TouchableOpacity>
+          {shareSel.length ? (
+            <View style={styles.chips}>
+              {selectedContacts.map((p) => (
+                <TouchableOpacity key={p.id} onPress={() => setShareSel((s) => s.filter((x) => x !== p.id))} style={[styles.chip, styles.chipOn]}>
+                  <Text style={[styles.chipText, styles.chipTextOn]}>{p.name}  ×</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
+
+          <TextInput style={[styles.input, { marginTop: spacing.sm }]} value={shareNote} onChangeText={setShareNote} placeholder={t('app.circles.note_placeholder')} placeholderTextColor={colors.placeholder} maxLength={500} />
+
+          <View style={styles.shareActions}>
+            <TouchableOpacity style={[styles.shareBtn, (!textables.length || sending) && styles.dim]} onPress={doText} disabled={!textables.length || sending}>
+              <MessageSquare size={17} color="#fff" />
+              <Text style={styles.shareBtnText}>{t('app.share.text_btn', { count: textables.length })}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.shareBtn, styles.shareBtnAlt, (!emailables.length || sending) && styles.dim]} onPress={doEmail} disabled={!emailables.length || sending}>
+              {sending ? <ActivityIndicator color={colors.gold} /> : <><Mail size={17} color={colors.gold} /><Text style={[styles.shareBtnText, styles.shareBtnTextAlt]}>{t('app.share.email_btn', { count: emailables.length })}</Text></>}
+            </TouchableOpacity>
+          </View>
+          <Text style={[styles.muted, { marginTop: spacing.xs, fontSize: typography.sizes.xs }]}>{t('app.share.foot_note')}</Text>
         </View>
       ) : null}
 
-      {/* CIRCLES */}
+      {/* ===== CIRCLES ===== */}
       <Text style={styles.h2}>{t('app.circles.circles_heading')}</Text>
       {circles.length === 0 ? <Text style={styles.empty}>{t('app.circles.no_circles')}</Text> : null}
       {circles.map((c) => (
@@ -347,7 +371,7 @@ export default function CirclesScreen() {
         </View>
       </View>
 
-      {/* CONTACT LIST */}
+      {/* ===== CONTACT LIST ===== */}
       <Text style={styles.h2}>{t('app.circles.contact_list_heading')}</Text>
       {contacts.length === 0 ? <Text style={styles.empty}>{t('app.circles.no_contacts')}</Text> : null}
       {contacts.map((p) => (
@@ -410,6 +434,67 @@ export default function CirclesScreen() {
       </View>
     </ScrollView>
 
+    {/* Scope picker */}
+    <Modal visible={showScope} animationType="slide" transparent onRequestClose={() => setShowScope(false)}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHead}>
+            <Text style={styles.modalTitle}>{t('app.share.what_label')}</Text>
+            <TouchableOpacity onPress={() => setShowScope(false)}><Text style={styles.link}>{t('app.circles.close')}</Text></TouchableOpacity>
+          </View>
+          <ScrollView style={{ maxHeight: 420 }} keyboardShouldPersistTaps="handled">
+            <ScopeRow label={t('app.share.whole_website')} on={!scope || scope.type === 'all'} onPress={() => { setScope({ type: 'all' }); setShowScope(false); }} />
+            {(targets.sections || []).map((s) => (
+              <ScopeRow key={s.value} label={s.label} on={scope.type === 'section' && scope.value === s.value} onPress={() => { setScope({ type: 'section', value: s.value, label: s.label }); setShowScope(false); }} />
+            ))}
+            {(targets.galleries || []).length ? <Text style={[styles.label, { marginTop: spacing.sm }]}>{t('app.share.galleries_label')}</Text> : null}
+            {(targets.galleries || []).map((g) => (
+              <ScopeRow key={g.id} label={g.title} on={scope.type === 'gallery' && scope.id === g.id} onPress={() => { setScope({ type: 'gallery', id: g.id, title: g.title }); setShowScope(false); }} />
+            ))}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+
+    {/* Recipient picker */}
+    <Modal visible={showRecip} animationType="slide" transparent onRequestClose={() => setShowRecip(false)}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHead}>
+            <Text style={styles.modalTitle}>{t('app.share.choose_people')}</Text>
+            <TouchableOpacity onPress={() => setShowRecip(false)}><Text style={styles.link}>{t('app.circles.done')}</Text></TouchableOpacity>
+          </View>
+          <View style={styles.searchRow}>
+            <Search size={16} color={colors.textSecondary} />
+            <TextInput style={styles.searchInput} value={recipSearch} onChangeText={setRecipSearch} placeholder={t('app.circles.search_placeholder')} placeholderTextColor={colors.placeholder} autoCapitalize="none" />
+          </View>
+          <FlatList
+            data={recipList}
+            keyExtractor={(item) => String(item.id)}
+            keyboardShouldPersistTaps="handled"
+            style={styles.pickList}
+            ListEmptyComponent={<Text style={[styles.muted, { textAlign: 'center', padding: spacing.lg }]}>{t('app.circles.no_contacts')}</Text>}
+            renderItem={({ item }) => {
+              const on = shareSel.indexOf(item.id) !== -1;
+              const reach = [item.email ? t('app.share.via_email') : null, item.phone ? t('app.share.via_text') : null].filter(Boolean).join(' · ') || t('app.circles.no_email_or_phone');
+              return (
+                <TouchableOpacity style={styles.pickRow} activeOpacity={0.6} onPress={() => setShareSel((s) => toggle(s, item.id))}>
+                  <View style={[styles.checkbox, on && styles.checkboxOn]}>{on ? <Check size={14} color="#fff" /> : null}</View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.pickName}>{item.name}</Text>
+                    <Text style={styles.muted} numberOfLines={1}>{reach}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+          />
+          <TouchableOpacity style={styles.btn} onPress={() => setShowRecip(false)}>
+            <Text style={styles.btnText}>{shareSel.length ? t('app.share.done_count', { count: shareSel.length }) : t('app.circles.done')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+
     {/* Import-from-phone picker */}
     <Modal visible={showImport} animationType="slide" transparent onRequestClose={() => setShowImport(false)}>
       <View style={styles.modalOverlay}>
@@ -419,14 +504,7 @@ export default function CirclesScreen() {
             <TouchableOpacity onPress={() => setShowImport(false)}><Text style={styles.link}>{t('app.circles.close')}</Text></TouchableOpacity>
           </View>
           <Text style={[styles.muted, { marginBottom: spacing.sm }]}>{t('app.circles.import_modal_desc')}</Text>
-          <TextInput
-            style={styles.input}
-            value={importSearch}
-            onChangeText={setImportSearch}
-            placeholder={t('app.circles.search_placeholder')}
-            placeholderTextColor={colors.placeholder}
-            autoCapitalize="none"
-          />
+          <TextInput style={styles.input} value={importSearch} onChangeText={setImportSearch} placeholder={t('app.circles.search_placeholder')} placeholderTextColor={colors.placeholder} autoCapitalize="none" />
           {importLoading ? (
             <View style={styles.modalLoading}><ActivityIndicator size="large" color={colors.gold} /></View>
           ) : (
@@ -441,9 +519,7 @@ export default function CirclesScreen() {
                 const on = !!importSel[item.id];
                 return (
                   <TouchableOpacity style={styles.pickRow} activeOpacity={added ? 1 : 0.6} disabled={added} onPress={() => toggleImport(item.id)}>
-                    <View style={[styles.checkbox, on && styles.checkboxOn, added && styles.checkboxDim]}>
-                      {on ? <Text style={styles.checkboxMark}>{'✓'}</Text> : null}
-                    </View>
+                    <View style={[styles.checkbox, on && styles.checkboxOn, added && styles.checkboxDim]}>{on ? <Check size={14} color="#fff" /> : null}</View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.pickName}>{item.name}</Text>
                       <Text style={styles.muted} numberOfLines={1}>{item.email || item.phone || t('app.circles.no_email_or_phone')}</Text>
@@ -461,6 +537,15 @@ export default function CirclesScreen() {
       </View>
     </Modal>
     </>
+  );
+}
+
+function ScopeRow({ label, on, onPress }) {
+  return (
+    <TouchableOpacity style={styles.scopeRow} activeOpacity={0.6} onPress={onPress}>
+      <Text style={[styles.scopeRowText, on && styles.scopeRowTextOn]}>{label}</Text>
+      {on ? <Check size={16} color={colors.gold} /> : null}
+    </TouchableOpacity>
   );
 }
 
@@ -488,11 +573,27 @@ const styles = StyleSheet.create({
   chipStatic: { backgroundColor: colors.card, borderColor: colors.card },
   chipText: { fontSize: typography.sizes.xs, color: colors.textSecondary },
   chipTextOn: { color: '#fff', fontWeight: typography.weights.semibold },
+  // scope selector
+  scopeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1.5, borderColor: colors.gold, borderRadius: borderRadius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.white },
+  scopeBtnText: { flex: 1, fontSize: typography.sizes.md, color: colors.textPrimary, fontWeight: typography.weights.medium },
+  scopeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
+  scopeRowText: { fontSize: typography.sizes.md, color: colors.textPrimary },
+  scopeRowTextOn: { color: colors.gold, fontWeight: typography.weights.semibold },
+  // choose people
+  chooseBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.gold, borderStyle: 'dashed', borderRadius: borderRadius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, justifyContent: 'center', marginVertical: spacing.xs },
+  chooseBtnText: { color: colors.gold, fontWeight: typography.weights.semibold, fontSize: typography.sizes.sm },
+  // share actions
+  shareActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  shareBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: colors.gold, borderRadius: borderRadius.md, paddingVertical: spacing.md, minHeight: 48 },
+  shareBtnAlt: { backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.gold },
+  shareBtnText: { color: '#fff', fontSize: typography.sizes.md, fontWeight: typography.weights.semibold },
+  shareBtnTextAlt: { color: colors.gold },
+  // buttons
   btn: { backgroundColor: colors.gold, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', minHeight: 48, justifyContent: 'center', marginTop: spacing.xs },
   btnText: { color: '#fff', fontSize: typography.sizes.md, fontWeight: typography.weights.semibold },
   btnSm: { backgroundColor: colors.gold, borderRadius: borderRadius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, justifyContent: 'center' },
   btnSmText: { color: '#fff', fontSize: typography.sizes.sm, fontWeight: typography.weights.semibold },
-  dim: { opacity: 0.5 },
+  dim: { opacity: 0.4 },
   textBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   importRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
@@ -500,12 +601,13 @@ const styles = StyleSheet.create({
   modalHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
   modalTitle: { fontFamily: typography.fontFamily.serif, fontSize: typography.sizes.lg, fontWeight: typography.weights.bold, color: colors.textPrimary },
   modalLoading: { padding: spacing.xxl, alignItems: 'center' },
-  pickList: { flexGrow: 0, marginBottom: spacing.sm },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, paddingHorizontal: spacing.md, marginBottom: spacing.sm },
+  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: typography.sizes.md, color: colors.textPrimary },
+  pickList: { flexGrow: 0, marginBottom: spacing.sm, maxHeight: 380 },
   pickRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
   pickName: { fontSize: typography.sizes.md, color: colors.textPrimary, fontWeight: typography.weights.medium },
   checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   checkboxOn: { backgroundColor: colors.gold, borderColor: colors.gold },
   checkboxDim: { opacity: 0.4 },
-  checkboxMark: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
   addedTag: { fontSize: typography.sizes.xs, color: colors.textSecondary, fontStyle: 'italic' },
 });

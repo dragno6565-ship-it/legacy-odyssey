@@ -62,6 +62,25 @@ router.get('/mine/contacts/:id/sms', async (req, res, next) => {
     res.json({ phone: c.phone, name: c.name, message });
   } catch (err) { next(err); }
 });
+// Share targets for the app's scope picker: which sections (have content) +
+// which photo galleries this book has, so the app can offer "whole website /
+// a section / a specific gallery". Mirrors the web section picker.
+router.get('/mine/share-targets', async (req, res, next) => {
+  try {
+    const f = req.family;
+    const bookService = require('../../services/bookService');
+    const fb = await bookService.getFullBook(f.id);
+    const vs = (fb && fb.visibleSections) || {};
+    const LABELS = { welcome: 'Welcome', before: 'Before You Arrived', birth: 'Birth Story', birthday: 'Your Birth Day', journey: 'Your Journey to Us', home: 'Coming Home', months: 'Month by Month', family: 'Our Family', firsts: 'Your Firsts', holidays: 'Celebrations', moments: 'Video Moments', letters: 'Letters', recipes: 'Recipes', keepsakes: 'Keepsakes', vault: 'The Vault' };
+    const ORDER = ['welcome', 'before', 'birth', 'birthday', 'journey', 'home', 'months', 'family', 'firsts', 'holidays', 'moments', 'letters', 'recipes', 'keepsakes', 'vault'];
+    const sections = ORDER.filter((k) => k === 'welcome' || vs[k]).map((k) => ({ value: k, label: LABELS[k] }));
+    const galleries = ((fb && fb.customGalleries) || [])
+      .filter((g) => g.photos && g.photos.length)
+      .map((g) => ({ id: g.id, title: g.title || 'Untitled gallery' }));
+    res.json({ sections, galleries });
+  } catch (err) { next(err); }
+});
+
 // App-only: build the text for a GROUP share. One message to many recipients
 // can't carry each person's private magic link, so a group text uses the public
 // site link + the book password (which the owner is choosing to share). Optional
