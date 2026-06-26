@@ -339,6 +339,22 @@ export default function DashboardScreen({ navigation }) {
         }
         showsVerticalScrollIndicator={false}
       >
+        {/* Prominent share CTA — first thing they see, jumps to Your Contacts */}
+        <TouchableOpacity
+          style={styles.shareCta}
+          onPress={() => navigation.navigate('Circles', { book })}
+          activeOpacity={0.85}
+        >
+          <View style={styles.shareCtaIcon}>
+            <Share2 size={22} color="#fff" strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.shareCtaTitle}>{t('app.dashboard.share_cta_title')}</Text>
+            <Text style={styles.shareCtaSub}>{t('app.dashboard.share_cta_sub')}</Text>
+          </View>
+          <Text style={styles.shareCtaArrow}>{'→'}</Text>
+        </TouchableOpacity>
+
         {GROUPS.map(renderGroup)}
 
         <View style={styles.group}>
@@ -526,6 +542,40 @@ const styles = StyleSheet.create({
   grid: {
     padding: spacing.md,
     paddingBottom: spacing.xxl,
+  },
+  shareCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.gold,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    ...shadows.card,
+  },
+  shareCtaIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareCtaTitle: {
+    fontFamily: typography.fontFamily.serif,
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: '#fff',
+  },
+  shareCtaSub: {
+    fontSize: typography.sizes.sm,
+    color: 'rgba(255,255,255,0.92)',
+    marginTop: 2,
+  },
+  shareCtaArrow: {
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: typography.weights.bold,
   },
   row: {
     justifyContent: 'space-between',

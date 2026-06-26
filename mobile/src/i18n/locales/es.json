@@ -1121,5 +1121,7 @@
   "app.circles.done": "Listo",
   "app.share.text_multi_title": "Enviar a {count} personas",
   "app.share.text_multi_msg": "Cada persona recibe su propio enlace privado (sin contraseña), así que se abrirá un mensaje por cada una — {count} en total. Envía cada uno y listo.",
-  "app.share.text_multi_go": "Abrir mensajes"
+  "app.share.text_multi_go": "Abrir mensajes",
+  "app.dashboard.share_cta_title": "Comparte tu sitio",
+  "app.dashboard.share_cta_sub": "Envíalo a familia y amigos — por mensaje o correo"
 }
