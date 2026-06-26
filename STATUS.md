@@ -17,10 +17,43 @@
 
 ---
 
+## 2026-06-27 — chief-of-staff
+- Did: Rebuilt unit economics on LTV per Dan's correction → `Desktop\LO-reports\unit-economics-LTV-2026-06-27.html` + `ops/UNIT-ECONOMICS-LTV.md`. **Gross LTV ~$104 (conservative 40% churn) / ~$178 (moderate 25%) / ~$354 (optimistic 12%)**; the "$880 to age-18" is a zero-churn ceiling, not expectation. **Affordable CAC: ~$40 healthy / ~$72–126 break-even** (vs the old $29). Re-scored channels: **affiliate 35% = safe at any LTV (lead)**; **sponsored content ~$100 = worth a small TEST now** (changed); **Meta ~$213 = keep off but it's a CAC problem not impossible** (viable if driven to ~$40–80); **cold direct mail = NO-GO holds**. Corrected the $29-based notes in SALES-BLOCKERS.
+- Others should know: **(meta-ads)** don't re-enable at $213 CAC, but the goal is now "drive CAC ≤ ~$80," not "never." **(affiliates/content-organic)** affiliate + organic confirmed as the lead; a high-fit sponsored placement is now greenlit to test (measure real signups→CAC). **(everyone)** stop saying "$29 product / paid always loses money" — judge vs LTV (~$40 target CAC), caveat retention is unproven.
+- Blocked on Dan: **the #1 missing input is the FIRST-RENEWAL RATE** (intro $29 → $49.99) from the Mar–Apr 2026 cohort — it's due now and would collapse the scenario spread into reality. Want me to pull it from Stripe next? Carry-overs: affiliate DMs, LLC blanks.
+
+## 2026-06-27 — content-organic
+- Did: Per Dan, **dropped the "I make a calendar" role** — facebook owns their posting calendar; content-organic
+  FEEDS ideas + runs cross-session social oversight. Delivered an **idea bank for facebook**
+  (`marketing/content-organic/post-ideas-for-facebook.md`): 8 ad/post concepts across the 4 MARKETING-TODO §1
+  pillars, draft captions (copy-paste), real-asset sources, all compliance pre-checked (website-not-book, no
+  pricing, CTA legacyodyssey.com NOT /demo, no banned words, no real names). Canva validated (brand kit
+  `kAHFKVqrch0`) + eco-card sample (4 candidates). Built **`social-ops-snapshot.md`** — cadence tracker across
+  all social channels.
+- Others should know: **(facebook)** ⬅️ ACTION: pull post/ad ideas from `post-ideas-for-facebook.md` into your
+  calendar; ping content-organic for more or for reworks. (I tried to send it to your session directly but the
+  cross-session message needs Dan's approval — picking it up from the file/board for now.) **(all social
+  sessions)** content-organic now tracks everyone's cadence in `social-ops-snapshot.md` — current gaps: TikTok
+  not live (biggest reach gap), facebook calendar not locked yet, blog publish gated on coding, pinterest
+  healthy thru Jul 15 (small flag: pin74 "scrapbook" wording). **(pinterest)** confirm pin74's visible copy
+  doesn't use the banned "scrapbook" analogy.
+- Blocked on Dan: (1) greenlight to **stand up TikTok**; (2) if you want the idea bank pushed into the Facebook
+  session live, approve the cross-session message.
+
+## 2026-06-26 — chief-of-staff
+- Did: 2 research deliverables (HTML, `Desktop\LO-reports\`). **(1) New-parent direct mail = NO-GO** (D-015): legal data-broker list+postcard ≈ $700–1,000/1,000; break-even needs ~2.9% purchase vs realistic 0.2–1% → ~$80–400/sale, same upside-down math as Meta. **(2) Affiliate supply networks = NOT NOW** (D-016): ShareASale ($625+$35/mo+20% override) cheapest but marketplaces are volume/coupon affiliates who won't push a niche $29/~$10-payout/low-converting product; keep Rewardful + founder-led DMs; revisit ShareASale only after conversion+volume improve.
+- Others should know: **(affiliates)** confirms your founder-led DM motion is the right call now — no network spend; the 232 fit-screened targets + comp-gift play stand. **(meta-ads/all growth)** both reinforce the standing thesis: at $29 + ~0.2–0.3% conversion, cold paid channels (ads, mail, networks w/ overrides) lose money — fix conversion / go cheap+organic+founder-led. **(content-organic)** OB/doula/birth-center/registry partnerships are the cheap route to new parents (vs buying lists).
+- Blocked on Dan: nothing new. Carry-overs: send affiliate DMs; LLC op-agreement blanks + Trade Name.
+
 ## 2026-06-26 (deep research + CRM) — influencer
 - Did: Two deliverables. (1) Built the **Influencer CRM** — `marketing/influencer/influencer-crm.xlsx` (18 creators backfilled with real outcomes: Giulia repeat, Amanda in-flight, Akshita/Jayna/Carina/Sarah closed, Lianne/Meaghan + the Top-10 prospects; autofilter-sortable, landscape-printable, Lane A/B tags, 1–5 rating rubric + legend sheet; regen via `build-crm.py`). Added **Hayley Carter (@hayley__carter)** — 72.3k Dallas motherhood creator, agency-repped (It Girl Agency) — as a prospect. (2) **Deep-research report on big-ticket sponsored placements** (one site/blog/channel for 100k+ US reach) → delivered HTML to `C:\Users\dragn\Desktop\LO-reports\sponsored-placement-research.html` (source md in `marketing/influencer/`). 5 tiers with real cited cost ranges; ranked rec + honest break-even model.
 - Others should know: **(meta-ads + chief-of-staff + affiliates)** the sponsored-placement report's core finding reinforces the standing diagnosis — **the bottleneck is the 0.16% landing-page conversion, NOT the traffic channel.** At first-year revenue (~$17 contribution/sale) a $2,500 placement needs ~147 sales; realistic targeted traffic yields a heavy loss unless judged on **LTV** (renewals at $49.99/yr). Recommendation: **test cheap ($500–1,000 US mom-blog sponsored post + unique discount code) before any $2,500+ newsletter/video**, and fix /gift conversion in parallel. Concrete bookable big-name path found: **Scary Mommy newsletter via Paved** (no enterprise sales call). Enterprise branded content (Scary Mommy/Motherly/BabyCenter/The Bump full programs, mega-YouTube) stays PARKED — $10k–50k+. **(coding)** every sponsorship dollar is wasted until /gift + the 9-sec-engagement leak are fixed — this is the highest-leverage work for paid-reach ROI.
 - Blocked on Dan: (1) decision on the sponsored-placement path/budget (recommend the $750 mom-blog test first); (2) Hayley Carter — email her agency for a media kit before budget (copy drafted); (3) verify Amanda Foust order accepted/posted (was in-progress Jun 16); (4) Intellifluence finish (logo + name + submit wizard).
+
+## 2026-06-27 (video fixes v1.0.25 — BOTH STORES) — coding
+- Did: **v1.0.25 SUBMITTED to BOTH stores** (Android Play production → in review; iOS App Store → Waiting for Review, build 39). Fixes the Moments/video bugs Dan hit: **keep-awake during upload** (`expo-keep-awake` — fixes phone-sleep→fail→duplicate-upload), **reorder videos** (↑/↓ buttons + new `PUT /api/videos/mine/reorder` endpoint + `videoService.reorder`), **improved WebView playback config** (inline + no-gesture autoplay + hardware layer + poster). Includes everything from 1.0.24 (the critical text-magic-link-not-password fix) + 1.0.23 (sharing rework). iOS 1.0.23 already **approved (Ready for Distribution)**; 1.0.25 supersedes. Finished the iOS submit via ASC browser (created version 1.0.25, attached build 39, Submit for Review).
+- Others should know: **(coding/next)** **#1 multiple-video-select upload is the one deferred item** — needs a small queue rework of the shared `UploadContext` (don't destabilize other video flows); first up next build. **(Dan to retest)** video PLAYBACK fix (#4) is best-effort — couldn't test on his device; if the in-app player still just spins, swap the WebView for a native `expo-video` component (needs the Cloudflare HLS URL). Server reorder endpoint deployed (805e1bd).
+- Blocked on Dan: nothing — both store reviews in Apple/Google's hands.
 
 ## 2026-06-27 (app fixes v1.0.24) — coding
 - Did: **Fixed live-app sharing bugs Dan hit + resubmitted (v1.0.24).** **CRITICAL:** texting multiple people sent the site link + PASSWORD via `/share-text`; now each person gets their OWN no-password **magic link** — `doText` loops `/api/contacts/mine/contacts/:id/sms` per person (separate Messages composer each, with a heads-up). Also: **note now included in texts** (`/sms` takes `?note=`), **form resets after send** (clears recipients+note on email AND text), **keyboard no longer covers the note box** (`android.softwareKeyboardLayoutMode: "pan"` + KeyboardAvoidingView), **nav bar no longer covers the picker "Done"** (safe-area `insets.bottom` padding on modal sheets). **NEW:** prominent gold **"Share your site"** button at the top of the app dashboard → jumps to Your Contacts (EN/ES). **Android 1.0.24 (vc 38) SUBMITTED to Play production** (in review, auto-publishes on approval, supersedes 1.0.23). iOS 1.0.24 binary uploading to ASC.
