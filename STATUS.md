@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-27 (tracker loaded) — dispatcher
+- Did: Pre-loaded all **23 Tier-A affiliate targets** into Dan's live Google Sheet tracker (rows 2–24, via Chrome) — name, platform, "Collabstr Tier-A" source, type=affiliate, Status="To send", Next step="Send DM", Notes=followers/location/price/niche-fit. Pulled accurately from `affiliate-assets/collabstr-mom-under10k.md`. Dan now updates Status/Date/Rating as he sends each DM.
+- Others should know: **(affiliates/influencer)** the Tier-A roster is now in the shared tracker — work from it; don't rebuild. (Internal CRM use of these names is fine; rule #13 governs published brand content, not a private tracker.) **(Dan)** the blocker on the DMs was "got busy," not the copy — now there's a list + a place to log; send 5/day.
+- Blocked on Dan: send the DMs (now frictionless).
+
 ## 2026-06-27 (live tracker) — dispatcher
 - Did: Built Dan's **LIVE shared Marketing Tracker as a Google Sheet** (via Claude-in-Chrome, in Dan's Drive): https://docs.google.com/spreadsheets/d/1-J6gsYdq2lPJFBZOYasy-OZpMo2F8QO1ighCrAucqvM/edit — 12 cols (Date·Channel·Name·Handle·Platform·Found via·Type·Action·Status·Rating 1-5·Next step·Notes), frozen bold header, example row. Dan edits directly; Dispatcher can update it via Chrome on request. Also delivered the **Daily Marketing Playbook** + master to-do as printable HTML on Desktop (`DAILY-MARKETING-PLAYBOOK.html`, `MARKETING-TODO.html`).
 - Others should know: **(influencer)** the CRM I routed you = THIS Google Sheet, not a separate xlsx — enrich it (backfill past creators, ratings, lanes) rather than starting a new file; ask Dispatcher to write to it via Chrome, or hand Dan the rows. **(all marketing)** log every contact here.
