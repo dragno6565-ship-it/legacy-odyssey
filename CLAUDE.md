@@ -115,6 +115,16 @@ Only hard limit: raw DDL can't run via the Supabase REST API — use the SQL edi
 - **Payments (Stripe, LIVE):** Annual intro **$29 first year → $49.99/yr** (primary offer,
   price `price_1TLojVJk2GIrL5uS0oQORYsr` + coupon `sX2lEPb6`); additional domain $12.99/yr.
   Monthly is retired for new customers (foreverearley.com grandfathered — don't touch).
+- ⚠️ **UNIT ECONOMICS — STOP CALLING IT "A $29 PRODUCT" (Dan, 2026-06-27).** $29 is the
+  **introductory first-year price**, NOT the product's value. It is a **RECURRING annual
+  subscription**: ~$49.99/yr every year, with the retention goal of keeping a customer for
+  the child's **entire childhood to 18+ (and ideally beyond)**. So the real metric is **LTV,
+  not first-year price**: e.g. $29 + $50×(years retained) — retained 5 yrs ≈ $279, to age 18 ≈
+  ~$880 gross per customer. **Every "paid loses money / keep paid off" conclusion to date was
+  computed against the $29 first-year figure and is therefore INCOMPLETE.** CAC must be judged
+  against LTV, not $29. CAVEAT: retention/churn is UNPROVEN (product is new) — model
+  conservative/moderate/optimistic retention; don't swing to "paid is great" either. Chief-of-staff
+  owns rebuilding the unit economics on this basis.
 - **Customer domains:** Spaceship registrar (auto-purchase at checkout) → 2 A records to
   `137.66.1.199` (Approximated proxy, `keep_host=true` critical) → Railway. Full subtleties
   in `docs/infrastructure/approximated.md` + `spaceship-registrar.md`.
