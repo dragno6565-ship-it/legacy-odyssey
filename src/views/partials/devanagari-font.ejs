@@ -1,0 +1,13 @@
+<%# Devanagari web fonts for Hindi. Include in <head>. Latin text keeps the brand
+   fonts (Cormorant Garamond / Jost / Inter); when the page is Hindi (html lang=hi)
+   the UI uses Noto Devanagari so the script renders cleanly + consistently. %>
+<% if (typeof lang !== 'undefined' && lang === 'hi') { %>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html[lang="hi"] body, html[lang="hi"] p, html[lang="hi"] span, html[lang="hi"] a,
+  html[lang="hi"] li, html[lang="hi"] label, html[lang="hi"] input, html[lang="hi"] textarea,
+  html[lang="hi"] button, html[lang="hi"] select, html[lang="hi"] div { font-family: 'Noto Sans Devanagari', 'Jost', 'Inter', sans-serif; }
+  html[lang="hi"] h1, html[lang="hi"] h2, html[lang="hi"] h3, html[lang="hi"] h4,
+  html[lang="hi"] h5, html[lang="hi"] .serif { font-family: 'Noto Serif Devanagari', 'Cormorant Garamond', serif; }
+</style>
+<% } %>

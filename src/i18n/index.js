@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const SUPPORTED = ['en', 'es'];
+const SUPPORTED = ['en', 'es', 'hi'];
 const DEFAULT = 'en';
 const COOKIE = 'lo_lang';
 

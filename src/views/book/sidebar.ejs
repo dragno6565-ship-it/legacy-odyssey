@@ -14,10 +14,11 @@
   <div class="sidebar-header">
     <div class="sidebar-logo">&#10022; Legacy Odyssey</div>
     <div class="sidebar-child-name"><%= book.child_first_name %><%= book.child_middle_name ? ' ' + book.child_middle_name : '' %> <%= book.child_last_name %></div>
-    <div class="sidebar-tagline"><%= t('book.born') %> &middot; <%= book.birth_date ? new Date(book.birth_date).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '' %> &middot; <%= book.city || '' %></div>
+    <div class="sidebar-tagline"><%= t('book.born') %> &middot; <%= book.birth_date ? new Date(book.birth_date).toLocaleDateString(({ es: 'es-ES', hi: 'hi-IN' }[lang] || 'en-US'), { month: 'long', day: 'numeric', year: 'numeric' }) : '' %> &middot; <%= book.city || '' %></div>
     <div class="lang-toggle" style="margin-top:0.7rem;display:inline-flex;gap:2px;border:1px solid rgba(200,169,110,0.4);border-radius:999px;padding:2px;font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.05em;">
-      <a href="?lang=en" style="padding:2px 11px;border-radius:999px;text-decoration:none;<%= lang === 'en' ? 'background:#c8a96e;color:#1a1510;font-weight:600;' : 'color:#8a7e6b;' %>">EN</a>
-      <a href="?lang=es" style="padding:2px 11px;border-radius:999px;text-decoration:none;<%= lang === 'es' ? 'background:#c8a96e;color:#1a1510;font-weight:600;' : 'color:#8a7e6b;' %>">ES</a>
+      <% var _LL = { en: 'EN', es: 'ES', hi: 'हिं' }; (typeof supportedLangs !== 'undefined' ? supportedLangs : ['en','es']).forEach(function(L){ %>
+        <a href="?lang=<%= L %>" style="padding:2px 11px;border-radius:999px;text-decoration:none;<%= lang === L ? 'background:#c8a96e;color:#1a1510;font-weight:600;' : 'color:#8a7e6b;' %>"><%= _LL[L] || L.toUpperCase() %></a>
+      <% }); %>
     </div>
   </div>
   <div class="sidebar-nav">

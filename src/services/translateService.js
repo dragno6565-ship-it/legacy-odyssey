@@ -98,8 +98,10 @@ async function deeplTranslate(texts, lang) {
  * Translate the whole book-data object into `lang`. Returns the original object
  * unchanged for English, when disabled, or on any error.
  */
+// Languages we machine-translate the family's own content into (DeepL targets).
+const TRANSLATABLE = new Set(['es', 'hi']);
 async function translateBook(data, lang) {
-  if (!ENABLED || !data || lang !== 'es') return data;
+  if (!ENABLED || !data || !TRANSLATABLE.has(lang)) return data;
   try {
     const set = new Set();
     collect(data, set);
