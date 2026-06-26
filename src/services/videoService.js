@@ -133,6 +133,17 @@ async function remove(bookId, videoId) {
   return true;
 }
 
+// Reassign sort_order to match the given id order (scoped to this book).
+async function reorder(bookId, ids) {
+  if (!Array.isArray(ids) || !ids.length) return { success: true };
+  for (let i = 0; i < ids.length; i++) {
+    await supabaseAdmin.from('videos')
+      .update({ sort_order: i, updated_at: new Date().toISOString() })
+      .eq('id', ids[i]).eq('book_id', bookId);
+  }
+  return { success: true };
+}
+
 module.exports = {
   SITE_CAP_SECONDS,
   totalSeconds,
@@ -142,4 +153,5 @@ module.exports = {
   getOne,
   setCaption,
   remove,
+  reorder,
 };

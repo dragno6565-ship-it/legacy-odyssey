@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as ImagePicker from 'expo-image-picker';
+import { ChevronUp, ChevronDown } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { get, put, del } from '../api/client';
@@ -52,6 +53,16 @@ export default function MomentsScreen() {
   async function saveCaption(v, caption) {
     try { await put(`/api/videos/mine/${v.id}/caption`, { caption }); } catch (e) {}
   }
+  // Move a video up/down and persist the new order.
+  async function moveVideo(index, dir) {
+    const j = index + dir;
+    if (j < 0 || j >= videos.length) return;
+    const next = videos.slice();
+    [next[index], next[j]] = [next[j], next[index]];
+    setVideos(next);
+    try { await put('/api/videos/mine/reorder', { ids: next.map((v) => v.id) }); }
+    catch (e) { fetchVideos(); }
+  }
   function confirmDelete(v) {
     Alert.alert(t('app.moments.delete_confirm_title'), null, [
       { text: t('app.moments.cancel'), style: 'cancel' },
@@ -72,19 +83,25 @@ export default function MomentsScreen() {
       <Text style={styles.pageSubtitle}>{t('app.moments.page_subtitle', { maxMinutes: MAX_SEC / 60 })}</Text>
       <Text style={styles.cap}>{t('app.moments.minutes_used', { used: usedMin, cap: capMin.toLocaleString() })}</Text>
 
-      {videos.map((v) => (
+      {videos.map((v, idx) => (
         <View key={v.id} style={styles.card}>
           <View style={styles.frame}>
             {v.status === 'ready' ? (
               <WebView
-                source={{ uri: `https://iframe.cloudflarestream.com/${v.stream_uid}` }}
+                source={{ uri: `https://iframe.cloudflarestream.com/${v.stream_uid}?poster=https%3A%2F%2Fiframe.cloudflarestream.com%2F${v.stream_uid}%2Fthumbnails%2Fthumbnail.jpg` }}
                 style={styles.web}
                 allowsFullscreenVideo
+                allowsInlineMediaPlayback
+                mediaPlaybackRequiresUserAction={false}
                 javaScriptEnabled
                 domStorageEnabled
+                originWhitelist={['*']}
+                mixedContentMode="always"
+                androidLayerType="hardware"
+                setSupportMultipleWindows={false}
               />
             ) : (
-              <View style={styles.processing}><Text style={styles.processingText}>{t('app.moments.processing')}</Text></View>
+              <View style={styles.processing}><ActivityIndicator color="#d4bb8a" /><Text style={styles.processingText}>{t('app.moments.processing')}</Text></View>
             )}
           </View>
           <TextInput
@@ -94,7 +111,19 @@ export default function MomentsScreen() {
             placeholderTextColor={colors.placeholder}
             onEndEditing={(e) => saveCaption(v, e.nativeEvent.text)}
           />
-          <TouchableOpacity onPress={() => confirmDelete(v)}><Text style={styles.removeLink}>{t('app.moments.remove')}</Text></TouchableOpacity>
+          <View style={styles.cardFooter}>
+            {videos.length > 1 ? (
+              <View style={styles.moveRow}>
+                <TouchableOpacity onPress={() => moveVideo(idx, -1)} disabled={idx === 0} style={[styles.moveBtn, idx === 0 && styles.moveBtnDim]}>
+                  <ChevronUp size={20} color={colors.gold} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => moveVideo(idx, 1)} disabled={idx === videos.length - 1} style={[styles.moveBtn, idx === videos.length - 1 && styles.moveBtnDim]}>
+                  <ChevronDown size={20} color={colors.gold} />
+                </TouchableOpacity>
+              </View>
+            ) : <View />}
+            <TouchableOpacity onPress={() => confirmDelete(v)}><Text style={styles.removeLink}>{t('app.moments.remove')}</Text></TouchableOpacity>
+          </View>
         </View>
       ))}
 
@@ -125,7 +154,11 @@ const styles = StyleSheet.create({
   processing: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   processingText: { color: '#d4bb8a', fontSize: typography.sizes.sm },
   input: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.md, fontSize: typography.sizes.md, color: colors.textPrimary },
-  removeLink: { color: colors.error, fontSize: typography.sizes.sm, fontWeight: typography.weights.medium, marginTop: spacing.sm },
+  removeLink: { color: colors.error, fontSize: typography.sizes.sm, fontWeight: typography.weights.medium },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
+  moveRow: { flexDirection: 'row', gap: spacing.sm },
+  moveBtn: { width: 42, height: 36, borderWidth: 1, borderColor: colors.gold, borderRadius: borderRadius.md, alignItems: 'center', justifyContent: 'center' },
+  moveBtnDim: { opacity: 0.35 },
   empty: { fontSize: typography.sizes.sm, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.md },
   addButton: { borderWidth: 2, borderColor: colors.gold, borderStyle: 'dashed', borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginTop: spacing.sm },
   addButtonDisabled: { opacity: 0.5 },

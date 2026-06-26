@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { post, BASE_URL } from '../api/client';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { colors } from '../theme';
+
+const KEEP_AWAKE_TAG = 'lo-video-upload';
 
 /**
  * Background video upload. The user starts an upload and can keep using the app
@@ -23,6 +26,9 @@ export function UploadProvider({ children }) {
     lastArgs.current = args;
     const { asset, context, celebrationId, familyMemberId, onComplete } = args;
     setState({ status: 'uploading', pct: 0, error: null });
+    // Keep the screen awake for the whole upload — if the phone sleeps mid-upload
+    // the request fails, and retrying mints a NEW video (the duplicate-upload bug).
+    activateKeepAwakeAsync(KEEP_AWAKE_TAG).catch(() => {});
     try {
       // 1) Mint a direct-upload URL
       const body = { context };
@@ -62,6 +68,8 @@ export function UploadProvider({ children }) {
       setTimeout(() => setState((s) => (s.status === 'done' ? { status: 'idle', pct: 0, error: null } : s)), 4000);
     } catch (err) {
       setState({ status: 'error', pct: 0, error: err.message || 'Upload failed' });
+    } finally {
+      deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {});
     }
   }, []);
 

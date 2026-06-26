@@ -70,6 +70,15 @@ router.put('/mine/:id/caption', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Reorder videos within a context: body { ids: [orderedVideoIds] } → sort_order = index.
+router.put('/mine/reorder', requireAuth, async (req, res, next) => {
+  try {
+    const bid = await appBookId(req);
+    const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+    res.json(await videoService.reorder(bid, ids));
+  } catch (err) { next(err); }
+});
+
 router.delete('/mine/:id', requireAuth, async (req, res, next) => {
   try {
     const bid = await appBookId(req);
