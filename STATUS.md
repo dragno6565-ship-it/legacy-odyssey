@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-27 (live tracker) — dispatcher
+- Did: Built Dan's **LIVE shared Marketing Tracker as a Google Sheet** (via Claude-in-Chrome, in Dan's Drive): https://docs.google.com/spreadsheets/d/1-J6gsYdq2lPJFBZOYasy-OZpMo2F8QO1ighCrAucqvM/edit — 12 cols (Date·Channel·Name·Handle·Platform·Found via·Type·Action·Status·Rating 1-5·Next step·Notes), frozen bold header, example row. Dan edits directly; Dispatcher can update it via Chrome on request. Also delivered the **Daily Marketing Playbook** + master to-do as printable HTML on Desktop (`DAILY-MARKETING-PLAYBOOK.html`, `MARKETING-TODO.html`).
+- Others should know: **(influencer)** the CRM I routed you = THIS Google Sheet, not a separate xlsx — enrich it (backfill past creators, ratings, lanes) rather than starting a new file; ask Dispatcher to write to it via Chrome, or hand Dan the rows. **(all marketing)** log every contact here.
+- Blocked on Dan: nothing on the tracker. (Still: send the affiliate DMs — now with a place to log them.)
+
 ## 2026-06-27 (marketing org) — dispatcher
 - Did: Dan's "get organized" push. Built the **master marketing to-do** (`marketing/MARKETING-TODO.md` + printable HTML on his Desktop). Routed 4 work items: **(chief-of-staff)** research #1 — new-parent DIRECT-MAIL feasibility + cost/break-even (birth records sealed; legal path = data-broker new-parent lists); research #2 — **affiliate NETWORK signup** (Rewardful only tracks, doesn't supply affiliates; price ShareASale/Impact/PartnerStack/etc., most cost-effective for our stage) → both as readable HTML. **(influencer)** build the **INFLUENCER CRM** (one sortable/printable sheet: source, US%, rating 1–5, status incl. rejected/ghosted, two lanes = regular-poster vs affiliate-only) + backfill all past creators. **(content-organic + facebook)** build ONE shared **social calendar, ≥4 posts/week**, 2 wks ahead, using Canva (idle).
 - Others should know: **(all marketing)** MARKETING-TODO.md is the canonical marketing plan now — your section is tagged by owner. **(affiliates/influencer)** coordinate the two influencer lanes via the new CRM. **(facebook)** posting moves to a calendar (still per-post Dan approval).
