@@ -620,10 +620,8 @@ router.get('/book/circles', requireAccountSession, async (req, res, next) => {
     // Which sections actually have content — so the "share a section" picker only
     // lists sections this book really shows (matches the live site's nav).
     let visibleSections = {};
-    if (bid) {
-      try { const fb = await bookService.getFullBook(bid); visibleSections = (fb && fb.visibleSections) || {}; }
-      catch (e) { console.error('circles: visibleSections load failed:', e.message); }
-    }
+    try { const fb = await bookService.getFullBook(f.id); visibleSections = (fb && fb.visibleSections) || {}; }
+    catch (e) { console.error('circles: visibleSections load failed:', e.message); }
     res.render('marketing/account-book-circles', {
       contacts, circles, bookUrl, siteLabel, visibleSections,
       success: req.query.success || null, error: req.query.error || null,
