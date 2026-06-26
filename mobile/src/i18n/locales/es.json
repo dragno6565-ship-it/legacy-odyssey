@@ -1118,5 +1118,8 @@
   "app.share.email_confirm_many": "¿Enviar esta novedad a {count} personas?\nCompartiendo: {scope}",
   "app.share.send_email": "Enviar",
   "app.share.sent_title": "¡Enviado!",
-  "app.circles.done": "Listo"
+  "app.circles.done": "Listo",
+  "app.share.text_multi_title": "Enviar a {count} personas",
+  "app.share.text_multi_msg": "Cada persona recibe su propio enlace privado (sin contraseña), así que se abrirá un mensaje por cada una — {count} en total. Envía cada uno y listo.",
+  "app.share.text_multi_go": "Abrir mensajes"
 }

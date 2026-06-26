@@ -58,7 +58,10 @@ router.get('/mine/contacts/:id/sms', async (req, res, next) => {
     const section = (req.query.section || '').trim();
     const anchor = /^[a-z0-9-]{1,64}$/i.test(section) ? `#${section}` : '';
     const link = `${bookUrl}/?circle=${c.access_token}${anchor}`;
-    const message = `There's something new on ${siteLabel} — take a look (no password needed): ${link}`;
+    const note = (req.query.note || '').toString().trim().slice(0, 500);
+    const message = note
+      ? `${note}\n\nSee it here (no password needed): ${link}`
+      : `There's something new on ${siteLabel} — take a look (no password needed): ${link}`;
     res.json({ phone: c.phone, name: c.name, message });
   } catch (err) { next(err); }
 });

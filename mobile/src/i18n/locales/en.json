@@ -1118,5 +1118,8 @@
   "app.share.email_confirm_many": "Email this update to {count} people?\nSharing: {scope}",
   "app.share.send_email": "Send",
   "app.share.sent_title": "Sent!",
-  "app.circles.done": "Done"
+  "app.circles.done": "Done",
+  "app.share.text_multi_title": "Text {count} people",
+  "app.share.text_multi_msg": "Everyone gets their own private link (no password), so a separate text opens for each — {count} in total. Send each one, then you're set.",
+  "app.share.text_multi_go": "Open texts"
 }

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Modal, ActivityIndicator, Alert, Linking } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Modal, ActivityIndicator, Alert, Linking, Platform, KeyboardAvoidingView } from 'react-native';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Contacts from 'expo-contacts';
 import * as SMS from 'expo-sms';
 import { Trash2, Send, UserPlus, MessageSquare, Mail, Search, ChevronDown, Check } from 'lucide-react-native';
@@ -14,6 +15,7 @@ import { useI18n } from '../i18n/I18nContext';
 export default function CirclesScreen() {
   const { t } = useI18n();
   const route = useRoute();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [contacts, setContacts] = useState([]);
@@ -175,24 +177,37 @@ export default function CirclesScreen() {
   async function doText() {
     const people = textables;
     if (!people.length || sending) return;
+    const available = await SMS.isAvailableAsync();
+    if (!available) { Alert.alert(t('app.circles.texting_unavailable_title'), t('app.circles.texting_unavailable_msg')); return; }
+    // Everyone gets their OWN private link (no password). A group SMS can't carry
+    // different links, so we open a separate message per person, one at a time.
+    if (people.length > 1) {
+      Alert.alert(
+        t('app.share.text_multi_title', { count: people.length }),
+        t('app.share.text_multi_msg', { count: people.length }),
+        [{ text: t('app.circles.cancel'), style: 'cancel' }, { text: t('app.share.text_multi_go'), onPress: () => runTexts(people) }]
+      );
+    } else { runTexts(people); }
+  }
+  async function runTexts(people) {
+    setSending(true);
+    const sec = scopeParam();
+    const note = shareNote.trim();
     try {
-      const available = await SMS.isAvailableAsync();
-      if (!available) { Alert.alert(t('app.circles.texting_unavailable_title'), t('app.circles.texting_unavailable_msg')); return; }
-      const sec = scopeParam();
-      const q = sec ? ('?section=' + encodeURIComponent(sec)) : '';
-      if (people.length === 1) {
-        const res = await get('/api/contacts/mine/contacts/' + people[0].id + '/sms' + q);
-        const phone = (res.data && res.data.phone) || people[0].phone;
+      for (const p of people) {
+        const params = [];
+        if (sec) params.push('section=' + encodeURIComponent(sec));
+        if (note) params.push('note=' + encodeURIComponent(note));
+        const q = params.length ? ('?' + params.join('&')) : '';
+        const res = await get('/api/contacts/mine/contacts/' + p.id + '/sms' + q);
+        const phone = (res.data && res.data.phone) || p.phone;
         const message = (res.data && res.data.message) || '';
         await SMS.sendSMSAsync([phone], message);
-      } else {
-        const res = await get('/api/contacts/mine/share-text' + q);
-        const message = (res.data && res.data.message) || '';
-        await SMS.sendSMSAsync(people.map((p) => p.phone), message);
       }
+      setShareSel([]); setShareNote('');
     } catch (e) {
       Alert.alert(t('app.circles.cant_open_messages_title'), t('app.circles.please_try_again'));
-    }
+    } finally { setSending(false); }
   }
 
   // Per-contact quick text from the contact list (single private link).
@@ -282,6 +297,7 @@ export default function CirclesScreen() {
 
   return (
     <>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <Text style={styles.pageTitle}>{t('app.circles.page_title')}</Text>
       <Text style={styles.pageSubtitle}>{t('app.circles.page_subtitle')}</Text>
@@ -433,11 +449,12 @@ export default function CirclesScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
 
     {/* Scope picker */}
     <Modal visible={showScope} animationType="slide" transparent onRequestClose={() => setShowScope(false)}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalSheet}>
+        <View style={[styles.modalSheet, { paddingBottom: insets.bottom + spacing.lg }]}>
           <View style={styles.modalHead}>
             <Text style={styles.modalTitle}>{t('app.share.what_label')}</Text>
             <TouchableOpacity onPress={() => setShowScope(false)}><Text style={styles.link}>{t('app.circles.close')}</Text></TouchableOpacity>
@@ -459,7 +476,7 @@ export default function CirclesScreen() {
     {/* Recipient picker */}
     <Modal visible={showRecip} animationType="slide" transparent onRequestClose={() => setShowRecip(false)}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalSheet}>
+        <View style={[styles.modalSheet, { paddingBottom: insets.bottom + spacing.lg }]}>
           <View style={styles.modalHead}>
             <Text style={styles.modalTitle}>{t('app.share.choose_people')}</Text>
             <TouchableOpacity onPress={() => setShowRecip(false)}><Text style={styles.link}>{t('app.circles.done')}</Text></TouchableOpacity>
@@ -498,7 +515,7 @@ export default function CirclesScreen() {
     {/* Import-from-phone picker */}
     <Modal visible={showImport} animationType="slide" transparent onRequestClose={() => setShowImport(false)}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalSheet}>
+        <View style={[styles.modalSheet, { paddingBottom: insets.bottom + spacing.lg }]}>
           <View style={styles.modalHead}>
             <Text style={styles.modalTitle}>{t('app.circles.import_modal_title')}</Text>
             <TouchableOpacity onPress={() => setShowImport(false)}><Text style={styles.link}>{t('app.circles.close')}</Text></TouchableOpacity>
