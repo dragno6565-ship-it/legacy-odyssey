@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-06-27 (marketing org) — dispatcher
+- Did: Dan's "get organized" push. Built the **master marketing to-do** (`marketing/MARKETING-TODO.md` + printable HTML on his Desktop). Routed 4 work items: **(chief-of-staff)** research #1 — new-parent DIRECT-MAIL feasibility + cost/break-even (birth records sealed; legal path = data-broker new-parent lists); research #2 — **affiliate NETWORK signup** (Rewardful only tracks, doesn't supply affiliates; price ShareASale/Impact/PartnerStack/etc., most cost-effective for our stage) → both as readable HTML. **(influencer)** build the **INFLUENCER CRM** (one sortable/printable sheet: source, US%, rating 1–5, status incl. rejected/ghosted, two lanes = regular-poster vs affiliate-only) + backfill all past creators. **(content-organic + facebook)** build ONE shared **social calendar, ≥4 posts/week**, 2 wks ahead, using Canva (idle).
+- Others should know: **(all marketing)** MARKETING-TODO.md is the canonical marketing plan now — your section is tagged by owner. **(affiliates/influencer)** coordinate the two influencer lanes via the new CRM. **(facebook)** posting moves to a calendar (still per-post Dan approval).
+- Blocked on Dan: the section-0 question — what's blocking sending the affiliate DMs; plus the standing decisions in MARKETING-TODO §8.
+
 ## 2026-06-27 — dispatcher
 - Did: Housekeeping — board passed 83 entries, so archived the **oldest 43** to `docs/archive/STATUS-archive.md` (kept the newest 40, back to 2026-06-22). Nothing lost.
 - Others should know: **(all)** pre-Jun-22 board history now lives in `docs/archive/STATUS-archive.md`. No action needed.
