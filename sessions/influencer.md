@@ -4,7 +4,7 @@
 > related to the AFFILIATES session — influencers may also be recruited as affiliates
 > (35% recurring through Rewardful).
 
-**Last session:** 2026-06-16
+**Last session:** 2026-06-26
 
 ## Scope
 - Owns `marketing/influencer/influencer.md` — the detail file.
@@ -41,21 +41,37 @@
 - **Comp gift minting** for influencers exists in `/admin` (shipped 2026-05-27) — use this to send
   free codes instead of cash where possible.
 
-## Open items (tomorrow's first actions in order)
-- [ ] **Watch for Amanda Foust (@amanda_arrows) acceptance.** Order PLACED Jun 16 — IG Feed Post
-      $159.50 ($145 + fee) from the Jayna refund balance, IN-PROGRESS, awaiting her acceptance
-      (72-hr window → ~Jun 19). If she declines/lapses, next pick from Top-10 = Kristen Corrao
-      (@kristen_corrao, 88% US, $70 feed) or Jennifer Mendez (@jenn11, 98% US, $85 feed).
-- [ ] **Screen ALL future creators for US base first** (Dan rule 2026-06-16). Location/US-audience %
-      matters MORE than raw engagement for our US customer goals. Re-audit the Top-10 shortlist on
-      this lens before buying — drop or deprioritize any that aren't clearly US-weighted.
+## Open items (next-session first actions in order)
+- [ ] **Big-ticket sponsored placement — DECISION PENDING (research delivered 2026-06-26).**
+      Full report: `marketing/influencer/sponsored-placement-research.md` →
+      `C:\Users\dragn\Desktop\LO-reports\sponsored-placement-research.html`. **Recommended next step:
+      do NOT book a $2,500+ placement yet** — run a **~$500–1,000 US mom-blog sponsored post with a
+      unique discount code** as a conversion test on warm parenting traffic FIRST (break-even needs
+      LTV, not first-year; site converts only 0.16%). If that converts ≥0.5–1%, scale into a **US
+      parenting newsletter send (~$2,000–2,500/100k, e.g. Scary Mommy via Paved or a Motherly send)**
+      or a **dedicated video on a 100k–500k-sub pregnancy/newborn US mom channel ($2k–6k, evergreen)**.
+      Enterprise branded content (Scary Mommy/Motherly/BabyCenter/The Bump full programs, mega-YouTube)
+      = $10k–50k+, NOT worth it at our stage. Awaiting Dan's call on which path / budget.
+- [ ] **Hayley Carter (@hayley__carter)** — 72.3k Dallas motherhood creator, agency-repped
+      (teamhayley@itgirlagency.com). Status: prospect, provisional rating 4. **Next:** Dan emails the
+      agency for a media kit (engagement % + audience US-geo) BEFORE any budget; outreach copy drafted
+      in chat (email, not DM). In the CRM.
+- [ ] **Watch for Amanda Foust (@amanda_arrows) acceptance.** Order placed Jun 16 (IG Feed Post
+      $159.50 from the Jayna refund balance). Was IN-PROGRESS at last check — verify it accepted/posted.
+      If it lapsed, next pick = Kristen Corrao (@kristen_corrao, 88% US, $70) or Jennifer Mendez
+      (@jenn11, 98% US, $85).
+- [ ] **Screen ALL future creators for US base first** (Dan rule 2026-06-16). US-audience % > raw
+      engagement for US customer goals.
 - [ ] **Coordinate with `affiliates` before next outreach.** Their 19 ⭐ Tier-A sub-10K targets get
       **affiliate-first** pitch (Rewardful 35% + comp gift code) — NOT Collabstr paid posts. Influencer
-      keeps the paid-post lane for mid-tier (1.2k–48k). Top-10 picks are above sub-10K — fair game.
+      keeps the paid-post lane for mid-tier (1.2k–48k).
 - [ ] Intellifluence finishing: Dan still owes (a) logo upload, (b) first/last name, (c) submit wizard.
-- [ ] **Meaghan Williamson** (@mindfullymademotherhood, 811k) — IG DM only path. Verify US audience
-      before pursuing (per new US-first screen). Draft if Dan wants.
+- [ ] **Meaghan Williamson** (@mindfullymademotherhood, 811k) — IG DM only path. Verify US audience first.
 - [ ] **The Bump advertising** — PARKED (enterprise $10K–50K). Re-evaluate at $5K+ MRR.
+
+## CRM
+- Master roster: `marketing/influencer/influencer-crm.xlsx` (18 creators, sortable/printable; rebuild
+  via `build-crm.py`). Sheet 2 = rating rubric, Lane A/B defs, status legend, standing rules.
 
 ## Blocked on Dan
 - Intellifluence: logo + first/last name + submit wizard (only remaining hard block).
@@ -81,6 +97,16 @@
   affiliate commission rather than a one-shot paid post.
 
 ## Log
+- **2026-06-26** — Two deliverables. (1) Built the **Influencer CRM** —
+  `marketing/influencer/influencer-crm.xlsx` (18 creators backfilled with real outcomes, autofilter/
+  sortable, landscape print, Lane A/B tags, 1–5 rubric + legend sheet; regen via `build-crm.py`).
+  Added **Hayley Carter (@hayley__carter)** — 72.3k Dallas motherhood creator, agency-repped — as a
+  prospect (rating 4 provisional). (2) **Deep-research report on big-ticket sponsored placements**
+  (one site/blog/channel for 100k+ US reach) → `sponsored-placement-research.md` + delivered HTML to
+  `C:\Users\dragn\Desktop\LO-reports\`. Covered 5 tiers w/ real cost ranges + sources; ranked rec
+  (newsletter > mid YouTube > mom-blog) with an honest break-even model showing first-year revenue
+  can't justify $2,500+ at 0.16% site conversion — test cheap ($750 mom-blog + code) first, judge on
+  LTV. Earlier Akshita handle confusion resolved (the live @hayley__carter is the 72k Dallas mom).
 - **2026-06-16** — Placed the **Amanda Foust** ($159.50) IG Feed Post order against the $275 Jayna
   refund balance (Use Balance; ~$115.50 left) — confirmed In-progress in the ledger. Brief: single
   feed post, positive/low-stress tone, tag @legacyodesseyapp + bio link, emailed digital comp code
