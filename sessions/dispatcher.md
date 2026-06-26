@@ -61,6 +61,15 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
+- **2026-06-26** — Strategy/research day + nightly close. Routed: referral "Share the love"
+  section removal → coding (recoverable). Researched Zeely (legit AI ad tool, wrong time —
+  parked). Big thread: Meta "losing or under-spent?" — established it was never a fair test;
+  coding verified Pixel Purchase is wired but unproven live (no sale since Jun 14), CAPI off,
+  no real bot filters, /gift CRO open. Fix-list captured, ON HOLD, scheduled-task reminder set
+  for 6pm + pinned to Open items. Advised AGAINST buying app likes (ban risk for a
+  children's-data product); offered compliant real-reviews drive (not yet greenlit). meta-ads
+  decoded a $106 bill (mostly old WPT billed late); $2/day Features ad active+on-budget; Meta
+  lifetime corrected ~$1,605. STATUS.md nearing ~40 entries — archive oldest half soon.
 - **2026-06-25** — Nightly close. 1.0.22 submitted to both stores with the full ASO-optimized
   listing (new name "Legacy Odyssey: Baby Book" + keywords/screenshots/video); App Store package
   + ASO research delivered as Desktop HTML. HIGH sharing bug fixed + live (`afe2c26`) — viewers on
