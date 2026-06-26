@@ -12,7 +12,7 @@ export default function LanguageToggle({ style }) {
   const { lang, setPref } = useI18n();
   return (
     <View style={[styles.wrap, style]}>
-      {[['en', 'EN'], ['es', 'ES']].map(([code, label]) => {
+      {[['en', 'EN'], ['es', 'ES'], ['hi', 'हिं']].map(([code, label]) => {
         const active = lang === code;
         return (
           <TouchableOpacity

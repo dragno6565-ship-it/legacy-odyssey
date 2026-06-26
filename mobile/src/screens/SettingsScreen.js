@@ -25,6 +25,7 @@ export default function SettingsScreen({ navigation }) {
     { key: 'auto', label: t('settings.language_auto'), sub: t('settings.language_auto_sub') },
     { key: 'en', label: t('settings.language_en') },
     { key: 'es', label: t('settings.language_es') },
+    { key: 'hi', label: t('settings.language_hi') },
   ];
   const activeFamily = families?.find(f => f.id === activeFamilyId) || families?.[0];
   const isFree = activeFamily ? (activeFamily.plan !== 'paid' && activeFamily.subscription_status !== 'active') : true;

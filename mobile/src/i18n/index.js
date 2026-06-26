@@ -6,11 +6,12 @@
 import * as Localization from 'expo-localization';
 import en from './locales/en.json';
 import es from './locales/es.json';
+import hi from './locales/hi.json';
 
-export const SUPPORTED = ['en', 'es'];
+export const SUPPORTED = ['en', 'es', 'hi'];
 export const DEFAULT = 'en';
 
-const dicts = { en, es };
+const dicts = { en, es, hi };
 
 export function translate(lang, key, vars) {
   const d = dicts[lang] || dicts[DEFAULT];

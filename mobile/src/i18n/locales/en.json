@@ -1123,5 +1123,6 @@
   "app.share.text_multi_msg": "Everyone gets their own private link (no password), so a separate text opens for each — {count} in total. Send each one, then you're set.",
   "app.share.text_multi_go": "Open texts",
   "app.dashboard.share_cta_title": "Share your site",
-  "app.dashboard.share_cta_sub": "Send it to family & friends — by text or email"
+  "app.dashboard.share_cta_sub": "Send it to family & friends — by text or email",
+  "settings.language_hi": "हिन्दी"
 }
