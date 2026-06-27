@@ -156,7 +156,7 @@ router.put('/mine', async (req, res, next) => {
       'birth_weight_lbs', 'birth_weight_oz', 'birth_length_inches',
       'birth_city', 'birth_state', 'birth_hospital', 'name_meaning',
       'hero_image_path', 'name_quote', 'parent_quote', 'parent_quote_attribution',
-      'vault_unlock_date', 'welcome_fields',
+      'vault_unlock_date', 'welcome_fields', 'unit_system', 'default_language',
     ];
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
@@ -301,7 +301,7 @@ router.get('/mine/months/:num', async (req, res, next) => {
     const { supabaseAdmin } = require('../../config/supabase');
     const { data } = await supabaseAdmin.from('months').select('*').eq('book_id', book.id).eq('month_number', num).maybeSingle();
     if (!data) return res.status(404).json({ error: 'Month not found' });
-    res.json({ ...data, photo_path: resolvePhoto(data.photo_path) });
+    res.json({ ...data, photo_path: resolvePhoto(data.photo_path), unit_system: book.unit_system || 'imperial' });
   } catch (err) {
     next(err);
   }
