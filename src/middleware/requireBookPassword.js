@@ -46,6 +46,21 @@ async function requireBookPassword(req, res, next) {
     return res.status(404).render('book/not-found');
   }
 
+  // Default the site to the book's chosen language when the visitor hasn't picked
+  // one themselves (no ?lang, no lo_lang cookie). The EN/ES/HI toggle still works.
+  if (!req.query.lang && !(req.cookies && req.cookies.lo_lang)) {
+    try {
+      const { data: langBook } = await supabaseAdmin
+        .from('books').select('default_language').eq('family_id', req.family.id).maybeSingle();
+      const dl = langBook && langBook.default_language;
+      const i18n = require('../i18n');
+      if (dl && i18n.SUPPORTED.includes(dl) && dl !== res.locals.lang) {
+        res.locals.lang = dl;
+        res.locals.t = (key, vars) => i18n.translate(dl, key, vars);
+      }
+    } catch (e) { /* non-fatal — keep the middleware-resolved default */ }
+  }
+
   // Circle magic link (?circle=<token>) — a contact's private link opens the
   // book with no password. Validate the token belongs to THIS family's book,
   // stamp last_viewed_at, set the same session cookie the password flow uses,

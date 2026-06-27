@@ -351,11 +351,13 @@ router.get('/dashboard', async (req, res) => {
     // Data for the "Share your website" card (the share-update partial): contacts,
     // circles, and which sections/galleries this book actually has.
     let contacts = [], circles = [], visibleSections = {}, galleries = [];
+    let bookSettings = { unit_system: 'imperial', default_language: '' };
     try {
       const book = await bookService.getBookByFamilyId(family.id);
       if (book) {
         contacts = await contactService.listContacts(book.id);
         circles = await contactService.listCircles(book.id);
+        bookSettings = { unit_system: book.unit_system || 'imperial', default_language: book.default_language || '' };
       }
       const fb = await bookService.getFullBook(family.id);
       visibleSections = (fb && fb.visibleSections) || {};
@@ -370,12 +372,26 @@ router.get('/dashboard', async (req, res) => {
       isPrimary,
       referral,
       contacts, circles, visibleSections, galleries,
+      bookSettings,
       appDomain: APP_DOMAIN(),
       error: null,
     });
   } catch (err) {
     res.render('marketing/account-dashboard', { family: null, linkedFamilies: [], isPrimary: null, referral: null, appDomain: APP_DOMAIN(), error: 'Could not load account details.' });
   }
+});
+
+// POST /account/site-settings — the book's main site language + measurement units.
+router.post('/site-settings', requireAccountSession, async (req, res, next) => {
+  try {
+    const book = await bookService.getBookByFamilyId(req.family.id);
+    if (!book) return res.redirect('/account/dashboard');
+    const { SUPPORTED } = require('../i18n');
+    const lang = SUPPORTED.includes(req.body.default_language) ? req.body.default_language : 'en';
+    const unit = req.body.unit_system === 'metric' ? 'metric' : 'imperial';
+    await bookService.updateBook(book.id, { default_language: lang, unit_system: unit });
+    res.redirect('/account/dashboard?settings=1');
+  } catch (err) { next(err); }
 });
 
 // GET /account/export — GDPR right of access / data portability.
