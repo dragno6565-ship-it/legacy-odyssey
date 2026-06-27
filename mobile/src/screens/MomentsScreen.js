@@ -37,16 +37,22 @@ export default function MomentsScreen() {
   async function pickAndUpload() {
     if (isBusy) { Alert.alert(t('app.moments.please_wait_title'), t('app.moments.please_wait_body')); return; }
     if (totalSec >= capSec) { Alert.alert(t('app.moments.limit_reached_title'), t('app.moments.limit_reached_body')); return; }
-    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['videos'], quality: 1 });
+    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['videos'], quality: 1, allowsMultipleSelection: true });
     if (picked.canceled || !picked.assets || !picked.assets.length) return;
-    const asset = picked.assets[0];
-    const durSec = asset.duration ? asset.duration / 1000 : 0;
-    if (durSec && durSec > MAX_SEC + 1) {
-      Alert.alert(t('app.moments.too_long_title'), t('app.moments.too_long_body', { seconds: Math.round(durSec), maxSeconds: MAX_SEC, maxMinutes: MAX_SEC / 60 }));
-      return;
+    // Keep clips within the per-video length limit; upload the rest as a batch.
+    const valid = [];
+    let tooLongSec = 0;
+    for (const asset of picked.assets) {
+      const durSec = asset.duration ? asset.duration / 1000 : 0;
+      if (durSec && durSec > MAX_SEC + 1) { if (!tooLongSec) tooLongSec = Math.round(durSec); continue; }
+      valid.push(asset);
     }
-    // Kick off the background upload and let the user keep using the app.
-    startUpload({ asset, context: 'moments', onComplete: fetchVideos });
+    if (tooLongSec) {
+      Alert.alert(t('app.moments.too_long_title'), t('app.moments.too_long_body', { seconds: tooLongSec, maxSeconds: MAX_SEC, maxMinutes: MAX_SEC / 60 }));
+    }
+    if (!valid.length) return;
+    // Kick off the background upload(s) and let the user keep using the app.
+    startUpload({ assets: valid, context: 'moments', onComplete: fetchVideos });
     Alert.alert(t('app.moments.uploading_title'), t('app.moments.uploading_body'));
   }
 
