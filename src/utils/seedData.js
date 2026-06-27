@@ -1,18 +1,20 @@
-// Default placeholder content for a new book (same as the demo site)
-
+// Default placeholder content for a new book (same as the demo site).
+// NOTE: months are seeded with the month NAME only — no example highlight/weight/
+// length. Those are shown as greyed example placeholders in the editor instead, and
+// a month only appears on the public site once the parent fills in a real field.
 const defaultMonths = [
-  { month_number: 1, label: 'One Month Old', highlight: 'First smile sighted...', weight: '9 lbs 2 oz', length: '21 in' },
-  { month_number: 2, label: 'Two Months Old', highlight: 'Discovering your voice', weight: '10 lbs 8 oz', length: '22 in' },
-  { month_number: 3, label: 'Three Months Old', highlight: 'First real laugh', weight: '12 lbs', length: '23.5 in' },
-  { month_number: 4, label: 'Four Months Old', highlight: 'Rolling over milestone', weight: '13 lbs 4 oz', length: '24.5 in' },
-  { month_number: 5, label: 'Five Months Old', highlight: 'Grabbing everything!', weight: '14 lbs 6 oz', length: '25.5 in' },
-  { month_number: 6, label: 'Six Months Old', highlight: 'First taste of food', weight: '15 lbs 8 oz', length: '26 in' },
-  { month_number: 7, label: 'Seven Months Old', highlight: 'Sitting up!', weight: '16 lbs 10 oz', length: '26.5 in' },
-  { month_number: 8, label: 'Eight Months Old', highlight: 'Starting to crawl', weight: '17 lbs 8 oz', length: '27 in' },
-  { month_number: 9, label: 'Nine Months Old', highlight: 'Pulling to stand', weight: '18 lbs 4 oz', length: '27.5 in' },
-  { month_number: 10, label: 'Ten Months Old', highlight: 'First words forming', weight: '19 lbs', length: '28 in' },
-  { month_number: 11, label: 'Eleven Months Old', highlight: 'Cruising furniture', weight: '19 lbs 10 oz', length: '28.5 in' },
-  { month_number: 12, label: 'Twelve Months Old', highlight: 'Happy first birthday!', weight: '20 lbs 4 oz', length: '29 in' },
+  { month_number: 1, label: 'One Month Old' },
+  { month_number: 2, label: 'Two Months Old' },
+  { month_number: 3, label: 'Three Months Old' },
+  { month_number: 4, label: 'Four Months Old' },
+  { month_number: 5, label: 'Five Months Old' },
+  { month_number: 6, label: 'Six Months Old' },
+  { month_number: 7, label: 'Seven Months Old' },
+  { month_number: 8, label: 'Eight Months Old' },
+  { month_number: 9, label: 'Nine Months Old' },
+  { month_number: 10, label: 'Ten Months Old' },
+  { month_number: 11, label: 'Eleven Months Old' },
+  { month_number: 12, label: 'Twelve Months Old' },
 ];
 
 const defaultFamilyMembers = [

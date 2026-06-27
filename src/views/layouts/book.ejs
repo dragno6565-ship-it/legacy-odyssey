@@ -325,16 +325,20 @@
   <!-- Inject data for client-side JS (modals, etc.) -->
   <script>
     <% if (!isFree && visibleSections.months) { %>
-    const months = <%- JSON.stringify((months || []).map(m => ({
-      num: m.month_number,
-      label: m.label,
-      highlight: m.highlight,
-      weight: m.weight,
-      length: m.length,
-      photo: m.photo_path ? imageUrl(m.photo_path) : null,
-      pos: m.photo_path ? photoPos(m.photo_path) : '',
-      note: m.note
-    }))) %>;
+    const months = <%- JSON.stringify((months || [])
+      // Only show a month once the parent has filled in a real field. A month with
+      // just its seeded name (no photo/highlight/weight/length/note) stays hidden.
+      .filter(m => m.photo_path || m.highlight || m.weight || m.length || m.note)
+      .map(m => ({
+        num: m.month_number,
+        label: m.label,
+        highlight: m.highlight,
+        weight: m.weight,
+        length: m.length,
+        photo: m.photo_path ? imageUrl(m.photo_path) : null,
+        pos: m.photo_path ? photoPos(m.photo_path) : '',
+        note: m.note
+      }))) %>;
     <% } else { %>
     const months = [];
     <% } %>

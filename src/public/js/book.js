@@ -64,18 +64,21 @@ document.addEventListener('DOMContentLoaded', () => {
       months.forEach(m => {
         const card = document.createElement('div');
         card.className = 'month-card';
+        const photoBlock = m.photo
+          ? `<img src="${m.photo}" alt="Month ${m.num}" loading="lazy"${m.pos ? ` style="${m.pos}"` : ''}>`
+          : `<div class="month-photo-empty"></div>`;
+        const stats = [];
+        if (m.weight) stats.push(`<span class="month-stat-sm">⚖️ ${m.weight}</span>`);
+        if (m.length) stats.push(`<span class="month-stat-sm">📏 ${m.length}</span>`);
         card.innerHTML = `
           <div class="month-photo">
-            <img src="${m.photo || ''}" alt="Month ${m.num}" loading="lazy"${m.pos ? ` style="${m.pos}"` : ''}>
+            ${photoBlock}
             <div class="month-number-badge">${m.num}</div>
           </div>
           <div class="month-card-body">
-            <div class="month-label">${m.label}</div>
-            <div class="month-highlight">${m.highlight}</div>
-            <div class="month-stats">
-              <span class="month-stat-sm">⚖️ ${m.weight}</span>
-              <span class="month-stat-sm">📏 ${m.length}</span>
-            </div>
+            <div class="month-label">${m.label || ('Month ' + m.num)}</div>
+            ${m.highlight ? `<div class="month-highlight">${m.highlight}</div>` : ''}
+            ${stats.length ? `<div class="month-stats">${stats.join('')}</div>` : ''}
           </div>
         `;
         card.addEventListener('click', () => openModal(m));
@@ -88,15 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openModal = function(m) {
     const modalPhoto = document.getElementById('modalPhoto');
     modalPhoto.src = m.photo || '';
-    modalPhoto.alt = m.label;
+    modalPhoto.alt = m.label || ('Month ' + m.num);
     modalPhoto.style.objectPosition = m.pos ? m.pos.replace('object-position: ', '') : '';
+    modalPhoto.style.display = m.photo ? '' : 'none';
     document.getElementById('modalEyebrow').textContent = '\u2726 Month ' + m.num;
-    document.getElementById('modalTitle').textContent = m.label;
-    document.getElementById('modalStats').innerHTML = `
-      <div><div class="month-modal-stat-label">Weight</div><div class="month-modal-stat-value">${m.weight}</div></div>
-      <div><div class="month-modal-stat-label">Length</div><div class="month-modal-stat-value">${m.length}</div></div>
-    `;
-    document.getElementById('modalText').textContent = m.note;
+    document.getElementById('modalTitle').textContent = m.label || ('Month ' + m.num);
+    const stats = [];
+    if (m.weight) stats.push(`<div><div class="month-modal-stat-label">Weight</div><div class="month-modal-stat-value">${m.weight}</div></div>`);
+    if (m.length) stats.push(`<div><div class="month-modal-stat-label">Length</div><div class="month-modal-stat-value">${m.length}</div></div>`);
+    document.getElementById('modalStats').innerHTML = stats.join('');
+    document.getElementById('modalText').textContent = m.note || '';
     document.getElementById('monthModal').classList.add('open');
     document.body.style.overflow = 'hidden';
   };

@@ -711,6 +711,9 @@ body {
 
 .month-card:hover .month-photo img { transform: scale(1.04); }
 
+/* Month with content but no photo yet — warm placeholder block (keeps the badge). */
+.month-photo-empty { width: 100%; height: 100%; background: linear-gradient(135deg, var(--blush) 0%, #efe4d4 100%); }
+
 .month-number-badge {
   position: absolute;
   top: 0.6rem;
