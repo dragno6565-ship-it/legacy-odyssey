@@ -5,8 +5,8 @@
 > Do NOT trigger an EAS build until everything below is in.
 
 ## To include in v1.0.27
-- [ ] In-app **Imperial/Metric unit toggle** for month weight/length (reads/writes book `unit_system`; depends on Phase 2 backend)
-- [ ] **Multi-video select upload** (#1) — UploadContext queue rework so several videos can be picked + queued at once
+- [x] In-app **Imperial/Metric unit toggle** for month weight/length — DONE in code (commit). MonthDetailScreen toggle + unit-aware examples; saves book `unit_system` via PUT /mine. Verify in the build.
+- [x] **Multi-video select upload** (#1) — DONE in code (commit). UploadContext now a sequential queue; MomentsScreen multi-selects. Verify in the build.
 - [ ] **Native video playback** (#4) — swap the WebView for a native player. ONLY needed if Dan's retest of 1.0.26 shows the preview still just spins. (Pending Dan retest.)
 - [ ] Verify the app honors a book's `default_language` if one was chosen at purchase/gift (app already auto-detects + has manual override — likely no change)
 
