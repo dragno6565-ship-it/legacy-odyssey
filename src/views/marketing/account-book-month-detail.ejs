@@ -38,6 +38,13 @@
     input[type="text"]:focus, textarea:focus { outline: none; border-color: #c8a96e; box-shadow: 0 0 0 3px rgba(200,169,110,0.12); }
     textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
 
+    /* Units toggle (book-level) */
+    .unit-toggle { display: inline-flex; border: 1.5px solid #e0d5c4; border-radius: 8px; overflow: hidden; }
+    .unit-opt { background: #fff; border: none; padding: 0.55rem 1rem; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: #6b5e4a; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .unit-opt + .unit-opt { border-left: 1.5px solid #e0d5c4; }
+    .unit-opt.active { background: #c8a96e; color: #fff; }
+    .unit-hint { font-size: 0.78rem; color: #6b5e4a; font-weight: 400; text-transform: none; letter-spacing: 0; margin-top: 0.35rem; }
+
     /* Photo */
     .photo-zone {
       border: 2px dashed #e0d5c4; border-radius: 10px;
@@ -116,16 +123,28 @@
         </div>
       </div>
 
+      <% var _unit = (book.unit_system || 'imperial');
+         var _wPh = _unit === 'metric' ? 'e.g. 4.2 kg' : 'e.g. 9 lbs 2 oz';
+         var _lPh = _unit === 'metric' ? 'e.g. 53 cm' : 'e.g. 21 in'; %>
       <div class="card">
         <h2>Stats</h2>
+        <div class="form-group">
+          <label>Measurement units</label>
+          <div class="unit-toggle" id="unitToggle">
+            <button type="button" class="unit-opt <%= _unit !== 'metric' ? 'active' : '' %>" data-unit="imperial" data-weight="e.g. 9 lbs 2 oz" data-length="e.g. 21 in">Imperial (lbs / in)</button>
+            <button type="button" class="unit-opt <%= _unit === 'metric' ? 'active' : '' %>" data-unit="metric" data-weight="e.g. 4.2 kg" data-length="e.g. 53 cm">Metric (kg / cm)</button>
+          </div>
+          <div class="unit-hint">Applies to your whole book — changes the example shown here.</div>
+          <input type="hidden" name="unit_system" id="unitSystemInput" value="<%= _unit %>">
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label>Weight</label>
-            <input type="text" name="weight" value="<%= month.weight || '' %>" placeholder="e.g. 9 lbs 2 oz">
+            <input type="text" name="weight" id="weightInput" value="<%= month.weight || '' %>" placeholder="<%= _wPh %>">
           </div>
           <div class="form-group">
             <label>Length</label>
-            <input type="text" name="length" value="<%= month.length || '' %>" placeholder="e.g. 21 in">
+            <input type="text" name="length" id="lengthInput" value="<%= month.length || '' %>" placeholder="<%= _lPh %>">
           </div>
         </div>
       </div>
@@ -208,6 +227,21 @@
       const rb = document.getElementById('repositionBtn');
       if (rb) rb.style.display = 'none';
     }
+
+    // Units toggle — swaps the book-level preference + the weight/length examples.
+    (function () {
+      var toggle = document.getElementById('unitToggle');
+      if (!toggle) return;
+      toggle.querySelectorAll('.unit-opt').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          toggle.querySelectorAll('.unit-opt').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          document.getElementById('unitSystemInput').value = btn.dataset.unit;
+          var w = document.getElementById('weightInput'); if (w) w.placeholder = btn.dataset.weight;
+          var l = document.getElementById('lengthInput'); if (l) l.placeholder = btn.dataset.length;
+        });
+      });
+    })();
   </script>
 
   <%- include('_reposition-widget') %>

@@ -1115,6 +1115,9 @@ router.post('/book/months/:num', requireAccountSession, async (req, res, next) =
     const num = parseInt(req.params.num);
     if (isNaN(num) || num < 1 || num > 12) return res.redirect('/account/book/months');
     const book = await bookService.getBookByFamilyId(req.family.id);
+    // Measurement units are a book-level setting, but the toggle lives on this page.
+    const unit = req.body.unit_system === 'metric' ? 'metric' : 'imperial';
+    if (book.unit_system !== unit) await bookService.updateBook(book.id, { unit_system: unit });
     await bookService.upsertMonth(book.id, num, {
       label: req.body.label || null,
       highlight: req.body.highlight || null,
