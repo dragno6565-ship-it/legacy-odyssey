@@ -31,6 +31,7 @@ export default function MonthDetailScreen({ route, navigation }) {
   const [length, setLength] = useState('');
   const [note, setNote] = useState('');
   const [photoPath, setPhotoPath] = useState('');
+  const [unitSystem, setUnitSystem] = useState('imperial');
 
   useEffect(() => {
     async function fetchMonth() {
@@ -42,6 +43,7 @@ export default function MonthDetailScreen({ route, navigation }) {
         setLength(String(data.length || ''));
         setNote(data.note || '');
         setPhotoPath(data.photo_path || '');
+        setUnitSystem(data.unit_system || 'imperial');
       } catch (err) {
         // Month data may not exist yet - that's OK
         if (err.status !== 404) {
@@ -73,6 +75,16 @@ export default function MonthDetailScreen({ route, navigation }) {
       setSaving(false);
     }
   }
+
+  // Measurement units are a book-level setting; save immediately on toggle so the
+  // choice sticks even if the parent doesn't tap Save.
+  async function changeUnit(val) {
+    if (val === unitSystem) return;
+    setUnitSystem(val);
+    try { await put('/api/books/mine', { unit_system: val }); } catch (e) {}
+  }
+  const weightPh = unitSystem === 'metric' ? '4.2 kg' : '9 lbs 2 oz';
+  const lengthPh = unitSystem === 'metric' ? '53 cm' : '21 in';
 
   if (loading) {
     return (
@@ -112,6 +124,23 @@ export default function MonthDetailScreen({ route, navigation }) {
           placeholderTextColor={colors.placeholder}
         />
 
+        <Text style={styles.label}>{t('app.monthdetail.units_label')}</Text>
+        <View style={styles.unitToggle}>
+          {[['imperial', 'lbs / in'], ['metric', 'kg / cm']].map(([val, lbl]) => {
+            const active = unitSystem === val;
+            return (
+              <TouchableOpacity
+                key={val}
+                style={[styles.unitOpt, active && styles.unitOptActive]}
+                onPress={() => changeUnit(val)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.unitOptText, active && styles.unitOptTextActive]}>{lbl}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
         <View style={styles.row}>
           <View style={styles.halfField}>
             <Text style={styles.label}>{t('app.monthdetail.label_weight')}</Text>
@@ -119,9 +148,8 @@ export default function MonthDetailScreen({ route, navigation }) {
               style={styles.input}
               value={weight}
               onChangeText={setWeight}
-              placeholder={t('app.monthdetail.placeholder_weight')}
+              placeholder={weightPh}
               placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
             />
           </View>
           <View style={styles.halfField}>
@@ -130,9 +158,8 @@ export default function MonthDetailScreen({ route, navigation }) {
               style={styles.input}
               value={length}
               onChangeText={setLength}
-              placeholder={t('app.monthdetail.placeholder_length')}
+              placeholder={lengthPh}
               placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
             />
           </View>
         </View>
@@ -237,6 +264,30 @@ const styles = StyleSheet.create({
   },
   halfField: {
     flex: 1,
+  },
+  unitToggle: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    alignSelf: 'flex-start',
+  },
+  unitOpt: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.white,
+  },
+  unitOptActive: {
+    backgroundColor: colors.gold,
+  },
+  unitOptText: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.textSecondary,
+  },
+  unitOptTextActive: {
+    color: colors.white,
   },
   saveButton: {
     backgroundColor: colors.gold,

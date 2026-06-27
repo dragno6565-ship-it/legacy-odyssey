@@ -1124,5 +1124,6 @@
   "app.share.text_multi_go": "खुले पाठ",
   "app.dashboard.share_cta_title": "अपनी साइट साझा करें",
   "app.dashboard.share_cta_sub": "इसे परिवार और दोस्तों को भेजें — टेक्स्ट या ईमेल द्वारा",
-  "settings.language_hi": "हिन्दी"
+  "settings.language_hi": "हिन्दी",
+  "app.monthdetail.units_label": "माप की इकाई"
 }

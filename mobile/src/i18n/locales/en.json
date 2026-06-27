@@ -1124,5 +1124,6 @@
   "app.share.text_multi_go": "Open texts",
   "app.dashboard.share_cta_title": "Share your site",
   "app.dashboard.share_cta_sub": "Send it to family & friends — by text or email",
-  "settings.language_hi": "हिन्दी"
+  "settings.language_hi": "हिन्दी",
+  "app.monthdetail.units_label": "Measurement units"
 }
