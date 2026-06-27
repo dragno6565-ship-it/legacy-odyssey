@@ -117,6 +117,16 @@
     .lo-hero-path { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 18px auto 0; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: rgba(250,247,242,0.55); }
     .lo-hero-path span { color: #c8a96e; }
     .lo-hero-path b { color: rgba(250,247,242,0.8); font-weight: 600; }
+    /* D6: prompt above the search box + standout demo CTA (the live demo is the strongest seller) */
+    .lo-hero-availcheck { font-family: 'Jost', sans-serif; font-size: 20px; font-weight: 600; color: #faf7f2; letter-spacing: 0.3px; line-height: 1.4; margin: 2px 0 14px; }
+    .lo-hero-availcheck em { color: #c8a96e; font-style: normal; }
+    .lo-hero-demo { margin-top: 24px; }
+    .lo-hero-demo-lead { display: block; font-size: 16px; color: rgba(250,247,242,0.78); letter-spacing: 0.3px; margin: 0 0 11px; }
+    .lo-hero-demo-cta { display: inline-flex; align-items: center; gap: 9px; padding: 13px 28px; border: 1.5px solid #c8a96e; border-radius: 999px; background: rgba(200,169,110,0.12); color: #f4e9d2; font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 600; letter-spacing: 0.4px; text-decoration: none; transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .lo-hero-demo-cta:hover { background: #c8a96e; color: #1a1510; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(200,169,110,0.35); }
+    .lo-hero-demo-cta svg { width: 19px; height: 19px; flex-shrink: 0; }
+    .lo-hero-demo-cta .lo-demo-arrow { transition: transform 0.2s; }
+    .lo-hero-demo-cta:hover .lo-demo-arrow { transform: translateX(3px); }
     .lo-hero-authority { margin-top: 26px; font-size: 14px; color: rgba(250,247,242,0.7); display: flex; gap: 8px; align-items: center; justify-content: center; }
     .lo-hero-authority svg { width: 16px; height: 16px; color: #c8a96e; }
     .lo-hero-scroll { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(250,247,242,0.4); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; animation: loScrollBob 2s ease-in-out infinite; }
@@ -129,6 +139,8 @@
       .lo-hero-search-input, .lo-hero-search-ext { font-size: 16px; }
       .lo-hero-search-btn { padding: 12px 14px; font-size: 13px; letter-spacing: 0; }
       .lo-hero-path { font-size: 11px; gap: 6px; }
+      .lo-hero-availcheck { font-size: 17px; }
+      .lo-hero-demo-cta { font-size: 14px; padding: 12px 22px; }
     }
     /* Very narrow screens: stack the search button under the input so nothing clips */
     @media (max-width: 380px) {
@@ -514,6 +526,7 @@
         photos, videos, milestones, letters, and more.
       </p>
 
+      <p class="lo-hero-availcheck">Check to see if <em>your child&rsquo;s name</em> is available</p>
       <form class="lo-hero-search" onsubmit="loHeroSearch(event)">
         <input class="lo-hero-search-input" type="text" placeholder="your-childs-name" id="loHeroInput" aria-label="Your child's name" autocomplete="off" spellcheck="false">
         <div class="lo-hero-search-ext">.com</div>
@@ -524,7 +537,13 @@
 
       <!-- D5: "what happens next" path so the form doesn't feel like a dead end -->
       <div class="lo-hero-path"><b>Check</b> <span>&rarr;</span> <b>Confirm</b> <span>&rarr;</span> <b>Pay</b> <span>&rarr;</span> <b>Build &amp; Share</b></div>
-      <p style="margin:18px 0 0;font-size:14px;"><a href="https://your-childs-name.com" target="_blank" rel="noopener" style="color:#c8a96e;text-decoration:underline;letter-spacing:0.3px;">Curious what it looks like? Tour a live demo book &rarr;</a></p>
+      <div class="lo-hero-demo">
+        <span class="lo-hero-demo-lead">Curious what it looks like?</span>
+        <a href="https://your-childs-name.com" target="_blank" rel="noopener" class="lo-hero-demo-cta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Tour a live demo book <span class="lo-demo-arrow">&rarr;</span>
+        </a>
+      </div>
       <!-- A3: authority count removed for now (add a real figure once it grows). -->
     </div>
     <a href="#features" class="lo-hero-scroll">
