@@ -25,6 +25,10 @@
   gtag('set', { 'landing_variant': '<%= landingVariant %>' });
   <% } %>
   gtag('config', 'G-LMJVX82M3Q');
+  // Google Ads tag (account 517-079-2970) — required for the "Purchase" conversion
+  // (URL-based: /stripe/success) to fire. Without this the conversion is Inactive
+  // and Ads counts 0 — the cause of the 549-clicks / 0-conversions history.
+  gtag('config', 'AW-18137400874');
 
   // Safe stubs so any fbq()/pintrk() calls queue harmlessly before/without consent.
   (function (f) {
