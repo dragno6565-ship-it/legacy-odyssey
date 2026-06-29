@@ -87,31 +87,13 @@ async function suggestAlternatives(baseName) {
  * Generate domain name variations for alternatives.
  */
 function generateVariations(baseName) {
-  const variations = [];
-
-  // Different extensions for the same name (a personal .me reads great).
-  // NOTE: no "family/book/story" word-suffixes — those frame the product as a
-  // "family book/story", which our brand rules forbid (it's a baby book about
-  // the child). Keep alternatives to extensions, on-brand prefixes, and middle names.
-  const extraTlds = ['me', 'co', 'name', 'us'];
-  for (const tld of extraTlds) {
-    variations.push(`${baseName}.${tld}`);
-  }
-
-  // On-brand prefixes
-  const prefixes = ['the', 'little', 'baby', 'our'];
-  for (const p of prefixes) {
-    variations.push(`${p}${baseName}.com`);
-  }
-
-  // Common middle names appended (a fallback nudge; the live search also lets the
-  // parent type their child's real middle name / nickname to re-check).
-  const middleNames = ['rose', 'marie', 'grace', 'james', 'lee'];
-  for (const m of middleNames) {
-    variations.push(`${baseName}${m}.com`);
-  }
-
-  return variations;
+  // Recommendations are ALWAYS the same name on a different extension — never word
+  // prefixes/suffixes or guessed middle names (those mangle the child's name, e.g.
+  // "ouremma"). These are personal / product-fit TLDs not already checked as primary
+  // (com/family/baby/love/life/me). Never .org. The live search separately lets the
+  // parent add their own middle name, nickname, or hyphen to re-check .com.
+  const extraTlds = ['co', 'us', 'name', 'kids'];
+  return extraTlds.map((tld) => `${baseName}.${tld}`);
 }
 
 // --- Domain purchase orchestration ---
