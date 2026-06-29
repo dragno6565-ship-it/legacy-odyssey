@@ -2,7 +2,12 @@ const { spaceship } = require('../config/spaceship');
 
 const MAX_REGISTRATION_PRICE = 20; // Don't purchase domains that cost more than $20 to register
 
-const PRIMARY_TLDS = ['com', 'family', 'baby', 'love', 'life', 'me'];
+// Only TLDs whose RENEWAL price is close to .com — we register the domain inside a
+// ~$50/yr product, so a TLD that renews at $22–52 (most "warm" gTLDs do) loses money.
+// Verified Spaceship renewal prices: .com $9.98, .me $15.53, .net $11.20, .us $6.48,
+// .xyz $12.52  vs  .co $25.98, .love $22.77, .mom $25.80, .life $28.98, .family $31.05,
+// .baby $51.60. So we offer only the cheap, reputable, privacy-safe ones here.
+const PRIMARY_TLDS = ['com', 'me', 'net'];
 
 /**
  * Check availability of a single domain (e.g., "janedoe.com").

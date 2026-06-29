@@ -88,13 +88,12 @@ async function suggestAlternatives(baseName) {
  * Generate domain name variations for alternatives.
  */
 function generateVariations(baseName) {
-  // Recommendations are ALWAYS the same name on a different extension — never word
-  // prefixes/suffixes or guessed middle names (those mangle the child's name, e.g.
-  // "ouremma"). Personal / product-fit TLDs not already checked as primary
-  // (com/family/baby/love/life/me). NOT .kids (a restricted TLD with eligibility
-  // requirements) and never .org. The live search separately lets the parent add
-  // their own middle name, nickname, or hyphen to re-check .com.
-  const extraTlds = ['mom', 'co', 'us', 'name'];
+  // Same name, different extension only (never prefixes/suffixes or guessed middle
+  // names). These extras are offered only when .com is taken; they're cheap on
+  // RENEWAL (.us $6.48, .xyz $12.52) unlike the warm gTLDs we dropped (.co/.baby/
+  // .family/.love/.life/.mom renew at $22–52). Caveats for review: .us has no WHOIS
+  // privacy; .xyz is generic. Primary already checks .com/.me/.net.
+  const extraTlds = ['us', 'xyz'];
   return extraTlds.map((tld) => `${baseName}.${tld}`);
 }
 
