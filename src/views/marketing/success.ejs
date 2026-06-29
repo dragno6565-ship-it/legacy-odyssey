@@ -287,6 +287,17 @@
 
     <!-- App Login Password -->
     <div class="card">
+      <% if (typeof additionalSite !== 'undefined' && additionalSite) { %>
+      <h2><span class="card-icon">&#128272;</span> Added to Your Account</h2>
+      <div class="password-box">
+        <div class="password-label">No new password needed</div>
+        <div class="password-note">
+          This new site was added to your existing account (<strong><%= email %></strong>).
+          Just log in as usual at <strong><%= appDomain %>/account</strong> &mdash; you'll see all
+          your sites there and can switch between them anytime.
+        </div>
+      </div>
+      <% } else { %>
       <h2><span class="card-icon">&#128272;</span> Your Temporary Password</h2>
       <% if (tempPassword) { %>
       <div class="password-box">
@@ -302,6 +313,7 @@
           Check your inbox (and spam folder) to set your password and get started.
         </div>
       </div>
+      <% } %>
       <% } %>
     </div>
 

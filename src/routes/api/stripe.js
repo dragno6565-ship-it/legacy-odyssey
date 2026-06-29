@@ -310,13 +310,14 @@ router.post('/create-additional-site-checkout', requireAuth, async (req, res, ne
       return res.status(400).json({ error: 'subdomain is required' });
     }
 
-    if (!req.family.stripe_customer_id) {
-      return res.status(400).json({ error: 'No Stripe customer found. Please contact support.' });
+    const email = req.user?.email || req.family.email;
+    if (!email) {
+      return res.status(400).json({ error: 'No account email found. Please contact support.' });
     }
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
     const session = await stripeService.createAdditionalSiteCheckout({
-      stripeCustomerId: req.family.stripe_customer_id,
+      email,
       authUserId: req.user.id,
       subdomain,
       domain: domain || null,

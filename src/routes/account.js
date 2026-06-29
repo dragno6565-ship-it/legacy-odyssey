@@ -107,6 +107,62 @@ router.get('/logout', (req, res) => {
   res.redirect('/account');
 });
 
+// ─── Multi-site: switch the active site ───────────────────────────────────────
+// A customer with more than one site (e.g. one per child) picks which site the
+// dashboard + editor act on. Verifies the target shares the current session's
+// auth_user_id before moving the session cookie to it (so you can only switch to
+// your own sites).
+router.post('/switch-site', requireAccountSession, async (req, res) => {
+  const targetId = req.body.familyId;
+  if (!targetId || targetId === req.family.id) return res.redirect('/account/dashboard');
+  try {
+    const target = await familyService.findById(targetId);
+    const sameOwner = target && req.family.auth_user_id && target.auth_user_id === req.family.auth_user_id;
+    if (!sameOwner) return res.redirect('/account/dashboard');
+    res.cookie(COOKIE_NAME, target.id, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: COOKIE_MAX_AGE,
+      sameSite: 'lax',
+    });
+    return res.redirect('/account/dashboard?switched=1');
+  } catch (err) {
+    return res.redirect('/account/dashboard');
+  }
+});
+
+// ─── Multi-site: add a site from the web dashboard ────────────────────────────
+// The mobile app buys extra sites via /api/stripe/create-additional-site-checkout
+// (Bearer auth). The web dashboard uses the lo_account cookie, so it needs its own
+// cookie-authenticated entry point. Same price as a fresh signup: $29 first year,
+// then $49.99/year.
+router.get('/add-site', requireAccountSession, (req, res) => {
+  res.render('marketing/add-site', { family: req.family, appDomain: APP_DOMAIN(), error: null });
+});
+
+router.post('/add-site/checkout', requireAccountSession, async (req, res, next) => {
+  try {
+    const stripeService = require('../services/stripeService');
+    const subdomain = (req.body.subdomain || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const domain = ((req.body.domain || '').trim().toLowerCase() || null);
+    const bookName = (req.body.bookName || '').trim();
+    if (!subdomain) return res.redirect('/account/add-site?error=missing');
+    if (!req.family.auth_user_id) return res.redirect('/account/add-site?error=account');
+    const appDomain = APP_DOMAIN();
+    const session = await stripeService.createAdditionalSiteCheckout({
+      email: req.family.email,
+      authUserId: req.family.auth_user_id,
+      subdomain,
+      domain,
+      bookName,
+      successUrl: `https://${appDomain}/additional-site/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `https://${appDomain}/account/add-site`,
+    });
+    return res.redirect(303, session.url);
+  } catch (err) { next(err); }
+});
+
 // ─── Customer-initiated soft cancel (web) ─────────────────────────────────────
 
 /**

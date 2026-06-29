@@ -9,7 +9,8 @@
  *   - Customer is NEVER charged during a cancellation action.
  *   - "Primary" family = the one whose Stripe subscription uses one of the
  *     primary price IDs (STRIPE_PRICE_MONTHLY / STRIPE_PRICE_ANNUAL /
- *     STRIPE_PRICE_ANNUAL_INTRO). Secondary = STRIPE_PRICE_ADDITIONAL_DOMAIN.
+ *     STRIPE_PRICE_ANNUAL_INTRO). Additional sites are billed at the same
+ *     annual-intro rate ($29 first year → $49.99/year).
  *   - Promotion of a secondary to primary uses Stripe Subscription Schedules
  *     so the higher rate doesn't kick in until the retiring primary's
  *     period_end (no overlap, no double-billing).
@@ -26,8 +27,6 @@ const PRIMARY_PRICE_IDS = new Set([
   process.env.STRIPE_PRICE_ANNUAL,
   process.env.STRIPE_PRICE_ANNUAL_INTRO,
 ].filter(Boolean));
-
-const ADDITIONAL_PRICE_ID = process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN;
 
 /**
  * Determine whether a family's subscription is on a primary price.
@@ -154,15 +153,15 @@ async function softCancelAllForUser(authUserId, { source = 'unknown' } = {}) {
  *
  * Used when the current primary is being cancelled but the customer wants
  * to keep at least one site. The retiring primary has cancel_at_period_end
- * set; at that period_end the secondary's price flips from $12.99/yr to
- * the primary annual rate, with no immediate charge to the customer.
+ * set; at that period_end the secondary's price flips to the primary annual
+ * rate, with no immediate charge to the customer.
  *
  * Implementation: Stripe Subscription Schedules. Phase 1 keeps the secondary
  * at its current price until retiringPrimary.period_end. Phase 2 starts the
  * primary annual price at that moment. proration_behavior='none' ensures
  * no charge at the moment of cancellation.
  *
- * @param secondaryFamily - the family being promoted (currently on $12.99/yr)
+ * @param secondaryFamily - the family being promoted (on its current annual rate)
  * @param retiringPrimary - the family being cancelled (its period_end is the cutover)
  * @returns { scheduleId, switchAt }
  */
@@ -269,5 +268,4 @@ module.exports = {
   promoteSecondaryToPrimary,
   reactivateFamily,
   PRIMARY_PRICE_IDS,
-  ADDITIONAL_PRICE_ID,
 };

@@ -27,7 +27,6 @@ const PRICES = {
   // Hardcoded fallback so it works before the env var lands on Railway.
   childhood: process.env.STRIPE_PRICE_CHILDHOOD || 'price_1Tb8OlJk2GIrL5uSTV1BVgNS',
   setupFee: process.env.STRIPE_PRICE_SETUP,
-  additionalDomain: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
   annualIntroCoupon: process.env.STRIPE_ANNUAL_INTRO_COUPON, // $20.99 off first invoice
 };
 
@@ -79,6 +78,69 @@ async function createCheckoutSession({ email, subdomain, domain, period, bookTyp
   });
 
   return session;
+}
+
+/**
+ * Provision an ADDITIONAL site for an existing customer (e.g. a second child).
+ * Email and auth_user_id are NOT unique on `families`, so we simply add another
+ * family row under the same login (same auth_user_id) with a new subdomain /
+ * Stripe customer / subscription. Used so a returning email is never charged with
+ * nothing provisioned.
+ */
+async function provisionAdditionalSite({ authUserId, email, subdomain, domain, period, bookType, stripeCustomerId, stripeSubscriptionId, sessionId, customerName, displayName, creditReferral }) {
+  const newFamily = await familyService.create({
+    email,
+    authUserId,
+    subdomain,
+    displayName: displayName || `The ${subdomain} Family`,
+    stripeCustomerId,
+    customerName,
+    plan: 'paid',
+    bookType,
+  });
+  await familyService.update(newFamily.id, {
+    stripe_subscription_id: stripeSubscriptionId,
+    subscription_status: 'active',
+    billing_period: period,
+    plan: 'paid',
+  });
+  await bookService.createBookWithDefaults(newFamily.id);
+
+  if (domain) {
+    try {
+      const domainService = require('./domainService');
+      const order = await domainService.createDomainOrder({ familyId: newFamily.id, domain, stripeSessionId: sessionId, price: null });
+      domainService.purchaseAndSetupDomain(order.id).catch((err) => console.error(`Background domain setup failed for additional site ${domain}:`, err.message));
+    } catch (err) {
+      console.error(`Failed to create domain order for additional site ${domain}:`, err.message);
+    }
+  }
+
+  try {
+    const { sendWelcomeEmail } = require('./emailService');
+    await sendWelcomeEmail({ to: email, displayName: subdomain, setPasswordUrl: null, bookPassword: newFamily.book_password, subdomain, customDomain: domain || null });
+  } catch (e) {
+    console.error('additional-site email failed:', e.message);
+  }
+
+  if (creditReferral) await creditReferral(newFamily);
+  return { family: newFamily, tempPassword: null, setPasswordUrl: null, domain, additionalSite: true };
+}
+
+/** Find a Supabase auth user by email (the admin API has no direct getByEmail). */
+async function findAuthUserByEmail(email) {
+  if (!email) return null;
+  const { supabaseAdmin } = require('../config/supabase');
+  try {
+    for (let page = 1; page <= 25; page++) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      if (error || !data?.users?.length) return null;
+      const hit = data.users.find((u) => (u.email || '').toLowerCase() === (email || '').toLowerCase());
+      if (hit) return hit;
+      if (data.users.length < 200) return null;
+    }
+  } catch (e) { /* fall through to null */ }
+  return null;
 }
 
 async function handleCheckoutComplete(session) {
@@ -159,6 +221,19 @@ async function handleCheckoutComplete(session) {
     return { family: existingFamily, tempPassword: null, setPasswordUrl, domain };
   }
 
+  // Existing PAID, active account buying ANOTHER site (e.g. a second child) → add a
+  // linked site under their existing login instead of re-creating the user. Without
+  // this, createUser below throws on the duplicate email and the buyer is charged
+  // with nothing provisioned (the test-purchase failure). Email/auth_user_id are not
+  // unique on `families`, so the new site simply shares their auth_user_id.
+  if (existingFamily && existingFamily.auth_user_id) {
+    return await provisionAdditionalSite({
+      authUserId: existingFamily.auth_user_id,
+      email, subdomain, domain, period, bookType,
+      stripeCustomerId, stripeSubscriptionId, sessionId: session.id, customerName, creditReferral,
+    });
+  }
+
   // No existing free account — create a brand new one
   const tempPassword = require('crypto').randomBytes(16).toString('hex');
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -166,7 +241,21 @@ async function handleCheckoutComplete(session) {
     password: tempPassword,
     email_confirm: true,
   });
-  if (authError) throw authError;
+  if (authError) {
+    // Edge: the email is already a Supabase auth user but had no family row. Don't
+    // fail the (already-charged) purchase — add a linked site under that user.
+    if (/already.*regist|already.*exist|exists/i.test(authError.message || '')) {
+      const existingUser = await findAuthUserByEmail(email);
+      if (existingUser) {
+        return await provisionAdditionalSite({
+          authUserId: existingUser.id,
+          email, subdomain, domain, period, bookType,
+          stripeCustomerId, stripeSubscriptionId, sessionId: session.id, customerName, creditReferral,
+        });
+      }
+    }
+    throw authError;
+  }
 
   // Generate a recovery link so the customer can set their own password
   let setPasswordUrl = null;
@@ -526,7 +615,7 @@ async function createGiftPaymentIntent({ buyerEmail, buyerName, recipientName, r
  * Kept around for any deeplinks / older mobile installs that still hit the
  * `/api/stripe/create-additional-site-checkout` route.
  */
-async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subdomain, domain, bookName, successUrl, cancelUrl }) {
+async function createAdditionalSiteCheckout({ email, authUserId, subdomain, domain, bookName, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.subscription.annualIntro;
@@ -543,7 +632,10 @@ async function createAdditionalSiteCheckout({ stripeCustomerId, authUserId, subd
 
   const sessionParams = {
     mode: 'subscription',
-    customer: stripeCustomerId,
+    // Each site gets its OWN Stripe customer (via email), not the existing one —
+    // families.stripe_customer_id is UNIQUE, so reusing the customer would make the
+    // new family row collide. Matches the public checkout, which also keys on email.
+    customer_email: email,
     line_items: [{ price: priceId, quantity: 1 }],
     metadata,
     success_url: successUrl,
@@ -761,14 +853,43 @@ async function provisionEmbeddedSignup({ email, customerName, subdomain, domain,
     await creditReferral(existingFamily);
     return { family: existingFamily, setPasswordUrl, domain, alreadyProvisioned: false };
   }
-  // Already paid → idempotent no-op (webhook retry or duplicate event).
-  if (existingFamily && existingFamily.plan === 'paid') {
-    return { family: existingFamily, setPasswordUrl: null, domain, alreadyProvisioned: true };
+  // True duplicate of THIS exact site (webhook retry) → idempotent no-op. Keyed on
+  // the unique subdomain, NOT on "email is paid" — otherwise a paid customer buying
+  // a SECOND site would be wrongly treated as a duplicate and provisioned nothing.
+  if (subdomain) {
+    const sameSite = await familyService.findBySubdomain(subdomain);
+    if (sameSite && sameSite.plan === 'paid') {
+      return { family: sameSite, setPasswordUrl: null, domain, alreadyProvisioned: true };
+    }
+  }
+
+  // Existing PAID customer buying ANOTHER site → add a linked site under their login.
+  if (existingFamily && existingFamily.plan === 'paid' && existingFamily.auth_user_id) {
+    const added = await provisionAdditionalSite({
+      authUserId: existingFamily.auth_user_id,
+      email, subdomain, domain, period, bookType,
+      stripeCustomerId, stripeSubscriptionId, sessionId: provisioningRef, customerName, creditReferral,
+    });
+    return { family: added.family, setPasswordUrl: null, domain, alreadyProvisioned: false, additionalSite: true };
   }
 
   const tempPassword = require('crypto').randomBytes(16).toString('hex');
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({ email, password: tempPassword, email_confirm: true });
-  if (authError) throw authError;
+  if (authError) {
+    // Edge: existing auth user but no family row → add a linked site rather than fail.
+    if (/already.*regist|already.*exist|exists/i.test(authError.message || '')) {
+      const existingUser = await findAuthUserByEmail(email);
+      if (existingUser) {
+        const added = await provisionAdditionalSite({
+          authUserId: existingUser.id,
+          email, subdomain, domain, period, bookType,
+          stripeCustomerId, stripeSubscriptionId, sessionId: provisioningRef, customerName, creditReferral,
+        });
+        return { family: added.family, setPasswordUrl: null, domain, alreadyProvisioned: false, additionalSite: true };
+      }
+    }
+    throw authError;
+  }
   const setPasswordUrl = await genRecovery();
 
   const family = await familyService.create({
@@ -802,6 +923,7 @@ module.exports = {
   createSignupChildhoodIntent,
   provisionEmbeddedSignup,
   createAdditionalSiteCheckout,
+  provisionAdditionalSite,
   handleCheckoutComplete,
   cancelSubscriptionAtPeriodEnd,
   syncSubscriptionStatus,

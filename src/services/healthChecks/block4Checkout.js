@@ -29,7 +29,6 @@ module.exports = {
           STRIPE_PRICE_MONTHLY: process.env.STRIPE_PRICE_MONTHLY,
           STRIPE_PRICE_ANNUAL: process.env.STRIPE_PRICE_ANNUAL,
           STRIPE_PRICE_ANNUAL_INTRO: process.env.STRIPE_PRICE_ANNUAL_INTRO,
-          STRIPE_PRICE_ADDITIONAL_DOMAIN: process.env.STRIPE_PRICE_ADDITIONAL_DOMAIN,
           STRIPE_PRICE_SETUP: process.env.STRIPE_PRICE_SETUP,
         };
         const missing = Object.entries(required).filter(([_, v]) => !v).map(([k]) => k);

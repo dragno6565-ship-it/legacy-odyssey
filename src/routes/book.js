@@ -762,7 +762,16 @@ router.get('/stripe/success', async (req, res) => {
 
 
     if (family) {
-      // Webhook already processed — show success page (no temp password available)
+      // Webhook already processed — show success page (no temp password available).
+      // If this buyer already had another active site, this is an additional site →
+      // they log in with their existing account instead of setting a new password.
+      let additionalSite = false;
+      try {
+        if (family.auth_user_id) {
+          const fams = await familyService.findAllByAuthUserId(family.auth_user_id);
+          additionalSite = fams.filter((f) => !f.archived_at).length > 1;
+        }
+      } catch (e) { /* best-effort; default to the normal password flow */ }
       return res.render('marketing/success', {
         subdomain: family.subdomain,
         domain,
@@ -772,6 +781,7 @@ router.get('/stripe/success', async (req, res) => {
         email,
         tempPassword: null,
         bookPassword: family.book_password || null,
+        additionalSite,
         purchaseEventId,
       });
     }
@@ -787,6 +797,7 @@ router.get('/stripe/success', async (req, res) => {
       email,
       tempPassword: result.tempPassword,
       bookPassword: result.family.book_password || null,
+      additionalSite: !!result.additionalSite,
       purchaseEventId,
     });
   } catch (err) {
