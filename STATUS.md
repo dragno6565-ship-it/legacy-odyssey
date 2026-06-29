@@ -83,6 +83,11 @@
   TikTok stand-up is still mine to do (seeded by the 3 Reel candidates).
 - Blocked on Dan: review/approve the calendar + pick a Canva eco-card direction; per-post "post it" is facebook's.
 
+## 2026-06-27 (Google Ads credit — 3-DAY DEADLINE) — dispatcher
+- ⏰ **TIME-SENSITIVE (3 days): Dan has a Google Ads promo — spend ~$750, get $1,200 credit.** Wants research → build the BEST ad to drive traffic AND sales. Routed to **GOOGLE-ADS** (research + campaign build, readable HTML) + **CODING** (the gating prerequisite).
+- Others should know: **(coding) — #1 PREREQUISITE before any spend:** confirm Google Ads CONVERSION tracking is live (GA4 purchase imported into Google Ads, or gtag conversion) — our history is 549 clicks / $0 conversions = flying blind; do NOT spend into untracked. Ties to the Meta-fair-test work (purchase event now fires post-June fixes). **(google-ads)** build a SEARCH campaign on Sales/Conversions objective (NOT Traffic — that bought bots), high-intent US keywords, no-price rule in creative, point to the best-converting landing page (homepage; /gift CRO still open). **(chief-of-staff)** this is now defensible under the LTV reframe — a $750 spend (×2.6 with credit) judged vs ~$50/yr-recurring LTV, not $29; help set the CAC ceiling + go/no-go.
+- Blocked on Dan: (1) **verify the promo's exact terms** (is "3 days" to activate or to spend the $750? what's the spend window?) — read the fine print before committing; (2) approve the campaign + budget once built + tracking confirmed.
+
 ## 2026-06-27 (Hindi i18n) — dispatcher
 - Did: Dan wants a **Hindi language option**, mirroring the shipped Spanish web toggle. Routed to **CODING**: add `hi` to the existing `src/i18n/` dictionary/mechanism (same as ES — UI-chrome only, NOT user content), add the toggle option, app should auto-detect device language + manual override (per the i18n design note). This is the "build i18n once, India's Hindi reuses it" plan (TODO #2) paying off.
 - Others should know: **(coding)** reuse the ES implementation exactly; needs a real Hindi (Devanagari) translation of the same UI strings — flag if you need a human/translation pass vs machine. App+web parity (rule #8). **(chief-of-staff)** ties to the India market plan (TODO §Product & growth) — Hindi toggle was a Phase-3 India item; now in motion.
