@@ -89,25 +89,23 @@ async function suggestAlternatives(baseName) {
 function generateVariations(baseName) {
   const variations = [];
 
-  // Prefixes
+  // Different extensions for the same name (a personal .me reads great).
+  // NOTE: no "family/book/story" word-suffixes — those frame the product as a
+  // "family book/story", which our brand rules forbid (it's a baby book about
+  // the child). Keep alternatives to extensions, on-brand prefixes, and middle names.
+  const extraTlds = ['me', 'co', 'name', 'us'];
+  for (const tld of extraTlds) {
+    variations.push(`${baseName}.${tld}`);
+  }
+
+  // On-brand prefixes
   const prefixes = ['the', 'little', 'baby', 'our'];
   for (const p of prefixes) {
     variations.push(`${p}${baseName}.com`);
   }
 
-  // Suffixes
-  const suffixes = ['family', 'book', 'story'];
-  for (const s of suffixes) {
-    variations.push(`${baseName}${s}.com`);
-  }
-
-  // Additional TLDs with the original name
-  const extraTlds = ['me', 'name', 'us'];
-  for (const tld of extraTlds) {
-    variations.push(`${baseName}.${tld}`);
-  }
-
-  // Common middle names appended
+  // Common middle names appended (a fallback nudge; the live search also lets the
+  // parent type their child's real middle name / nickname to re-check).
   const middleNames = ['rose', 'marie', 'grace', 'james', 'lee'];
   for (const m of middleNames) {
     variations.push(`${baseName}${m}.com`);

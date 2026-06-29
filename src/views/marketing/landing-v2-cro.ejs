@@ -113,6 +113,22 @@
     .lo-hero-search-result { min-height: 28px; font-size: 14px; margin-top: 6px; color: rgba(250,247,242,0.85); }
     .lo-hero-search-result.taken { color: #f4a59a; }
     .lo-hero-search-result.available { color: #88d28a; font-weight: 600; }
+    /* Guided "taken" panel — clickable alternatives + add-a-middle-name re-check */
+    .lo-taken { background: rgba(26,21,16,0.74); border: 1px solid rgba(200,169,110,0.4); border-radius: 12px; padding: 16px 18px; margin: 6px auto 0; text-align: left; max-width: 600px; }
+    .lo-taken-head { color: #faf7f2; font-size: 14px; margin-bottom: 12px; }
+    .lo-taken-head b { color: #f4a59a; }
+    .lo-taken-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .lo-taken-opt { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(250,247,242,0.06); border: 1px solid rgba(200,169,110,0.35); border-radius: 8px; padding: 10px 12px; cursor: pointer; font-family: 'Jost', sans-serif; transition: background 0.15s, border-color 0.15s; }
+    .lo-taken-opt:hover { background: rgba(200,169,110,0.18); border-color: #c8a96e; }
+    .lo-taken-opt-name { color: #faf7f2; font-size: 14px; font-weight: 600; }
+    .lo-taken-opt-go { color: #c8a96e; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .lo-taken-tip { color: rgba(250,247,242,0.85); font-size: 13px; margin-bottom: 8px; }
+    .lo-taken-tip b { color: #c8a96e; }
+    .lo-taken-form { display: flex; gap: 8px; }
+    .lo-taken-input { flex: 1; min-width: 0; border: 1px solid rgba(200,169,110,0.4); background: rgba(250,247,242,0.97); border-radius: 8px; padding: 9px 12px; font-family: 'Jost', sans-serif; font-size: 14px; color: #2c2416; }
+    .lo-taken-go { background: #c8a96e; color: #1a1510; border: none; border-radius: 8px; padding: 9px 18px; font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .lo-taken-go:hover { background: #b5963e; }
+    @media (max-width: 600px) { .lo-taken-grid { grid-template-columns: 1fr; } }
     /* "what happens next" path microcopy */
     .lo-hero-path { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 18px auto 0; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: rgba(250,247,242,0.55); }
     .lo-hero-path span { color: #c8a96e; }
@@ -1305,10 +1321,7 @@
           resultEl.className = 'lo-hero-search-result available';
           openFounderModal('annual', domain);
         } else if (primary) {
-          let msg = '✗ ' + domain + ' is taken.';
-          if (data.alternatives && data.alternatives.length) { msg += ' Try: ' + data.alternatives.slice(0, 3).map(a => a.domain).join(' · '); }
-          resultEl.textContent = msg;
-          resultEl.className = 'lo-hero-search-result taken';
+          loRenderTaken(domain, data);
         } else {
           resultEl.textContent = 'Could not check that name. Please try again.';
           resultEl.className = 'lo-hero-search-result taken';
@@ -1318,6 +1331,51 @@
         resultEl.className = 'lo-hero-search-result taken';
       }
       btn.disabled = false;
+    }
+
+    // Guided "taken" panel: clickable available extensions/alternatives + an inline
+    // "add a middle name or nickname" re-check, instead of a dead-end "taken" message.
+    function loRenderTaken(domain, data) {
+      const resultEl = document.getElementById('loHeroResult');
+      const base = domain.replace(/\.com$/, '');
+      const seen = {}; const opts = [];
+      // Other extensions we already checked this search (e.g. name.me, name.baby).
+      (data.results || []).forEach(function (r) {
+        if (r.domain !== domain && r.available && r.underBudget && !seen[r.domain]) { seen[r.domain] = 1; opts.push(r); }
+      });
+      // Plus any generated name variations that came back available.
+      (data.alternatives || []).forEach(function (r) {
+        if (r.available && r.underBudget && !seen[r.domain]) { seen[r.domain] = 1; opts.push(r); }
+      });
+      const top = opts.slice(0, 6);
+      let html = '<div class="lo-taken">';
+      html += '<div class="lo-taken-head"><b>' + domain + '</b> is already taken' + (top.length ? ' — but these are available:' : '.') + '</div>';
+      if (top.length) {
+        html += '<div class="lo-taken-grid">';
+        top.forEach(function (r) {
+          html += '<button type="button" class="lo-taken-opt" data-domain="' + r.domain + '"><span class="lo-taken-opt-name">' + r.domain + '</span><span class="lo-taken-opt-go">Select &rarr;</span></button>';
+        });
+        html += '</div>';
+      }
+      html += '<div class="lo-taken-tip">Want to keep <b>.com</b>? Add a middle name or a nickname:</div>';
+      html += '<form class="lo-taken-form" onsubmit="return loHeroRetry(event)">'
+            + '<input id="loHeroRetryInput" class="lo-taken-input" type="text" placeholder="e.g. ' + base + 'grace" autocomplete="off" spellcheck="false">'
+            + '<button type="submit" class="lo-taken-go">Check</button>'
+            + '</form>';
+      html += '</div>';
+      resultEl.innerHTML = html;
+      resultEl.className = 'lo-hero-search-result taken';
+      resultEl.querySelectorAll('.lo-taken-opt').forEach(function (b) {
+        b.addEventListener('click', function () { openFounderModal('annual', b.getAttribute('data-domain')); });
+      });
+    }
+
+    function loHeroRetry(ev) {
+      if (ev) ev.preventDefault();
+      const v = (document.getElementById('loHeroRetryInput') || {}).value || '';
+      document.getElementById('loHeroInput').value = v;
+      loHeroSearch();
+      return false;
     }
 
     document.getElementById('loContactForm')?.addEventListener('submit', async function(e) {
