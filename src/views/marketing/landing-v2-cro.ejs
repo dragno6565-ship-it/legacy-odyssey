@@ -122,8 +122,10 @@
     .lo-taken-opt:hover { background: rgba(200,169,110,0.18); border-color: #c8a96e; }
     .lo-taken-opt-name { color: #faf7f2; font-size: 14px; font-weight: 600; }
     .lo-taken-opt-go { color: #c8a96e; font-size: 12px; font-weight: 600; white-space: nowrap; }
-    .lo-taken-tip { color: rgba(250,247,242,0.85); font-size: 13px; margin-bottom: 8px; }
-    .lo-taken-tip b { color: #c8a96e; }
+    .lo-taken-keep { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(200,169,110,0.28); }
+    .lo-taken-tip { color: #faf7f2; font-size: 15px; font-weight: 600; line-height: 1.45; margin-bottom: 10px; }
+    .lo-taken-tip b { color: #f4d9a0; }
+    .lo-taken-tip em { color: #e7c98a; font-style: normal; font-weight: 700; }
     .lo-taken-form { display: flex; gap: 8px; }
     .lo-taken-input { flex: 1; min-width: 0; border: 1px solid rgba(200,169,110,0.4); background: rgba(250,247,242,0.97); border-radius: 8px; padding: 9px 12px; font-family: 'Jost', sans-serif; font-size: 14px; color: #2c2416; }
     .lo-taken-go { background: #c8a96e; color: #1a1510; border: none; border-radius: 8px; padding: 9px 18px; font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
@@ -1358,11 +1360,13 @@
         });
         html += '</div>';
       }
-      html += '<div class="lo-taken-tip">Want to keep <b>.com</b>? Try a middle name, a nickname, or a hyphen:</div>';
+      html += '<div class="lo-taken-keep">';
+      html += '<div class="lo-taken-tip">Want to keep <b>.com</b>? Add a <em>middle name</em>, a <em>nickname</em>, or a <em>hyphen</em>:</div>';
       html += '<form class="lo-taken-form" onsubmit="return loHeroRetry(event)">'
             + '<input id="loHeroRetryInput" class="lo-taken-input" type="text" placeholder="e.g. ' + base + '-grace" autocomplete="off" spellcheck="false">'
             + '<button type="submit" class="lo-taken-go">Check</button>'
             + '</form>';
+      html += '</div>';
       html += '</div>';
       resultEl.innerHTML = html;
       resultEl.className = 'lo-hero-search-result taken';
