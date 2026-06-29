@@ -55,77 +55,17 @@ router.get('/mine', async (req, res, next) => {
   }
 });
 
-// POST /api/families — Create a new family (website) for the current user
-router.post('/', async (req, res, next) => {
-  try {
-    const { subdomain, displayName, customDomain } = req.body;
-
-    if (!subdomain && !customDomain) {
-      return res.status(400).json({ error: 'Either subdomain or customDomain is required' });
-    }
-
-    // Validate subdomain format if provided
-    if (subdomain) {
-      const slug = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-      if (slug.length < 3) {
-        return res.status(400).json({ error: 'Subdomain must be at least 3 characters' });
-      }
-      // Check if subdomain is taken
-      const existing = await familyService.findBySubdomain(slug);
-      if (existing) {
-        return res.status(409).json({ error: 'Subdomain is already taken' });
-      }
-    }
-
-    // Check if custom domain is taken
-    if (customDomain) {
-      const existing = await familyService.findByCustomDomain(customDomain);
-      if (existing) {
-        return res.status(409).json({ error: 'Custom domain is already in use' });
-      }
-    }
-
-    // Create the family with null auth_user_id (to avoid UNIQUE constraint)
-    // and link via user metadata instead
-    const uniqueEmail = `${req.user.email.split('@')[0]}+${subdomain || Date.now()}@${req.user.email.split('@')[1]}`;
-    const { data: newFamily, error: famErr } = await supabaseAdmin
-      .from('families')
-      .insert({
-        auth_user_id: null, // Use null to avoid UNIQUE constraint; linked via user metadata
-        email: uniqueEmail,
-        subdomain: subdomain ? subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '') : null,
-        custom_domain: customDomain || null,
-        display_name: displayName || 'New Website',
-        book_password: require('crypto').randomBytes(4).toString('hex'),
-        subscription_status: 'trialing',
-      })
-      .select()
-      .single();
-
-    if (famErr) throw famErr;
-
-    // Create book with defaults
-    const book = await bookService.createBookWithDefaults(newFamily.id);
-
-    // Link this family to the user via user metadata
-    const linkedIds = req.user.user_metadata?.linked_family_ids || [];
-    linkedIds.push(newFamily.id);
-    await supabaseAdmin.auth.admin.updateUserById(req.user.id, {
-      user_metadata: { ...req.user.user_metadata, linked_family_ids: linkedIds },
-    });
-
-    res.status(201).json({
-      family: {
-        ...newFamily,
-        childName: '',
-        heroImage: null,
-        hasBook: true,
-      },
-      book,
-    });
-  } catch (err) {
-    next(err);
-  }
+// POST /api/families — DISABLED. Additional sites are sold through paid checkout
+// ($29 first year → $49.99/year), not created free via this API. The old
+// implementation made an UNPAID site using the broken auth_user_id:null +
+// plus-addressed-email + metadata-linking model. Kept as a guard so any stray
+// caller gets a clear error instead of silently creating bad/free data. To add a
+// site, send the user to /account/add-site (web) which runs the real checkout.
+router.post('/', async (req, res) => {
+  return res.status(403).json({
+    error: 'Additional sites are added through checkout. Visit legacyodyssey.com/account/add-site to add another site to your account.',
+    code: 'USE_CHECKOUT',
+  });
 });
 
 module.exports = router;
