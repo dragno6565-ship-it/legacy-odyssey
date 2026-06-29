@@ -114,11 +114,13 @@ router.get('/logout', (req, res) => {
 // your own sites).
 router.post('/switch-site', requireAccountSession, async (req, res) => {
   const targetId = req.body.familyId;
-  if (!targetId || targetId === req.family.id) return res.redirect('/account/dashboard');
+  // Whitelist the return path (avoid open redirect): only the editor or dashboard.
+  const returnTo = req.body.returnTo === '/account/book' ? '/account/book' : '/account/dashboard';
+  if (!targetId || targetId === req.family.id) return res.redirect(returnTo);
   try {
     const target = await familyService.findById(targetId);
     const sameOwner = target && req.family.auth_user_id && target.auth_user_id === req.family.auth_user_id;
-    if (!sameOwner) return res.redirect('/account/dashboard');
+    if (!sameOwner) return res.redirect(returnTo);
     res.cookie(COOKIE_NAME, target.id, {
       signed: true,
       httpOnly: true,
@@ -126,9 +128,9 @@ router.post('/switch-site', requireAccountSession, async (req, res) => {
       maxAge: COOKIE_MAX_AGE,
       sameSite: 'lax',
     });
-    return res.redirect('/account/dashboard?switched=1');
+    return res.redirect(`${returnTo}?switched=1`);
   } catch (err) {
-    return res.redirect('/account/dashboard');
+    return res.redirect(returnTo);
   }
 });
 
@@ -829,8 +831,14 @@ router.post('/book/circles/:id/delete', requireAccountSession, async (req, res, 
 router.get('/book', requireAccountSession, async (req, res, next) => {
   try {
     const fullBook = await bookService.getFullBook(req.family.id);
+    let linkedFamilies = [req.family];
+    if (req.family.auth_user_id) {
+      try { linkedFamilies = await familyService.findAllByAuthUserId(req.family.auth_user_id); }
+      catch (e) { console.error('book editor: linked families failed:', e.message); }
+    }
     res.render('marketing/account-book', {
       family: req.family,
+      linkedFamilies,
       book: fullBook?.book || null,
       visibleSections: fullBook?.visibleSections || {},
     });

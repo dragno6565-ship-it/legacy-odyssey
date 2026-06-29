@@ -724,7 +724,11 @@ router.get('/stripe/success', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== 'paid') {
-      return res.redirect('/');
+      // Payment still processing (async method) — reassure rather than bounce home.
+      return res.render('marketing/checkout-thanks', {
+        appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+        email: session.customer_email || session.customer_details?.email || null,
+      });
     }
 
     const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
@@ -802,8 +806,13 @@ router.get('/stripe/success', async (req, res) => {
     });
   } catch (err) {
     console.error('Stripe success handler error:', err);
+    // Payment succeeded but provisioning hit a snag — never dump a paying customer
+    // on the homepage. Reassure them; the webhook (and its retries) finish setup.
+    return res.render('marketing/checkout-thanks', {
+      appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+      email: null,
+    });
   }
-  res.redirect('/');
 });
 
 // Gift purchase page

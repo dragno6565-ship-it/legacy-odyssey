@@ -171,6 +171,17 @@ async function handleCheckoutComplete(session) {
     }
   };
 
+  // Idempotency: if this exact site (unique subdomain) is already provisioned and
+  // paid, this is a duplicate webhook or a success-page reload — return it without
+  // re-creating anything. Keyed on the subdomain, NOT email, so an existing
+  // customer can still add MORE sites under the same login.
+  if (subdomain) {
+    const sameSite = await familyService.findBySubdomain(subdomain);
+    if (sameSite && sameSite.plan === 'paid') {
+      return { family: sameSite, tempPassword: null, setPasswordUrl: null, domain };
+    }
+  }
+
   // Check if an existing account (free or cancelled) exists for this email — upgrade or reinstate it
   const existingFamily = await familyService.findByEmail(email);
   if (existingFamily && (existingFamily.plan !== 'paid' || existingFamily.subscription_status === 'canceled')) {

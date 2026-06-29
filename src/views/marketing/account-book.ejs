@@ -68,6 +68,20 @@
       <a href="/account/dashboard">← Account</a> &nbsp;/&nbsp; My Book
     </div>
 
+    <% var _sites = (typeof linkedFamilies !== 'undefined' && linkedFamilies) ? linkedFamilies.filter(function (f) { return !f.archived_at; }) : []; %>
+    <% if (_sites.length > 1) { %>
+    <form method="POST" action="/account/switch-site" style="margin:0 0 1rem;display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;background:#faf5ea;border:1px solid #ecdcb8;border-radius:10px;padding:0.6rem 0.85rem;">
+      <input type="hidden" name="returnTo" value="/account/book">
+      <label for="siteSwitch" style="font-size:0.78rem;font-weight:700;color:#9a7b3f;text-transform:uppercase;letter-spacing:0.04em;">Editing site:</label>
+      <select id="siteSwitch" name="familyId" onchange="this.form.submit()" style="padding:0.5rem 0.7rem;border:1px solid #d8ccb8;border-radius:8px;font-family:inherit;font-size:0.95rem;font-weight:700;color:#2c2416;background:#fff;max-width:100%;">
+        <% _sites.forEach(function (f) { %>
+          <option value="<%= f.id %>" <%= f.id === family.id ? 'selected' : '' %>><%= f.display_name || f.subdomain %><%= f.custom_domain ? ' (' + f.custom_domain + ')' : '' %></option>
+        <% }); %>
+      </select>
+      <span style="font-size:0.8rem;color:#9a8c74;">You have <%= _sites.length %> sites — pick one to edit it.</span>
+    </form>
+    <% } %>
+
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.4rem;">
       <h1>My Book</h1>
       <% if (family && family.subdomain) {
