@@ -46,11 +46,12 @@ async function searchDomains(baseName) {
   // Check primary TLDs
   const results = await spaceshipService.checkMultipleTlds(clean);
 
-  // Filter to only show affordable + available
-  const hasAvailable = results.some((r) => r.available && r.underBudget);
+  // When the .com itself isn't free, always surface extension alternatives so we can
+  // offer SEVERAL options — not just whichever primary TLD happened to be available.
+  const comAvailable = results.some((r) => r.domain === `${clean}.com` && r.available && r.underBudget);
 
   let alternatives = [];
-  if (!hasAvailable) {
+  if (!comAvailable) {
     alternatives = await suggestAlternatives(clean);
   }
 
@@ -89,10 +90,11 @@ async function suggestAlternatives(baseName) {
 function generateVariations(baseName) {
   // Recommendations are ALWAYS the same name on a different extension — never word
   // prefixes/suffixes or guessed middle names (those mangle the child's name, e.g.
-  // "ouremma"). These are personal / product-fit TLDs not already checked as primary
-  // (com/family/baby/love/life/me). Never .org. The live search separately lets the
-  // parent add their own middle name, nickname, or hyphen to re-check .com.
-  const extraTlds = ['co', 'us', 'name', 'kids'];
+  // "ouremma"). Personal / product-fit TLDs not already checked as primary
+  // (com/family/baby/love/life/me). NOT .kids (a restricted TLD with eligibility
+  // requirements) and never .org. The live search separately lets the parent add
+  // their own middle name, nickname, or hyphen to re-check .com.
+  const extraTlds = ['mom', 'co', 'us', 'name'];
   return extraTlds.map((tld) => `${baseName}.${tld}`);
 }
 

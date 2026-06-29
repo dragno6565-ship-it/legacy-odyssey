@@ -1348,8 +1348,9 @@
         if (r.available && r.underBudget && !seen[r.domain]) { seen[r.domain] = 1; opts.push(r); }
       });
       const top = opts.slice(0, 6);
+      const lead = top.length === 0 ? '.' : (top.length === 1 ? ' — but this one is available:' : ' — but these are available:');
       let html = '<div class="lo-taken">';
-      html += '<div class="lo-taken-head"><b>' + domain + '</b> is already taken' + (top.length ? ' — but these are available:' : '.') + '</div>';
+      html += '<div class="lo-taken-head"><b>' + domain + '</b> is already taken' + lead + '</div>';
       if (top.length) {
         html += '<div class="lo-taken-grid">';
         top.forEach(function (r) {
