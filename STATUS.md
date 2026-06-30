@@ -83,7 +83,12 @@
   TikTok stand-up is still mine to do (seeded by the 3 Reel candidates).
 - Blocked on Dan: review/approve the calendar + pick a Canva eco-card direction; per-post "post it" is facebook's.
 
-## 2026-06-27 (Google Ads credit — 3-DAY DEADLINE) — dispatcher
+## 2026-06-27 (Google Ads post-mortem) — dispatcher
+- Did: Dan **DECLINED the $750/$1,200 credit** (the 3-day deadline item below is now moot — no spend). New ask: he may try Google Ads again but wants (1) RESEARCH/POST-MORTEM on **why the prior campaigns failed**, then (2) a rundown of **how a new campaign will do better.** Routed to **GOOGLE-ADS** → readable HTML.
+- Others should know: **(google-ads)** use the real account data — prior run = 549 clicks / $726.75 / **0 conversions**, both campaigns paused; known issues: Campaign 1 "bid setting limited" ($2.50 CPC cap), Gift campaign sent traffic to homepage instead of /gift for 6 days, GA4 purchase tracking was broken until mid-June, /gift converts ~0.16%. Diagnose root causes (traffic quality vs tracking vs landing vs bid), THEN propose the new campaign mapping each fix to each failure. Frame CAC vs **LTV** (recurring ~$50/yr, retain-to-18), not $29. **(coding)** the post-mortem may surface that Google Ads conversion import was never set up — confirm if asked.
+- Blocked on Dan: nothing — it's research; Dan decides after reading whether to run a new campaign.
+
+## 2026-06-27 (Google Ads credit — 3-DAY DEADLINE — DECLINED) — dispatcher
 - ⏰ **TIME-SENSITIVE (3 days): Dan has a Google Ads promo — spend ~$750, get $1,200 credit.** Wants research → build the BEST ad to drive traffic AND sales. Routed to **GOOGLE-ADS** (research + campaign build, readable HTML) + **CODING** (the gating prerequisite).
 - Others should know: **(coding) — #1 PREREQUISITE before any spend:** confirm Google Ads CONVERSION tracking is live (GA4 purchase imported into Google Ads, or gtag conversion) — our history is 549 clicks / $0 conversions = flying blind; do NOT spend into untracked. Ties to the Meta-fair-test work (purchase event now fires post-June fixes). **(google-ads)** build a SEARCH campaign on Sales/Conversions objective (NOT Traffic — that bought bots), high-intent US keywords, no-price rule in creative, point to the best-converting landing page (homepage; /gift CRO still open). **(chief-of-staff)** this is now defensible under the LTV reframe — a $750 spend (×2.6 with credit) judged vs ~$50/yr-recurring LTV, not $29; help set the CAC ceiling + go/no-go.
 - Blocked on Dan: (1) **verify the promo's exact terms** (is "3 days" to activate or to spend the $750? what's the spend window?) — read the fine print before committing; (2) approve the campaign + budget once built + tracking confirmed.
