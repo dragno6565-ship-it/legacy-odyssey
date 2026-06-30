@@ -27,6 +27,7 @@
 | [ANALYTICS-RUNDOWN-2026-06-23.md](ANALYTICS-RUNDOWN-2026-06-23.md) | GA4 + Clarity + Stripe snapshot. ~70% bot traffic; real floor ≈6 visitors/day. |
 | [GROWTH-100-VISITORS-PLAN.md](GROWTH-100-VISITORS-PLAN.md) | $/visitor-ranked plan to reach 100 real visitors/day (organic; paid excluded). |
 | [APP-STORE-ASO-PLAN.md](APP-STORE-ASO-PLAN.md) | Paste-ready iOS/Android listing rewrite (keywords, copy, screenshots, reviews play). |
+| [UNIT-ECONOMICS-LTV.md](UNIT-ECONOMICS-LTV.md) | LTV model (3 churn scenarios) + affordable-CAC policy (~$40 target). Supersedes $29-based CAC math. |
 
 ---
 

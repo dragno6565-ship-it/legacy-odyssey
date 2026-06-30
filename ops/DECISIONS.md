@@ -101,6 +101,21 @@ to customers without Dan's review):
 - Dan intends to market full family sites eventually. When it becomes a project: prior retired
   `family_album` book_type code exists in the backend — decide revive vs rebuild first.
 
+### D-015 — New-parent direct mail — ✅ NO-GO (research 2026-06-26)
+- Legal path (rent data-broker "expecting/new parent" list + postcard) ≈ **$700–1,000 / 1,000
+  pieces**. Break-even on $29 needs ~2.9% purchase; realistic cold-mail purchase 0.2–1% → ~$80–400
+  per sale. Same upside-down math as Meta. **Skip.** Cheaper routes to the same audience: OB/doula/
+  birth-center partnerships, baby registries (Babylist), gifting. Report:
+  `Desktop\LO-reports\new-parent-direct-mail-2026-06-26.html`.
+
+### D-016 — Affiliate supply network — ✅ NOT NOW (research 2026-06-26)
+- Networks that supply affiliates (ShareASale $625+$35/mo+20% override; Impact/PartnerStack
+  enterprise) add cost + a commission cut to reach volume/coupon affiliates who won't prioritize a
+  niche $29 / ~$10-payout / ~0.2–0.3%-converting product. Bottleneck is conversion+payout, not
+  discovery. **Keep Rewardful (tracking) + founder-led DMs (232 fit-screened targets, $0).** Revisit
+  ShareASale only after conversion + volume improve. Report:
+  `Desktop\LO-reports\affiliate-network-evaluation-2026-06-26.html`.
+
 ### D-010 — Affiliate commission: ✅ RESOLVED 2026-06-11
 - **Dan's decision (2026-06-11, via Dispatcher): 35% recurring stands.** The
   live Rewardful program ("Friends of Legacy Odyssey", 35% recurring, 90-day

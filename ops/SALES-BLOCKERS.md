@@ -11,6 +11,15 @@
 
 ---
 
+## ⚠️ 2026-06-27 LTV CORRECTION — read before trusting any "$29 / paid loses money" line below
+The CAC math in this file was computed against the **$29 first-year price**. Per Dan's correction,
+it's a **recurring subscription** — judge CAC vs **LTV** (~$104 conservative / ~$178 moderate /
+~$354 optimistic gross; see `ops/UNIT-ECONOMICS-LTV.md`). Affordable CAC is **~$40 (healthy) up to
+~$125 (break-even)**, not $29. **Net effect on the conclusions below:** cold direct mail still
+NO-GO; Meta still off at its current ~$213 CAC (but it's a CAC problem, not "impossible" — viable if
+driven to ~$40–80); sponsored content now worth a small test; affiliate (35% recurring) is safe at
+any retention and remains the lead. Retention is UNPROVEN — plan conservative until first-renewal data.
+
 ## ⭐ ROOT CAUSE — "traffic but nobody buys" (GA4 data, 2026-06-08)
 
 **Verified in GA4 (property 531219463), last 28 days May 11–Jun 7:**

@@ -3,7 +3,7 @@
 > Business operations: formation/legal, filings, costs, vendors, hardware, calendar,
 > decisions, and business-level analytics/diagnosis. Does NOT write feature code.
 
-**Last session:** 2026-06-25 (App Store listing package: copy + screenshots + video)
+**Last session:** 2026-06-27 (LTV unit-economics rebuild + direct-mail/affiliate-network research)
 
 ## Scope
 - Owns the entire `ops/` directory — the business source of truth.
@@ -54,7 +54,12 @@
 - PROJECT-MAP Phase 0 done (Dispatcher, 2026-06-10). Phases 1–4 pending — Phase 1 (move
   `Legacy Odyssey Logins.docx` + `Project_Accounts.pdf` into `F:\_secrets\`) is the priority.
 
-## Open items (next session — refreshed 2026-06-25)
+## Open items (next session — refreshed 2026-06-27)
+- **#1 highest-value next pull: FIRST-RENEWAL RATE from Stripe** (intro $29 → $49.99, Mar–Apr 2026
+  cohort, due now). It's the one number that turns the LTV model from hypothesis into fact and resets
+  the affordable-CAC policy. Offered to Dan; do this when he says go.
+- **Affordable-CAC policy is live:** target ~$40, hard ceiling ~$125, judge vs LTV not $29
+  (`ops/UNIT-ECONOMICS-LTV.md`). Keep Meta off at $213; affiliate + organic lead; one sponsored test OK.
 - **App Store listing — copy APPROVED by Dan (may edit pre-submit).** Coding cleared to STAGE
   metadata (promo text live now; name/subtitle/keywords ride next build); NO submit without Dan's go.
   Remaining: coding captures a fresh "Your Contacts" screen → add a sharing screenshot. Package:
@@ -80,6 +85,14 @@
   comps) + emmacherry/roypatrickthompson Stripe-sub verification.
 
 ## Log
+- **2026-06-27** — Rebuilt unit economics on LTV (Dan's correction: recurring sub, not a $29
+  product). 3 churn scenarios: gross LTV ~$104/$178/$354 (cons/mod/opt); $880 = zero-churn ceiling
+  only. Affordable CAC ~$40 healthy / ~$72–126 break-even. Re-scored channels: affiliate=safe/lead,
+  sponsored content=worth a small test (changed), Meta=off but "CAC problem not impossible" (drive to
+  ~$40–80), cold mail=NO-GO holds. Reports: `Desktop\LO-reports\unit-economics-LTV-2026-06-27.html` +
+  `ops/UNIT-ECONOMICS-LTV.md`; corrected SALES-BLOCKERS. Also delivered 2 research HTMLs: new-parent
+  direct mail = NO-GO (D-015), affiliate supply networks = NOT NOW (D-016). #1 missing input flagged:
+  first-renewal rate from the Mar–Apr 2026 cohort (offer to pull from Stripe).
 - **2026-06-25** — App Store marketing push. Research brief "is ASA worth it" (verdict: ASO yes,
   ASA only after listing converts; corrected the "Meta proved it" overreach). Built the full listing
   package: keywords 100/100 (journal added), website-led dash-free no-price copy reflecting NEW
