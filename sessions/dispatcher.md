@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-25 (nightly close; 1.0.22 ASO listing submitted both stores; Stripe/GA4/Supabase connectors live; sharing bug fixed)
+**Last session:** 2026-06-29 (nightly close; Hindi shipped, LTV economics rebuilt → ~$40 CAC, Google Ads credit declined → post-mortem routed)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
