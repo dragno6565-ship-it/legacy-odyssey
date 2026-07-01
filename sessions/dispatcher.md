@@ -3,7 +3,7 @@
 > Dan's organizing session. When Dan has an idea, question, or doesn't know where work
 > belongs, it comes HERE first. This session routes it.
 
-**Last session:** 2026-06-29 (nightly close; Hindi shipped, LTV economics rebuilt → ~$40 CAC, Google Ads credit declined → post-mortem routed)
+**Last session:** 2026-06-30 (lifelong positioning = new hard rule #16; iterating new landing-page hero copy with Dan)
 
 ## Scope
 - **Route ideas:** decide which session a task belongs to; write a paste-ready fenced
@@ -61,6 +61,7 @@
       (handoff prompts exist in `marketing/HANDOFF-other-sessions.md`).
 
 ## Log
+- **2026-06-30** — Big positioning day. Set NEW hard rule **#16 (lifelong / whole-journey positioning)** and expanded it per Dan: NOT a baby book that ends at year one — it records a child's whole life (birthdays, holidays, milestones, report cards, awards, artwork, photos, videos) and stays with them. Corrected a real error I'd repeated from chief-of-staff: the "first-renewal rate, due now" item was WRONG (product launched Mar 29 2026; annual renewals → no data until ~Mar 2027) — killed it. Dan greenlit updating BOTH live landing pages today: home = `src/views/marketing/landing-v2-cro.ejs`, gift = `src/views/marketing/gift-landing.ejs`. **Spent the session iterating hero copy WITH Dan (he was frustrated with vague/overclaiming drafts).** Landed a tone he approved: plain, concrete, states what the product IS and how you make it, NO overclaims ("the one place", "save their whole life", "hand them their childhood" all rejected as false/insulting), NO em-dashes, say "creating it" not "posting". **The .com is a LOVED feature — keep it proud, do NOT demote it or call it a domain-registrar problem (Dan corrected me on that).** RESUME POINT: home headline is down to a pick — **A) "A digital baby book, built on your child's very own .com."** / B) "Your child's own digital baby book, at their very own .com." / C) "A digital baby book that lives at your child's very own .com." Approved sub-line: "Creating it is simple. Open the app or the web editor on your phone or computer, add a photo or video, write a quick note, and it appears on their site. Fill it with milestones, birthdays, report cards, awards, and artwork, and keep adding over the years. Family can visit anytime at your-childs-name.com, private and password protected." NEXT: Dan picks A/B/C → then do the GIFT page hero in the same tone → THEN hand coding the final drop-in brief (do NOT send the earlier draft brief; copy changed). Also routed today (not yet confirmed done): affiliate Tier-A DM, eco blog publish, FB+IG post, meta+google ads status checks.
 - **2026-06-26** — Strategy/research day + nightly close. Routed: referral "Share the love"
   section removal → coding (recoverable). Researched Zeely (legit AI ad tool, wrong time —
   parked). Big thread: Meta "losing or under-spent?" — established it was never a fair test;
