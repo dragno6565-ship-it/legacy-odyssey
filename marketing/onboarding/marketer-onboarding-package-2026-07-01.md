@@ -97,4 +97,15 @@ These are firm — please build them into everything:
 
 ---
 
-*Contact for anything you need: info@legacyodyssey.com. Website: legacyodyssey.com · live demo: your-childs-name.com*
+## Our links & social
+
+- **Website:** https://legacyodyssey.com
+- **Live demo site:** https://your-childs-name.com
+- **iOS app:** https://apps.apple.com/app/id6760883565
+- **Android app:** https://play.google.com/store/apps/details?id=com.legacyodyssey.app
+- **Instagram:** https://www.instagram.com/legacyodysseyapp/ (@legacyodysseyapp)
+- **Facebook:** https://www.facebook.com/profile.php?id=61575479945803
+- **Pinterest:** https://www.pinterest.com/legacyodysseyapp/
+- **Contact:** info@legacyodyssey.com
+
+*Anything else you need, just reach out at info@legacyodyssey.com.*
