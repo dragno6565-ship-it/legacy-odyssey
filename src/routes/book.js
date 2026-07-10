@@ -871,11 +871,40 @@ router.get('/start/welcome', async (req, res) => {
           // on the subscription, so fall back to deriving from the charged amount.
           let plan = (pi.metadata && pi.metadata.period) || '';
           if (!plan) plan = pi.amount >= 45000 ? 'childhood' : (pi.amount === 2900 ? 'annual' : 'monthly');
+          const value = (pi.amount || 0) / 100;
           purchase = {
             transactionId: pi.id,
-            value: (pi.amount || 0) / 100,
+            value,
             plan,
           };
+
+          // Server-side Meta CAPI Purchase (mirrors /stripe/success) so the branded
+          // embedded flow is deduped/backstopped the same way the hosted flow is.
+          // Same eventId as the client pixel (the PaymentIntent id) → Meta dedupes.
+          try {
+            const { sendCapiEvent } = require('../utils/metaCapi');
+            let email = pi.receipt_email || null;
+            let customerName = '';
+            if (!email && pi.customer) {
+              const cust = await stripe.customers.retrieve(typeof pi.customer === 'string' ? pi.customer : pi.customer.id);
+              if (cust && !cust.deleted) { email = cust.email || null; customerName = cust.name || ''; }
+            }
+            sendCapiEvent({
+              eventName: 'Purchase',
+              eventId: pi.id,
+              userData: {
+                email,
+                firstName: customerName.split(' ')[0],
+                lastName: customerName.split(' ').slice(1).join(' '),
+              },
+              customData: { value, currency: 'USD', orderId: pi.id },
+              eventSourceUrl: 'https://legacyodyssey.com/start/welcome',
+              clientIpAddress: req.ip || req.headers['x-forwarded-for'],
+              clientUserAgent: req.headers['user-agent'],
+            });
+          } catch (capiErr) {
+            console.error('[start/welcome] Meta CAPI failed:', capiErr.message);
+          }
         }
       }
     } catch (err) {

@@ -63,6 +63,17 @@
     (window.loOnTrackingReady || function (f) { f(); })(function () {
       fbq('track', 'Purchase', { value: loValue, currency: 'USD' }, { eventID: loTxId });
       pintrk('track', 'checkout', { value: loValue, order_quantity: 1, currency: 'USD' });
+      // Google Ads "Purchase" conversion. The hosted-Checkout flow triggers this
+      // via a URL-based rule on /stripe/success; the branded embedded flow lands
+      // HERE instead, so we fire the same conversion action explicitly via its
+      // event snippet. transaction_id (the PaymentIntent id) dedupes it — and the
+      // two flows never share a URL, so there's no double-count.
+      gtag('event', 'conversion', {
+        send_to: 'AW-18137400874/5Qh2CI6c_KYcEKqMy8hD',
+        value: loValue,
+        currency: 'USD',
+        transaction_id: loTxId
+      });
       gtag('event', 'purchase', {
         transaction_id: loTxId,
         value: loValue,

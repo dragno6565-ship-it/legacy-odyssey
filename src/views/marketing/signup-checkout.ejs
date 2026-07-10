@@ -161,6 +161,21 @@
       if (INITIAL_DOMAIN) { $('gcDomain').value = INITIAL_DOMAIN; }
       syncPlan();
 
+      // Handoff from the landing/founder modal: email + internal referral come via
+      // sessionStorage (kept out of the URL). Referral also falls back to the lo_ref
+      // cookie so affiliate/friend attribution survives the branded flow.
+      function scGetRef() {
+        try {
+          var s = sessionStorage.getItem('lo_signup_ref'); if (s) return s;
+          var m = document.cookie.match(/(?:^|;\s*)lo_ref=([^;]+)/); return m ? decodeURIComponent(m[1]) : null;
+        } catch (e) { return null; }
+      }
+      var PREFILL_REF = scGetRef();
+      try {
+        var _pEmail = sessionStorage.getItem('lo_signup_email');
+        if (_pEmail && !$('gcEmail').value) { $('gcEmail').value = _pEmail; }
+      } catch (e) {}
+
       $('gcContinueBtn').addEventListener('click', async function () {
         var msg = $('gcDetailsMsg'); msg.textContent = '';
         var email = $('gcEmail').value.trim();
@@ -177,7 +192,7 @@
         try {
           var res = await fetch('/api/stripe/create-signup-intent', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, domain: domain, period: plan, referral: (window.Rewardful && window.Rewardful.referral) || null }),
+            body: JSON.stringify({ email: email, domain: domain, period: plan, ref: PREFILL_REF || null, referral: (window.Rewardful && window.Rewardful.referral) || null }),
           });
           var data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Could not start checkout.');
@@ -204,6 +219,17 @@
           btn.disabled = false; btn.textContent = 'Continue to Payment →';
         }
       });
+
+      // Arrived from the landing CTA with email + domain already chosen → skip the
+      // details step and go straight to the branded payment step. Clear the stashed
+      // email so it doesn't bleed into a later manual visit on a shared device.
+      (function autoAdvance() {
+        try {
+          var e = $('gcEmail').value.trim(); var d = $('gcDomain').value.trim();
+          if (e && d) { $('gcContinueBtn').click(); }
+          sessionStorage.removeItem('lo_signup_email'); sessionStorage.removeItem('lo_signup_ref');
+        } catch (err) {}
+      })();
 
       $('gcPayBtn').addEventListener('click', async function () {
         if (!elements) return;

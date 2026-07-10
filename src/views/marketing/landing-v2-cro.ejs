@@ -1247,26 +1247,20 @@
         btn.textContent = 'Redirecting to payment…';
         btn.disabled = true;
         try {
-          let endpoint, body, trackValue;
+          const plan = _checkoutPlan === 'childhood' ? 'childhood' : 'annual';
+          const trackValue = plan === 'childhood' ? 450 : 29;
           const _ref = loGetReferral();
-          if (_checkoutPlan === 'childhood') {
-            endpoint = '/api/stripe/create-childhood-checkout';
-            body = { email, domain: _founderSelectedDomain, book_type: _bookType || 'baby_book' };
-            trackValue = 450;
-          } else {
-            endpoint = '/api/stripe/create-founder-checkout';
-            body = { email, domain: _founderSelectedDomain, book_type: _bookType || 'baby_book' };
-            trackValue = 29;
-          }
-          if (_ref) body.ref = _ref;
-          body.referral = (window.Rewardful && window.Rewardful.referral) || null; // Rewardful affiliate attribution
-          const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-          const data = await res.json();
-          if (data.url) {
-            if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: trackValue, currency: 'USD' });
-            if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: trackValue, currency: 'USD' });
-            window.location.href = data.url;
-          } else { throw new Error(data.error || 'Something went wrong'); }
+          // Hand off to the on-brand embedded checkout (Stripe Payment Element on our
+          // own page) instead of redirecting to hosted checkout.stripe.com. Email +
+          // referral go via sessionStorage so no PII lands in the URL; the branded
+          // page prefills them and jumps straight to the payment step.
+          try {
+            sessionStorage.setItem('lo_signup_email', email);
+            if (_ref) sessionStorage.setItem('lo_signup_ref', _ref);
+          } catch (e) {}
+          if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: trackValue, currency: 'USD' });
+          if (typeof pintrk !== 'undefined') pintrk('track', 'checkout', { value: trackValue, currency: 'USD' });
+          window.location.href = '/start/checkout?plan=' + plan + '&domain=' + encodeURIComponent(_founderSelectedDomain);
         } catch (err) {
           errEl.textContent = err.message || 'Something went wrong. Please try again.';
           errEl.style.display = 'block';
