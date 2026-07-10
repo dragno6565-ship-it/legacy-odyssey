@@ -878,6 +878,47 @@ router.get('/start/welcome', async (req, res) => {
             plan,
           };
 
+          // Belt-and-suspenders fallback fulfillment (mirrors /gift/thank-you):
+          // provisioning normally happens in the webhook, but if that event is
+          // missed/misconfigured the customer has PAID and must still get their
+          // account. provisionEmbeddedSignup is idempotent (keyed on subdomain),
+          // so running it here AND in the webhook is safe. We check the family
+          // first so the common case (webhook already did it) does no writes.
+          try {
+            const stripeService = require('../services/stripeService');
+            const familyService = require('../services/familyService');
+            let meta = null; let subId = null; let custId = pi.customer ? (typeof pi.customer === 'string' ? pi.customer : pi.customer.id) : null;
+            if (pi.metadata && pi.metadata.type === 'signup_childhood' && pi.metadata.signup_flow === 'embedded') {
+              meta = pi.metadata;
+            } else if (custId) {
+              // Subscription flow: signup metadata lives on the subscription.
+              const subs = await stripe.subscriptions.list({ customer: custId, limit: 3 });
+              const sub = (subs.data || []).find((s) => s.metadata && s.metadata.signup_flow === 'embedded');
+              if (sub) { meta = sub.metadata; subId = sub.id; }
+            }
+            if (meta && meta.subdomain) {
+              const existing = await familyService.findBySubdomain(meta.subdomain);
+              if (!existing || existing.plan !== 'paid') {
+                const r = await stripeService.provisionEmbeddedSignup({
+                  email: meta.email || pi.receipt_email,
+                  customerName: null,
+                  subdomain: meta.subdomain,
+                  domain: meta.domain || null,
+                  period: subId ? (meta.period || 'annual') : 'childhood',
+                  bookType: meta.book_type || 'baby_book',
+                  referralCode: meta.ref || null,
+                  stripeCustomerId: custId,
+                  stripeSubscriptionId: subId,
+                  provisioningRef: subId || pi.id,
+                });
+                console.log(`[start/welcome] fallback provisioning ran (pi ${pi.id}) family ${r.family && r.family.id} alreadyProvisioned=${r.alreadyProvisioned}`);
+              }
+            }
+          } catch (provErr) {
+            console.error('[start/welcome] fallback provisioning failed:', provErr.message);
+            // Non-fatal — the webhook remains the primary path.
+          }
+
           // Server-side Meta CAPI Purchase (mirrors /stripe/success) so the branded
           // embedded flow is deduped/backstopped the same way the hosted flow is.
           // Same eventId as the client pixel (the PaymentIntent id) → Meta dedupes.
@@ -923,12 +964,43 @@ router.get('/start/welcome', async (req, res) => {
 router.get('/gift/thank-you', async (req, res) => {
   const { stripe } = require('../config/stripe');
   const piId = req.query.payment_intent;
+  let purchase = null;
   if (stripe && piId && req.query.redirect_status === 'succeeded') {
     try {
       const pi = await stripe.paymentIntents.retrieve(piId);
       if (pi && pi.status === 'succeeded' && pi.metadata?.type === 'gift') {
         const giftService = require('../services/giftService');
         await giftService.fulfillGiftForPaymentIntent(pi); // idempotent with the webhook
+
+        // Purchase analytics for the embedded gift flow. The hosted flow fired
+        // these on /gift/success; embedded buyers land HERE, so without this
+        // every embedded gift sale was invisible to GA4/Meta/Pinterest/Ads.
+        const value = (pi.amount || 0) / 100;
+        purchase = {
+          transactionId: pi.id,
+          value,
+          plan: pi.metadata.gift_plan === 'childhood' ? 'childhood' : 'annual',
+        };
+        // Server-side Meta CAPI (eventId = PI id dedupes with the client pixel).
+        try {
+          const { sendCapiEvent } = require('../utils/metaCapi');
+          const buyerName = pi.metadata.buyer_name || '';
+          sendCapiEvent({
+            eventName: 'Purchase',
+            eventId: pi.id,
+            userData: {
+              email: pi.metadata.buyer_email || pi.receipt_email,
+              firstName: buyerName.split(' ')[0],
+              lastName: buyerName.split(' ').slice(1).join(' '),
+            },
+            customData: { value, currency: 'USD', orderId: pi.id },
+            eventSourceUrl: 'https://legacyodyssey.com/gift/thank-you',
+            clientIpAddress: req.ip || req.headers['x-forwarded-for'],
+            clientUserAgent: req.headers['user-agent'],
+          });
+        } catch (capiErr) {
+          console.error('[gift/thank-you] Meta CAPI failed:', capiErr.message);
+        }
       }
     } catch (err) {
       console.error('[gift/thank-you] fallback fulfillment failed:', err.message);
@@ -937,6 +1009,7 @@ router.get('/gift/thank-you', async (req, res) => {
   }
   res.render('marketing/gift-thank-you', {
     appDomain: process.env.APP_DOMAIN || 'legacyodyssey.com',
+    purchase,
   });
 });
 

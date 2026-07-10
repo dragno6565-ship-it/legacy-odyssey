@@ -208,14 +208,21 @@ router.post('/stripe/webhook', async (req, res) => {
       }
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object;
+        // API-version-proof subscription id: older versions expose
+        // invoice.subscription; Basil+ (2025-03+) moved it to
+        // invoice.parent.subscription_details.subscription. The payload shape
+        // follows the WEBHOOK ENDPOINT's pinned version, so handle both.
+        const invoiceSubId = invoice.subscription
+          || (invoice.parent && invoice.parent.subscription_details && invoice.parent.subscription_details.subscription)
+          || null;
         // Embedded signup (Payment Element): the FIRST invoice of a subscription
         // created via the embedded flow. Provision account + book + domain.
         // Guarded by signup_flow==='embedded' on the subscription metadata, so
         // hosted-Checkout subscriptions (which provision via
         // checkout.session.completed) are untouched. Idempotent.
-        if (invoice.billing_reason === 'subscription_create' && invoice.subscription) {
+        if (invoice.billing_reason === 'subscription_create' && invoiceSubId) {
           try {
-            const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+            const sub = await stripe.subscriptions.retrieve(invoiceSubId);
             if (sub.metadata && sub.metadata.signup_flow === 'embedded') {
               const m = sub.metadata;
               const r = await stripeService.provisionEmbeddedSignup({
@@ -227,10 +234,10 @@ router.post('/stripe/webhook', async (req, res) => {
                 bookType: m.book_type || 'baby_book',
                 referralCode: m.ref || null,
                 stripeCustomerId: invoice.customer,
-                stripeSubscriptionId: invoice.subscription,
-                provisioningRef: invoice.subscription,
+                stripeSubscriptionId: invoiceSubId,
+                provisioningRef: invoiceSubId,
               });
-              console.log(`[webhook] embedded signup provisioned (sub ${invoice.subscription}) family ${r.family && r.family.id} alreadyProvisioned=${r.alreadyProvisioned}`);
+              console.log(`[webhook] embedded signup provisioned (sub ${invoiceSubId}) family ${r.family && r.family.id} alreadyProvisioned=${r.alreadyProvisioned}`);
             }
           } catch (err) {
             console.error('[webhook] embedded signup provisioning failed:', err.message);
@@ -242,9 +249,9 @@ router.post('/stripe/webhook', async (req, res) => {
         // Rewardful: record affiliate conversion for embedded-signup subscriptions
         // (PaymentIntent flows can't use client_reference_id). Safe no-op without
         // REWARDFUL_API_SECRET / a referral. Only on the first invoice.
-        if (invoice.billing_reason === 'subscription_create' && invoice.subscription) {
+        if (invoice.billing_reason === 'subscription_create' && invoiceSubId) {
           try {
-            const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+            const sub = await stripe.subscriptions.retrieve(invoiceSubId);
             const refId = sub.metadata && sub.metadata.rewardful_referral;
             if (refId) {
               await require('../services/rewardfulService').recordConversion({

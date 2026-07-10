@@ -28,6 +28,7 @@
     .ty-links { margin-top: 22px; font-size: 13px; }
     .ty-links a { color: rgba(250,247,242,0.6); text-decoration: underline; margin: 0 10px; }
   </style>
+  <%- include('../partials/tracking') %>
 </head>
 <body>
   <div class="ty">
@@ -44,5 +45,40 @@
       <a href="mailto:help@legacyodyssey.com">Need help?</a>
     </div>
   </div>
+
+  <% if (typeof purchase !== 'undefined' && purchase) { %>
+  <!-- Conversion tracking for the embedded gift flow. Mirrors gift-success.ejs
+       (hosted flow) + signup-welcome.ejs. transaction_id = the PaymentIntent id,
+       which dedupes with the server-side Meta CAPI event. -->
+  <script>
+    var loTxId = '<%= purchase.transactionId %>';
+    var loValue = <%= purchase.value %>;
+    var loPlan = '<%= purchase.plan %>';
+    // Fire only after consent is granted (else Consent Mode v2 drops the conversion).
+    (window.loOnTrackingReady || function (f) { f(); })(function () {
+      fbq('track', 'Purchase', { value: loValue, currency: 'USD' }, { eventID: loTxId });
+      pintrk('track', 'checkout', { value: loValue, order_quantity: 1, currency: 'USD' });
+      // Google Ads "Purchase" conversion (event snippet — the Ads action's
+      // URL-based trigger only covers /stripe/success).
+      gtag('event', 'conversion', {
+        send_to: 'AW-18137400874/5Qh2CI6c_KYcEKqMy8hD',
+        value: loValue,
+        currency: 'USD',
+        transaction_id: loTxId
+      });
+      gtag('event', 'purchase', {
+        transaction_id: loTxId,
+        value: loValue,
+        currency: 'USD',
+        items: [{
+          item_id: 'gift_' + loPlan,
+          item_name: 'Legacy Odyssey Gift — ' + (loPlan === 'childhood' ? 'Entire Childhood' : '1 Year'),
+          price: loValue,
+          quantity: 1
+        }]
+      });
+    });
+  </script>
+  <% } %>
 </body>
 </html>
