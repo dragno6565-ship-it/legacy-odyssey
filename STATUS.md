@@ -17,6 +17,33 @@
 
 ---
 
+## 2026-07-11 — pinterest
+- Did: **Refilled the Pinterest queue — scheduled pins 98–123 (26 pins, Jul 16–Aug 9, one/day 12 PM); 31 total now scheduled ahead (full to the 30-day cap).** Per Dan, FIRST reviewed all recent cross-session rules and caught that my freshly-built batch violated **rule #16** (it capped at "first year / baby book"). Did a full realign before scheduling: regenerated 8 images + rewrote every pin description to lead **"not just a baby book / whole life journey" + privacy-first** (private/invite-only/never-public) + lineage (birthdays, report cards, awards, artwork). Fixed a "story" word-ban slip. No price, placeholder names only. Orphan draft expired on its own.
+- Others should know: **(dispatcher/all)** the Pinterest queue is now full to the 30-day cap (Aug 9) — to honor Dan's "always 15–30 ahead," it needs ~1 new pin/day going forward; next batch must be built lifelong+privacy-first (older `gen_pins_101_123.py` is first-year-heavy — use `gen_pins_realign.py` as the model). **(facebook/meta-ads/content-organic)** confirms the shared move: lead .com copy with privacy + whole-life-journey. **Flag:** the Pinterest **profile bio** + the **"Baby First Year Milestones" board name** still cap at baby/first-year — pre-existing (not chasing), but candidates for a Dan-approved rule-#16 refresh.
+- Blocked on Dan: nothing required. Optional: OK to rewrite the profile bio / rename the board to the whole-life-journey framing?
+
+## 2026-07-11 — content-organic
+- Did: Wrote the **privacy blog post** "Is it safe to put your baby online? How a Legacy Odyssey stays private"
+  — verification-first, zero fabrication. Every claim checked against real code + live Privacy/Terms. Draft
+  `marketing/blog/11-is-it-safe-privacy.md` + verified-facts memo `_privacy-post-verification.md`; Dan-readable
+  HTML on `Desktop\LO-reports\` (`privacy-blog-draft.html`, `privacy-blog-VERIFICATION.html`). **NOT published —
+  awaiting Dan's proofread + OK.** Lands right on the privacy-first framing facebook is already running.
+- Others should know: **(coding)** ⬅️ 2 real issues surfaced by verification, both in the memo: **(A)** private
+  book pages (`src/views/layouts/book.ejs`) run **Meta Pixel + Google AdSense ad units + GA4** — tension with a
+  "privacy" product + Privacy §10 "no cross-site tracking" + COPPA; is that intended? **(B)** retention window
+  CONFLICT: Privacy §8 "up to one year" vs Terms §8 "30 days" — reconcile the docs. Also please **sanity-check the
+  technical rows** (password gate, 3-layer noindex, `?circle` links) before publish. **(seo)** need a
+  title/primary-keyword call — candidates: "is it safe to put baby photos online", "private baby website",
+  "keep baby pictures off google". **(facebook/email)** a verified privacy explainer is now drafted — good source
+  for privacy-objection replies once Dan approves it.
+- Blocked on Dan: **proofread + approve the draft** (then coding publishes). Also owes a call on flag A (ads/pixels
+  on kids' pages) and flag B (retention conflict).
+
+## 2026-07-08 (PM) — facebook
+- Did: Posted **safe-in-arms** (newborn on dad's chest, from the banked-approved set) to **FB + IG**, leading with the **positioning** (rule #16: "Not just a baby book. Your child's whole life journey.") and **privacy-first** on the .com angle (private, invite-only, never public/searchable — directly answering the 2 privacy objections on the June 22 ad). No price, no boost. IG posted cleanly (JPG photo, didn't touch filters).
+- Others should know: **(content-organic)** banked-approved set now down to **2**: perspectives + wake-windows card (safe-in-arms & Custom Galleries both posted). Funny bench thin. **(all)** privacy-first framing on any .com/website copy is now the standing move given the objections.
+- Blocked on Dan: nothing.
+
 ## 2026-07-08 — google-ads / dispatcher
 - Did: **Campaign 3 post-mortem (Jul 1–8): $137.97 / 117 clicks / 0 sales.** Pulled GA4 (531219463 via browser) + Clarity data. Diagnosed root cause: the trust bar immediately below the hero is 4 delivery-logistics items — visitors bounce before seeing any product content. Clarity: 44% leave before scrolling 10%, 0% reached page bottom, avg engagement 11s. Ads themselves worked fine (4.33% CTR). Dan confirmed on his phone — the trust bar copy is the problem, not the delivery flow itself.
 - Others should know: **(coding)** brief at `docs/gift-page-overhaul-brief-2026-07-08.md`. Two changes needed: (1) replace all 4 trust bar items with product-value copy, (2) fix one hero proof item from "Instant gift code in your inbox" to a product fact. Do NOT touch delivery section/flow — Dan was explicit. **(all)** 117 clicks is statistically too small to judge demand — the ads have real CTR signal; the page is the failure point. Campaign 3 is paused; do not restart until the page fix is live.
