@@ -94,25 +94,29 @@ async function requireBookPassword(req, res, next) {
     }
   }
 
-  // If no password is set, allow access without password
-  if (!req.family.book_password) {
-    return next();
-  }
-
-  // Allow password bypass for mobile app preview via /book/:slug on Railway URL
-  // (The Railway URL is only used by the mobile app; public legacyodyssey.com still enforces passwords)
   const host = req.hostname.toLowerCase();
-  const isRailway = host.endsWith('.up.railway.app') ||
-    host === (process.env.RAILWAY_PUBLIC_DOMAIN || '').toLowerCase();
-  if (isRailway && req.path.startsWith('/book/')) {
-    return next();
-  }
-
-  // Demo sites — always allow access regardless of password
-  const DEMO_DOMAINS = ['your-childs-name.com'];
   const bareHost = host.startsWith('www.') ? host.slice(4) : host;
+
+  // Demo sites — intentionally public (they ARE the marketing demo).
+  const DEMO_DOMAINS = ['your-childs-name.com'];
   if (DEMO_DOMAINS.includes(bareHost)) {
     return next();
+  }
+
+  // Fail SAFE: if a book somehow has no password, do NOT serve it publicly —
+  // show the locked page instead. Every book gets a random password at creation
+  // and the API refuses to blank one (see routes/api/books.js), so in practice
+  // this never triggers; it's defense-in-depth so a privacy product can never
+  // accidentally expose a book. (Previously this branch served the book openly.)
+  //
+  // NOTE: the mobile app reaches books via legacyodyssey.com/book/:slug and
+  // auto-submits the real password (PreviewScreen injectedJavaScript), so it does
+  // NOT depend on any host-based bypass. The old Railway-host bypass — which let
+  // anyone who knew the internal *.up.railway.app URL open any book with no
+  // password — has been removed.
+  if (!req.family.book_password) {
+    const siteLabel = await computeSiteLabel(req.family);
+    return res.render('book/password', { family: req.family, siteLabel, error: false });
   }
 
   // Check for valid mobile app preview token in query string

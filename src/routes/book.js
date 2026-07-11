@@ -1,7 +1,20 @@
 const { Router } = require('express');
+const { rateLimit } = require('express-rate-limit');
 const path = require('path');
 const resolveFamily = require('../middleware/resolveFamily');
 const { requireBookPassword, hashPassword, computeSiteLabel } = require('../middleware/requireBookPassword');
+
+// Throttle book-password guessing. Keyed per IP; a legitimate visitor types their
+// password once or twice (the mobile app auto-submits it when its cookie lapses),
+// so 30 tries / 15 min gives real users plenty of headroom while stopping a bot
+// from brute-forcing the gate. Mirrors the authLimiter on /api/auth in server.js.
+const bookPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many attempts. Please wait a few minutes and try again.',
+});
 const bookService = require('../services/bookService');
 const { translateBook } = require('../services/translateService');
 const { getPublicUrl } = require('../utils/imageUrl');
@@ -674,7 +687,7 @@ router.get('/circle/unsubscribe/:token', circleUnsubscribe);
 router.post('/circle/unsubscribe/:token', circleUnsubscribe);
 
 // POST /verify-password
-router.post('/verify-password', resolveFamily, async (req, res) => {
+router.post('/verify-password', bookPasswordLimiter, resolveFamily, async (req, res) => {
   // If resolveFamily couldn't find the family (e.g. Railway URL, not a subdomain),
   // fall back to looking up by slug from the hidden form field
   if (!req.family && req.body.slug) {

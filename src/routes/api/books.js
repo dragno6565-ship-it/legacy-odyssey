@@ -179,8 +179,16 @@ router.put('/mine', async (req, res, next) => {
 
     // Handle password field from SettingsScreen
     // (SettingsScreen sends { password } to this endpoint instead of /mine/settings)
-    const passwordValue = req.body.password || req.body.book_password;
-    if (passwordValue !== undefined) {
+    const rawPassword = req.body.password !== undefined ? req.body.password : req.body.book_password;
+    if (rawPassword !== undefined) {
+      // Fail SAFE: never allow a book to be left passwordless — that would make it
+      // publicly viewable to anyone with the URL. Reject blank/whitespace passwords
+      // rather than silently blanking the gate. (Sharing to specific people still
+      // works via Circle links, which don't touch this.)
+      const passwordValue = String(rawPassword).trim();
+      if (passwordValue.length < 4) {
+        return res.status(400).json({ error: 'Password must be at least 4 characters. Your book can’t be left without a password.' });
+      }
       const { supabaseAdmin } = require('../../config/supabase');
       await supabaseAdmin.from('families')
         .update({ book_password: passwordValue })
