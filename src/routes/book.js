@@ -521,6 +521,14 @@ router.get('/privacy', (req, res) => {
 // Blog posts registry — add new posts here
 const BLOG_POSTS = [
   {
+    title: 'Is It Safe to Put Your Baby Online? How a Legacy Odyssey Website Stays Private',
+    excerpt: 'Private by default, invite-only, and kept out of Google. Here\'s exactly how a Legacy Odyssey Website keeps your child\'s site safe — in plain language.',
+    url: '/blog/is-it-safe-to-put-your-baby-online',
+    category: 'Privacy & Safety',
+    date: 'July 11, 2026',
+    readTime: '5 min read',
+  },
+  {
     title: 'Circles: Sharing Your Book with Family, the Easy Way',
     excerpt: 'A private list of who can see the book, and a one-tap way to send each person their own private link whenever there\'s something new.',
     url: '/blog/circles-sharing',
@@ -621,6 +629,11 @@ const BLOG_POSTS = [
 // GET /blog — Blog index
 router.get('/blog', (req, res) => {
   res.render('marketing/blog-index', { posts: BLOG_POSTS });
+});
+
+// GET /blog/is-it-safe-to-put-your-baby-online
+router.get('/blog/is-it-safe-to-put-your-baby-online', (req, res) => {
+  res.render('marketing/blog-is-it-safe-privacy');
 });
 
 // GET /blog/getting-started-with-legacy-odyssey
