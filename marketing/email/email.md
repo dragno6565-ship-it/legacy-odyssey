@@ -101,6 +101,12 @@ pattern) and merging it into the recipient list. This is internal — not a payi
 Dan keeping eyes on what goes out. When a real Resend Audience/Broadcast is stood up, add Dan to it.
 
 ## Feature-Announcement Emails (new motion: ship feature → blog → subscriber email)
+- **Privacy blog post** — ✅ **SENT 2026-07-11** to all 18 active paying customers (+ Dan = 19),
+  19/19 OK. "Is it safe to put your baby online?" → `/blog/is-it-safe-to-put-your-baby-online`.
+  Copy: `marketing/email/privacy-post-announcement.md`. Sent via
+  `scripts/send-privacy-post-announcement.js` — **the current best pattern: pulls the recipient
+  list LIVE from `families` at send time** (dry-run + `--force` guard, per-recipient, throttled).
+  Compliance: no price, website-not-book, positioning #16. From content-organic's §B handoff.
 - **Contact section** (first announcement) — ✅ **SENT 2026-06-24** to all **14 active paying
   customers**. Copy: `marketing/email/your-contacts-announcement.md`; send script:
   `scripts/send-contact-section-announcement.js`. CTA → `legacyodyssey.com/demo` (the live blog

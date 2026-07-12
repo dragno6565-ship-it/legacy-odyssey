@@ -3,7 +3,7 @@
 > Lead capture, nurture sequences, customer email campaigns. Transactional email
 > (welcome, onboarding drip Day 1/3/7/13) is code-owned — changes route to CODING.
 
-**Last session:** 2026-06-24
+**Last session:** 2026-07-11
 
 ## Scope
 - Owns `marketing/email/email.md` — the detail file.
@@ -18,14 +18,16 @@
   verify against the live drip when next active.
 
 ## Open items
-- [x] **Contact-section announcement — ✅ SENT 2026-06-24** to all 14 active paying customers
-  via Resend (`scripts/send-contact-section-announcement.js`). Done.
-- [ ] **NEW for next session — establish a real send path.** This send worked but was hand-rolled
-  (key pulled from Railway, per-recipient loop, mailto unsubscribe). For repeatable campaigns we
-  still need: a proper Resend Audience/Broadcast or a server-side endpoint + a real one-click
-  unsubscribe that writes `families.unsubscribed_at` (column exists). Route to CODING.
-- [ ] **Feed back to chief-of-staff/dispatcher:** customer count is **14**, not 7 — confirmed
-  from the live `families` table. Roster/docs need updating.
+- [x] **Contact-section announcement — ✅ SENT 2026-06-24** to 14 customers. Done.
+- [x] **Privacy blog-post announcement — ✅ SENT 2026-07-11** to 18 customers (+ Dan = 19), 19/19
+  OK. Reusable live-pull script `scripts/send-privacy-post-announcement.js`. Done.
+- [ ] **Still open — a real repeatable send path (CODING).** Both campaigns worked but are
+  hand-rolled (key pulled from Railway, per-recipient loop, mailto unsubscribe). For scale we want
+  a proper Resend Audience/Broadcast or a server endpoint + a true one-click unsubscribe that
+  writes `families.unsubscribed_at` (column exists, but nothing writes it yet — the mailto is
+  manual). `send-privacy-post-announcement.js` (live recipient pull) is the current best pattern.
+- [ ] **Feed back to chief-of-staff/dispatcher:** live paying-customer count is **18** (was 14 on
+  2026-06-24). Roster/docs need updating.
 - ⭐ **STANDING RULE (2026-06-24): Dan (dragno6565@gmail.com) gets a copy of EVERY campaign send.**
   Implemented via `STANDING_RECIPIENTS` in the send script; carry into all future campaign tooling
   + any Resend Audience. Detail in `marketing/email/email.md`.
@@ -34,6 +36,12 @@
 - [ ] Detail file is stale (2026-05-03) — refresh from session history.
 
 ## Log
+- **2026-07-11** — (email) **SENT the privacy blog-post announcement** ("Is it safe to put your
+  baby online?") to all 18 active paying customers + Dan (19/19 OK). From content-organic's §B
+  handoff; CTA → live `/blog/is-it-safe-to-put-your-baby-online`. Built a reusable send script that
+  pulls the recipient list LIVE from `families` at send time (`send-privacy-post-announcement.js`,
+  dry-run + `--force` guard). Compliance: no price (dropped the $29 canonical footer),
+  website-not-book, positioning #16. Confirmed count grew 14→18 since last campaign.
 - **2026-06-24** — (email) **SENT the contact-section feature announcement to all 14 active paying
   customers** (Dan: "Send it" → "Send to everyone"). Pulled the authoritative recipient list from
   the live `families` table (caught that "7" was stale — it's 14), excluded owner-dogfood/Apple-
