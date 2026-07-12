@@ -17,27 +17,59 @@
 
 ---
 
+## 2026-07-11 (NIGHTLY CLOSE) — dispatcher
+- **Date verified 2026-07-11.** Reconciled the board — a lot shipped today via sessions Dan ran; most of what I'd have routed is already DONE:
+  - ✅ **Privacy blog post LIVE + emailed.** content-organic wrote it verification-first (zero fabrication — every claim checked vs real code + live Privacy/Terms), Dan approved w/ edits, coding PUBLISHED `/blog/is-it-safe-to-put-your-baby-online`, email announced to all 18 customers (19/19 OK). Integrity fix mid-flight (robots layer wasn't clean → "two independent ways," promise still holds). Coding also **removed AdSense** from `book.ejs` + set **Terms §8 retention to "one year."**
+  - ✅ **Pinterest refilled** — pins 98–123 scheduled (Jul 16–Aug 9), **31 ahead, full to the 30-day cap** (meets Dan's "15–30 ahead"). Batch realigned to #16 lifelong + privacy-first after catching a first-year cap.
+  - ✅ **FB/IG post up** (07-08 PM: safe-in-arms, #16 + privacy-first). Banked set now down to **2** — refill soon.
+- **New shifts today (dispatcher to codify next session):** product is now called **"a Legacy Odyssey Website"** (Dan edit, applied in the blog); **Dan banned AI-generated creative "forever"** (saved to memory `feedback_no_ai_generation`, applies to ALL sessions); browser-split rule saved (`feedback_browser_usage`). **Paying-customer count is now 18** (was 14). → CLAUDE.md/canonical + roster need the "Legacy Odyssey Website" naming + 18-count refresh.
+- **Resolved:** no failed Stripe payments (closes google-ads 07-08 item ②).
+- **Blocked on Dan (prioritized):** ① **greenlight coding's /gift page fix** (trust-bar + hero — THE diagnosed conversion fix, blocked since 07-08, brief `docs/gift-page-overhaul-brief-2026-07-08.md`); ② confirm the 07-01 home/gift heroes are actually LIVE (no completion entry); ③ affiliate DMs (still the #1 free lever, still unsent); ④ freelancer pick + budget; ⑤ LLC blanks + DBA; ⑥ optional (pinterest asked): OK to rewrite the Pinterest bio / rename the "Baby First Year Milestones" board to whole-life-journey framing?
+
+## 2026-07-11 — email
+- Did: **✅ SENT the privacy blog-post announcement to all 18 active paying customers (+ Dan = 19),
+  19/19 OK, 0 failures.** From content-organic's §B handoff; CTA → the live post
+  `/blog/is-it-safe-to-put-your-baby-online` (verified HTTP 200). Copy staged in
+  `marketing/email/privacy-post-announcement.md`; sent via new
+  `scripts/send-privacy-post-announcement.js` which pulls the recipient list LIVE from the
+  `families` table at send time (per-recipient, List-Unsubscribe, 300ms throttle). Dan approved
+  the final + said "go".
+- Others should know: **(chief-of-staff/dispatcher)** live paying-customer count is now **18**
+  (was 14 on 2026-06-24 — 4 new: castillofamily298, beautystories2022, gina@chronicallygina.com,
+  marisamzcollab). Roster/docs should reflect 18. **(content-organic)** done — post announced to
+  the list; compliance applied (no price → dropped the old $29 canonical footer, website-not-book,
+  positioning #16). **(all)** the live-pull send script is now the reusable pattern for campaigns;
+  Dan is auto-included as standing recipient.
+- Blocked on Dan: nothing on email.
+
 ## 2026-07-11 — pinterest
 - Did: **Refilled the Pinterest queue — scheduled pins 98–123 (26 pins, Jul 16–Aug 9, one/day 12 PM); 31 total now scheduled ahead (full to the 30-day cap).** Per Dan, FIRST reviewed all recent cross-session rules and caught that my freshly-built batch violated **rule #16** (it capped at "first year / baby book"). Did a full realign before scheduling: regenerated 8 images + rewrote every pin description to lead **"not just a baby book / whole life journey" + privacy-first** (private/invite-only/never-public) + lineage (birthdays, report cards, awards, artwork). Fixed a "story" word-ban slip. No price, placeholder names only. Orphan draft expired on its own.
 - Others should know: **(dispatcher/all)** the Pinterest queue is now full to the 30-day cap (Aug 9) — to honor Dan's "always 15–30 ahead," it needs ~1 new pin/day going forward; next batch must be built lifelong+privacy-first (older `gen_pins_101_123.py` is first-year-heavy — use `gen_pins_realign.py` as the model). **(facebook/meta-ads/content-organic)** confirms the shared move: lead .com copy with privacy + whole-life-journey. **Flag:** the Pinterest **profile bio** + the **"Baby First Year Milestones" board name** still cap at baby/first-year — pre-existing (not chasing), but candidates for a Dan-approved rule-#16 refresh.
 - Blocked on Dan: nothing required. Optional: OK to rewrite the profile bio / rename the board to the whole-life-journey framing?
 
 ## 2026-07-11 — content-organic
-- Did: Wrote the **privacy blog post** "Is it safe to put your baby online? How a Legacy Odyssey stays private"
-  — verification-first, zero fabrication. Every claim checked against real code + live Privacy/Terms. Draft
-  `marketing/blog/11-is-it-safe-privacy.md` + verified-facts memo `_privacy-post-verification.md`; Dan-readable
-  HTML on `Desktop\LO-reports\` (`privacy-blog-draft.html`, `privacy-blog-VERIFICATION.html`). **NOT published —
-  awaiting Dan's proofread + OK.** Lands right on the privacy-first framing facebook is already running.
-- Others should know: **(coding)** ⬅️ 2 real issues surfaced by verification, both in the memo: **(A)** private
-  book pages (`src/views/layouts/book.ejs`) run **Meta Pixel + Google AdSense ad units + GA4** — tension with a
-  "privacy" product + Privacy §10 "no cross-site tracking" + COPPA; is that intended? **(B)** retention window
-  CONFLICT: Privacy §8 "up to one year" vs Terms §8 "30 days" — reconcile the docs. Also please **sanity-check the
-  technical rows** (password gate, 3-layer noindex, `?circle` links) before publish. **(seo)** need a
-  title/primary-keyword call — candidates: "is it safe to put baby photos online", "private baby website",
-  "keep baby pictures off google". **(facebook/email)** a verified privacy explainer is now drafted — good source
-  for privacy-objection replies once Dan approves it.
-- Blocked on Dan: **proofread + approve the draft** (then coding publishes). Also owes a call on flag A (ads/pixels
-  on kids' pages) and flag B (retention conflict).
+- Did: Wrote + **Dan-APPROVED** the **privacy blog post** "Is it safe to put your baby online? How a Legacy Odyssey
+  Website stays private" — verification-first, zero fabrication (every claim checked vs real code + live
+  Privacy/Terms). Applied Dan's edits: product renamed to **"a Legacy Odyssey Website"** throughout; retention now
+  "up to a year." Draft `marketing/blog/11-is-it-safe-privacy.md`. Full publish+email handoff:
+  `marketing/blog/_privacy-post-publish-and-email-handoff.md`.
+- Others should know: **(coding)** ⬅️ APPROVED TO PUBLISH — turn `11-is-it-safe-privacy.md` into
+  `src/views/marketing/blog-*.ejs` + blog index + README; AND apply Dan's 2 rulings: **(A)** remove the AdSense
+  snippet from `src/views/layouts/book.ejs` (`ca-pub-1341319558382851` + `adsbygoogle` units ~L45/226/312) — Dan
+  "we don't use AdSense" (GA4 stays); **(B)** update **Terms §8** (`terms.ejs`) "30 days" → **one year** to match
+  Privacy §8. Quick sanity-check the technical claims first (all in the verification memo). **(email)** ⬅️ Dan
+  wants a copy sent to the list once it's LIVE — ready-to-send draft (subject/body, no price, "Legacy Odyssey
+  Website") is section B of the handoff; needs the final blog URL. **(seo)** owe the slug/primary keyword.
+- Blocked on Dan: nothing (approved). ✅ UPDATE (same day): **coding PUBLISHED** — live at
+  `/blog/is-it-safe-to-put-your-baby-online` (`blog-is-it-safe-privacy.ejs` + route `book.js:635` + blog index),
+  and applied BOTH fixes (AdSense removed from `book.ejs` → grep 0; Terms §8 now "up to one year"). Email session
+  SENT it to all 18 customers + Dan (approved). Coding confirmed prod deploy + verified all technical claims.
+  **Integrity fix (no-fabrication):** coding flagged the robots.txt layer isn't clean (Cloudflare injects `Allow:/`
+  above our `Disallow:/`), so I changed the post's "**three** independent ways" → "**two** independent ways"
+  (X-Robots-Tag header + meta noindex — both authoritative + verified on prod; the "not in Google" promise fully
+  holds). Coding syncing that one sentence on the live page. The EMAIL copy never carried the claim, so it's unaffected.
+- Note: **Dan banned AI-generated creative "forever" (2026-07-11)** → saved to memory (`feedback_no_ai_generation`);
+  applies to all sessions (no Canva AI generate, no AI imagery — real assets + hand-written only).
 
 ## 2026-07-08 (PM) — facebook
 - Did: Posted **safe-in-arms** (newborn on dad's chest, from the banked-approved set) to **FB + IG**, leading with the **positioning** (rule #16: "Not just a baby book. Your child's whole life journey.") and **privacy-first** on the .com angle (private, invite-only, never public/searchable — directly answering the 2 privacy objections on the June 22 ad). No price, no boost. IG posted cleanly (JPG photo, didn't touch filters).
