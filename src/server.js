@@ -117,11 +117,6 @@ app.get('/health', (req, res) => {
     hostname: req.hostname,
     hostHeader: req.headers.host,
     xForwardedHost: req.headers['x-forwarded-host'] || null,
-    // Temporary diagnostics for the custom-domain outage: confirm which header
-    // Approximated uses to carry the original hostname, and what realHost()
-    // resolves to. (Safe — header names only, no secrets.)
-    apxIncomingHost: req.headers['apx-incoming-host'] || null,
-    apxHeaders: Object.keys(req.headers).filter((h) => h.startsWith('apx')),
     resolvedHost: realHost(req),
   });
 });
@@ -186,6 +181,13 @@ const server = app.listen(PORT, () => {
   // Daily system health check; emails admin on any FAIL
   const { startHealthCheckScheduler } = require('./jobs/healthCheckCron');
   startHealthCheckScheduler();
+
+  // HOURLY public-surface pulse: every customer domain must serve the right
+  // CONTENT (not just respond), homepage/checkout/gift must render. Emails
+  // admin within the hour on any failure. Added 2026-07-14 after the
+  // custom-domain outage went unnoticed by reachability-only checks.
+  const { startPublicPulseScheduler } = require('./jobs/publicPulseCron');
+  startPublicPulseScheduler();
 
   // Hourly: send scheduled gift emails whose deliver_at has come due.
   const { startGiftDeliveriesScheduler } = require('./jobs/giftDeliveries');
