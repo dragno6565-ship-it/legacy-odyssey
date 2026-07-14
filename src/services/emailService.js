@@ -120,7 +120,7 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                 Legacy Odyssey
               </h1>
               <p style="margin:10px 0 0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#A0A0B8;letter-spacing:3px;text-transform:uppercase;">
-                A Baby Book as Unique as Your Family
+                A Website as Unique as Your Family
               </p>
             </td>
           </tr>
@@ -134,11 +134,11 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
               </h2>
 
               <p style="margin:0 0 16px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#4A4A5A;line-height:1.7;">
-                Thank you for choosing Legacy Odyssey! Your very own digital baby book account is all set up and waiting for you.${hasDomain ? ` Your custom website <a href="${bookUrl}" style="color:#C9A96E;font-weight:bold;text-decoration:none;">${websiteDisplay}</a> is being set up right now &mdash; we'll email you again as soon as it's live (usually within 15 minutes).` : ''}
+                Thank you for choosing Legacy Odyssey! Your child's very own website is all set up and waiting for you.${hasDomain ? ` Your custom website <a href="${bookUrl}" style="color:#C9A96E;font-weight:bold;text-decoration:none;">${websiteDisplay}</a> is being set up right now &mdash; we'll email you again as soon as it's live (usually within 15 minutes).` : ''}
               </p>
 
               <p style="margin:0 0 28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#4A4A5A;line-height:1.7;">
-                First, set your password using the button below, then download the app to start building your book.
+                First, set your password using the button below, then download the app to start building your child's website.
               </p>
 
               <!-- Set Password Button (prominent) -->
@@ -167,13 +167,13 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                       &#128272; Your Account Info
                     </h3>
                     <p style="margin:0 0 18px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#8A8A9A;line-height:1.5;">
-                      Keep these handy &mdash; you'll need them to sign in to the app and share your book.
+                      Keep these handy &mdash; you'll need them to sign in to the app and share the website.
                     </p>
 
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="padding:8px 0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#8A8A9A;vertical-align:top;">
-                          Book Password
+                          Website Password
                         </td>
                         <td style="padding:8px 0;font-family:'Courier New',monospace;font-size:15px;color:#1A1A2E;font-weight:bold;">
                           ${bookPassword}
@@ -182,14 +182,14 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                       <tr>
                         <td colspan="2" style="padding:2px 0;">
                           <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;color:#A0A0B8;line-height:1.4;">
-                            Share this with family &amp; friends so they can view the baby book online. You can change it anytime in the app under <strong>Settings &rarr; Book Password</strong>.
+                            Share this with family &amp; friends so they can view the website. You can change it anytime in the app under <strong>Settings</strong>.
                           </p>
                         </td>
                       </tr>
                       <tr><td colspan="2" style="padding:6px 0;"><hr style="border:none;border-top:1px solid #E8E0D0;margin:0;"></td></tr>
                       <tr>
                         <td style="padding:8px 0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#8A8A9A;vertical-align:top;">
-                          Your Book URL
+                          Your Website Address
                         </td>
                         <td style="padding:8px 0;">
                           <a href="${bookUrl}" style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#C9A96E;text-decoration:none;font-weight:bold;">
@@ -283,7 +283,7 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                       Share with Family &amp; Friends
                     </h4>
                     <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
-                      Your book is already live at <a href="${bookUrl}" style="color:#C9A96E;text-decoration:none;font-weight:bold;">${websiteDisplay}</a>. Send the link along with the <strong>Book Password</strong> to grandparents, aunts, uncles &mdash; anyone you want to share the journey with.
+                      Your child's website is already live at <a href="${bookUrl}" style="color:#C9A96E;text-decoration:none;font-weight:bold;">${websiteDisplay}</a>. Send the link along with the <strong>Website Password</strong> to grandparents, aunts, uncles &mdash; anyone you want to share the journey with.
                     </p>
                   </td>
                 </tr>
@@ -297,7 +297,7 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                       Want a thorough walkthrough?
                     </h3>
                     <p style="margin:0 0 14px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#4A4A5A;line-height:1.6;">
-                      We wrote a complete guide that walks you through every section of your book, both passwords, sharing with family, and how the Time Vault works.
+                      We wrote a complete guide that walks you through every section of your child's website, both passwords, sharing with family, and how the Time Vault works.
                     </p>
                     <a href="https://legacyodyssey.com/blog/getting-started-with-legacy-odyssey" style="display:inline-block;padding:11px 26px;background-color:transparent;border:1px solid #C9A96E;border-radius:6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#C9A96E;text-decoration:none;font-weight:600;">
                       Read the Getting Started Guide &rarr;
@@ -311,7 +311,7 @@ function buildWelcomeHtml({ displayName, email, setPasswordUrl, bookPassword, bo
                 <tr>
                   <td style="padding:18px 20px;background-color:#F0F7F0;border-left:4px solid #7CAE7C;border-radius:0 8px 8px 0;">
                     <p style="margin:0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#4A5A4A;line-height:1.6;">
-                      <strong>Tip:</strong> Start with a hero photo &mdash; it's the first thing visitors see when they open your book! You can always come back and add more sections whenever inspiration strikes.
+                      <strong>Tip:</strong> Start with a hero photo &mdash; it's the first thing visitors see when they open the website! You can always come back and add more sections whenever inspiration strikes.
                     </p>
                   </td>
                 </tr>
@@ -435,10 +435,10 @@ async function sendDay1Email({ to, displayName, familyId }) {
   const firstName = getFirstName(displayName, to);
   return sendOnboardingEmail({
     to,
-    subject: `${firstName}, your book is waiting for its first photo`,
-    preheader: 'Upload a photo to get started with your Legacy Odyssey book.',
+    subject: `${firstName}, your child's website is waiting for its first photo`,
+    preheader: 'Upload a photo to get started with your Legacy Odyssey Website.',
     heading: `Hey ${firstName}, ready to get started?`,
-    body: `Your Legacy Odyssey book is set up and ready to go! The best way to start is by uploading your first photo. Open the app, tap any section, and add a photo that means something to your family. It only takes a minute, and it'll make your book feel like home.`,
+    body: `Your child's Legacy Odyssey Website is set up and ready to go! The best way to start is by uploading your first photo. Open the app, tap any section, and add a photo that means something to your family. It only takes a minute, and it'll make the website feel like home.`,
     ctaText: 'Open the App',
     ctaUrl: 'https://legacyodyssey.com/download',
     unsubscribeUrl: buildUnsub(familyId),
@@ -453,9 +453,9 @@ async function sendDay3Email({ to, displayName, familyId }) {
   return sendOnboardingEmail({
     to,
     subject: `Your child's story is waiting to be told`,
-    preheader: 'Add milestones, letters, and memories to your Legacy Odyssey book.',
+    preheader: 'Add milestones, letters, and memories to your child\'s Legacy Odyssey Website.',
     heading: `${firstName}, there's so much to capture`,
-    body: `Did you know your book has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you capture the moments that matter most. Pick one and start filling it in today.`,
+    body: `Did you know your child's website has sections for milestones, family recipes, letters to your little one, and so much more? Each section is designed to help you capture the moments that matter most. Pick one and start filling it in today.`,
     ctaText: 'Add a Memory',
     ctaUrl: 'https://legacyodyssey.com/download',
     unsubscribeUrl: buildUnsub(familyId),
@@ -476,14 +476,14 @@ async function sendDay7Email({ to, displayName, subdomain, customDomain, familyI
     ? `www.${customDomain}`
     : subdomain
       ? `${subdomain}.legacyodyssey.com`
-      : 'your book';
+      : "your child's website";
   return sendOnboardingEmail({
     to,
-    subject: `Share your book with the people who matter`,
-    preheader: 'Your family and friends would love to see your book.',
-    heading: `${firstName}, your book is ready to share`,
-    body: `Your Legacy Odyssey book is looking great! Now's the perfect time to share it with grandparents, aunts, uncles, and friends. Send them <strong>${bookDisplay}</strong> along with your book password and they'll be able to see everything you've added from any device.`,
-    ctaText: 'View Your Book',
+    subject: `Share your child's website with the people who matter`,
+    preheader: "Your family and friends would love to see your child's website.",
+    heading: `${firstName}, the website is ready to share`,
+    body: `Your child's Legacy Odyssey Website is looking great! Now's the perfect time to share it with grandparents, aunts, uncles, and friends. Send them <strong>${bookDisplay}</strong> along with your website password and they'll be able to see everything you've added from any device.`,
+    ctaText: 'View the Website',
     ctaUrl: bookUrl,
     unsubscribeUrl: buildUnsub(familyId),
   });
@@ -501,11 +501,11 @@ async function sendDay13Email({ to, displayName, subdomain, customDomain, family
       : 'https://legacyodyssey.com/download';
   return sendOnboardingEmail({
     to,
-    subject: `${firstName}, have you shared your book yet?`,
+    subject: `${firstName}, have you shared your child's website yet?`,
     preheader: "Your family would love to see what you've built.",
-    heading: `${firstName}, your book is ready to share`,
-    body: `It's been two weeks since you set up your Legacy Odyssey book — how's it coming along? Now's the perfect time to share it with the people who matter most. Send the link to grandparents, aunts, uncles, and friends. They can visit from any device, anywhere in the world, anytime they miss your little one.`,
-    ctaText: 'View & Share Your Book',
+    heading: `${firstName}, the website is ready to share`,
+    body: `It's been two weeks since you set up your child's Legacy Odyssey Website — how's it coming along? Now's the perfect time to share it with the people who matter most. Send the link to grandparents, aunts, uncles, and friends. They can visit from any device, anywhere in the world, anytime they miss your little one.`,
+    ctaText: "View & Share the Website",
     ctaUrl: bookUrl,
     unsubscribeUrl: buildUnsub(familyId),
   });
@@ -588,12 +588,12 @@ async function sendGiftNotificationEmail({ to, buyerName, message, redeemUrl, mo
   const from = buyerName || 'Someone special';
   const isChildhood = (monthsPrepaid || 12) >= 216;
   const giftIntro = isChildhood
-    ? "You've been gifted Legacy Odyssey for your child's entire childhood — 18 years of a beautiful digital baby book on your own custom .com domain, with no annual renewals."
-    : "You've been gifted a year of Legacy Odyssey — a beautiful digital baby book with your own custom .com domain.";
+    ? "You've been gifted Legacy Odyssey for your child's entire childhood — 18 years of a beautiful website for your child at their own custom .com domain, with no annual renewals."
+    : "You've been gifted a year of Legacy Odyssey — a beautiful website for your child at their own custom .com domain.";
   return sendOnboardingEmail({
     to,
     subject: `${from} sent you a Legacy Odyssey gift!`,
-    preheader: 'You received a gift — a beautiful digital baby book on your own .com.',
+    preheader: "You received a gift — a beautiful website for your child at their own .com.",
     heading: `${from} sent you a gift!`,
     body: `${giftIntro}${message ? `<br><br><em>"${message}"</em>` : ''}<br><br>Click below to redeem your gift, create your account, and pick your domain.`,
     ctaText: 'Redeem Your Gift',
@@ -707,13 +707,13 @@ async function sendCancellationEmail({ to, displayName, type, periodEnd, customD
   // Body content — different by type
   const body = isHard
     ? `<p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
-         We're confirming that your Legacy Odyssey account has been permanently removed at your request. All photos, stories, and content associated with your book have been deleted, and your custom domain auto-renewal has been turned off.
+         We're confirming that your Legacy Odyssey account has been permanently removed at your request. All photos, stories, and content associated with your website have been deleted, and your custom domain auto-renewal has been turned off.
        </p>
        <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 24px;">
          This action cannot be undone. If you'd like to start fresh in the future, we'd love to have you back &mdash; just visit <a href="https://legacyodyssey.com" style="color:#c8a96e;">legacyodyssey.com</a> to create a new account.
        </p>`
     : `<p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
-         We're confirming that your Legacy Odyssey subscription has been canceled${niceDate ? `. You'll continue to have access to your book until <strong>${niceDate}</strong>` : ''}, after which your book site will go offline and your custom domain auto-renewal will stop.
+         We're confirming that your Legacy Odyssey subscription has been canceled${niceDate ? `. You'll continue to have access to your website until <strong>${niceDate}</strong>` : ''}, after which the website will go offline and your custom domain auto-renewal will stop.
        </p>
        <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
          <strong>Your photos and stories are safe.</strong> We'll keep them stored securely for one full year. If you change your mind during that time, just reply to this email and we'll bring everything back exactly as you left it.
@@ -796,7 +796,7 @@ async function sendReactivationEmail({ to, displayName, customDomain, subdomain 
         <tr><td style="padding:36px 32px;">
           <h1 style="font-family:Georgia,serif;font-size:22px;color:#1a1a2e;margin:0 0 16px;">Welcome back, ${firstName}!</h1>
           <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
-            Your Legacy Odyssey subscription is active again and your book is back online. All your photos, stories, and content are right where you left them.
+            Your Legacy Odyssey subscription is active again and your child's website is back online. All your photos, stories, and content are right where you left them.
           </p>
           <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 24px;">
             <a href="${bookUrl}" style="display:inline-block;background:#c8a96e;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600;">Visit Your Book</a>
@@ -842,7 +842,7 @@ async function sendSiteLiveEmail({ to, displayName, customDomain, subdomain, boo
     : subdomain
       ? `https://${subdomain}.legacyodyssey.com`
       : 'https://legacyodyssey.com';
-  const display = customDomain ? `www.${customDomain}` : subdomain ? `${subdomain}.legacyodyssey.com` : 'your book';
+  const display = customDomain ? `www.${customDomain}` : subdomain ? `${subdomain}.legacyodyssey.com` : "your child's website";
 
   const html = `<!DOCTYPE html>
 <html>
@@ -864,15 +864,15 @@ async function sendSiteLiveEmail({ to, displayName, customDomain, subdomain, boo
           </td></tr></table>
           ${bookPassword ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;">
             <tr><td style="padding:18px 22px;background:#FAF7F0;border:1px solid #E8E0D0;border-radius:10px;">
-              <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#8A8A9A;text-transform:uppercase;letter-spacing:0.5px;">Book password (share this with family)</p>
+              <p style="margin:0 0 6px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#8A8A9A;text-transform:uppercase;letter-spacing:0.5px;">Website password (share this with family)</p>
               <p style="margin:0;font-family:'Courier New',monospace;font-size:18px;font-weight:bold;color:#1a1a2e;letter-spacing:1px;">${bookPassword}</p>
             </td></tr>
           </table>` : ''}
           <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
-            <strong>Ready to share?</strong> Send <em>${display}</em> and the book password above to grandparents, aunts, uncles, and friends. Anyone with the link and password can view from anywhere.
+            <strong>Ready to share?</strong> Send <em>${display}</em> and the website password above to grandparents, aunts, uncles, and friends. Anyone with the link and password can view from anywhere.
           </p>
           <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:24px 0 0;">
-            Want a complete walkthrough of every section in your book? Read the <a href="https://legacyodyssey.com/blog/getting-started-with-legacy-odyssey" style="color:#c8a96e;">Getting Started guide</a>.
+            Want a complete walkthrough of every section in your child's website? Read the <a href="https://legacyodyssey.com/blog/getting-started-with-legacy-odyssey" style="color:#c8a96e;">Getting Started guide</a>.
           </p>
           <p style="font-size:13px;line-height:1.6;color:#8a8a8a;margin:8px 0 0;">
             Questions? Just reply &mdash; a real human will get back to you.

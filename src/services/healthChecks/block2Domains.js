@@ -15,7 +15,7 @@ module.exports = {
   checks: [
     {
       id: 'all-active-customers-reachable',
-      name: 'All active customers’ custom domains fully reachable (apex + www)',
+      name: 'All active customers’ custom domains serve THEIR SITE (apex + www, content-verified)',
       fn: async () => {
         const { data: families } = await supabaseAdmin
           .from('families')
@@ -42,7 +42,15 @@ module.exports = {
         const results = await Promise.all(families.map(async (f) => {
           const r = await withTimeout(isFullyServing(f.custom_domain), PER_DOMAIN_MS);
           if (r.live) return null;
-          const failed = r.checkedUrls.filter((c) => !c.ok).map((c) => `${c.url}=${c.status || c.error}`);
+          // Name WHAT went wrong, not just that it did: "serves marketing page"
+          // (the Jul 14 routing outage) is a very different emergency from a
+          // connection error or a 404.
+          const failed = r.checkedUrls.filter((c) => !c.ok).map((c) => {
+            const why = c.content === 'marketing' ? 'SERVES MARKETING PAGE'
+              : (c.content === 'other' && c.status === 200) ? 'serves unrecognized content'
+              : (c.status || c.error);
+            return `${c.url}=${why}`;
+          });
           return { domain: f.custom_domain, email: f.email, failed };
         }));
         const broken = results.filter(Boolean);
