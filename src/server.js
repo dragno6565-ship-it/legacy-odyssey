@@ -11,6 +11,7 @@ const cors = require('cors');
 const { rateLimit } = require('express-rate-limit');
 const { validateEnv } = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
+const { realHost } = require('./utils/realHost');
 
 validateEnv();
 
@@ -98,7 +99,7 @@ const DOR_INDUSTRIES_HTML = require('fs').readFileSync(
   'utf8'
 );
 app.use((req, res, next) => {
-  const host = (req.headers['x-forwarded-host'] || req.hostname || '').replace(/:\d+$/, '');
+  const host = realHost(req).replace(/:\d+$/, '');
   if (host === 'dorindustries.com' || host === 'www.dorindustries.com') {
     return res.send(DOR_INDUSTRIES_HTML);
   }
@@ -116,6 +117,12 @@ app.get('/health', (req, res) => {
     hostname: req.hostname,
     hostHeader: req.headers.host,
     xForwardedHost: req.headers['x-forwarded-host'] || null,
+    // Temporary diagnostics for the custom-domain outage: confirm which header
+    // Approximated uses to carry the original hostname, and what realHost()
+    // resolves to. (Safe — header names only, no secrets.)
+    apxIncomingHost: req.headers['apx-incoming-host'] || null,
+    apxHeaders: Object.keys(req.headers).filter((h) => h.startsWith('apx')),
+    resolvedHost: realHost(req),
   });
 });
 

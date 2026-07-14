@@ -10,8 +10,14 @@
 // MUST stay indexable by Google. The marketing-host test below is intentionally
 // identical to the one in the /robots.txt route (src/routes/book.js) so the two
 // can never disagree about what counts as "the marketing site".
+const { realHost } = require('../utils/realHost');
+
 module.exports = function customerNoindex(req, res, next) {
-  const host = (req.hostname || '').toLowerCase();
+  // realHost() resolves the customer's actual domain behind the Approximated
+  // proxy (req.hostname is the proxy target for custom domains). Without it,
+  // custom-domain books were treated as the marketing host and missed the
+  // noindex header.
+  const host = realHost(req).toLowerCase();
   const appDomain = (process.env.APP_DOMAIN || 'legacyodyssey.com').toLowerCase();
   const isMarketing =
     host === appDomain ||

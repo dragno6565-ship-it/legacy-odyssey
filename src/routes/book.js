@@ -3,6 +3,7 @@ const { rateLimit } = require('express-rate-limit');
 const path = require('path');
 const resolveFamily = require('../middleware/resolveFamily');
 const { requireBookPassword, hashPassword, computeSiteLabel } = require('../middleware/requireBookPassword');
+const { realHost } = require('../utils/realHost');
 
 // Throttle book-password guessing. Keyed per IP; a legitimate visitor types their
 // password once or twice (the mobile app auto-submits it when its cookie lapses),
@@ -375,7 +376,7 @@ router.use((req, res, next) => {
 // touching them at all. This middleware runs BEFORE the static-file middleware
 // in server.js so it overrides the static public/robots.txt.
 router.get('/robots.txt', (req, res) => {
-  const host = (req.hostname || '').toLowerCase();
+  const host = realHost(req).toLowerCase();
   const appDomain = (process.env.APP_DOMAIN || 'legacyodyssey.com').toLowerCase();
   const isMarketing = host === appDomain || host === `www.${appDomain}` || host === 'localhost' || host === '127.0.0.1';
 

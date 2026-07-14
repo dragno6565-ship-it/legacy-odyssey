@@ -1,7 +1,12 @@
 const { supabaseAdmin } = require('../config/supabase');
+const { realHost } = require('../utils/realHost');
 
 async function resolveFamily(req, res, next) {
-  const host = req.hostname;
+  // Use the ORIGINAL host — custom domains arrive via the Approximated proxy,
+  // which rewrites req.hostname to our app domain and carries the real customer
+  // domain in the apx-incoming-host header. Without this, every custom domain
+  // resolved to the marketing host and served the landing page, not the book.
+  const host = realHost(req);
   const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
 
   let family = null;
