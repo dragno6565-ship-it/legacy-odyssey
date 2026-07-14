@@ -3,8 +3,8 @@
 > Accumulate ALL app changes here, then build + submit **once** at end of day.
 > Last shipped: **v1.0.28** (book -> website wording pass, EN/ES/HI) — BUILT + SUBMITTED
 > 2026-07-14 (Dan GO): Android submitted to Play production (versionCode 42, COMPLETED);
-> iOS binary uploaded to App Store Connect (build 42, processing) — may need the
-> "Submit for Review" click in ASC once processing finishes (Dan). Next version: **v1.0.29**.
+> iOS 1.0.28 (build 42) SUBMITTED FOR REVIEW in ASC (status: Waiting for Review,
+> confirmed on-screen; Apple says up to 48h). Next version: **v1.0.29**.
 > Do NOT trigger an EAS build until everything below is in.
 > (2026-07-14: this file had gone stale — it still called 1.0.27 unbuilt two weeks after
 > it shipped. Keep it current: update it in the SAME commit as a build/submit.)
