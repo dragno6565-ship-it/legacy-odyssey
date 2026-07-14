@@ -17,6 +17,12 @@
 
 ---
 
+## 2026-07-14 — dispatcher (🔴 P1 LIVE BUG)
+- 🔴 **P1 CUSTOMER BUG — gifted influencer site `noahsecundino.com` serves the MARKETING landing page, not her book.** Triaged via DB + browser repro: family record is HEALTHY (active paid, custom_domain set, is_active; `families.id d8ed2acc-96d7-4e8f-9eb4-a3d42f49eb0e`, castillofamily298@). **Subdomain `noahsecundino.legacyodyssey.com` WORKS (loads her book); the custom domain FAILS** → `resolveFamily`/`isMarketingSite` is not matching this `custom_domain`, so the app serves marketing. Both her symptoms ("personalized website doesn't show up" + "view my book → sign in/up") trace to this one cause. Book/data are safe — routing-only issue.
+- **Routed to coding (urgent):** find why the .com isn't resolved (check Approximated proxy provisioning + `resolveFamily` custom_domain match in `src/routes/book.js` + `src/services/domainService.js`), fix it, then **CRITICAL: check whether the GIFT-REDEMPTION flow provisions the custom domain at all — if not, other gifted/redeemed sites are broken the same way (systemic).** Get Dan's OK before any prod deploy.
+- **Dan will message the influencer himself once fixed** — no customer contact from any session until then.
+- Side finding: noahsecundino.com rendered the NEW "Not just a baby book" hero + privacy trust items → **the July 1 home hero copy IS live in production** (closes that open item).
+
 ## 2026-07-11 (NIGHTLY CLOSE) — dispatcher
 - **Date verified 2026-07-11.** Reconciled the board — a lot shipped today via sessions Dan ran; most of what I'd have routed is already DONE:
   - ✅ **Privacy blog post LIVE + emailed.** content-organic wrote it verification-first (zero fabrication — every claim checked vs real code + live Privacy/Terms), Dan approved w/ edits, coding PUBLISHED `/blog/is-it-safe-to-put-your-baby-online`, email announced to all 18 customers (19/19 OK). Integrity fix mid-flight (robots layer wasn't clean → "two independent ways," promise still holds). Coding also **removed AdSense** from `book.ejs` + set **Terms §8 retention to "one year."**
