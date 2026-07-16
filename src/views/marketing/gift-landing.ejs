@@ -46,6 +46,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Hero product shot is the LCP candidate — preload it (mobile speed = conversion). -->
+  <link rel="preload" as="image" href="/images/landing/welcome.jpg" fetchpriority="high">
 
   <link rel="stylesheet" href="/css/marketing.css">
 
@@ -98,6 +100,37 @@
       background: linear-gradient(180deg, rgba(26,21,16,0.35) 0%, rgba(26,21,16,0.6) 60%, rgba(26,21,16,0.85) 100%);
     }
     .lg-hero-content { position: relative; z-index: 2; max-width: 880px; text-align: center; color: #faf7f2; }
+    /* Show-first hero (2026-07-16, aligned with home): real product shot in the hero.
+       Desktop: copy left, phone right. Mobile: headline -> phone -> CTA. */
+    .lg-hero-grid { display: block; }
+    @media (min-width: 961px) {
+      .lg-hero-content { max-width: 1150px; }
+      .lg-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "a v" "b v"; column-gap: 72px; align-items: center; text-align: left; }
+      .lg-hero-copy-a { grid-area: a; align-self: end; }
+      .lg-hero-copy-b { grid-area: b; align-self: start; }
+      .lg-hero-visual { grid-area: v; }
+      .lg-hero-grid .lg-hero-sub { margin: 0 0 32px; text-align: left; }
+      .lg-hero-grid .lg-hero-proof { justify-content: flex-start; }
+    }
+    .lg-phone { border-radius: 32px; border: 3px solid rgba(200,169,110,0.55); overflow: hidden; aspect-ratio: 390 / 844; background: #1a1510; box-shadow: 0 30px 80px rgba(0,0,0,0.55); }
+    .lg-phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lg-phone-caption { text-align: center; font-size: 13px; color: rgba(250,247,242,0.6); letter-spacing: 0.4px; margin-top: 14px; }
+    .lg-phone-caption a { color: #e7c98a; text-decoration: underline; }
+    @media (max-width: 960px) {
+      .lg-hero-visual { max-width: 216px; margin: 0 auto 26px; }
+      .lg-phone { border-radius: 24px; border-width: 2px; }
+    }
+    /* Show-first screenshot grid (same captures as the home page) */
+    .lg-shots { background: #f0e8dc; padding: 88px 24px; }
+    .lg-shots-head { text-align: center; max-width: 620px; margin: 0 auto 48px; }
+    .lg-shots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; max-width: 1160px; margin: 0 auto; }
+    .lg-shot { text-decoration: none; display: block; transition: transform 0.2s; }
+    .lg-shot:hover { transform: translateY(-5px); }
+    .lg-shot-phone { border-radius: 26px; border: 2px solid rgba(26,21,16,0.85); overflow: hidden; aspect-ratio: 390 / 844; background: #1a1510; box-shadow: 0 16px 40px rgba(26,21,16,0.22); }
+    .lg-shot-phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lg-shot-cap { font-size: 14px; color: #5e564a; text-align: center; line-height: 1.5; margin-top: 13px; }
+    @media (max-width: 960px) { .lg-shots-grid { grid-template-columns: 1fr 1fr; gap: 22px; max-width: 560px; } }
+    @media (max-width: 430px) { .lg-shots-grid { gap: 16px; } .lg-shot-cap { font-size: 12.5px; } }
     .lg-hero-eyebrow {
       font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500;
       letter-spacing: 4px; text-transform: uppercase; color: #c8a96e;
@@ -540,8 +573,20 @@
     <div class="lg-hero-photo"></div>
     <div class="lg-hero-overlay"></div>
     <div class="lg-hero-content">
+      <div class="lg-hero-grid">
+      <div class="lg-hero-copy-a">
       <div class="lg-hero-eyebrow">For Someone Special</div>
       <h1 class="lg-hero-headline">Give more than a baby book.<br>A whole life's journey, on their own <em>.com</em>.</h1>
+      </div>
+
+      <div class="lg-hero-visual">
+        <div class="lg-phone">
+          <img src="/images/landing/welcome.jpg" alt="A real Legacy Odyssey Website: the welcome page of the live demo" width="390" height="844" fetchpriority="high">
+        </div>
+        <div class="lg-phone-caption">A real page from <a href="https://www.your-childs-name.com" target="_blank" rel="noopener">the live demo</a></div>
+      </div>
+
+      <div class="lg-hero-copy-b">
       <p class="lg-hero-sub">
         Legacy Odyssey is a gift the parents will use for years. It tracks the child's whole
         life journey: every milestone, birthday, holiday, report card, award, piece of
@@ -568,6 +613,8 @@
           One full year included
         </div>
       </div>
+      </div><!-- /lg-hero-copy-b -->
+      </div><!-- /lg-hero-grid -->
     </div>
   </section>
 
@@ -598,6 +645,34 @@
       Grandma visits from any browser. Nothing to install
     </div>
   </div>
+
+  <!-- ====== SEE WHAT YOU'RE GIVING — real screenshots from the live demo
+       (2026-07-16 show-first alignment with the home page) ====== -->
+  <section class="lg-shots">
+    <div class="lg-shots-head">
+      <div class="lg-section-eyebrow">See what you're giving</div>
+      <h2 class="lg-section-headline">Real pages from a <em>real website.</em></h2>
+      <p class="lg-section-sub" style="margin:0 auto;">These are live screens from our demo website. Tap any of them to explore exactly what they'll get. No password needed.</p>
+    </div>
+    <div class="lg-shots-grid">
+      <a class="lg-shot" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+        <div class="lg-shot-phone"><img src="/images/landing/birth-story.jpg" alt="The Birth Story page of the demo website" width="390" height="844" loading="lazy"></div>
+        <div class="lg-shot-cap">Their birth story, told by the people who were there</div>
+      </a>
+      <a class="lg-shot" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+        <div class="lg-shot-phone"><img src="/images/landing/month-by-month.jpg" alt="The Month by Month page of the demo website" width="390" height="844" loading="lazy"></div>
+        <div class="lg-shot-cap">Twelve months, every milestone and measurement</div>
+      </a>
+      <a class="lg-shot" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+        <div class="lg-shot-phone"><img src="/images/landing/letter.jpg" alt="A letter on the demo website" width="390" height="844" loading="lazy"></div>
+        <div class="lg-shot-cap">Letters they'll read when they're older</div>
+      </a>
+      <a class="lg-shot" href="https://www.your-childs-name.com" target="_blank" rel="noopener">
+        <div class="lg-shot-phone"><img src="/images/landing/gallery.jpg" alt="A photo gallery on the demo website" width="390" height="844" loading="lazy"></div>
+        <div class="lg-shot-cap">Galleries for everything in between</div>
+      </a>
+    </div>
+  </section>
 
   <!-- ====== WHAT THEY GET ====== -->
   <section class="lg-section" id="what-they-get">
