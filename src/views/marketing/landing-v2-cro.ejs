@@ -47,6 +47,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/marketing.css">
+  <!-- Hero product shot is the LCP candidate — preload it (mobile speed = conversion). -->
+  <link rel="preload" as="image" href="/images/landing/welcome.jpg" fetchpriority="high">
 
   <style>
     /* ============================================================
@@ -98,7 +100,28 @@
     @keyframes loHeroPan { from { transform: scale(1.08) translate(0, 0); } to { transform: scale(1.18) translate(-1.5%, -1.5%); } }
     @media (prefers-reduced-motion: reduce) { .lo-hero-photo { animation: none; transform: none; } }
     .lo-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(15,11,7,0.72) 0%, rgba(15,11,7,0.60) 40%, rgba(15,11,7,0.82) 80%, rgba(15,11,7,0.95) 100%); }
-    .lo-hero-content { position: relative; z-index: 2; max-width: 860px; width: 100%; min-width: 0; }
+    .lo-hero-content { position: relative; z-index: 2; max-width: 1180px; width: 100%; min-width: 0; }
+    /* Show-first hero (2026-07-16 research overhaul): real product shot beside the copy.
+       Desktop: copy left, phone right. Mobile: headline -> phone -> search (single static
+       image, no carousel/video — CXL/NNGroup: one real product visual beats motion/stock). */
+    .lo-hero-grid { display: block; }
+    @media (min-width: 961px) {
+      .lo-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; grid-template-areas: "a v" "b v"; column-gap: 72px; align-items: center; text-align: left; }
+      .lo-hero-copy-a { grid-area: a; align-self: end; }
+      .lo-hero-copy-b { grid-area: b; align-self: start; }
+      .lo-hero-visual { grid-area: v; }
+      .lo-hero-grid .lo-hero-sub { margin: 0 0 30px; max-width: 560px; }
+      .lo-hero-grid .lo-hero-search { margin: 0 0 12px; }
+      .lo-hero-grid .lo-hero-path { justify-content: flex-start; }
+    }
+    .lo-phone { border-radius: 34px; border: 3px solid rgba(200,169,110,0.55); overflow: hidden; aspect-ratio: 390 / 844; background: #1a1510; box-shadow: 0 30px 80px rgba(0,0,0,0.55); }
+    .lo-phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lo-phone-caption { text-align: center; font-size: 13px; color: rgba(250,247,242,0.6); letter-spacing: 0.4px; margin-top: 14px; }
+    .lo-phone-caption a { color: #e7c98a; text-decoration: underline; }
+    @media (max-width: 960px) {
+      .lo-hero-visual { max-width: 226px; margin: 0 auto 26px; }
+      .lo-phone { border-radius: 26px; border-width: 2px; box-shadow: 0 18px 50px rgba(0,0,0,0.5); }
+    }
     .lo-hero-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 7vw, 76px); font-weight: 400; line-height: 1.1; color: #faf7f2; margin: 0 0 22px; overflow-wrap: break-word; }
     .lo-hero-headline em { font-style: italic; color: #c8a96e; }
     .lo-hero-sub { font-size: 18px; font-weight: 300; color: rgba(250,247,242,0.86); line-height: 1.6; margin: 0 auto 36px; max-width: 660px; }
@@ -225,6 +248,23 @@
     .lo-page-card-sealed { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px dashed rgba(200,169,110,0.4); border-radius: 10px; padding: 24px 16px; margin-bottom: 14px; }
     .lo-page-card-sealed svg { width: 34px; height: 34px; color: #c8a96e; }
     .lo-page-card-sealed span { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(250,247,242,0.7); }
+    /* Show-first screenshot grid — phone-framed captures of the live demo */
+    .lo-shots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; max-width: 1180px; margin: 0 auto; }
+    .lo-shot { text-decoration: none; display: block; transition: transform 0.2s; }
+    .lo-shot:hover { transform: translateY(-5px); }
+    .lo-shot-phone { border-radius: 26px; border: 2px solid rgba(26,21,16,0.85); overflow: hidden; aspect-ratio: 390 / 844; background: #1a1510; box-shadow: 0 16px 40px rgba(26,21,16,0.22); }
+    .lo-shot-phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lo-shot-cap { font-size: 14px; color: #5e564a; text-align: center; line-height: 1.5; margin-top: 13px; }
+    @media (max-width: 960px) { .lo-shots-grid { grid-template-columns: 1fr 1fr; gap: 22px; max-width: 560px; } }
+    @media (max-width: 430px) { .lo-shots-grid { gap: 16px; } .lo-shot-cap { font-size: 12.5px; } }
+    /* Sticky mobile buy bar — appears after the hero; opens the claim-name modal IN
+       PLACE (drawer mechanic: measured +5.2% orders vs no lift for jump-buttons). */
+    .lo-sticky-cta { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 14px; background: rgba(26,21,16,0.97); border-top: 1px solid rgba(200,169,110,0.35); padding: 11px 16px calc(11px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform 0.25s ease; }
+    .lo-sticky-cta.show { transform: none; }
+    .lo-sticky-price { font-family: 'Jost', sans-serif; font-size: 13px; color: rgba(250,247,242,0.75); line-height: 1.3; }
+    .lo-sticky-price b { display: block; font-size: 17px; color: #faf7f2; font-weight: 600; }
+    .lo-sticky-btn { background: #c8a96e; color: #1a1510; border: none; padding: 13px 22px; border-radius: 8px; font-family: 'Jost', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; white-space: nowrap; }
+    @media (min-width: 701px) { .lo-sticky-cta { display: none; } }
 
     /* SECURITY SHOWCASE (D2/D4) */
     .lo-security { background: #1a1510; padding: 100px 48px; }
@@ -537,33 +577,44 @@
     <div class="lo-hero-overlay"></div>
     <!-- D3 NOTE: audit recommends a looped background video here. Stub kept as image — drop a muted/looped <video> in when a clip is produced. -->
     <div class="lo-hero-content">
-      <h1 class="lo-hero-headline">Not just a baby book.<br>Your child's whole life journey on their own <em>.com</em>.</h1>
-      <p class="lo-hero-sub">
-        Legacy Odyssey tracks your child's whole life journey: every milestone, birthday,
-        holiday, report card, award, piece of artwork, and their lineage. Add it from your
-        phone or the web, on a private website that's truly theirs, and it keeps growing with
-        them year after year.
-      </p>
+      <div class="lo-hero-grid">
+        <div class="lo-hero-copy-a">
+          <h1 class="lo-hero-headline">Not just a baby book.<br>Your child's whole life journey on their own <em>.com</em>.</h1>
+          <p class="lo-hero-sub">
+            One private website for their whole childhood. Every photo, milestone, letter,
+            and award, at their own .com, seen only by the people you choose.
+          </p>
+        </div>
 
-      <p class="lo-hero-availcheck">Check to see if <em>your child&rsquo;s name</em> is available</p>
-      <form class="lo-hero-search" onsubmit="loHeroSearch(event)">
-        <input class="lo-hero-search-input" type="text" placeholder="your-childs-name" id="loHeroInput" aria-label="Your child's name" autocomplete="off" spellcheck="false">
-        <div class="lo-hero-search-ext">.com</div>
-        <button type="submit" class="lo-hero-search-btn" id="loHeroBtn">Check the Name</button>
-      </form>
-      <p class="lo-hero-search-note">$29 your first year — cancel anytime</p>
-      <div class="lo-hero-search-result" id="loHeroResult" aria-live="polite"></div>
+        <div class="lo-hero-visual">
+          <div class="lo-phone">
+            <img src="/images/landing/welcome.jpg" alt="A real Legacy Odyssey Website: the welcome page of the live demo" width="390" height="844" fetchpriority="high">
+          </div>
+          <div class="lo-phone-caption">A real page from <a href="https://your-childs-name.com" target="_blank" rel="noopener">the live demo</a></div>
+        </div>
 
-      <!-- D5: "what happens next" path so the form doesn't feel like a dead end -->
-      <div class="lo-hero-path"><b>Check</b> <span>&rarr;</span> <b>Confirm</b> <span>&rarr;</span> <b>Pay</b> <span>&rarr;</span> <b>Build &amp; Share</b></div>
-      <div class="lo-hero-demo">
-        <span class="lo-hero-demo-lead">Curious what it looks like?</span>
-        <a href="https://your-childs-name.com" target="_blank" rel="noopener" class="lo-hero-demo-cta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          Tour a live demo book <span class="lo-demo-arrow">&rarr;</span>
-        </a>
+        <div class="lo-hero-copy-b">
+          <p class="lo-hero-availcheck">Check to see if <em>your child&rsquo;s name</em> is available</p>
+          <form class="lo-hero-search" onsubmit="loHeroSearch(event)">
+            <input class="lo-hero-search-input" type="text" placeholder="your-childs-name" id="loHeroInput" aria-label="Your child's name" autocomplete="off" spellcheck="false">
+            <div class="lo-hero-search-ext">.com</div>
+            <button type="submit" class="lo-hero-search-btn" id="loHeroBtn">Check the Name</button>
+          </form>
+          <p class="lo-hero-search-note">$29 your first year — cancel anytime</p>
+          <div class="lo-hero-search-result" id="loHeroResult" aria-live="polite"></div>
+
+          <!-- D5: "what happens next" path so the form doesn't feel like a dead end -->
+          <div class="lo-hero-path"><b>Check</b> <span>&rarr;</span> <b>Confirm</b> <span>&rarr;</span> <b>Pay</b> <span>&rarr;</span> <b>Build &amp; Share</b></div>
+          <div class="lo-hero-demo">
+            <span class="lo-hero-demo-lead">Curious what it looks like?</span>
+            <a href="https://your-childs-name.com" target="_blank" rel="noopener" class="lo-hero-demo-cta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Tour the live demo website <span class="lo-demo-arrow">&rarr;</span>
+            </a>
+          </div>
+          <!-- A3: authority count removed for now (add a real figure once it grows). -->
+        </div>
       </div>
-      <!-- A3: authority count removed for now (add a real figure once it grows). -->
     </div>
     <a href="#features" class="lo-hero-scroll">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -581,6 +632,39 @@
     <div class="lo-trust-divider"></div>
     <div class="lo-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> SSL secured hosting included</div>
   </div>
+
+  <!-- ====== SEE INSIDE — real product screenshots from the live demo (2026-07-16
+       show-first overhaul). Placed FIRST after the hero: visitors see the actual
+       product before any copy asks them to imagine it. Every image is a genuine
+       capture of the public demo site (placeholder names only). ====== -->
+  <section class="lo-inside lo-reveal" id="see-inside">
+    <div class="lo-inside-inner">
+      <div class="lo-inside-head">
+        <div class="lo-section-eyebrow">See inside</div>
+        <h2 class="lo-section-headline">Real pages from a <em>real website.</em></h2>
+        <p class="lo-section-sub">These are live screens from our demo website. Tap any of them to explore the whole thing yourself. No password needed.</p>
+      </div>
+      <div class="lo-shots-grid">
+        <a class="lo-shot" href="https://your-childs-name.com" target="_blank" rel="noopener">
+          <div class="lo-shot-phone"><img src="/images/landing/birth-story.jpg" alt="The Birth Story page of the demo website" width="390" height="844" loading="lazy"></div>
+          <div class="lo-shot-cap">Their birth story, told by the people who were there</div>
+        </a>
+        <a class="lo-shot" href="https://your-childs-name.com" target="_blank" rel="noopener">
+          <div class="lo-shot-phone"><img src="/images/landing/month-by-month.jpg" alt="The Month by Month page of the demo website" width="390" height="844" loading="lazy"></div>
+          <div class="lo-shot-cap">Twelve months, every milestone and measurement</div>
+        </a>
+        <a class="lo-shot" href="https://your-childs-name.com" target="_blank" rel="noopener">
+          <div class="lo-shot-phone"><img src="/images/landing/letter.jpg" alt="A letter on the demo website" width="390" height="844" loading="lazy"></div>
+          <div class="lo-shot-cap">Letters they'll read when they're older</div>
+        </a>
+        <a class="lo-shot" href="https://your-childs-name.com" target="_blank" rel="noopener">
+          <div class="lo-shot-phone"><img src="/images/landing/gallery.jpg" alt="A photo gallery on the demo website" width="390" height="844" loading="lazy"></div>
+          <div class="lo-shot-cap">Galleries for everything in between</div>
+        </a>
+      </div>
+      <p style="text-align:center;margin:34px 0 0;"><a href="https://your-childs-name.com" target="_blank" rel="noopener" style="color:#b08e4a;font-weight:600;text-decoration:underline;font-size:16px;">Explore the full live demo &rarr;</a></p>
+    </div>
+  </section>
 
   <!-- ====== BENEFIT CARDS (D1#3 / D2#6 — large icon + title + subtitle, 4 unique, app moved out of hero) ====== -->
   <section class="lo-benefits lo-reveal" id="features">
@@ -610,47 +694,6 @@
           <div class="lo-bcard-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <div class="lo-bcard-title">Private &amp; protected</div>
           <p class="lo-bcard-sub">Password-protected and hidden from search and scraping. You choose exactly who can see it.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ====== INSIDE THE BOOK — interior previews (C20) ====== -->
-  <section class="lo-inside lo-reveal">
-    <div class="lo-inside-inner">
-      <div class="lo-inside-head">
-        <div class="lo-section-eyebrow">Inside the book</div>
-        <h2 class="lo-section-headline">A peek at <em>the pages.</em></h2>
-        <p class="lo-section-sub">Every Legacy Odyssey book has designed sections for the moments that matter — here's a taste.</p>
-        <p style="margin:16px 0 0;"><a href="https://your-childs-name.com" target="_blank" rel="noopener" style="color:#b08e4a;font-weight:600;text-decoration:underline;font-size:15px;">See the full live demo &rarr;</a></p>
-      </div>
-      <div class="lo-inside-grid">
-        <div class="lo-page-card">
-          <div class="lo-page-card-eyebrow">Birth Story</div>
-          <div class="lo-page-card-title">The day you arrived</div>
-          <img class="lo-page-card-photo" src="/img/landing/book-1.jpg" alt="" loading="lazy">
-          <p class="lo-page-card-text">“It was early morning when everything changed. We'd waited nine months — and suddenly, there you were.”</p>
-        </div>
-        <div class="lo-page-card">
-          <div class="lo-page-card-eyebrow">Month by Month</div>
-          <div class="lo-page-card-title">Twelve months of firsts</div>
-          <div class="lo-page-card-months">
-            <img src="/img/landing/book-2.jpg" alt="" loading="lazy">
-            <img src="/img/landing/book-3.jpg" alt="" loading="lazy">
-          </div>
-          <ul class="lo-page-card-list">
-            <li>First smile, first laugh, first steps</li>
-            <li>A photo &amp; a note for every month</li>
-          </ul>
-        </div>
-        <div class="lo-page-card">
-          <div class="lo-page-card-eyebrow">Letters &amp; Time Vault</div>
-          <div class="lo-page-card-title">Words for later</div>
-          <div class="lo-page-card-sealed">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Sealed until they're 18</span>
-          </div>
-          <p class="lo-page-card-text">Write letters and messages now — kept private and unlocked when they're older.</p>
         </div>
       </div>
     </div>
@@ -1048,6 +1091,29 @@
   </div>
 
   <!-- ====== FOUNDER CHECKOUT MODAL — preserved verbatim from landing-v2 ====== -->
+  <!-- Sticky mobile buy bar (research overhaul 2026-07-16): shows once the visitor
+       scrolls past the hero; the button opens the claim-name modal right where they
+       are instead of jumping them back to the top. Hidden on desktop. -->
+  <div class="lo-sticky-cta" id="loStickyCta" aria-hidden="true">
+    <div class="lo-sticky-price"><b>$29</b> first year</div>
+    <button type="button" class="lo-sticky-btn" onclick="openFounderModal('annual')">Claim Their Name &rarr;</button>
+  </div>
+  <script>
+    (function () {
+      var bar = document.getElementById('loStickyCta');
+      if (!bar) return;
+      var mq = window.matchMedia('(max-width: 700px)');
+      function sync() {
+        var show = mq.matches && window.scrollY > 620;
+        bar.classList.toggle('show', show);
+        bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+      }
+      window.addEventListener('scroll', sync, { passive: true });
+      window.addEventListener('resize', sync);
+      sync();
+    })();
+  </script>
+
   <div id="founderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
     <div style="background:#1E1812;border:1px solid #B8935A;border-radius:12px;padding:2rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;">
       <button onclick="document.getElementById('founderModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#B8935A;font-size:1.4rem;cursor:pointer;">&times;</button>
