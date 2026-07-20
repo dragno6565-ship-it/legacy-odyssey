@@ -21,6 +21,21 @@ const PORT = process.env.PORT || 3000;
 // Trust Railway's reverse proxy (needed for req.hostname with custom domains)
 app.set('trust proxy', 1);
 
+// Host-level canonical: www.<appDomain> 301s to the apex (2026-07-17). Both
+// hosts served identical 200 content before, which — together with customer
+// domains in the sitemap — drove Search Console "Duplicate without
+// user-selected canonical" warnings. ONLY the marketing www is redirected;
+// customers' own www hosts are resolved by resolveFamily and must not be
+// touched here.
+app.use((req, res, next) => {
+  const appDomain = (process.env.APP_DOMAIN || 'legacyodyssey.com').toLowerCase();
+  const host = (req.hostname || '').toLowerCase();
+  if (host === `www.${appDomain}`) {
+    return res.redirect(301, `https://${appDomain}${req.originalUrl}`);
+  }
+  next();
+});
+
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

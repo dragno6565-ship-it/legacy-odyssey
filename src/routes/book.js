@@ -403,13 +403,7 @@ Disallow: /
 
 // GET /sitemap.xml — Dynamic sitemap
 router.get('/sitemap.xml', async (req, res) => {
-  const { supabaseAdmin } = require('../config/supabase');
   const appDomain = process.env.APP_DOMAIN || 'legacyodyssey.com';
-
-  const { data: families } = await supabaseAdmin
-    .from('families')
-    .select('subdomain, custom_domain, updated_at')
-    .eq('is_active', true);
 
   const urls = [
     { loc: `https://${appDomain}/`, priority: '1.0', changefreq: 'weekly' },
@@ -428,20 +422,16 @@ router.get('/sitemap.xml', async (req, res) => {
     { loc: `https://${appDomain}/blog/circles-sharing`, priority: '0.7', changefreq: 'monthly' },
     { loc: `https://${appDomain}/blog/custom-galleries`, priority: '0.7', changefreq: 'monthly' },
     { loc: `https://${appDomain}/blog/reposition-photos`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/blog/is-it-safe-to-put-your-baby-online`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `https://${appDomain}/gift`, priority: '0.8', changefreq: 'weekly' },
   ];
 
-  if (families) {
-    for (const f of families) {
-      if (f.custom_domain) {
-        urls.push({
-          loc: `https://www.${f.custom_domain}/`,
-          priority: '0.6',
-          changefreq: 'weekly',
-          lastmod: f.updated_at ? new Date(f.updated_at).toISOString().split('T')[0] : undefined,
-        });
-      }
-    }
-  }
+  // Customer sites are deliberately NOT in the sitemap (removed 2026-07-17).
+  // They are private, password-gated, and served with noindex — listing them
+  // told Google to index pages that refuse indexing, and during the Jul-2026
+  // routing outage they served duplicate marketing pages, which triggered
+  // Search Console "Duplicate without user-selected canonical" warnings.
+  // The sitemap lists ONLY public marketing/blog URLs on the app domain.
 
   res.set('Content-Type', 'application/xml');
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
