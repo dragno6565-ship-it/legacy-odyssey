@@ -7,6 +7,30 @@ module.exports = {
   blockLabel: 'Web Infrastructure',
   checks: [
     {
+      id: 'domain-reputation',
+      name: 'legacyodyssey.com clean on Norton Safe Web + Google Safe Browsing',
+      // Added 2026-08-05: Norton had silently rated the domain "b" (bad) —
+      // every Norton/Norton-360 user got a block page on our marketing site,
+      // discovered only when Dan hit it himself. Vendor reputation is part of
+      // "the product works": check it daily and page on any non-clean rating.
+      fn: async () => {
+        const problems = [];
+        try {
+          const n = await axios.get('https://safeweb.norton.com/safeweb/sites/v1/details?url=legacyodyssey.com&insert=0', { timeout: 8000 });
+          const rating = n.data && n.data.rating;
+          if (rating && rating !== 'g' && rating !== 'u') problems.push(`Norton Safe Web rating "${rating}" (g=safe expected) — Norton users see a block page`);
+        } catch (e) { /* API unreachable — don't false-alarm on their downtime */ }
+        try {
+          const g = await axios.get('https://transparencyreport.google.com/transparencyreport/api/v3/safebrowsing/status?site=legacyodyssey.com', { timeout: 8000 });
+          const raw = String(g.data || '');
+          // Response is JSONP-ish: [["sb.ssr",1,flag,flag,flag,flag,flag,...]] — any "true" flag = unsafe finding.
+          if (/,true,/.test(raw.replace(/\s/g, ''))) problems.push('Google Safe Browsing reports an unsafe finding');
+        } catch (e) { /* ditto */ }
+        if (problems.length) return fail(problems.join(' | '));
+        return pass('Norton g/clean + Google Safe Browsing clean');
+      },
+    },
+    {
       id: 'prod-health',
       name: 'Production /health endpoint responsive',
       fn: async () => {
