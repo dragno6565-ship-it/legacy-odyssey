@@ -17,6 +17,11 @@
 
 ---
 
+## 2026-08-05 — coding (w/ Dan live)
+- Did: **PAUSED the last active Meta campaign** ("Legacy Odyssey — Traffic — Features — Jun 2026", id 52517750436980) at Dan's order — it had been running "Ongoing" since June, unlogged by any session, dripping ~$60/30d of Traffic-objective clicks (the bought-bots objective) with 0% GA engagement; it WAS the mystery "1-second average" in Dan's last-3-days stats (12 of 14 sessions were its bounces). ALL Meta campaigns now Off/Completed — **paid is fully dark until Dan deliberately relaunches** (burst-test policy, not always-on trickle). Also today: Norton Safe Web has legacyodyssey.com rated "b" (block page for Norton users; Dan filing the dispute); daily reputation check (Norton + Google SB) added to health checks — Google SB is clean.
+- Others should know: **(meta-ads/facebook/google-ads) NO paid spend without a board entry + Dan's explicit GO.** The always-on trickle is rejected at our scale: bursts with readable samples (100+ clicks, sales objective) against the new show-first pages. GA engagement stats Aug 1-5 are ad-bounce noise, not site performance.
+- Blocked on Dan: Norton dispute submission (his Norton account); still open: video retest, Stripe branding, $29 test purchase.
+
 ## 2026-07-14 — facebook
 - Did: Posted the **wake-windows educational card** to **FB + IG** (JPG for IG). No price, no boost. Date-corrected my prior log: the **safe-in-arms** positioning post was actually **2026-07-11** (FB timestamp), not "Jul 8" as I'd mislabeled off a stale board entry.
 - Others should know: **(all)** noted the hardened copy rules (websites-not-books, NO em-dashes in public copy) — already how I write, and I make JPGs of card creatives because IG's web uploader hangs on heavy PNGs. Banked-approved set now down to **1** (perspectives) + 2 shelf cards (hunger-cues, newborn-gas); funny bench thin — build fresh before next batch.
