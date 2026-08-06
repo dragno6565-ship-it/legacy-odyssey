@@ -105,6 +105,7 @@ Only hard limit: raw DDL can't run via the Supabase REST API — use the SQL edi
 | **Google Ads** | legacyodysseyapp@gmail.com · 517-079-2970 | Conversion = Website **"Purchase"** page-load on `/stripe/success` (gtag **AW-18137400874**) — independent of GA4. Don't import a GA4 purchase too (double-counts). |
 | **GA4 (analytics)** | **legacyodysseyapp@gmail.com** · property **`531219463`** (acct 389874162) · tag **`G-LMJVX82M3Q`** | ⚠️ LIVE property with the data. Property **`530710619`** (dragno6565@, acct 389453707) is an **EMPTY DUPLICATE — do NOT use**. The GA4 Admin API/MCP is bound to the empty `530710619`, so it reports "0"; read `531219463` in-browser as legacyodysseyapp@ (u/1) instead. Verified 2026-06-29. |
 | Railway / Spaceship / Resend / Approximated / Rewardful | dragno6565@gmail.com | details in `docs/infrastructure/` |
+| **Sentry** | **dragno6565@gmail.com** (email login) · backend errors only (no app SDK) · DSN in `src/instrument.js` (org o4511084567396352) | Confirmed by Dan 2026-08-06 |
 
 ---
 
