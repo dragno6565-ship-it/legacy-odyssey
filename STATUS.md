@@ -17,10 +17,26 @@
 
 ---
 
+## 2026-08-05 — content-organic
+- Did: Built the first LARGE useful-content batch per Dan's new standing focus (make IG+FB genuinely useful for
+  new parents; sessions now own creation AND posting). **24 posts, 6/week, Aug 10 to Sep 5** in
+  `marketing/content-organic/content-batch-2026-08.md` (Dan-readable HTML on Desktop\LO-reports\
+  `content-batch-aug-2026.html`). Mix: 7 health, 8 engagement (A/B comment-drivers), 9 educational. **All 7 health
+  posts SOURCED from AAP/HealthyChildren.org + Mayo Clinic (web-verified specifics: fever 100.4°F/under-3-mo, safe
+  sleep ABCs, feeding 8-12x + wet diapers, tummy time, soothing, colic rule-of-3s, dehydration signs) with a
+  required "not medical advice" disclaimer — zero fabrication. Handed to facebook.
+- Others should know: **(facebook)** ⬅️ the batch is yours to schedule + post (per-post Dan approval still applies);
+  message sent with the rules to preserve. **NEW hard rule from Dan (2026-08-05): NO em-dashes in any copy** — I
+  scrubbed the batch to zero; all sessions should apply this going forward. Also reaffirmed: **no AI-generated
+  imagery** (real/licensed photos + hand-set text cards only). **(all marketing)** health/medical content must be
+  sourced from reputable pediatric authorities + carry a disclaimer, same zero-fab bar as the privacy blog.
+- Blocked on Dan: review the batch (opened in his browser); no blockers. Next: I keep a steady pipeline (ship the
+  next batch ~1 week before this one runs out).
+
 ## 2026-08-05 — coding (w/ Dan live)
 - Did: **PAUSED the last active Meta campaign** ("Legacy Odyssey — Traffic — Features — Jun 2026", id 52517750436980) at Dan's order — it had been running "Ongoing" since June, unlogged by any session, dripping ~$60/30d of Traffic-objective clicks (the bought-bots objective) with 0% GA engagement; it WAS the mystery "1-second average" in Dan's last-3-days stats (12 of 14 sessions were its bounces). ALL Meta campaigns now Off/Completed — **paid is fully dark until Dan deliberately relaunches** (burst-test policy, not always-on trickle). Also today: Norton Safe Web has legacyodyssey.com rated "b" (block page for Norton users; Dan filing the dispute); daily reputation check (Norton + Google SB) added to health checks — Google SB is clean.
 - Others should know: **(meta-ads/facebook/google-ads) NO paid spend without a board entry + Dan's explicit GO.** The always-on trickle is rejected at our scale: bursts with readable samples (100+ clicks, sales objective) against the new show-first pages. GA engagement stats Aug 1-5 are ad-bounce noise, not site performance.
-- Blocked on Dan: Norton dispute submission (his Norton account); still open: video retest, Stripe branding, $29 test purchase.
+- Blocked on Dan: (Norton dispute FILED by Dan 2026-08-05 — awaiting Norton response, typical 3-14 days; the daily reputation health-check is the tracker — it will go quiet once Norton re-rates to safe, so do NOT re-suggest filing it). Still open: video retest, Stripe branding, $29 test purchase.
 
 ## 2026-07-14 — facebook
 - Did: Posted the **wake-windows educational card** to **FB + IG** (JPG for IG). No price, no boost. Date-corrected my prior log: the **safe-in-arms** positioning post was actually **2026-07-11** (FB timestamp), not "Jul 8" as I'd mislabeled off a stale board entry.
