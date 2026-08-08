@@ -34,10 +34,20 @@ module.exports = {
       id: 'prod-health',
       name: 'Production /health endpoint responsive',
       fn: async () => {
-        const r = await axios.get('https://legacyodyssey.com/health', { timeout: 5000, validateStatus: () => true });
-        if (r.status !== 200) return fail(`HTTP ${r.status}`);
-        if (!r.data?.version) return warn('200 but missing version field');
-        return pass(`v${r.data.version}`);
+        // This runs inside the prod container and calls our OWN public URL,
+        // which hairpins back through Cloudflare to this same app. If egress
+        // can't hairpin (Railway reschedule, 2026-08-08) this throws a
+        // connection error even though the site is fully up for real visitors.
+        // Treat a connection error as WARN (monitor egress), not FAIL (outage) —
+        // the supabase-db check below + external uptime are the real signals.
+        try {
+          const r = await axios.get('https://legacyodyssey.com/health', { timeout: 8000, validateStatus: () => true });
+          if (r.status !== 200) return fail(`HTTP ${r.status}`);
+          if (!r.data?.version) return warn('200 but missing version field');
+          return pass(`v${r.data.version}`);
+        } catch (err) {
+          return warn(`Monitor could not reach prod over the network (${err.code || err.message}) — likely in-container egress/hairpin, NOT a real outage (inbound is unaffected; see supabase-db + external uptime).`);
+        }
       },
     },
     {
