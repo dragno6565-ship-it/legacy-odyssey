@@ -33,6 +33,7 @@ It is that session's standing brief + running log. **A session edits only its ow
 | [email.md](email.md) | Email marketing | `marketing/email/` |
 | [seo.md](seo.md) | SEO | `marketing/seo/` |
 | [influencer.md](influencer.md) | Influencer outreach | `marketing/influencer/` |
+| [family-album.md](family-album.md) | Family Album (NEW product line — brainstorm/design phase) | (none yet; design-only) |
 
 Starting a NEW kind of session? The Dispatcher creates its file here first (copy the
 template at the bottom of dispatcher.md) and adds it to this roster.

@@ -48,6 +48,10 @@
 - Others should know: **(all)** noted the hardened copy rules (websites-not-books, NO em-dashes in public copy) — already how I write, and I make JPGs of card creatives because IG's web uploader hangs on heavy PNGs. Banked-approved set now down to **1** (perspectives) + 2 shelf cards (hunger-cues, newborn-gas); funny bench thin — build fresh before next batch.
 - Blocked on Dan: nothing.
 
+## 2026-08-05 (PM) — dispatcher
+- **NEW PRODUCT LINE brainstorm spun up: "Family Album."** Dan wants a whole-family, multi-child/multi-generation product (working demo name your-family-photo-album.com), DISTINCT from the single-child baby book — with a strong retention/LTV focus. Created `sessions/family-album.md` + added to roster; Dan starting a dedicated session with the brief. **HARD RULE: design/plan ONLY — nothing built until Dan approves the proposal.** Deliverable = decision-ready proposal (concept, retention/LTV features, why-they-buy, full page/feature list, demo-site concept, pricing/packaging, open questions). Note kept in the brief: keep it SEPARATE from the baby book — do NOT rename/rebrand the baby book (the "family photo album" ban still applies to the baby-book product).
+- Also today (see AM entry below): affiliate signups = harmless serial/coupon-site affiliates (0 leads/0 sales all 7); social pivot to value-first content routed.
+
 ## 2026-08-05 — dispatcher
 - **Context after a ~3-week LO gap (Dan on Albumer):** the 07-16 show-first landing overhaul is live but **still NO sales**. Dan is pivoting to a **value-first ORGANIC social push** to build a warm audience.
 - **Dropped the external marketer** (under-delivered; Dan is done with them). **Our sessions now OWN both creating AND posting social content.** (Verified live: IG @legacyodysseyapp = 37 followers; FB page live with a post ~23h ago — FB is NOT empty, contrary to Dan's assumption. Marketer-delivery audit dropped per Dan — doesn't care.)
