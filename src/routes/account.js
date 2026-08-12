@@ -283,7 +283,18 @@ router.post('/forgot-password', async (req, res) => {
     return res.render('marketing/account-forgot-password', { sent: false, error: res.locals.t('auth.err_missing_email') });
   }
   try {
-    // Generate a branded recovery link via admin API
+    // Generate a recovery token via the admin API. We deliberately email a link
+    // to OUR reset page carrying the token_hash — NOT Supabase's action_link.
+    //
+    // The action_link is a verify-on-GET URL: the one-time recovery token is
+    // consumed by the FIRST GET. Email security scanners (Outlook Safe Links,
+    // corporate filters, some Gmail/Apple Mail link previews) fetch links before
+    // the human clicks, burning the token, so the customer's click then fails
+    // with "link expired/invalid". It worked for unscanned inboxes and failed
+    // for scanned ones — the "forgot password link doesn't work" bug (2026-08-08).
+    //
+    // A token_hash link is scanner-safe: the reset page is a plain form on GET;
+    // the token is only verified when the user SUBMITS (server POST -> verifyOtp).
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: email.trim().toLowerCase(),
@@ -292,11 +303,13 @@ router.post('/forgot-password', async (req, res) => {
       },
     });
 
-    if (!linkError && linkData?.properties?.action_link) {
+    if (!linkError && linkData?.properties?.hashed_token) {
+      const resetUrl = `https://${APP_DOMAIN()}/account/reset-password`
+        + `?token_hash=${encodeURIComponent(linkData.properties.hashed_token)}&type=recovery`;
       const emailService = require('../services/emailService');
       await emailService.sendPasswordResetEmail({
         to: email.trim().toLowerCase(),
-        resetUrl: linkData.properties.action_link,
+        resetUrl,
       });
     }
   } catch (err) {
