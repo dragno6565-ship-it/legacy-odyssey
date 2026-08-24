@@ -87,5 +87,24 @@ module.exports = {
         return pass('photos bucket listable');
       },
     },
+    {
+      id: 'site-visitors',
+      name: 'Human site visitors (server-side, blocker-proof)',
+      // Recorded in page_views by middleware/recordPageView — real browser page
+      // loads only (bots filtered). This is the TRUE visitor count: unlike
+      // Clarity/GA4, no browser can block a server-side log. Informational
+      // (always PASS) — it's a metric, not an alarm.
+      fn: async () => {
+        const now = Date.now();
+        const since = (h) => new Date(now - h * 3600 * 1000).toISOString();
+        const grab = (iso) => supabaseAdmin
+          .from('page_views').select('ip', { count: 'exact' })
+          .gte('created_at', iso).limit(10000);
+        const [d1, d7] = await Promise.all([grab(since(24)), grab(since(24 * 7))]);
+        if (d1.error || d7.error) return warn(`page_views query failed: ${(d1.error || d7.error).message}`);
+        const uniq = (rows) => new Set((rows || []).map((r) => r.ip).filter(Boolean)).size;
+        return pass(`24h: ${d1.count} views / ${uniq(d1.data)} visitors · 7d: ${d7.count} views / ${uniq(d7.data)} visitors (real browsers; counts even when Clarity/GA4 are blocked)`);
+      },
+    },
   ],
 };

@@ -121,6 +121,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Blocker-proof server-side pageview counter (marketing HTML GETs, bots filtered).
+// Client trackers (Clarity/GA4) are blocked by many browsers; this gives a true
+// visitor count on the admin health page. Non-blocking; skips APIs/assets/bots.
+app.use(require('./middleware/recordPageView'));
+
 // --- Routes ---
 
 // Health check (includes hostname debug info)

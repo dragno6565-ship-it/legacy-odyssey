@@ -1,7 +1,17 @@
 const { Router } = require('express');
+const rateLimit = require('express-rate-limit');
 const { supabaseAdmin } = require('../../config/supabase');
 const { sendCapiEvent } = require('../../utils/metaCapi');
 const { sendEmail } = require('../../utils/sendEmail');
+
+// The waitlist form had NO bot protection (unlike the contact form), so it was
+// collecting spam signups that never load the page's JS — which is why they
+// showed up as list entries with nobody in Clarity/GA4 (added 2026-08-24).
+const waitlistLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many attempts. Please try again later.' },
+});
 
 const WELCOME_EMAIL_HTML = `<!DOCTYPE html>
 <html>
@@ -124,9 +134,65 @@ const GUIDE_EMAIL_HTML = `<!DOCTYPE html>
 const router = Router();
 
 // POST /api/waitlist
-router.post('/', async (req, res) => {
+router.post('/', waitlistLimiter, async (req, res) => {
   try {
     const { email, source = 'landing_page' } = req.body;
+
+    // Origin guard: real signups come from a fetch() on our own pages, which the
+    // browser stamps with Origin/Referer = our domain. The spam we saw was
+    // direct POSTs to this endpoint (source defaulted to 'landing_page', which no
+    // real page widget sends). If an Origin or Referer IS present and is NOT one
+    // of our hosts, it's a cross-site bot — silently drop it (return success so
+    // it moves on). Absent-both is left to the honeypot + rate limiter, to avoid
+    // false-blocking any non-browser caller.
+    const OUR_HOSTS = new Set(['legacyodyssey.com', 'www.legacyodyssey.com']);
+    const originish = req.get('origin') || req.get('referer') || '';
+    if (originish) {
+      let host = '';
+      try { host = new URL(originish).host.toLowerCase().replace(/:\d+$/, ''); } catch (_) {}
+      if (host && !OUR_HOSTS.has(host)) {
+        console.log(`[waitlist] cross-site POST from ${host} (ip ${req.ip}) — dropping likely bot`);
+        return res.json({ success: true, message: "You're on the list!" });
+      }
+    }
+
+    // Honeypot: a hidden "website" field bots fill and humans never see. If it
+    // comes back non-empty, silently pretend success so the bot moves on — but
+    // record nothing. (Same field + pattern as the contact form.)
+    const honeypot = (req.body.website || '').toString().trim();
+    if (honeypot) {
+      console.log(`[waitlist] honeypot triggered (value: ${honeypot.slice(0, 80)}) — dropping spam from ${req.ip}`);
+      return res.json({ success: true, message: "You're on the list!" });
+    }
+
+    // Cloudflare Turnstile — graceful: skipped if no secret configured, and a
+    // missing token falls through to honeypot+rate-limit only (a real human
+    // whose browser blocked challenges.cloudflare.com must not be hard-blocked).
+    if (process.env.TURNSTILE_SECRET_KEY) {
+      const turnstileToken = (req.body.cfTurnstileToken || '').toString();
+      if (!turnstileToken) {
+        console.warn(`[waitlist] Turnstile token missing — passing through on honeypot+rate-limit only (ip: ${req.ip})`);
+      } else {
+        try {
+          const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              secret: process.env.TURNSTILE_SECRET_KEY,
+              response: turnstileToken,
+              remoteip: req.ip || req.headers['x-forwarded-for'] || '',
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyData.success) {
+            console.log('[waitlist] Turnstile failed:', verifyData['error-codes'] || verifyData);
+            return res.status(400).json({ success: false, message: 'Verification failed. Please refresh the page and try again.' });
+          }
+        } catch (err) {
+          console.error('[waitlist] Turnstile verify request error — passing through:', err.message);
+        }
+      }
+    }
 
     if (!email || !email.includes('@') || !email.slice(email.indexOf('@')).includes('.')) {
       return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
