@@ -160,29 +160,51 @@ router.post('/stripe/webhook', async (req, res) => {
       }
       case 'customer.subscription.updated': {
         const sub = event.data.object;
+        const familyService = require('../services/familyService');
+        const subscriptionService = require('../services/subscriptionService');
+        const fam = await familyService.findForStripeSubscription(sub);
+        const pendingInStripe = !!(sub.cancel_at_period_end || sub.cancel_at);
         // Safety net: if the family is archived but Stripe says the sub is back to active,
-        // un-archive them. Catches Stripe-Portal renewal of a previously cancelled sub.
+        // un-archive them. Catches Stripe-Portal renewal of a subscription that was still
+        // running when its family was archived (families archived before the
+        // keep-access-until-period-end change, 2026-10).
         //
         // Two guards against false-positive reactivation:
         //   1. Stripe also fires this event when WE cancel (cancel_at_period_end=true is
         //      set, status stays 'trialing'/'active' until the period ends). That is NOT
         //      a reactivation — the customer is leaving.
-        //   2. We archive ~100ms before Stripe fires the event, so a "just-archived" family
-        //      hasn't actually had time to be reactivated by anyone. 60s window is plenty
-        //      to ride out the post-cancel event burst.
-        if ((sub.status === 'active' || sub.status === 'trialing') && !sub.cancel_at_period_end) {
-          const familyService = require('../services/familyService');
-          const subscriptionService = require('../services/subscriptionService');
-          const fam = await familyService.findByStripeCustomerId(sub.customer);
-          if (fam?.archived_at) {
-            const archivedMsAgo = Date.now() - new Date(fam.archived_at).getTime();
-            if (archivedMsAgo < 60_000) {
-              console.log(`[webhook] skipping reactivation for family ${fam.id} — archived ${Math.round(archivedMsAgo)}ms ago (post-cancel event burst)`);
-              break;
-            }
-            console.log(`[webhook] reactivating archived family ${fam.id} (Stripe subscription went ${sub.status})`);
-            await subscriptionService.reactivateFamily(fam, { source: 'stripe-webhook' });
+        //   2. A "just-archived" family hasn't actually had time to be reactivated by
+        //      anyone. 60s window is plenty to ride out the post-cancel event burst.
+        if ((sub.status === 'active' || sub.status === 'trialing') && !pendingInStripe && fam?.archived_at) {
+          const archivedMsAgo = Date.now() - new Date(fam.archived_at).getTime();
+          if (archivedMsAgo < 60_000) {
+            console.log(`[webhook] skipping reactivation for family ${fam.id} — archived ${Math.round(archivedMsAgo)}ms ago (post-cancel event burst)`);
             break;
+          }
+          console.log(`[webhook] reactivating archived family ${fam.id} (Stripe subscription went ${sub.status})`);
+          await subscriptionService.reactivateFamily(fam, { source: 'stripe-webhook' });
+          break;
+        }
+        // Scheduled-cancellation bookkeeping (website stays live until period end).
+        // Only for the family's CURRENT subscription.
+        const isCurrentSub = fam && !fam.archived_at
+          && (!fam.stripe_subscription_id || fam.stripe_subscription_id === sub.id);
+        if (isCurrentSub && pendingInStripe && !fam.cancel_effective_at
+            && sub.status !== 'canceled' && (sub.metadata || {}).cancel_source !== 'app') {
+          // Cancelled in the Stripe Customer Portal (our own cancels tag
+          // metadata.cancel_source='app' and record the date themselves): record
+          // the end date, stop domain auto-renew, send the confirmation email.
+          console.log(`[webhook] Stripe-portal cancellation scheduled for family ${fam.id}`);
+          await subscriptionService.softCancelFamily(fam, { source: 'stripe-portal' });
+        } else if (isCurrentSub && !pendingInStripe && fam.cancel_effective_at
+            && (sub.status === 'active' || sub.status === 'trialing')) {
+          // Cancellation undone (Stripe portal "Renew", or our own resume). Events
+          // can arrive out of order, so confirm against the live subscription.
+          const { stripe } = require('../config/stripe');
+          const live = stripe ? await stripe.subscriptions.retrieve(sub.id) : sub;
+          if (!live.cancel_at_period_end && !live.cancel_at && live.status !== 'canceled') {
+            console.log(`[webhook] pending cancellation undone for family ${fam.id}`);
+            await subscriptionService.resumeCancellation(fam, { source: 'stripe-webhook', skipStripe: true });
           }
         }
         await stripeService.syncSubscriptionStatus(sub.customer, sub.status);
@@ -190,17 +212,23 @@ router.post('/stripe/webhook', async (req, res) => {
       }
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
-        // Safety net: if the customer cancelled directly via Stripe Customer Portal
-        // (bypassing our app), run the full soft-cancel orchestration so Spaceship
-        // auto-renew gets disabled and the confirmation email fires. The check for
-        // archived_at prevents double-running when we initiated the cancel ourselves
-        // (admin/customer-app routes set archived_at first, then call Stripe).
+        // The subscription has ENDED. Fires (a) at period end for a cancel_at_period_end
+        // cancellation (ours or the Stripe portal's), or (b) immediately when the
+        // subscription is cancelled outright in Stripe (dashboard / portal "cancel now"
+        // / unpaid). Either way the paid period is over: archive the website now and
+        // start the 1-year retention clock. The customer was already emailed if they
+        // scheduled the cancellation (cancel_effective_at set); otherwise email now.
         const familyService = require('../services/familyService');
         const subscriptionService = require('../services/subscriptionService');
-        const fam = await familyService.findByStripeCustomerId(sub.customer);
+        const fam = await familyService.findForStripeSubscription(sub);
         if (fam && !fam.archived_at) {
-          console.log(`[webhook] auto-archiving family ${fam.id} after Stripe Portal cancellation`);
-          await subscriptionService.softCancelFamily(fam, { source: 'stripe-webhook' });
+          if (fam.stripe_subscription_id && fam.stripe_subscription_id !== sub.id) {
+            // An old/replaced subscription ended; the family's current one is still live.
+            console.log(`[webhook] ignoring deletion of non-current sub ${sub.id} for family ${fam.id} (current ${fam.stripe_subscription_id})`);
+            break;
+          }
+          console.log(`[webhook] subscription ${sub.id} ended; archiving family ${fam.id}${fam.cancel_effective_at ? ' (scheduled cancellation)' : ' (ended in Stripe)'}`);
+          await subscriptionService.archiveFamily(fam, { source: 'stripe-webhook', sendEmail: !fam.cancel_effective_at });
         } else {
           await stripeService.syncSubscriptionStatus(sub.customer, 'canceled');
         }

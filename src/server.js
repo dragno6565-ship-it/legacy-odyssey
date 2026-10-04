@@ -218,6 +218,11 @@ const server = app.listen(PORT, () => {
   const { startGiftDeliveriesScheduler } = require('./jobs/giftDeliveries');
   startGiftDeliveriesScheduler();
 
+  // Hourly: take websites offline whose scheduled cancellation came due
+  // (no-subscription comps; safety net for missed Stripe deleted webhooks).
+  const { startCancellationSweepScheduler } = require('./jobs/cancellationSweep');
+  startCancellationSweepScheduler();
+
   // Daily: lead-nurture drip for waitlist signups (B16).
   const { startLeadNurtureScheduler } = require('./jobs/leadNurture');
   startLeadNurtureScheduler();

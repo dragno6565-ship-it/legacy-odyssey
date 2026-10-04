@@ -762,8 +762,11 @@ async function checkProtectedFamily(family) {
 }
 
 /**
- * Soft cancel: mark archived, cancel Stripe at period end, stop Spaceship
- * auto-renew. Keeps all data so the customer can resubscribe later.
+ * Soft cancel: cancel Stripe at period end, stop Spaceship auto-renew, keep the
+ * website live until the paid period ends (archived then by the
+ * subscription.deleted webhook / cancellation sweep). Archives immediately when
+ * no paid period is left, and for an Entire Childhood plan (admin only).
+ * Keeps all data so the customer can resubscribe later.
  */
 router.post('/families/:id/cancel', requireAdmin, async (req, res, next) => {
   try {
@@ -776,7 +779,11 @@ router.post('/families/:id/cancel', requireAdmin, async (req, res, next) => {
     const subscriptionService = require('../services/subscriptionService');
     const result = await subscriptionService.softCancelFamily(family, { source: 'admin' });
 
-    res.redirect(`/admin/families/${family.id}?success=${encodeURIComponent('Cancelled & archived: ' + result.summary.join('; '))}`);
+    const label = !result.canceled ? 'NOT cancelled'
+      : result.archived ? 'Cancelled & archived (website offline now)'
+      : `Cancellation scheduled (website live until ${String(result.periodEnd).slice(0, 10)})`;
+    const key = result.canceled ? 'success' : 'error';
+    res.redirect(`/admin/families/${family.id}?${key}=${encodeURIComponent(label + ': ' + result.summary.join('; '))}`);
   } catch (err) {
     next(err);
   }

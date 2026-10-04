@@ -713,7 +713,9 @@ async function sendCancellationEmail({ to, displayName, type, periodEnd, customD
          This action cannot be undone. If you'd like to start fresh in the future, we'd love to have you back &mdash; just visit <a href="https://legacyodyssey.com" style="color:#c8a96e;">legacyodyssey.com</a> to create a new account.
        </p>`
     : `<p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
-         We're confirming that your Legacy Odyssey subscription has been canceled${niceDate ? `. You'll continue to have access to your website until <strong>${niceDate}</strong>` : ''}, after which the website will go offline and your custom domain auto-renewal will stop.
+         ${niceDate
+           ? `We're confirming that your Legacy Odyssey subscription has been canceled. It will not renew. Your website stays live, and you keep full access, until <strong>${niceDate}</strong>. After that the website goes offline. Your custom domain will not auto-renew. Changed your mind before then? Sign in to your account and choose "Keep my subscription".`
+           : `We're confirming that your Legacy Odyssey subscription has ended. Your website is now offline and your custom domain will not auto-renew.`}
        </p>
        <p style="font-size:15px;line-height:1.7;color:#4a4a4a;margin:0 0 16px;">
          <strong>Your photos and stories are safe.</strong> We'll keep them stored securely for one full year. If you change your mind during that time, just reply to this email and we'll bring everything back exactly as you left it.

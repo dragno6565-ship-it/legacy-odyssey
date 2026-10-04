@@ -667,40 +667,80 @@ async function createAdditionalSiteCheckout({ email, authUserId, subdomain, doma
 }
 
 /**
+ * The end of a subscription's current paid period, as an ISO string (or null).
+ *
+ * Stripe API 2025-03 (Basil) and later moved current_period_end off the
+ * Subscription object onto each subscription item; stripe-node 20 pins one of
+ * those versions, so `sub.current_period_end` is undefined there and every
+ * caller that read it got null. Read both shapes, then fall back to cancel_at
+ * (set when cancel_at_period_end=true) and trial_end (gift / trial periods).
+ */
+function subscriptionPeriodEnd(sub) {
+  if (!sub) return null;
+  const item = sub.items && sub.items.data && sub.items.data[0];
+  const secs = sub.current_period_end
+    || (item && item.current_period_end)
+    || sub.cancel_at
+    || (sub.status === 'trialing' ? sub.trial_end : null)
+    || null;
+  return secs ? new Date(secs * 1000).toISOString() : null;
+}
+
+/**
  * Cancel a family's subscription at the end of its current billing period.
  * Customer keeps access through what they've already paid for.
  *
+ * Tags the subscription with metadata.cancel_source='app' so the
+ * customer.subscription.updated webhook can tell our own cancellations apart
+ * from ones made in the Stripe Customer Portal.
+ *
  * No-op if family has no stripe_subscription_id.
- * Returns { canceled: bool, periodEnd: ISO string|null, alreadyCanceled: bool }.
+ * Returns { canceled: bool, periodEnd: ISO string|null, alreadyCanceled: bool,
+ *           status: Stripe status|null }.
+ *   status === 'canceled' means the subscription has ALREADY ended (no paid
+ *   period left), so periodEnd is null.
  */
 async function cancelSubscriptionAtPeriodEnd(family) {
   if (!stripe) throw new Error('Stripe not configured');
   if (!family || !family.stripe_subscription_id) {
-    return { canceled: false, periodEnd: null, alreadyCanceled: false, reason: 'no-subscription' };
+    return { canceled: false, periodEnd: null, alreadyCanceled: false, status: null, reason: 'no-subscription' };
   }
 
   // Read current state — Stripe lets us call update on already-canceled subs but
   // it's cleaner to detect and skip. cancel_at_period_end=true is idempotent.
   const sub = await stripe.subscriptions.retrieve(family.stripe_subscription_id);
-  if (sub.status === 'canceled') {
-    return { canceled: true, periodEnd: null, alreadyCanceled: true };
+  if (sub.status === 'canceled' || sub.status === 'incomplete_expired') {
+    return { canceled: true, periodEnd: null, alreadyCanceled: true, status: 'canceled' };
   }
   if (sub.cancel_at_period_end) {
-    return {
-      canceled: true,
-      periodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
-      alreadyCanceled: true,
-    };
+    return { canceled: true, periodEnd: subscriptionPeriodEnd(sub), alreadyCanceled: true, status: sub.status };
   }
 
   const updated = await stripe.subscriptions.update(family.stripe_subscription_id, {
     cancel_at_period_end: true,
+    metadata: { cancel_source: 'app' },
   });
-  return {
-    canceled: true,
-    periodEnd: updated.current_period_end ? new Date(updated.current_period_end * 1000).toISOString() : null,
-    alreadyCanceled: false,
-  };
+  return { canceled: true, periodEnd: subscriptionPeriodEnd(updated), alreadyCanceled: false, status: updated.status };
+}
+
+/**
+ * Undo a pending cancel_at_period_end (customer changed their mind before the
+ * period ended). Returns the refreshed subscription, or null when the family
+ * has no Stripe subscription.
+ */
+async function resumeSubscription(family) {
+  if (!stripe) throw new Error('Stripe not configured');
+  if (!family || !family.stripe_subscription_id) return null;
+  const sub = await stripe.subscriptions.retrieve(family.stripe_subscription_id);
+  if (sub.status === 'canceled' || sub.status === 'incomplete_expired') {
+    throw new Error('Subscription has already ended and cannot be resumed');
+  }
+  if (!sub.cancel_at_period_end && !sub.cancel_at) return sub;
+  return stripe.subscriptions.update(family.stripe_subscription_id, {
+    cancel_at_period_end: false,
+    ...(sub.cancel_at && !sub.cancel_at_period_end ? { cancel_at: '' } : {}),
+    metadata: { cancel_source: '' },
+  });
 }
 
 // ─── EMBEDDED (Payment Element) SIGNUP FLOW ──────────────────────────────────
@@ -941,4 +981,6 @@ module.exports = {
   cancelSubscriptionAtPeriodEnd,
   syncSubscriptionStatus,
   createPortalSession,
+  subscriptionPeriodEnd,
+  resumeSubscription,
 };

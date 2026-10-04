@@ -194,6 +194,20 @@ router.post('/reset-password', async (req, res, next) => {
 // Multi-family rule (Scenario A): if the targeted family is the primary and the
 // customer has other linked families, the request MUST include either
 // `all: true` or `promoteFamilyId`. Otherwise we return 400.
+// The app shows `message` in an alert when the request fails.
+function cancelFailed(res, result) {
+  if (result && result.reason === 'prepaid') {
+    return res.status(400).json({
+      error: 'PREPAID_PLAN',
+      message: 'Your Entire Childhood Plan is prepaid and never renews, so there is nothing to cancel. To take your website down, email hello@legacyodyssey.com.',
+    });
+  }
+  return res.status(502).json({
+    error: 'CANCEL_FAILED',
+    message: 'We could not cancel right now. Nothing was changed. Please try again, or email hello@legacyodyssey.com.',
+  });
+}
+
 router.post('/cancel', require('../../middleware/requireAuth'), async (req, res, next) => {
   try {
     const subscriptionService = require('../../services/subscriptionService');
@@ -215,7 +229,8 @@ router.post('/cancel', require('../../middleware/requireAuth'), async (req, res,
     if (!target) return res.status(404).json({ error: 'Family not found or not linked to your account' });
 
     const isPrimary = await subscriptionService.isPrimaryFamily(target);
-    const otherLinked = linked.filter(f => f.id !== target.id && !f.archived_at);
+    // Sites already scheduled to end (cancel_effective_at) can't take over as Primary.
+    const otherLinked = linked.filter(f => f.id !== target.id && !f.archived_at && !f.cancel_effective_at);
 
     // If target is the primary AND there are other active families, require promote or all
     if (isPrimary && otherLinked.length > 0) {
@@ -232,17 +247,19 @@ router.post('/cancel', require('../../middleware/requireAuth'), async (req, res,
 
       const promoteResult = await subscriptionService.promoteSecondaryToPrimary(promoteTarget, target, { source: 'customer-mobile' });
       const cancelResult = await subscriptionService.softCancelFamily(target, { source: 'customer-mobile' });
+      if (!cancelResult.canceled) return cancelFailed(res, cancelResult);
       return res.json({
         ok: true,
         mode: 'promote-and-cancel',
         promoted: { familyId: promoteTarget.id, switchAt: promoteResult.switchAt, scheduleId: promoteResult.scheduleId },
-        cancelled: { familyId: target.id, summary: cancelResult.summary },
+        cancelled: { familyId: target.id, accessUntil: cancelResult.periodEnd, summary: cancelResult.summary },
       });
     }
 
     // Simple case: cancel a non-primary family OR the only family the user has
     const result = await subscriptionService.softCancelFamily(target, { source: 'customer-mobile' });
-    return res.json({ ok: true, mode: 'single', cancelled: { familyId: target.id, summary: result.summary } });
+    if (!result.canceled) return cancelFailed(res, result);
+    return res.json({ ok: true, mode: 'single', cancelled: { familyId: target.id, accessUntil: result.periodEnd, summary: result.summary } });
   } catch (err) {
     next(err);
   }

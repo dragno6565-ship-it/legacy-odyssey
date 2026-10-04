@@ -192,15 +192,24 @@ router.post('/add-site/checkout', requireAccountSession, async (req, res, next) 
 router.post('/cancel', requireAccountSession, async (req, res, next) => {
   try {
     const subscriptionService = require('../services/subscriptionService');
+    // Cancelling no longer takes the website down (Terms section 4: access
+    // continues to the end of the paid period), so the customer stays signed in
+    // and lands back on the dashboard, which shows "stays live until <date>".
+    // Error CODES only in the URL (the dashboard maps them to text), so a crafted
+    // link can't put arbitrary words on our page.
+    const failMsg = (r) => (r && r.reason === 'prepaid' ? 'prepaid' : 'cancel_failed');
 
     // Cancel All
     if (req.body.all === 'true' || req.body.all === true) {
       if (!req.family.auth_user_id) {
-        return res.redirect('/account/dashboard?error=' + encodeURIComponent('Cannot cancel all — no auth user linked'));
+        return res.redirect('/account/dashboard?error=' + encodeURIComponent('Cannot cancel all: no login linked to this website'));
       }
-      await subscriptionService.softCancelAllForUser(req.family.auth_user_id, { source: 'customer-web' });
-      res.clearCookie(COOKIE_NAME);
-      return res.redirect('/account?cancelled=all');
+      const r = await subscriptionService.softCancelAllForUser(req.family.auth_user_id, { source: 'customer-web' });
+      const failed = (r.results || []).filter((x) => !x.ok || x.canceled === false);
+      if (failed.length) {
+        return res.redirect('/account/dashboard?cancelled=all&error=cancel_all_partial');
+      }
+      return res.redirect('/account/dashboard?cancelled=all');
     }
 
     // Single-family path: figure out if it's primary AND there are others
@@ -208,7 +217,8 @@ router.post('/cancel', requireAccountSession, async (req, res, next) => {
       ? await familyService.findAllByAuthUserId(req.family.auth_user_id)
       : [req.family];
     const isPrimary = await subscriptionService.isPrimaryFamily(req.family);
-    const otherActive = linked.filter(f => f.id !== req.family.id && !f.archived_at);
+    // Sites that are already scheduled to end can't take over as Primary.
+    const otherActive = linked.filter(f => f.id !== req.family.id && !f.archived_at && !f.cancel_effective_at);
 
     if (isPrimary && otherActive.length > 0) {
       const promoteId = req.body.promoteFamilyId;
@@ -221,15 +231,42 @@ router.post('/cancel', requireAccountSession, async (req, res, next) => {
         return res.redirect('/account/dashboard?error=' + encodeURIComponent('Invalid promotion target'));
       }
       await subscriptionService.promoteSecondaryToPrimary(promoteTarget, req.family, { source: 'customer-web' });
-      await subscriptionService.softCancelFamily(req.family, { source: 'customer-web' });
-      res.clearCookie(COOKIE_NAME);
-      return res.redirect('/account?cancelled=promoted');
+      const r = await subscriptionService.softCancelFamily(req.family, { source: 'customer-web' });
+      if (!r.canceled) return res.redirect('/account/dashboard?error=' + failMsg(r));
+      return res.redirect('/account/dashboard?cancelled=promoted');
     }
 
     // Not primary, or only family — straightforward soft cancel
-    await subscriptionService.softCancelFamily(req.family, { source: 'customer-web' });
-    res.clearCookie(COOKIE_NAME);
-    return res.redirect('/account?cancelled=single');
+    const r = await subscriptionService.softCancelFamily(req.family, { source: 'customer-web' });
+    if (!r.canceled) return res.redirect('/account/dashboard?error=' + failMsg(r));
+    return res.redirect('/account/dashboard?cancelled=single');
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /account/resume
+ *
+ * Undo a scheduled cancellation while the website is still live (before the
+ * paid period ends): Stripe renews again, domain auto-renew turns back on.
+ * Once the website has gone offline, /account/reactivate-checkout is the path.
+ */
+router.post('/resume', requireAccountSession, async (req, res, next) => {
+  try {
+    const family = req.family;
+    if (family.archived_at) return res.redirect('/account/dashboard');
+    if (!family.cancel_effective_at) {
+      return res.redirect('/account/dashboard?error=not_pending');
+    }
+    const subscriptionService = require('../services/subscriptionService');
+    try {
+      await subscriptionService.resumeCancellation(family, { source: 'customer-web' });
+    } catch (err) {
+      console.error(`[resume] family ${family.id} failed:`, err.message);
+      return res.redirect('/account/dashboard?error=resume_failed');
+    }
+    return res.redirect('/account/dashboard?resumed=1');
   } catch (err) {
     next(err);
   }
@@ -392,6 +429,14 @@ router.post('/reset-password', async (req, res) => {
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
+const DASHBOARD_ERRORS = {
+  prepaid: 'Your Entire Childhood Plan is prepaid and never renews, so there is nothing to cancel. To take your website down, email hello@legacyodyssey.com.',
+  cancel_failed: 'We could not cancel right now. Nothing was changed. Please try again, or email hello@legacyodyssey.com.',
+  cancel_all_partial: 'Some of your websites could not be cancelled (a prepaid Entire Childhood Plan never renews, or there was a billing error). Email hello@legacyodyssey.com if you need help.',
+  not_pending: 'Your subscription is not scheduled to cancel.',
+  resume_failed: 'We could not undo the cancellation right now. Please try again, or email hello@legacyodyssey.com.',
+};
+
 router.get('/dashboard', async (req, res) => {
   const familyId = getFamilyId(req);
   if (!familyId) return res.redirect('/account');
@@ -453,7 +498,8 @@ router.get('/dashboard', async (req, res) => {
       contacts, circles, visibleSections, galleries,
       bookSettings,
       appDomain: APP_DOMAIN(),
-      error: null,
+      error: Object.prototype.hasOwnProperty.call(DASHBOARD_ERRORS, req.query.error) ? DASHBOARD_ERRORS[req.query.error] : null,
+      cancelNotice: req.query.cancelled ? 'cancelled' : (req.query.resumed ? 'resumed' : null),
     });
   } catch (err) {
     res.render('marketing/account-dashboard', { family: null, linkedFamilies: [], isPrimary: null, referral: null, appDomain: APP_DOMAIN(), error: 'Could not load account details.' });

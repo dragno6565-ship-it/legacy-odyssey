@@ -95,6 +95,24 @@ async function findByStripeCustomerId(stripeCustomerId) {
   return data;
 }
 
+/**
+ * The family a Stripe subscription event belongs to: match the subscription id
+ * first (exact, and safe when a customer has more than one subscription), then
+ * fall back to the customer id (older rows without stripe_subscription_id).
+ */
+async function findForStripeSubscription(sub) {
+  if (!sub) return null;
+  if (sub.id) {
+    const { data } = await supabaseAdmin
+      .from('families')
+      .select('*')
+      .eq('stripe_subscription_id', sub.id)
+      .maybeSingle();
+    if (data) return data;
+  }
+  return sub.customer ? findByStripeCustomerId(sub.customer) : null;
+}
+
 async function create({ email, authUserId, subdomain, displayName, stripeCustomerId, customerName, plan, bookType }) {
   const { data, error } = await supabaseAdmin
     .from('families')
@@ -181,6 +199,7 @@ module.exports = {
   findByAuthUserId,
   findAllByAuthUserId,
   findByStripeCustomerId,
+  findForStripeSubscription,
   create,
   update,
   listAll,
