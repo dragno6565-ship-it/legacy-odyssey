@@ -144,6 +144,12 @@ Column `families.unsubscribed_at` already exists (migration 008).
 
 ### D-001 (LLC paperwork): questions only Dan can answer
 
+**Answered by Dan 2026-10-04** (full details incl. EIN and agent address are in `F:\_secrets\DOR-Industries-LLC.md`, never in git):
+DOR Industries, LLC, ACC business ID L18991368, formed 2014-02-21, member-managed, statutory agent Dan himself, EIN on file,
+business bank account + card in the LLC's name with vendor bills and Stripe payouts through it, LLC is the contracting party on Stripe/Apple/Google/vendors.
+**Still open:** only member? (Q3), signed operating agreement? (Q5), where the EIN letter is kept (Q4), no city business/TPT license yet (Q8, ask a CPA whether TPT applies),
+federal tax status unknown (Q9: if Form 2553 was never filed it is the default single-member LLC reported on Schedule C), trade name filing unknown (Q10: check the Arizona Secretary of State trade name search).
+
 1. Is DOR Industries, LLC registered with the **Arizona Corporation Commission**? Exact legal name and ACC entity number?
 2. Formation date, and who is listed as **statutory agent** (and their address)?
 3. Member-managed or manager-managed? Are you the **only member**?
