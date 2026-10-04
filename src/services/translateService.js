@@ -130,4 +130,15 @@ async function translateBook(data, lang) {
   }
 }
 
-module.exports = { translateBook, ENABLED };
+/**
+ * sha1 hashes of every translatable string in `data` (same rules translateBook
+ * uses). The data-retention purge uses this to delete a family's cached
+ * translations (content_translations.source_text holds their original text).
+ */
+function translatableHashes(data) {
+  const set = new Set();
+  collect(data, set);
+  return [...set].map(sha1);
+}
+
+module.exports = { translateBook, translatableHashes, ENABLED };

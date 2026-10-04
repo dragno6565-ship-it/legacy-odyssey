@@ -124,6 +124,7 @@ router.post('/', contactLimiter, async (req, res) => {
       eventSourceUrl: 'https://legacyodyssey.com',
       clientIpAddress: req.ip || req.headers['x-forwarded-for'],
       clientUserAgent: req.headers['user-agent'],
+      optOut: require('../../utils/privacyOptOut').isAdOptOut(req),
     });
 
     res.json({ success: true });

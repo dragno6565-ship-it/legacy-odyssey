@@ -179,6 +179,7 @@
         <h2 class="gc-h">Payment</h2>
         <p class="gc-sub">Paying <strong id="gcPayAmount">$29</strong> — one-time.</p>
         <div id="gcPaymentElement"></div>
+        <%- include('../partials/terms-agree', { id: 'gcAcceptTerms' }) %>
         <button type="button" class="gc-btn" id="gcPayBtn">Pay <span id="gcPayBtnAmount">$29</span></button>
         <p class="gc-msg" id="gcPayMsg"></p>
         <p style="font-size:0.72rem;color:#8a7e6b;text-align:center;margin:6px 0 0;">All sales are final — no refunds.</p>
@@ -199,6 +200,7 @@
 
       var stripe = Stripe(PUBLISHABLE_KEY);
       var elements = null;
+      var lastClientSecret = null;
 
       function $(id) { return document.getElementById(id); }
       function currentPlan() {
@@ -277,6 +279,7 @@
           });
           var data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Could not start checkout.');
+          lastClientSecret = data.clientSecret;
 
           var appearance = {
             theme: 'flat',
@@ -323,7 +326,11 @@
         var btn = $('gcPayBtn');
         var msg = $('gcPayMsg');
         msg.textContent = '';
+        // Terms + Privacy agreement is required before paying (C-008).
+        if (!$('gcAcceptTerms').checked) { msg.textContent = 'Please agree to the Terms of Service and Privacy Policy to continue.'; $('gcAcceptTerms').focus(); return; }
         btn.disabled = true; btn.textContent = 'Processing…';
+        // Record the agreement on the Stripe payment (best-effort; never blocks payment).
+        try { await fetch('/api/stripe/record-terms-acceptance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clientSecret: lastClientSecret, acceptTerms: true }) }); } catch (e) {}
         var result = await stripe.confirmPayment({
           elements: elements,
           confirmParams: { return_url: 'https://' + APP_DOMAIN + '/gift/thank-you' },
@@ -369,5 +376,6 @@
     })();
   </script>
   <% } %>
+  <%- include('../partials/legal-footer-mini') %>
 </body>
 </html>

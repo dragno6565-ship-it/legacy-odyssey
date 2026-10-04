@@ -16,6 +16,7 @@ import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useAuth } from './AuthContext';
 import { useI18n } from '../i18n/I18nContext';
 import LanguageToggle from '../components/LanguageToggle';
+import LegalLinks from '../components/LegalLinks';
 
 export default function LoginScreen({ navigation }) {
   const { t } = useI18n();
@@ -146,6 +147,9 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.linkBold}>{t('app.login.get_started')}</Text>
           </Text>
         </TouchableOpacity>
+
+        {/* Terms + Privacy (C-008) */}
+        <LegalLinks />
       </ScrollView>
     </KeyboardAvoidingView>
   );

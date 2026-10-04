@@ -9,8 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Pinterest Domain Verification -->
   <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1"/>
-  <title>Terms of Service — Legacy Odyssey</title>
-  <meta name="description" content="Legacy Odyssey Terms of Service. Read our terms and conditions for using our digital baby book and family photo album platform.">
+  <title>Terms of Service | Legacy Odyssey</title>
+  <meta name="description" content="Legacy Odyssey Terms of Service: the terms for using a Legacy Odyssey Website, its apps, and its web editor.">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/marketing.css">
   <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
@@ -32,75 +32,123 @@
 
   <section class="legal-page">
     <div class="legal-container">
+      <%# Effective date comes from src/config/legal.js (DAN: set it to the deploy date before merging). %>
       <h1>Terms of Service</h1>
-      <p class="legal-updated">Last updated: March 21, 2026</p>
+      <p class="legal-updated">Last updated: <%= legal.TERMS_EFFECTIVE_PRETTY %></p>
 
       <h2>1. Acceptance of Terms</h2>
-      <p>By accessing or using Legacy Odyssey ("the Service"), operated by DOR Industries ("we," "us," or "our"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+      <p>By creating an account, buying or redeeming a gift, or otherwise using Legacy Odyssey ("the Service"), operated by DOR Industries ("we," "us," or "our"), you agree to these Terms of Service and to our <a href="/privacy">Privacy Policy</a>. If you do not agree, please do not use the Service.</p>
 
       <h2>2. Description of Service</h2>
-      <p>Legacy Odyssey is a subscription-based platform that enables users to create digital baby books and family photo albums hosted on custom domains or subdomains. The Service includes a mobile application, web-based book viewer, photo storage, and domain management.</p>
-
-      <h2>3. Account Registration</h2>
-      <p>To use the Service, you must create an account by providing a valid email address and password. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must be at least 18 years old to create an account.</p>
-
-      <h2>4. Subscription and Billing</h2>
-      <p>Legacy Odyssey offers subscription plans billed monthly or annually. By subscribing, you authorize us to charge your payment method on a recurring basis. You may cancel your subscription at any time through your account settings or the Stripe billing portal.</p>
-      <p>Custom domain registration requires a one-time setup fee. Domain renewals are included in your ongoing subscription at no additional cost.</p>
-      <p><strong>Refund Policy.</strong> All purchases are final. Legacy Odyssey does not offer refunds. To stop future charges on a subscription, cancel from your account dashboard before your next renewal date — you keep full access through the end of your current paid period. Domain registrations are non-refundable in all cases (a registry-imposed policy). Where a refund is required by applicable consumer-protection law, that requirement controls.</p>
-
-      <h2>5. Content Ownership</h2>
-      <p>You retain all ownership rights to the content you upload to the Service, including photos, text, stories, and other materials ("Your Content"). By uploading content, you grant us a limited license to store, display, and transmit Your Content solely for the purpose of providing the Service to you.</p>
-      <p>We do not claim ownership of Your Content and will not use it for marketing or other purposes without your explicit consent.</p>
-
-      <h2>6. Acceptable Use</h2>
-      <p>You agree not to use the Service to:</p>
+      <p>Legacy Odyssey lets parents and guardians build a private, password-protected website about their child, hosted at a custom .com domain or a Legacy Odyssey address. You add content through our iOS and Android apps or through the web editor (the app is not required). The Service includes website hosting, photo and video storage, domain registration and management, sharing tools, and the features described below. We may add, change, or retire features over time.</p>
+      <p>Features currently include:</p>
       <ul>
-        <li>Upload content that is illegal, harmful, threatening, abusive, or otherwise objectionable</li>
-        <li>Violate any applicable laws or regulations</li>
-        <li>Infringe on the intellectual property rights of others</li>
-        <li>Attempt to gain unauthorized access to the Service or its systems</li>
-        <li>Interfere with or disrupt the Service or its infrastructure</li>
-        <li>Use the Service for commercial purposes other than creating personal baby books and family photo albums</li>
+        <li><strong>Website sections</strong> such as milestones, months, celebrations, letters, recipes, family members, galleries, and keepsakes.</li>
+        <li><strong>Custom galleries</strong> of photos that you create, name, caption, and arrange.</li>
+        <li><strong>Keepsakes</strong>, where you record and photograph meaningful items, artwork, awards, and documents.</li>
+        <li><strong>Video Moments</strong>, short videos you upload to your website (see Section 7).</li>
+        <li><strong>Your Contacts</strong>, a sharing tool for the people you invite to your website (see Section 8).</li>
+        <li><strong>Language options</strong>, including machine translation of your content for visitors (see Section 9).</li>
       </ul>
 
-      <h2>7. Privacy</h2>
-      <p>Your use of the Service is also governed by our <a href="/privacy">Privacy Policy</a>, which describes how we collect, use, and protect your personal information.</p>
+      <h2>3. Accounts</h2>
+      <p>You must be at least 18 years old, and the parent or legal guardian of the child (or otherwise have the authority to share the child's information), to create an account. You must provide a valid email address. You are responsible for keeping your login credentials confidential and for all activity under your account.</p>
+      <p><strong>Multiple websites.</strong> One account (one login) can manage more than one website, for example one for each child. Each website is a separate plan with its own domain and its own billing. Cancelling one website does not cancel the others unless you choose to cancel them all.</p>
 
-      <h2>8. Book Password Protection</h2>
-      <p>Books published through the Service are protected by a password that you set. You are responsible for sharing this password only with people you want to have access to your book. We are not responsible for unauthorized access resulting from shared or compromised passwords.</p>
+      <h2>4. Plans, Billing, and No Refunds</h2>
+      <p>Prices are shown at checkout before you pay. By purchasing, you authorize us (through our payment processor, Stripe) to charge your payment method.</p>
+      <ul>
+        <li><strong>Annual plan.</strong> A subscription that renews automatically each year at the renewal price shown at checkout until you cancel. An introductory first-year price, when offered, applies only to the first year.</li>
+        <li><strong>Entire Childhood Plan.</strong> A one-time payment that covers your website, including its domain, for 18 years from the date of purchase (or, for a gift, from the date the gift is redeemed). It does not renew automatically and there are no further charges during those 18 years.</li>
+        <li><strong>Earlier plans.</strong> If you signed up on a plan we no longer offer (for example a monthly plan), it continues on the terms you signed up for until you cancel it.</li>
+      </ul>
+      <p>If we change the renewal price of a subscription, we will tell you before the change applies to your next renewal, and you can cancel before then.</p>
+      <p><strong>Cancelling.</strong> You can cancel a subscription at any time from your account dashboard (or by contacting us). Cancelling stops future renewals; you keep full access through the end of the period you have already paid for.</p>
+      <p><strong>No refunds.</strong> All purchases are final. We do not offer refunds or credits for subscriptions, partial periods, unused time, the Entire Childhood Plan, gifts, or domain registrations. Where a refund is required by applicable consumer-protection law, that law controls.</p>
 
-      <h2>9. Custom Domains</h2>
-      <p>If you purchase a custom domain through the Service, the domain is registered on your behalf through our domain registrar partner. Domain registration is subject to the registrar's terms and conditions. We manage DNS configuration and SSL certificates for your domain as part of the Service.</p>
-      <p>If your subscription is canceled, your custom domain will remain registered until its expiration date, but the website hosted on it will no longer be accessible through the Service.</p>
+      <h2>5. Gifts and Gift Codes</h2>
+      <ul>
+        <li><strong>Buying a gift.</strong> You can buy a one-year gift or an Entire Childhood gift. We can email the gift to the recipient now or on a date you choose, or you can choose to give it yourself, in which case we send you a printable certificate and do not email the recipient.</li>
+        <li><strong>Gift codes do not expire.</strong> A gift code stays valid until it is redeemed, and each code can be redeemed only once. Keep your code safe: anyone who has the code can redeem it.</li>
+        <li><strong>When the gifted time starts.</strong> The gifted period begins on the day the recipient redeems the code, not on the day it was purchased.</li>
+        <li><strong>After a one-year gift.</strong> When the gifted year ends, the website continues on the regular annual plan only if the recipient adds a payment method; the renewal price is shown before any charge. If no payment method is added, the plan ends and Section 13 applies.</li>
+        <li><strong>The recipient's account.</strong> The person who redeems a gift becomes the account holder for that website and agrees to these Terms when redeeming. The buyer does not get access to the recipient's website.</li>
+        <li>Gift purchases are final and non-refundable (Section 4).</li>
+      </ul>
+      <p><strong>Complimentary access.</strong> We may, at our discretion, give complimentary gift codes or accounts (for example to partners or for promotions). Complimentary access is governed by these Terms, has no cash value, and cannot be exchanged or transferred for money.</p>
 
-      <h2>10. Service Availability</h2>
-      <p>We strive to maintain high availability of the Service but do not guarantee uninterrupted access. We may perform maintenance, updates, or experience downtime. We will make reasonable efforts to notify you of planned maintenance in advance.</p>
+      <h2>6. Your Content</h2>
+      <p>You keep all ownership rights to the photos, videos, text, and other material you add to the Service ("Your Content"). You grant us a limited license to store, process, display, translate (as described in Section 9), back up, and transmit Your Content only to operate and provide the Service to you and the people you share it with. We do not claim ownership of Your Content, and we will not use it in our marketing without your explicit permission.</p>
+      <p>You are responsible for Your Content, including making sure you have the right to share any photos, videos, and information about other people (including your child and family members) that you add.</p>
 
-      <h2>11. Termination</h2>
-      <p>You may terminate your account at any time by canceling your subscription and contacting us at <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>. We may terminate or suspend your account if you violate these terms.</p>
-      <p>Upon termination, we will retain your data for up to one year to allow you to reactivate or export your content. After that period, your data may be permanently deleted. This matches the retention window described in our <a href="/privacy">Privacy Policy</a>.</p>
+      <h2>7. Video Moments</h2>
+      <p>You can upload short videos to your website. Videos are stored and streamed by our video provider, Cloudflare Stream. Current limits are: each clip can be up to 2 minutes long; each website can hold up to 1,000 minutes of video in total; and each family member can have one video. We may change these limits with notice. Videos must follow the Acceptable Use rules in Section 11. Deleting a video removes it from your website and from our video provider.</p>
 
-      <h2>12. Data Export</h2>
-      <p>You have the right to request an export of your data at any time by contacting us at <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>. We will provide your data in a standard format within a reasonable timeframe.</p>
+      <h2>8. Your Contacts and Sharing</h2>
+      <p>You can add people (such as grandparents and friends) to Your Contacts and send them updates about your website. When you add a contact, you confirm that you have their permission to share their name, email address, or phone number with us for this purpose.</p>
+      <ul>
+        <li><strong>Email updates.</strong> When you send an update by email, we email your contacts a private link (a "magic link") that opens your website without them needing to type the password. Anyone who has that link can view your website, so only send it to people you trust. Contacts can unsubscribe from update emails at any time.</li>
+        <li><strong>Text messages.</strong> If you choose to text a contact from the app, the message is sent from your own phone using your phone's messaging app and your own carrier plan. We do not send text messages for you, and you are responsible for those messages and any carrier charges.</li>
+        <li><strong>Phone contacts.</strong> If you allow the app to read your phone's contacts, we only use the contacts you pick to add to Your Contacts.</li>
+      </ul>
 
-      <h2>13. Limitation of Liability</h2>
-      <p>To the maximum extent permitted by law, Legacy Odyssey and DOR Industries shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of data, loss of profits, or business interruption, arising from your use of the Service.</p>
-      <p>Our total liability for any claims arising from the Service shall not exceed the amount you paid for the Service in the 12 months preceding the claim.</p>
+      <h2>9. Translation</h2>
+      <p>Visitors can view your website in English, Spanish, or Hindi. The website's menus and labels are prepared in advance, but the content you write (for example stories, letters, and captions) is translated automatically by machine, using our translation provider DeepL, when a visitor chooses another language. Machine translations may be inaccurate or incomplete. Your original text is never changed, and switching back to English always shows exactly what you wrote.</p>
 
-      <h2>14. Indemnification</h2>
-      <p>You agree to indemnify and hold harmless DOR Industries and its officers, directors, and employees from any claims, damages, or expenses arising from your use of the Service or your violation of these terms.</p>
+      <h2>10. Website Passwords and Privacy</h2>
+      <p>Each website is protected by a viewing password that you set. You are responsible for sharing that password, and any magic links, only with people you want to see your website. We are not responsible for access that results from a password or link you shared, or that was shared onward by someone you gave it to. Websites are set up so that search engines are asked not to index them.</p>
 
-      <h2>15. Changes to Terms</h2>
-      <p>We may update these Terms of Service from time to time. We will notify you of material changes by email or through the Service. Your continued use of the Service after changes take effect constitutes acceptance of the updated terms.</p>
+      <h2>11. Acceptable Use</h2>
+      <p>You agree not to use the Service to:</p>
+      <ul>
+        <li>Upload or share content that is illegal, sexually explicit, exploitative of children in any way, harmful, threatening, abusive, or otherwise objectionable</li>
+        <li>Share personal information or images of others without the right to do so</li>
+        <li>Violate any applicable law or regulation, or infringe the intellectual property or privacy rights of others</li>
+        <li>Send spam or unwanted messages through Your Contacts</li>
+        <li>Attempt to gain unauthorized access to the Service or its systems, or interfere with or disrupt the Service</li>
+        <li>Use the Service for commercial purposes other than creating personal websites about your own child or family</li>
+      </ul>
+      <p>We may remove content or suspend accounts that break these rules, and we will report content that appears to exploit children to the appropriate authorities.</p>
 
-      <h2>16. Governing Law</h2>
-      <p>These terms shall be governed by and construed in accordance with the laws of the State of Arizona, United States, without regard to conflict of law principles.</p>
+      <h2>12. Custom Domains</h2>
+      <ul>
+        <li><strong>You choose the domain.</strong> You pick your website's domain at checkout. Please check the spelling carefully before you pay. Once a domain is registered it cannot be changed, exchanged, or refunded, including for spelling mistakes.</li>
+        <li><strong>Registration.</strong> Domains are registered through our registrar partner (currently Spaceship) and are subject to the registrar's terms and to ICANN rules. We manage the domain's DNS settings and security certificates as part of the Service. Domain renewals are included while your plan is active.</li>
+        <li><strong>When a plan ends.</strong> If your plan ends, your website goes offline and we stop renewing the domain. The domain stays registered until its current registration term expires and is then released. If you want to keep the domain, contact us before the term ends and we will help you transfer it to another registrar.</li>
+        <li>Domain registrations are non-refundable in all cases.</li>
+      </ul>
 
-      <h2>17. Contact Us</h2>
-      <p>If you have questions about these Terms of Service, please contact us at:</p>
+      <h2>13. Cancellation, Termination, and Data Retention</h2>
+      <p>You may cancel at any time (Section 4). We may suspend or terminate your account if you break these Terms, if a payment fails and is not resolved, or if required by law.</p>
+      <p><strong>What happens to your data.</strong> When your plan ends, your website goes offline. We keep your photos, videos, and content for <strong>one year</strong> after your plan ends, so you can reactivate and pick up exactly where you left off. If you do not reactivate within that year, your content and account data for that website are permanently deleted, including photos and videos in storage and in our backups. You can ask us to delete your data sooner at any time by contacting us. We keep limited billing and transaction records as required for tax, accounting, and legal purposes. See the <a href="/privacy">Privacy Policy</a> for details.</p>
+
+      <h2>14. Data Export</h2>
+      <p>You can download a copy of your data at any time from your account dashboard ("Download My Data"), or request an export by contacting us at <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>.</p>
+
+      <h2>15. Service Availability</h2>
+      <p>We work to keep the Service available but do not guarantee uninterrupted access. We may perform maintenance or updates, and outages can happen. We will make reasonable efforts to give notice of planned maintenance that affects your website.</p>
+
+      <h2>16. Disclaimer</h2>
+      <p>The Service is provided "as is" and "as available." To the extent permitted by law, we disclaim all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement. We keep backups, but we encourage you to keep your own copies of important photos and videos.</p>
+
+      <h2>17. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, Legacy Odyssey and DOR Industries are not liable for any indirect, incidental, special, consequential, or punitive damages, including loss of data, loss of profits, or business interruption, arising from your use of the Service.</p>
+      <p>Our total liability for any claim arising from the Service will not exceed the amount you paid for the Service in the 12 months before the claim.</p>
+
+      <h2>18. Indemnification</h2>
+      <p>You agree to indemnify and hold harmless DOR Industries and its officers, members, and employees from any claims, damages, or expenses arising from Your Content, your use of the Service, or your violation of these Terms.</p>
+
+      <h2>19. Changes to These Terms</h2>
+      <p>We may update these Terms from time to time. We will post the updated Terms here with a new "Last updated" date and notify account holders of material changes by email or through the Service. If you keep using the Service after the changes take effect, you accept the updated Terms.</p>
+
+      <h2>20. Governing Law</h2>
+      <p>These Terms are governed by the laws of the State of Arizona, United States, without regard to conflict-of-law principles.</p>
+
+      <h2>21. Contact Us</h2>
+      <p>Questions about these Terms? Contact us at:</p>
       <p>
-        <strong>DOR Industries</strong><br>
+        <strong>DOR Industries</strong> (Legacy Odyssey)<br>
+        Mesa, Arizona, USA<br>
         Email: <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>
       </p>
     </div>
@@ -114,6 +162,7 @@
         <li><a href="/#pricing">Pricing</a></li>
         <li><a href="/terms">Terms</a></li>
         <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/do-not-sell-or-share">Do Not Sell or Share My Personal Information</a></li>
         <li><a href="mailto:help@legacyodyssey.com">Contact</a></li>
       </ul>
       <div class="footer-copy">&copy; 2026 Legacy Odyssey. All rights reserved.</div>

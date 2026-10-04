@@ -6,7 +6,7 @@
 >
 > Status legend: ✅ done · 🟡 in progress · 🔴 open / unverified · ⚪ deferred
 
-Last updated: 2026-06-04
+Last updated: 2026-10-04 (C-001..C-009 worked in branch `legal-fixes-2026-10`, pending deploy)
 
 ---
 
@@ -110,6 +110,51 @@ real, not boilerplate.
 
 These are the *closeable* compliance gaps. Far smaller than starting from
 zero.
+
+### C-series status: 2026-10-04 (branch `legal-fixes-2026-10`, NOT deployed yet)
+
+All code/doc work below is committed on branch `legal-fixes-2026-10` (worktree
+`F:\legacy-odyssey-legal`). It is **pending review + merge + deploy** (main auto-deploys).
+Review: `git -C F:/legacy-odyssey-legal diff main...legal-fixes-2026-10 --stat`.
+
+| # | Status | What was done | Still needs Dan |
+|---|---|---|---|
+| C-001 Cloudflare Stream | 🟡 pending deploy | Added to Privacy section 6 table (plus Approximated, Sentry, DeepL, Expo, Microsoft Clarity, Rewardful, Google Ads; AdSense removed: not used). Each verified against code. | Confirm/keep DPAs on file (Cloudflare, Approximated, Sentry, DeepL, Rewardful, Microsoft). |
+| C-002 Approximated | 🟡 pending deploy | Same table, with "processes IP + request details of every custom-domain visit". | Check Approximated's privacy/DPA URL is right (`approximated.app/privacy-policy/` assumed). |
+| C-003 Sentry | 🟡 pending deploy | Same table + section 2.8 "error reports". | None. |
+| C-004 Viewing passwords | 🟡 pending deploy | Privacy new section 2.2: viewing passwords are stored retrievable (not hashed), shown to the owner in dashboard/app, may appear in site-live emails; login passwords are hashed by Supabase Auth. No hashing change made (would break show-password UX). | Optional future: hash viewing passwords + reset flow. |
+| C-005 Retention purge | 🟡 pending deploy, **OFF** | New `src/jobs/dataRetentionPurge.js` (replaces the reminder cron): dry-run by default; real deletes only with `RETENTION_PURGE_ENABLED=true`; only `canceled` families with `cancelled_at` set and `data_retain_until` > 1 day past; skips admins/protected; Stripe must confirm the sub is canceled; max 5/run; deletes Stream videos, storage (recursive), R2 backups, cached translations, rows, auth user (only if no other site uses it); audit row + email report. **Bug fixed:** `softCancelFamily` never set `data_retain_until`, so dashboard/admin cancellations were never eligible; it now sets cancel date + (period end + 365 days). Dry run against prod found **9 cancelled sites with no retention date** (listed in the weekly report; job never guesses dates). | (1) Apply migration 035. (2) Read 1-2 Monday dry-run emails. (3) Decide what to do with the 9 undated sites. (4) Set `RETENTION_PURGE_ENABLED=true` on Railway. |
+| C-006 Terms refresh | 🟡 pending deploy | Terms rewritten: Video Moments caps, galleries, keepsakes, gifts (codes never expire, gifted time starts at redemption, "give it myself"), comp access, multi-site, Your Contacts (magic links by email; texts from the customer's own phone), Entire Childhood Plan (18 years, one-time; price "shown at checkout", no amount hardcoded), domains (customer picks; non-refundable), 1-year retention, Spanish/Hindi machine translation (DeepL), no refunds. Effective date in `src/config/legal.js`. | **Set `TERMS_EFFECTIVE_DATE`/`PRIVACY_EFFECTIVE_DATE` in `src/config/legal.js` to the deploy date.** Optional lawyer pass. |
+| C-007 Breach runbook | ✅ written | `docs/compliance/breach-response-runbook.md` (clocks: GDPR/UK 72h, AZ 45 days, CA, other states; contain steps per vendor; templates). | Read it once. Bind cyber insurance (F-006); its breach coach slots into step 5. |
+| C-008 Signup agreement | 🟡 pending deploy (web) / next build (app) | Required "I agree to the Terms + Privacy" checkbox on `/start/checkout`, `/gift/checkout`, `/redeem`, `/account/add-site`, `/signup`, `/preview/founder`. Server rejects redeem / add-site / free signup without it; embedded checkouts stamp `terms_version` + `terms_accepted_at` on the Stripe PaymentIntent; add-site stamps Checkout metadata. App: accounts are created on the website (app has no in-app signup); Login + Signup screens now show Terms/Privacy links (EN/ES/HI), **needs the next app build**. Not gated: legacy hosted-checkout endpoints used only by `/preview/landing-*` pages and the unrouted `gift.ejs`. | Next `eas build --platform all` (permission rules apply). |
+| C-009 Do Not Sell/Share | 🟡 pending deploy | Footer link "Do Not Sell or Share My Personal Information" on every marketing footer + checkout pages; page `/do-not-sell-or-share` sets `lo_optout` cookie + records optional email; **GPC honored** (Sec-GPC header + `navigator.globalPrivacyControl`): no Meta/Pinterest/Google Ads tags, Google ad consent stays denied + restricted_data_processing, server-side Meta CAPI skipped. Privacy section 10 (CCPA/CPRA + other states). Book viewer unchanged (still tracker-free). | Apply migration 034 (form works without it, cookie-only). |
+
+**Also found (not fixed, flag for Dan):** customer-initiated cancel (`softCancelFamily`) sets
+`subscription_status='canceled'` immediately, which shows the "suspended" page right away. The
+Terms (and rule #11) promise access through the end of the paid period. Needs a product decision /
+code fix (e.g. suspend at `periodEnd`).
+
+**Email unsubscribe (Dan's item 7):** `/unsubscribe` now does GET (link) + POST (RFC 8058
+one-click, which the onboarding drip already advertised but 404'd), applies to every site row
+sharing the email, EJS confirmation page with resubscribe button, `/unsubscribe/verify` for
+scripts. New `src/services/marketingEmail.js`; `scripts/send-*.js` now skip unsubscribed emails,
+use signed per-recipient links + List-Unsubscribe/-Post headers, and refuse `--force` unless
+SESSION_SECRET matches production; `copy-lint` now fails any campaign without the link.
+Column `families.unsubscribed_at` already exists (migration 008).
+
+### D-001 (LLC paperwork): questions only Dan can answer
+
+1. Is DOR Industries, LLC registered with the **Arizona Corporation Commission**? Exact legal name and ACC entity number?
+2. Formation date, and who is listed as **statutory agent** (and their address)?
+3. Member-managed or manager-managed? Are you the **only member**?
+4. Do you have the **EIN** confirmation letter (CP 575 or 147C)? Where is it stored?
+5. Is there a **signed operating agreement**? If not, do you want a single-member template drafted?
+6. Is there a **business bank account and card** in the LLC's name, and do Stripe payouts, Railway, Supabase, Apple, Google, and the domain bills all run through it?
+7. Is the LLC the **contracting party** on Stripe, Apple, Google Play, and the vendor accounts (vs. you personally)?
+8. Mesa/Phoenix city **business license or TPT license**: have you applied? (Feeds F-010.)
+9. Federal tax status: default disregarded entity (Schedule C), or an **S-corp election** (Form 2553)? Who is the CPA?
+10. Any **DBA / trade name** filing for "Legacy Odyssey" in Arizona?
+
 
 ### Specific risks tied to product design (from a quick scan of TODO.md):
 - **Book passwords are plaintext at rest** (TODO security item). Acceptable

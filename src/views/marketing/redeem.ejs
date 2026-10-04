@@ -246,6 +246,7 @@
           <p class="domain-hint">Click Check to confirm the .com is available before redeeming.</p>
         </div>
 
+        <%- include('../partials/terms-agree', { id: 'redeemAcceptTerms' }) %>
         <button type="submit" class="redeem-btn" id="redeemBtn" disabled>Redeem Gift</button>
         <p class="redeem-error" id="redeemError"></p>
       </form>
@@ -279,6 +280,7 @@
         <li><a href="https://legacyodyssey.com">Home</a></li>
         <li><a href="/terms">Terms</a></li>
         <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/do-not-sell-or-share">Do Not Sell or Share My Personal Information</a></li>
       </ul>
       <div class="footer-copy">&copy; 2026 Legacy Odyssey. All rights reserved.</div>
     </div>
@@ -377,6 +379,10 @@
         errorEl.textContent = 'Please check domain availability first.';
         return;
       }
+      if (!document.getElementById('redeemAcceptTerms').checked) {
+        errorEl.textContent = 'Please agree to the Terms of Service and Privacy Policy to continue.';
+        return;
+      }
       btn.disabled = true;
       btn.textContent = 'Redeeming…';
       try {
@@ -387,6 +393,7 @@
             code: document.getElementById('giftCode').value.trim(),
             email: document.getElementById('recipientEmail').value.trim(),
             domain: selectedDomain,
+            acceptTerms: true,
           }),
         });
         const data = await res.json();

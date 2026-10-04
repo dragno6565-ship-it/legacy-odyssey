@@ -91,6 +91,11 @@ app.use(require('./i18n').middleware);
 const features = require('./config/features');
 app.use((req, res, next) => { res.locals.referralsEnabled = features.REFERRALS_ENABLED; next(); });
 
+// Legal document dates/version (Terms, Privacy, signup "I agree" checkbox) →
+// every view as `legal`. Single source: config/legal.js.
+const legal = require('./config/legal');
+app.use((req, res, next) => { res.locals.legal = legal; next(); });
+
 // Rate limiting on auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -217,10 +222,12 @@ const server = app.listen(PORT, () => {
   const { startLeadNurtureScheduler } = require('./jobs/leadNurture');
   startLeadNurtureScheduler();
 
-  // Weekly: remind admin to manually delete accounts past their 1-year
-  // retention window (interim stand-in for the #38 auto-purge job).
-  const { startDataRetentionReminderScheduler } = require('./jobs/dataRetentionReminder');
-  startDataRetentionReminderScheduler();
+  // Weekly: data-retention purge (C-005 / #38). Deletes cancelled websites
+  // whose 1-year retention window has passed. DRY RUN unless
+  // RETENTION_PURGE_ENABLED=true; the dry-run report email replaces the old
+  // reminder (jobs/dataRetentionReminder.js, kept for reference, no longer scheduled).
+  const { startDataRetentionPurgeScheduler } = require('./jobs/dataRetentionPurge');
+  startDataRetentionPurgeScheduler();
 
   // Weekly: video usage/cost monitor (Cloudflare Stream storage + delivery).
   // Inert until the videos table (migration 026) + Stream env vars exist.

@@ -626,7 +626,7 @@ async function createGiftPaymentIntent({ buyerEmail, buyerName, recipientName, r
  * Kept around for any deeplinks / older mobile installs that still hit the
  * `/api/stripe/create-additional-site-checkout` route.
  */
-async function createAdditionalSiteCheckout({ email, authUserId, subdomain, domain, bookName, successUrl, cancelUrl }) {
+async function createAdditionalSiteCheckout({ email, authUserId, subdomain, domain, bookName, termsVersion, successUrl, cancelUrl }) {
   if (!stripe) throw new Error('Stripe not configured');
 
   const priceId = PRICES.subscription.annualIntro;
@@ -640,6 +640,8 @@ async function createAdditionalSiteCheckout({ email, authUserId, subdomain, doma
     book_name: bookName || '',
   };
   if (domain) metadata.domain = domain;
+  // Record of the "I agree to the Terms + Privacy" checkbox (C-008).
+  if (termsVersion) { metadata.terms_version = termsVersion; metadata.terms_accepted_at = new Date().toISOString(); }
 
   const sessionParams = {
     mode: 'subscription',

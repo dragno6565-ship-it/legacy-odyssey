@@ -140,7 +140,12 @@ router.post('/switch-site', requireAccountSession, async (req, res) => {
 // cookie-authenticated entry point. Same price as a fresh signup: $29 first year,
 // then $49.99/year.
 router.get('/add-site', requireAccountSession, (req, res) => {
-  res.render('marketing/add-site', { family: req.family, appDomain: APP_DOMAIN(), error: null });
+  const ERRORS = {
+    terms: 'Please agree to the Terms of Service and Privacy Policy to continue.',
+    missing: 'Please pick a web address for the new site.',
+    account: 'We could not find the login for this account. Please sign in again.',
+  };
+  res.render('marketing/add-site', { family: req.family, appDomain: APP_DOMAIN(), error: ERRORS[req.query.error] || null });
 });
 
 router.post('/add-site/checkout', requireAccountSession, async (req, res, next) => {
@@ -150,6 +155,8 @@ router.post('/add-site/checkout', requireAccountSession, async (req, res, next) 
     const domain = ((req.body.domain || '').trim().toLowerCase() || null);
     const bookName = (req.body.bookName || '').trim();
     if (!subdomain) return res.redirect('/account/add-site?error=missing');
+    // Terms + Privacy agreement required for the new site's plan (C-008).
+    if (!require('../config/legal').hasAcceptedTerms(req.body)) return res.redirect('/account/add-site?error=terms');
     if (!req.family.auth_user_id) return res.redirect('/account/add-site?error=account');
     const appDomain = APP_DOMAIN();
     const session = await stripeService.createAdditionalSiteCheckout({
@@ -158,6 +165,7 @@ router.post('/add-site/checkout', requireAccountSession, async (req, res, next) 
       subdomain,
       domain,
       bookName,
+      termsVersion: require('../config/legal').TERMS_VERSION,
       successUrl: `https://${appDomain}/additional-site/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `https://${appDomain}/account/add-site`,
     });

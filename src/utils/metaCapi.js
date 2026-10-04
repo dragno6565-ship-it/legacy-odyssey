@@ -13,7 +13,16 @@ function hash(value) {
   return crypto.createHash('sha256').update(value.toLowerCase().trim()).digest('hex');
 }
 
-async function sendCapiEvent({ eventName, eventId, userData = {}, customData = {}, eventSourceUrl, clientIpAddress, clientUserAgent }) {
+async function sendCapiEvent({ eventName, eventId, userData = {}, customData = {}, eventSourceUrl, clientIpAddress, clientUserAgent, optOut = false }) {
+  // CCPA/CPRA "Do Not Sell or Share" (C-009): skip when the request carried a
+  // GPC signal / lo_optout cookie (caller passes optOut), or when this email is
+  // on the privacy_optouts list (from the /do-not-sell-or-share form).
+  if (optOut) return;
+  try {
+    const { isEmailOptedOut } = require('./privacyOptOut');
+    if (userData && userData.email && await isEmailOptedOut(userData.email)) return;
+  } catch (_) { /* never block on the opt-out lookup */ }
+
   if (!ACCESS_TOKEN) {
     console.warn('META_CAPI_ACCESS_TOKEN not set — skipping CAPI event:', eventName);
     return;

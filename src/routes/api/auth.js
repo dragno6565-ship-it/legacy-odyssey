@@ -22,6 +22,11 @@ router.post('/signup', async (req, res, next) => {
     if (!email || !password || !subdomain) {
       return res.status(400).json({ error: 'email, password, and subdomain are required' });
     }
+    // Account creation requires agreeing to the Terms + Privacy Policy (C-008).
+    const legal = require('../../config/legal');
+    if (!legal.hasAcceptedTerms(req.body)) {
+      return res.status(400).json({ error: legal.TERMS_REQUIRED_MESSAGE });
+    }
 
     // Check subdomain availability
     const existing = await familyService.findBySubdomain(subdomain);

@@ -7,6 +7,14 @@
   window.LO_CONSENT_REQUIRED = <%= (typeof consentRequired !== 'undefined' && consentRequired) ? 'true' : 'false' %>;
   // Microsoft Clarity project id (empty unless CLARITY_PROJECT_ID is set in env).
   window.LO_CLARITY_ID = '<%= (typeof clarityProjectId !== 'undefined' && clarityProjectId) ? clarityProjectId : '' %>';
+  // CCPA/CPRA "Do Not Sell or Share" opt-out (C-009). True when the server saw
+  // the GPC header or the lo_optout cookie (middleware/consentRegion.js), or the
+  // browser exposes navigator.globalPrivacyControl, or the cookie is present
+  // client-side (covers cached pages). When true, ad pixels (Google Ads, Meta,
+  // Pinterest) never load and Google ad signals stay denied; analytics may run.
+  window.LO_AD_OPTOUT = <%= (typeof adOptOut !== 'undefined' && adOptOut) ? 'true' : 'false' %>
+    || (typeof navigator !== 'undefined' && navigator.globalPrivacyControl === true)
+    || /(?:^|;\s*)lo_optout=1(?:;|$)/.test(document.cookie || '');
 </script>
 
 <!-- Google Analytics 4 (Consent Mode v2) -->
@@ -20,6 +28,12 @@
     ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
     analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted'
   });
+  if (window.LO_AD_OPTOUT) {
+    // Google's CCPA mechanism: restricted data processing + no ad signals.
+    gtag('set', 'restricted_data_processing', true);
+    gtag('set', 'allow_google_signals', false);
+    gtag('set', 'allow_ad_personalization_signals', false);
+  }
   gtag('js', new Date());
   <% if (typeof landingVariant !== 'undefined' && landingVariant) { %>
   gtag('set', { 'landing_variant': '<%= landingVariant %>' });
@@ -28,7 +42,7 @@
   // Google Ads tag (account 517-079-2970) — required for the "Purchase" conversion
   // (URL-based: /stripe/success) to fire. Without this the conversion is Inactive
   // and Ads counts 0 — the cause of the 549-clicks / 0-conversions history.
-  gtag('config', 'AW-18137400874');
+  if (!window.LO_AD_OPTOUT) gtag('config', 'AW-18137400874');
 
   // Safe stubs so any fbq()/pintrk() calls queue harmlessly before/without consent.
   (function (f) {
@@ -53,11 +67,17 @@
   // and loads the remote analytics/ad scripts + their PageView events.
   window.loEnableTracking = function () {
     if (window.__loTrackingOn) return; window.__loTrackingOn = true;
-    gtag('consent', 'update', { ad_storage:'granted', ad_user_data:'granted', ad_personalization:'granted', analytics_storage:'granted' });
-    var fb = document.createElement('script'); fb.async = true; fb.src = 'https://connect.facebook.net/en_US/fbevents.js'; document.head.appendChild(fb);
-    fbq('init', '839009299208301'); fbq('track', 'PageView');
-    var pi = document.createElement('script'); pi.async = true; pi.src = 'https://s.pinimg.com/ct/core.js'; document.head.appendChild(pi);
-    pintrk('load', '2613467907928'); pintrk('page');
+    if (window.LO_AD_OPTOUT) {
+      // Opted out of sale/sharing: analytics only. Ad storage stays denied and
+      // the Meta / Pinterest pixels are never loaded (their stubs just queue).
+      gtag('consent', 'update', { analytics_storage:'granted' });
+    } else {
+      gtag('consent', 'update', { ad_storage:'granted', ad_user_data:'granted', ad_personalization:'granted', analytics_storage:'granted' });
+      var fb = document.createElement('script'); fb.async = true; fb.src = 'https://connect.facebook.net/en_US/fbevents.js'; document.head.appendChild(fb);
+      fbq('init', '839009299208301'); fbq('track', 'PageView');
+      var pi = document.createElement('script'); pi.async = true; pi.src = 'https://s.pinimg.com/ct/core.js'; document.head.appendChild(pi);
+      pintrk('load', '2613467907928'); pintrk('page');
+    }
     var hj = document.createElement('script'); hj.async = true; hj.src = 'https://t.contentsquare.net/uxa/38cdf4e1f1a56.js'; document.head.appendChild(hj);
     // Microsoft Clarity (heatmaps + session recordings) — only when a project id
     // is configured. Loaded here so it inherits the same EU/UK consent gating.

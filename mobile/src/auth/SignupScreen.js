@@ -11,6 +11,7 @@ import { BookOpen } from 'lucide-react-native';
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { useI18n } from '../i18n/I18nContext';
 import LanguageToggle from '../components/LanguageToggle';
+import LegalLinks from '../components/LegalLinks';
 
 export default function SignupScreen({ navigation }) {
   const { t } = useI18n();
@@ -65,6 +66,9 @@ export default function SignupScreen({ navigation }) {
             <Text style={styles.linkBold}>{t('app.signup.sign_in')}</Text>
           </Text>
         </TouchableOpacity>
+
+        {/* Terms + Privacy (C-008) */}
+        <LegalLinks />
       </View>
     </SafeAreaView>
   );

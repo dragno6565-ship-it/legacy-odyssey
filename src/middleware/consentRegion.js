@@ -32,6 +32,11 @@ module.exports = function consentRegion(req, res, next) {
     required = CONSENT_COUNTRIES.has(country);
   }
   res.locals.consentRequired = required;
+  // CCPA/CPRA "Do Not Sell or Share" opt-out: true when the browser sends the
+  // Global Privacy Control signal (Sec-GPC: 1) or the visitor used the
+  // /do-not-sell-or-share form (lo_optout cookie). partials/tracking.ejs then
+  // skips the ad pixels (Meta, Pinterest, Google Ads) for this visitor.
+  res.locals.adOptOut = require('../utils/privacyOptOut').isAdOptOut(req);
   // Microsoft Clarity project id (heatmaps + session recordings). Driven by an
   // env var so the project can be created/rotated without a code change; the
   // tracking partial loads Clarity only when this is set AND consent is granted.

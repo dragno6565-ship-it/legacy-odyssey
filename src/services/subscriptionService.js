@@ -97,12 +97,20 @@ async function softCancelFamily(family, { source = 'unknown', sendEmail = true }
     }
   }
 
-  // 3. Mark family as archived + canceled
+  // 3. Mark family as archived + canceled, and start the data-retention clock:
+  //    content is kept for one year after the paid period ends, then purged by
+  //    jobs/dataRetentionPurge.js (Privacy Policy section 8, Terms section 13).
+  //    Without this, archived families never got data_retain_until (the Stripe
+  //    webhook ignores archived rows), so the retention promise was unenforced.
+  const now = new Date();
+  const retainFrom = periodEnd && !isNaN(new Date(periodEnd).getTime()) && new Date(periodEnd) > now ? new Date(periodEnd) : now;
   await supabaseAdmin
     .from('families')
     .update({
       subscription_status: 'canceled',
-      archived_at: new Date().toISOString(),
+      archived_at: now.toISOString(),
+      cancelled_at: family.cancelled_at || now.toISOString(),
+      data_retain_until: new Date(retainFrom.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString(),
     })
     .eq('id', family.id);
   summary.push('Family marked archived; book is now suspended');
@@ -231,6 +239,7 @@ async function reactivateFamily(family, { source = 'unknown' } = {}) {
       archived_at: null,
       subscription_status: 'active',
       cancelled_at: null,
+      data_retain_until: null,
     })
     .eq('id', family.id);
   summary.push('Cleared archived_at; subscription_status=active');

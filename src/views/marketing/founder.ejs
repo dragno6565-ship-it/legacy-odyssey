@@ -392,6 +392,7 @@
           <textarea id="fdNote" name="founderNote" placeholder="A note, a question, or just hello — completely optional."></textarea>
         </div>
 
+        <%- include('../partials/terms-agree', { id: 'fdAcceptTerms' }) %>
         <button type="submit" class="fd-form-submit" id="fdSubmit" disabled>Continue to checkout — $29/year</button>
         <p class="fd-form-error" id="fdError"></p>
         <p class="fd-form-finepr">You'll be sent to Stripe to complete payment. We never store your card on our side.</p>
@@ -415,6 +416,7 @@
         <li><a href="/blog">Blog</a></li>
         <li><a href="/terms">Terms</a></li>
         <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/do-not-sell-or-share">Do Not Sell or Share My Personal Information</a></li>
       </ul>
     </div>
     <div class="fd-footer-bottom">
@@ -493,6 +495,7 @@
       const founderNote = document.getElementById('fdNote').value.trim();
       if (!email) { errorEl.textContent = 'Please enter your email.'; return; }
       if (!confirmedDomain) { errorEl.textContent = 'Please check that your domain is available first.'; return; }
+      if (!document.getElementById('fdAcceptTerms').checked) { errorEl.textContent = 'Please agree to the Terms of Service and Privacy Policy to continue.'; return; }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Processing…';
@@ -500,7 +503,7 @@
         const res = await fetch('/api/stripe/create-founder-page-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, domain: confirmedDomain, founderNote, referral: (window.Rewardful && window.Rewardful.referral) || null }),
+          body: JSON.stringify({ email, domain: confirmedDomain, founderNote, acceptTerms: true, referral: (window.Rewardful && window.Rewardful.referral) || null }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Something went wrong.');

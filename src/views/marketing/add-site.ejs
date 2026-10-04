@@ -39,6 +39,7 @@
       <br><span class="price">$29 your first year, then $49.99/year.</span> Cancel anytime.
     </p>
 
+    <% if (error) { %><p class="muted" role="alert" style="color:#c0392b;margin:0 0 1rem;"><%= error %></p><% } %>
     <div class="card">
       <label for="nameInput">Your child's name (or the web address you'd like)</label>
       <div class="row">
@@ -52,6 +53,7 @@
         <input type="hidden" name="subdomain" id="f_subdomain">
         <input type="hidden" name="domain" id="f_domain">
         <input type="hidden" name="bookName" id="f_bookName">
+        <%- include('../partials/terms-agree', { id: 'addSiteAcceptTerms', required: true }) %>
         <button type="submit" class="btn-gold" id="checkoutBtn" style="width:100%;">Continue to checkout — $29</button>
         <p class="muted" style="text-align:center;margin:0.75rem 0 0;">You'll confirm payment securely on Stripe.</p>
       </form>

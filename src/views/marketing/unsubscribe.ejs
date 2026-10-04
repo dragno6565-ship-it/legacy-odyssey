@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title><%= state === 'resubscribed' ? 'Resubscribed' : (state === 'unsubscribed' ? 'Unsubscribed' : 'Unsubscribe') %> | Legacy Odyssey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; background:#faf7f2; font-family:'Jost',sans-serif; color:#2c2416; padding:40px 20px; min-height:80vh; display:flex; align-items:center; justify-content:center; }
+    .card { max-width:520px; width:100%; box-sizing:border-box; background:#fff; border:1px solid #e0d5c4; border-radius:14px; padding:44px 36px; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.06); }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:30px; margin:0 0 12px; color:#1a1510; font-weight:600; }
+    p { color:#5e564a; line-height:1.6; margin:0 0 16px; }
+    .muted { font-size:13px; color:#8a7e6b; }
+    button { margin-top:12px; padding:11px 26px; background:transparent; border:1px solid #c8a96e; color:#b08e4a; border-radius:8px; font-weight:600; font-size:14px; font-family:inherit; cursor:pointer; }
+    button:hover { background:#c8a96e; color:#fff; }
+    a { color:#b08e4a; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <% if (state === 'unsubscribed') { %>
+      <h1>You've been unsubscribed</h1>
+      <p>We won't send <strong><%= email %></strong> any more Legacy Odyssey news, tips, or announcements.</p>
+      <p class="muted">You'll still get emails about your account and your website (receipts, password resets, and notices like "your website is live"), because those are part of the service.</p>
+      <form method="POST" action="/unsubscribe/resubscribe">
+        <input type="hidden" name="token" value="<%= token %>">
+        <button type="submit">Changed your mind? Resubscribe</button>
+      </form>
+    <% } else if (state === 'resubscribed') { %>
+      <h1>You're back on the list</h1>
+      <p>Welcome back. <strong><%= email %></strong> will receive Legacy Odyssey news and tips again. You can unsubscribe at any time from the link in any of those emails.</p>
+      <p><a href="/">Go to legacyodyssey.com</a></p>
+    <% } else if (state === 'notfound') { %>
+      <h1>Account not found</h1>
+      <p>We couldn't find the account for this link. If you'd like to stop receiving our emails, reply to any email and let us know.</p>
+    <% } else { %>
+      <h1>This link isn't valid</h1>
+      <p>This unsubscribe link isn't valid. If you'd like to stop receiving our emails, reply to any email or write to <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a> and we'll take care of it.</p>
+    <% } %>
+  </div>
+</body>
+</html>

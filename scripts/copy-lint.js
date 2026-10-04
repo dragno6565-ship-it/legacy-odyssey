@@ -16,6 +16,7 @@
 //   - Mass emails greet "Hi Legacy Odyssey Customer," (no first names).
 //   - No banned brand words: forever, chapter, family book / family's story.
 //   - No prices unless explicitly allowed via opts.allowPrice.
+//   - A one-click unsubscribe link (/unsubscribe?token=) unless opts.requireUnsubscribe=false.
 
 const FATAL_PATTERNS = [
   { re: /web\s?address/i, why: 'say "website" or "site", never "web address" (Dan 2026-07-14)' },
@@ -45,7 +46,7 @@ function stripHtml(html) {
     .replace(/&nbsp;/g, ' ');
 }
 
-function assertCleanCustomerCopy({ subject = '', html = '', text = '', allowPrice = false, requireGreeting = true }) {
+function assertCleanCustomerCopy({ subject = '', html = '', text = '', allowPrice = false, requireGreeting = true, requireUnsubscribe = true }) {
   const visible = `${subject}\n${stripHtml(html)}\n${text}`;
   const violations = [];
 
@@ -56,6 +57,13 @@ function assertCleanCustomerCopy({ subject = '', html = '', text = '', allowPric
   if (!allowPrice) violations.push(...priceViolations(visible));
   if (requireGreeting && !/Hi Legacy Odyssey Customer,/.test(visible)) {
     violations.push('mass emails must greet exactly "Hi Legacy Odyssey Customer," (no first names) (Dan 2026-07-14)');
+  }
+
+  // Marketing/announcement emails must carry a real one-click unsubscribe link
+  // (signed /unsubscribe?token= URL from src/services/marketingEmail.js), not a
+  // mailto. Pass requireUnsubscribe:false only for transactional emails.
+  if (requireUnsubscribe && !/\/unsubscribe\?token=/.test(html)) {
+    violations.push('missing one-click unsubscribe link: use unsubscribeUrl(familyId) from src/services/marketingEmail.js in the footer, plus unsubscribeHeaders() (legal fix 2026-10)');
   }
 
   if (violations.length) {

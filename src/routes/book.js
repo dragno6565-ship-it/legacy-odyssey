@@ -449,57 +449,70 @@ router.get('/download', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/download.html'));
 });
 
-// GET /unsubscribe?token=... — One-click unsubscribe from drip-campaign emails.
-// Honoured by the daily onboarding cron — anyone with unsubscribed_at set is
-// skipped. Transactional emails (welcome, cancellation, password reset) still
-// send because they're operationally necessary.
-router.get('/unsubscribe', async (req, res) => {
-  const { verifyUnsubscribeToken } = require('../services/unsubscribeTokens');
-  const { supabaseAdmin } = require('../config/supabase');
-  const familyId = verifyUnsubscribeToken(req.query.token);
-  if (!familyId) {
-    return res.status(400).send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unsubscribe</title></head><body style="font-family:Georgia,serif;background:#faf7f2;padding:40px;text-align:center;color:#2c2416;"><h1>Invalid or expired link</h1><p>This unsubscribe link isn't valid. If you'd like to opt out, just reply to any email and let us know.</p></body></html>`);
-  }
-  const { data: family } = await supabaseAdmin.from('families').select('id, email, unsubscribed_at').eq('id', familyId).maybeSingle();
-  if (!family) {
-    return res.status(404).send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unsubscribe</title></head><body style="font-family:Georgia,serif;background:#faf7f2;padding:40px;text-align:center;color:#2c2416;"><h1>Account not found</h1></body></html>`);
-  }
-
-  // Resubscribe path: ?action=resubscribe
-  if (req.query.action === 'resubscribe') {
-    await supabaseAdmin.from('families').update({ unsubscribed_at: null }).eq('id', familyId);
-    return res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resubscribed</title></head><body style="font-family:Georgia,serif;background:#faf7f2;padding:40px;text-align:center;color:#2c2416;"><h1>You're back on the list</h1><p>Welcome back, ${family.email}. You'll receive Legacy Odyssey emails again.</p></body></html>`);
-  }
-
-  if (!family.unsubscribed_at) {
-    await supabaseAdmin.from('families').update({ unsubscribed_at: new Date().toISOString() }).eq('id', familyId);
-  }
-  const resubUrl = `/unsubscribe?token=${req.query.token}&action=resubscribe`;
-  res.send(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Unsubscribed — Legacy Odyssey</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-      body { background:#faf7f2; font-family:'Jost',sans-serif; color:#2c2416; padding:40px 20px; min-height:80vh; display:flex; align-items:center; justify-content:center; }
-      .card { max-width:520px; background:#fff; border:1px solid #e0d5c4; border-radius:14px; padding:48px 40px; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.06); }
-      h1 { font-family:'Cormorant Garamond',serif; font-size:30px; margin:0 0 12px; color:#1a1a2e; }
-      p { color:#8a7e6b; line-height:1.6; margin:0 0 16px; }
-      .muted { font-size:13px; color:#a09080; }
-      a.btn { display:inline-block; margin-top:18px; padding:11px 26px; background:transparent; border:1px solid #c8a96e; color:#c8a96e; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; }
-      a.btn:hover { background:#c8a96e; color:#fff; }
-    </style></head>
-    <body><div class="card">
-      <h1>You've been unsubscribed</h1>
-      <p>We've removed <strong>${family.email}</strong> from our marketing emails.</p>
-      <p class="muted">You'll still receive transactional emails (welcome, password resets, billing confirmations) — those are part of your account and can't be turned off.</p>
-      <a class="btn" href="${resubUrl}">Changed your mind? Resubscribe</a>
-    </div></body></html>`);
+// ─── Marketing-email unsubscribe (one-click) ───────────────────────────────────
+// Links come from services/marketingEmail.js + emailService.sendOnboardingEmail:
+//   https://legacyodyssey.com/unsubscribe?token=<HMAC token for a family id>
+// GET  /unsubscribe?token=   footer link: unsubscribes immediately + confirmation page
+// POST /unsubscribe?token=   RFC 8058 one-click (Gmail/Apple "Unsubscribe" button,
+//                            body "List-Unsubscribe=One-Click"); also accepts token in body
+// POST /unsubscribe/resubscribe   undo button on the confirmation page
+// GET  /unsubscribe/verify?token= side-effect-free signature check used by the send
+//                            scripts to prove their SESSION_SECRET matches production
+// Unsubscribing sets families.unsubscribed_at on EVERY site row that shares the
+// email (multi-site accounts). Transactional emails are unaffected.
+const unsubscribeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests. Please try again in a few minutes.',
 });
+
+async function handleUnsubscribe(req, res, { resubscribe = false } = {}) {
+  const { verifyUnsubscribeToken } = require('../services/unsubscribeTokens');
+  const { setUnsubscribed } = require('../services/marketingEmail');
+  const { supabaseAdmin } = require('../config/supabase');
+  const token = (req.query && req.query.token) || (req.body && req.body.token) || '';
+  const isOneClick = req.method === 'POST' && !resubscribe
+    && req.body && String(req.body['List-Unsubscribe'] || '').toLowerCase() === 'one-click';
+
+  const familyId = verifyUnsubscribeToken(token);
+  if (!familyId) {
+    if (isOneClick) return res.status(400).type('text/plain').send('Invalid unsubscribe token');
+    return res.status(400).render('marketing/unsubscribe', { state: 'invalid', email: null, token: '' });
+  }
+  let email = null;
+  try {
+    email = await setUnsubscribed(supabaseAdmin, familyId, !resubscribe);
+  } catch (err) {
+    console.error('[unsubscribe] update failed:', err.message);
+    if (isOneClick) return res.status(500).type('text/plain').send('Could not process unsubscribe');
+    return res.status(500).render('marketing/unsubscribe', { state: 'invalid', email: null, token: '' });
+  }
+  if (!email) {
+    if (isOneClick) return res.status(404).type('text/plain').send('Not found');
+    return res.status(404).render('marketing/unsubscribe', { state: 'notfound', email: null, token: '' });
+  }
+  console.log(`[unsubscribe] ${resubscribe ? 'resubscribed' : 'unsubscribed'} family ${familyId}${isOneClick ? ' (one-click)' : ''}`);
+  if (isOneClick) return res.status(200).type('text/plain').send('Unsubscribed');
+  return res.render('marketing/unsubscribe', { state: resubscribe ? 'resubscribed' : 'unsubscribed', email, token });
+}
+
+router.get('/unsubscribe/verify', unsubscribeLimiter, (req, res) => {
+  const { verifyUnsubscribeToken } = require('../services/unsubscribeTokens');
+  res.set('Cache-Control', 'no-store');
+  res.json({ valid: !!verifyUnsubscribeToken(req.query.token) });
+});
+router.get('/unsubscribe', unsubscribeLimiter, (req, res) => handleUnsubscribe(req, res));
+router.post('/unsubscribe', unsubscribeLimiter, (req, res) => handleUnsubscribe(req, res));
+router.post('/unsubscribe/resubscribe', unsubscribeLimiter, (req, res) => handleUnsubscribe(req, res, { resubscribe: true }));
 
 // GET /signup — Free account signup page
 router.get('/signup', (req, res) => {
   res.render('marketing/signup');
 });
 
-// GET /terms — Terms of Service
+// GET /terms — Terms of Service (effective date: res.locals.legal, config/legal.js)
 router.get('/terms', (req, res) => {
   res.render('marketing/terms');
 });
@@ -507,6 +520,41 @@ router.get('/terms', (req, res) => {
 // GET /privacy — Privacy Policy
 router.get('/privacy', (req, res) => {
   res.render('marketing/privacy');
+});
+
+// ─── CCPA/CPRA "Do Not Sell or Share My Personal Information" (C-009) ─────────
+// GET shows the current status (GPC / cookie) + the opt-out form. POST sets the
+// lo_optout cookie for this browser and, when an email is given, records it in
+// privacy_optouts (migration 034) so server-side Meta CAPI skips that email.
+// The tracking partial reads the cookie/GPC and drops the ad pixels.
+const dnsLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
+router.get('/do-not-sell-or-share', (req, res) => {
+  const { hasGpc, isAdOptOut } = require('../utils/privacyOptOut');
+  res.set('Cache-Control', 'no-store');
+  res.render('marketing/do-not-sell', { gpc: hasGpc(req), optedOut: isAdOptOut(req), submitted: false, recordedEmail: null });
+});
+router.post('/do-not-sell-or-share', dnsLimiter, async (req, res) => {
+  const { OPTOUT_COOKIE, OPTOUT_COOKIE_MAX_AGE_MS, hasGpc, rememberEmailOptOut } = require('../utils/privacyOptOut');
+  const raw = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) && raw.length <= 254 ? raw : null;
+  res.cookie(OPTOUT_COOKIE, '1', {
+    maxAge: OPTOUT_COOKIE_MAX_AGE_MS,
+    httpOnly: false, // read client-side by partials/tracking.ejs (cached pages)
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+  let recordedEmail = null;
+  try {
+    const { supabaseAdmin } = require('../config/supabase');
+    const { error } = await supabaseAdmin.from('privacy_optouts').insert({ email, gpc: hasGpc(req), source: 'web_form' });
+    if (error) throw error;
+    if (email) { recordedEmail = email; rememberEmailOptOut(email); }
+  } catch (err) {
+    // Cookie opt-out still applies; log so a missing migration is noticed.
+    console.error('[do-not-sell] could not record opt-out (is migration 034 applied?):', err.message);
+  }
+  res.set('Cache-Control', 'no-store');
+  res.render('marketing/do-not-sell', { gpc: hasGpc(req), optedOut: true, submitted: true, recordedEmail, adOptOut: true });
 });
 
 // Blog posts registry — add new posts here
@@ -779,6 +827,7 @@ router.get('/stripe/success', async (req, res) => {
       eventSourceUrl: 'https://legacyodyssey.com/success',
       clientIpAddress: req.ip || req.headers['x-forwarded-for'],
       clientUserAgent: req.headers['user-agent'],
+      optOut: require('../utils/privacyOptOut').isAdOptOut(req),
     });
 
 
@@ -959,6 +1008,7 @@ router.get('/start/welcome', async (req, res) => {
               eventSourceUrl: 'https://legacyodyssey.com/start/welcome',
               clientIpAddress: req.ip || req.headers['x-forwarded-for'],
               clientUserAgent: req.headers['user-agent'],
+              optOut: require('../utils/privacyOptOut').isAdOptOut(req),
             });
           } catch (capiErr) {
             console.error('[start/welcome] Meta CAPI failed:', capiErr.message);
@@ -1014,6 +1064,7 @@ router.get('/gift/thank-you', async (req, res) => {
             eventSourceUrl: 'https://legacyodyssey.com/gift/thank-you',
             clientIpAddress: req.ip || req.headers['x-forwarded-for'],
             clientUserAgent: req.headers['user-agent'],
+            optOut: require('../utils/privacyOptOut').isAdOptOut(req),
           });
         } catch (capiErr) {
           console.error('[gift/thank-you] Meta CAPI failed:', capiErr.message);

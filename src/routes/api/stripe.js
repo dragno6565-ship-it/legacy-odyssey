@@ -167,12 +167,45 @@ router.post('/create-signup-intent', async (req, res, next) => {
   }
 });
 
+// POST /api/stripe/record-terms-acceptance
+// The embedded checkouts (/start/checkout, /gift/checkout) require the "I agree
+// to the Terms + Privacy" checkbox before Pay. The PaymentIntent already exists
+// by then, so the page posts its client secret here and we stamp the agreement
+// onto the PaymentIntent's metadata (terms_version + terms_accepted_at) as the
+// record of consent (C-008). The client secret proves the caller owns this
+// payment. Best-effort from the page's side: payment is never blocked on it.
+router.post('/record-terms-acceptance', async (req, res) => {
+  try {
+    const legal = require('../../config/legal');
+    if (!legal.hasAcceptedTerms(req.body)) return res.status(400).json({ error: legal.TERMS_REQUIRED_MESSAGE });
+    const secret = String(req.body.clientSecret || '');
+    const m = secret.match(/^(pi_[A-Za-z0-9]+)_secret_[A-Za-z0-9]+$/);
+    if (!m) return res.status(400).json({ error: 'invalid client secret' });
+    const { stripe } = require('../../config/stripe');
+    if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
+    const pi = await stripe.paymentIntents.retrieve(m[1]);
+    if (!pi || pi.client_secret !== secret) return res.status(403).json({ error: 'forbidden' });
+    await stripe.paymentIntents.update(pi.id, {
+      metadata: { terms_version: legal.TERMS_VERSION, terms_accepted_at: new Date().toISOString() },
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[record-terms-acceptance]', err.message);
+    res.status(500).json({ error: 'could not record' });
+  }
+});
+
 // POST /api/stripe/redeem-gift
 router.post('/redeem-gift', async (req, res, next) => {
   try {
     const { code, email, domain } = req.body;
     if (!code || !email) {
       return res.status(400).json({ error: 'code and email are required' });
+    }
+    // Redeeming creates the recipient's account: Terms + Privacy agreement required (C-008).
+    const legal = require('../../config/legal');
+    if (!legal.hasAcceptedTerms(req.body)) {
+      return res.status(400).json({ error: legal.TERMS_REQUIRED_MESSAGE });
     }
 
     const giftService = require('../../services/giftService');

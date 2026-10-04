@@ -217,6 +217,7 @@ router.post('/', waitlistLimiter, async (req, res) => {
       eventSourceUrl: 'https://legacyodyssey.com',
       clientIpAddress: req.ip || req.headers['x-forwarded-for'],
       clientUserAgent: req.headers['user-agent'],
+      optOut: require('../../utils/privacyOptOut').isAdOptOut(req),
     });
 
     // Route the right email per source (fire and forget — never block response):

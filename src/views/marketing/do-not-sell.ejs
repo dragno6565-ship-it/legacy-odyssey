@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Do Not Sell or Share My Personal Information | Legacy Odyssey</title>
+  <meta name="description" content="Opt out of the sale or sharing of your personal information for advertising on the Legacy Odyssey marketing website.">
+  <meta name="robots" content="noindex">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/marketing.css">
+  <%# Tracking partial respects the opt-out (adOptOut / GPC / lo_optout cookie). %>
+  <%- include('../partials/tracking') %>
+  <style>
+    .dns-card { background:#fff; border:1px solid #e0d5c4; border-radius:12px; padding:1.5rem; margin:1.5rem 0; }
+    .dns-card label { display:block; font-size:0.85rem; letter-spacing:0.04em; text-transform:uppercase; color:#8a7e6b; margin-bottom:0.4rem; }
+    .dns-card input[type=email] { width:100%; box-sizing:border-box; padding:0.7rem 0.85rem; border:1px solid #e0d5c4; border-radius:6px; font-family:'Jost',sans-serif; font-size:1rem; }
+    .dns-card button { margin-top:1rem; padding:0.8rem 1.6rem; background:#c8a96e; color:#1a1510; border:none; border-radius:6px; font-family:'Jost',sans-serif; font-weight:600; font-size:0.95rem; cursor:pointer; }
+    .dns-card button:hover { background:#d4bb8a; }
+    .dns-status { padding:1rem 1.25rem; border-radius:10px; margin:1rem 0 1.5rem; font-size:0.98rem; line-height:1.6; }
+    .dns-status.on { background:rgba(46,125,50,0.08); border:1px solid rgba(46,125,50,0.35); color:#2e5d31; }
+    .dns-status.off { background:rgba(200,169,110,0.10); border:1px solid rgba(200,169,110,0.4); color:#5e564a; }
+    .dns-hint { font-size:0.85rem; color:#8a7e6b; margin-top:0.6rem; }
+  </style>
+</head>
+<body>
+
+  <nav class="marketing-nav" id="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">Legacy <span>Odyssey</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#pricing">Pricing</a></li>
+        <li><a href="/#help">Help</a></li>
+        <li><a href="/#pricing" class="nav-cta">Get Started</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="legal-page">
+    <div class="legal-container">
+      <h1>Do Not Sell or Share My Personal Information</h1>
+      <p class="legal-updated">Your privacy choices</p>
+
+      <% if (typeof submitted !== 'undefined' && submitted) { %>
+        <div class="dns-status on" role="status">
+          <strong>You're opted out.</strong> Advertising pixels are now turned off for you in this browser<% if (typeof recordedEmail !== 'undefined' && recordedEmail) { %>, and we've recorded your request for <strong><%= recordedEmail %></strong> so we stop sending your purchase and sign-up events to advertising partners<% } %>. If you clear your cookies or use another browser or device, please opt out there too (or turn on Global Privacy Control).
+        </div>
+      <% } else if (gpc) { %>
+        <div class="dns-status on" role="status">
+          <strong>Your browser is sending a Global Privacy Control (GPC) signal</strong>, so you're already opted out in this browser. Advertising pixels are not loaded for you. You can still add your email below so we also stop sending your purchase and sign-up events to advertising partners from our servers.
+        </div>
+      <% } else if (optedOut) { %>
+        <div class="dns-status on" role="status"><strong>You're opted out in this browser.</strong> Advertising pixels are not loaded for you.</div>
+      <% } else { %>
+        <div class="dns-status off" role="status">You are not currently opted out in this browser.</div>
+      <% } %>
+
+      <p>We do not sell your personal information for money, and we never use the content of a Legacy Odyssey Website (photos, videos, stories, or your child's information) for advertising.</p>
+      <p>Our marketing website (legacyodyssey.com) does use advertising pixels from Google, Meta, and Pinterest to measure our ads. Under California law and some other US state laws, this can count as "selling" or "sharing" personal information (such as your IP address, cookie IDs, and pages you visit) for targeted advertising. You have the right to opt out, and this page lets you do that.</p>
+
+      <h2>Opt out</h2>
+      <form method="POST" action="/do-not-sell-or-share" class="dns-card">
+        <label for="dnsEmail">Email address (optional)</label>
+        <input type="email" id="dnsEmail" name="email" placeholder="you@example.com" autocomplete="email">
+        <p class="dns-hint">Leave it blank to opt out only in this browser. Add the email you use with us (or might use at checkout) and we will also stop sending events tied to that email to advertising partners from our servers.</p>
+        <button type="submit">Opt me out</button>
+      </form>
+
+      <h2>What opting out does</h2>
+      <ul>
+        <li>Turns off the Google Ads, Meta, and Pinterest advertising pixels on our marketing website in this browser.</li>
+        <li>Stops server-side purchase and sign-up events (Meta Conversions API) for this browser and, if you gave it, your email address.</li>
+        <li>Analytics that help us run and improve our own website may continue. EU and UK visitors can also manage analytics cookies with "Cookie settings."</li>
+        <li>It does not affect your account, your website, or the emails we send you about your account.</li>
+      </ul>
+
+      <h2>Global Privacy Control</h2>
+      <p>We honor the <a href="https://globalprivacycontrol.org/" target="_blank" rel="noopener">Global Privacy Control</a> signal. If your browser or extension sends GPC, we treat it as a request to opt out of sale and sharing for that browser, automatically, with no form needed.</p>
+
+      <h2>Other requests</h2>
+      <p>To access, correct, or delete your personal information, or to make a request through an authorized agent, email <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>. See our <a href="/privacy#california">Privacy Policy</a> for details.</p>
+    </div>
+  </section>
+
+  <footer class="marketing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">Legacy <span>Odyssey</span></div>
+      <ul class="footer-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#pricing">Pricing</a></li>
+        <li><a href="/terms">Terms</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/do-not-sell-or-share">Do Not Sell or Share My Personal Information</a></li>
+        <li><a href="mailto:help@legacyodyssey.com">Contact</a></li>
+      </ul>
+      <div class="footer-copy">&copy; 2026 Legacy Odyssey. All rights reserved.</div>
+    </div>
+  </footer>
+
+</body>
+</html>

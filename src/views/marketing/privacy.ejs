@@ -9,8 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Pinterest Domain Verification -->
   <meta name="p:domain_verify" content="b146e195f22b09a16cdab391ec6f75c1"/>
-  <title>Privacy Policy — Legacy Odyssey</title>
-  <meta name="description" content="Legacy Odyssey Privacy Policy. Learn how we collect, use, and protect your personal information and family data.">
+  <title>Privacy Policy | Legacy Odyssey</title>
+  <meta name="description" content="Legacy Odyssey Privacy Policy. How we collect, use, share, and protect personal information.">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/marketing.css">
   <!-- Analytics & ads with EU/UK consent gating (G1) — shared partial -->
@@ -32,118 +32,154 @@
 
   <section class="legal-page">
     <div class="legal-container">
+      <%# Effective date comes from src/config/legal.js (DAN: set it to the deploy date before merging). %>
       <h1>Privacy Policy</h1>
-      <p class="legal-updated">Last updated: May 25, 2026</p>
+      <p class="legal-updated">Last updated: <%= legal.PRIVACY_EFFECTIVE_PRETTY %></p>
 
       <h2>1. Who we are</h2>
-      <p>Legacy Odyssey ("Legacy Odyssey," "we," "us," or "our") is a digital baby book platform operated by <strong>DOR Industries</strong>, based in Mesa, Arizona, USA. For the purposes of the EU and UK General Data Protection Regulation (GDPR / UK GDPR), DOR Industries is the <strong>data controller</strong> for personal data processed through the Service.</p>
-      <p>The content you share with us is deeply personal — photos of your children, family stories, and cherished memories — and we take protecting it seriously. This Privacy Policy explains what we collect, why, the legal bases we rely on, who we share it with, how long we keep it, and the rights you have.</p>
+      <p>Legacy Odyssey ("Legacy Odyssey," "we," "us," or "our") is operated by <strong>DOR Industries</strong>, based in Mesa, Arizona, USA. Legacy Odyssey lets parents and guardians build a private website about their child. For the purposes of the EU and UK General Data Protection Regulation (GDPR / UK GDPR), DOR Industries is the <strong>data controller</strong> for personal data processed through the Service.</p>
+      <p>The content you share with us is deeply personal: photos and videos of your children, their milestones, and your family's memories. This Privacy Policy explains what we collect, why, the legal bases we rely on, who we share it with, how long we keep it, and the rights you have.</p>
       <p><strong>Contact for privacy matters:</strong> <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>.</p>
 
       <h2>2. Information we collect</h2>
       <h3>2.1 Account information</h3>
       <ul>
         <li>Email address</li>
-        <li>Password (stored only as a salted hash; we never see your plain-text password)</li>
-        <li>Display name (optional)</li>
+        <li>Account login password. This is handled by our authentication provider (Supabase Auth) and stored only as a salted hash; we never see your plain-text login password.</li>
+        <li>Name and display name (optional)</li>
       </ul>
-      <h3>2.2 Book content you provide</h3>
+      <h3>2.2 Website viewing passwords</h3>
+      <p>Each Legacy Odyssey Website has a separate <strong>viewing password</strong> that you choose and share with family and friends. This is different from your account login password. Because you need to be able to look it up and share it again, the viewing password is <strong>stored in a retrievable form, not as a one-way hash</strong>. It is shown to you (the account holder) in your account dashboard and in the app, and it may be included in emails we send to you about your website (for example, the email telling you your website is live). It is protected by the same access controls and encryption at rest as the rest of your data. Please do not reuse a password from another account as your viewing password. When a visitor enters the viewing password, we store a hashed token in a cookie on their browser so they do not have to re-enter it on every page.</p>
+      <h3>2.3 Website content you provide</h3>
       <ul>
-        <li>Photos and images</li>
-        <li>Text content (stories, letters, recipes, milestones)</li>
+        <li>Photos and images, including custom galleries and keepsake photos</li>
+        <li>Videos (Video Moments)</li>
+        <li>Text content (stories, letters, recipes, milestones, captions)</li>
         <li>Child information (name, birth date, birth details)</li>
         <li>Family member information (names, relationships)</li>
       </ul>
-      <p>Some of this content relates to <strong>children</strong>. You provide it as the parent or legal guardian — see Section 11.</p>
-      <h3>2.3 Payment information</h3>
-      <p>Payments are processed by Stripe, Inc. We do <strong>not</strong> store your full card number, bank details, or other sensitive payment credentials on our servers. We retain limited billing records (e.g., transaction IDs, amounts, dates) for accounting and tax purposes.</p>
-      <h3>2.4 Domain information</h3>
-      <p>If you claim a custom domain, we collect the domain name you choose and the registrant details required to register it. Registration is handled by our registrar partner (Spaceship), subject to their privacy policy and to ICANN requirements.</p>
-      <h3>2.5 Technical &amp; usage information</h3>
+      <p>Some of this content relates to <strong>children</strong>. You provide it as the parent or legal guardian; see Section 12.</p>
+      <h3>2.4 Your Contacts</h3>
+      <p>If you use Your Contacts to share your website, we store the names, email addresses, and phone numbers of the people you add, the groups you put them in, and whether they have unsubscribed from update emails. If you allow the app to read your phone's contacts, the list is read on your device and only the contacts you choose are sent to us. We use contact details only to deliver the updates and private links you ask us to send. We email contacts on your behalf; text messages are sent from your own phone, not by us.</p>
+      <h3>2.5 Gift purchases</h3>
+      <p>When you buy a gift, we collect your name and email, the recipient's name and (if we are emailing the gift) their email, your personal note, and your delivery choice. When a gift is redeemed, we collect the recipient's email and chosen domain to create their account.</p>
+      <h3>2.6 Payment information</h3>
+      <p>Payments are processed by Stripe, Inc. We do <strong>not</strong> store your full card number, bank details, or other sensitive payment credentials on our servers. We keep limited billing records (for example transaction IDs, amounts, and dates) for accounting and tax purposes.</p>
+      <h3>2.7 Domain information</h3>
+      <p>If you choose a custom domain, we collect the domain name and the registrant details required to register it. Registration is handled by our registrar partner (Spaceship), subject to their privacy policy and to ICANN requirements.</p>
+      <h3>2.8 Technical and usage information</h3>
       <ul>
         <li>IP address, browser type and version, device type</li>
-        <li>Pages visited and actions taken within the Service</li>
+        <li>Pages visited and actions taken on our marketing website and in the Service</li>
         <li>Date and time of access</li>
-        <li>Information collected via cookies and similar technologies (see Section 5)</li>
+        <li>Error reports from our servers, which can include technical details of the request that failed</li>
+        <li>Information collected by cookies and similar technologies (see Section 5)</li>
       </ul>
 
-      <h2>3. How we use your information &amp; legal bases</h2>
+      <h2>3. How we use your information and legal bases</h2>
       <p>Where GDPR / UK GDPR applies, we rely on the following legal bases (Article 6):</p>
       <ul>
-        <li><strong>To provide the Service</strong> (host your book, store content, manage your account) — <em>performance of a contract</em>.</li>
-        <li><strong>To process payments and manage subscriptions and domains</strong> — <em>performance of a contract</em>.</li>
-        <li><strong>To send service emails</strong> (welcome, password reset, billing, important notices) — <em>performance of a contract</em> / <em>legitimate interests</em>.</li>
-        <li><strong>To keep records and meet tax, accounting, and legal obligations</strong> — <em>legal obligation</em>.</li>
-        <li><strong>For analytics, advertising, and marketing cookies/pixels</strong> — <em>your consent</em> (which you can withdraw at any time).</li>
-        <li><strong>To secure the Service and prevent abuse</strong> — <em>legitimate interests</em>.</li>
+        <li><strong>To provide the Service</strong> (host your website, store and stream your content, translate it for visitors who choose another language, manage your account): <em>performance of a contract</em>.</li>
+        <li><strong>To process payments and manage subscriptions, gifts, and domains:</strong> <em>performance of a contract</em>.</li>
+        <li><strong>To send service emails</strong> (welcome, password reset, billing, website-live, important notices) and the contact updates you ask us to send: <em>performance of a contract</em> / <em>legitimate interests</em>.</li>
+        <li><strong>To send product news and tips:</strong> <em>legitimate interests</em> (you can unsubscribe at any time from the link in every such email).</li>
+        <li><strong>To keep records and meet tax, accounting, and legal obligations:</strong> <em>legal obligation</em>.</li>
+        <li><strong>For analytics, advertising, and marketing cookies and pixels:</strong> <em>your consent</em> where required (which you can withdraw at any time), and otherwise subject to your right to opt out (Section 10).</li>
+        <li><strong>To secure the Service, fix errors, and prevent abuse:</strong> <em>legitimate interests</em>.</li>
       </ul>
 
       <h2>4. How we protect your information</h2>
       <ul>
         <li><strong>Encryption in transit:</strong> all traffic is served over HTTPS/TLS.</li>
-        <li><strong>Encryption at rest &amp; secure storage:</strong> data is stored with Supabase, which provides encryption at rest and regular backups.</li>
+        <li><strong>Encryption at rest and secure storage:</strong> data is stored with Supabase, which provides encryption at rest and regular backups. Photos are also backed up to a separate Cloudflare R2 storage bucket that we control.</li>
         <li><strong>Access controls:</strong> only authorized personnel can access your data, and only when needed to provide support or operate the Service.</li>
-        <li><strong>Password-protected books:</strong> published books are private and visible only to people you give the password to; they are not indexed by search engines.</li>
+        <li><strong>Private websites:</strong> Legacy Odyssey Websites are password-protected, and search engines are asked not to index them. Photo files are stored at long, hard-to-guess addresses; anyone who is given a direct photo address could open that photo, so please share links only with people you trust.</li>
       </ul>
 
-      <h2>5. Cookies &amp; tracking technologies</h2>
-      <p>We use the following categories of cookies and similar technologies:</p>
+      <h2>5. Cookies and tracking technologies</h2>
+      <p>On our <strong>marketing website</strong> (legacyodyssey.com, including the blog and checkout pages) we use:</p>
       <ul>
-        <li><strong>Strictly necessary (always on):</strong> to keep you signed in to your account, and to remember that a book visitor has entered the correct password so they don't have to re-enter it on every page.</li>
-        <li><strong>Analytics (consent-based):</strong> Google Analytics 4 and Hotjar/Contentsquare, to understand how the site is used and improve it.</li>
-        <li><strong>Advertising &amp; marketing (consent-based):</strong> Meta (Facebook) Pixel, Pinterest Tag, and Google AdSense, to measure and improve our advertising.</li>
+        <li><strong>Strictly necessary (always on):</strong> to keep you signed in, to remember your language choice, to remember that a website visitor has entered the correct viewing password, and to remember your privacy choices.</li>
+        <li><strong>Analytics:</strong> Google Analytics 4, Microsoft Clarity (when enabled), and Hotjar/Contentsquare, to understand how the site is used and improve it.</li>
+        <li><strong>Advertising and marketing:</strong> Google Ads, Meta (Facebook) Pixel, and Pinterest Tag, to measure and improve our advertising. When you make a purchase or sign up for our emails, we may also send that event to Meta from our server (Meta Conversions API), including a hashed (scrambled) copy of your email address.</li>
+        <li><strong>Affiliate tracking:</strong> Rewardful, to credit our affiliate partners when someone they referred makes a purchase.</li>
       </ul>
-      <p>For visitors in the EU, UK, and other regions that require it, non-essential (analytics and advertising) cookies are loaded <strong>only after you consent</strong> via our cookie banner, and you can change or withdraw your choice at any time. You can also control cookies through your browser settings. Strictly necessary cookies do not require consent.</p>
+      <p>For visitors in the EU, UK, and EEA, non-essential (analytics and advertising) cookies load <strong>only after you consent</strong> through our cookie banner, and you can change your choice at any time using "Cookie settings." Everyone can opt out of advertising cookies and pixels at any time; see Section 10. You can also control cookies through your browser settings.</p>
+      <p><strong>Legacy Odyssey Websites (your child's private website) do not load any analytics, advertising, or affiliate trackers.</strong> They use only the strictly necessary cookies described above.</p>
 
       <h2>6. How we share your information</h2>
-      <p>We do <strong>not</strong> sell, rent, or trade your personal information. We share it only with service providers who process data on our behalf (our "processors" / "sub-processors"), under data processing agreements, and where required by law.</p>
+      <p>We do <strong>not</strong> sell your personal information for money, and we never sell, rent, or share the content of your website (photos, videos, stories, or your child's information) for advertising. We share personal information only with service providers who process it on our behalf (our "processors" or "sub-processors"), under contracts or data processing terms, and where required by law. Our advertising partners (Google, Meta, Pinterest) receive information about visits to and purchases on our marketing website; under some US state laws (such as California's) this can count as "sharing" for advertising, and you can opt out (Section 10).</p>
       <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
         <thead><tr><th style="text-align:left;padding:6px 8px;">Provider</th><th style="text-align:left;padding:6px 8px;">Purpose</th></tr></thead>
         <tbody>
           <tr><td style="padding:6px 8px;">Stripe</td><td style="padding:6px 8px;">Payment processing (<a href="https://stripe.com/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
-          <tr><td style="padding:6px 8px;">Supabase</td><td style="padding:6px 8px;">Database &amp; file storage (<a href="https://supabase.com/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
-          <tr><td style="padding:6px 8px;">Resend</td><td style="padding:6px 8px;">Transactional email (<a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Supabase</td><td style="padding:6px 8px;">Database, file storage, and account authentication (<a href="https://supabase.com/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
           <tr><td style="padding:6px 8px;">Railway</td><td style="padding:6px 8px;">Application hosting (<a href="https://railway.com/legal/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
-          <tr><td style="padding:6px 8px;">Cloudflare</td><td style="padding:6px 8px;">DNS, CDN &amp; security (<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Cloudflare</td><td style="padding:6px 8px;">DNS, CDN, security, and off-site photo backups (R2) (<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Cloudflare Stream</td><td style="padding:6px 8px;">Video storage, processing, and streaming for Video Moments (<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Approximated</td><td style="padding:6px 8px;">Routing and security certificates for custom domains; processes the IP address and request details of every visit to a custom-domain website (<a href="https://approximated.app/privacy-policy/" target="_blank" rel="noopener">policy</a>)</td></tr>
           <tr><td style="padding:6px 8px;">Spaceship</td><td style="padding:6px 8px;">Domain registration (<a href="https://www.spaceship.com/legal/privacy-policy/" target="_blank" rel="noopener">policy</a>)</td></tr>
-          <tr><td style="padding:6px 8px;">Google (Analytics &amp; AdSense)</td><td style="padding:6px 8px;">Analytics &amp; advertising (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
-          <tr><td style="padding:6px 8px;">Meta</td><td style="padding:6px 8px;">Advertising measurement (<a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Resend</td><td style="padding:6px 8px;">Email delivery (service emails, contact updates, and newsletters) (<a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Sentry</td><td style="padding:6px 8px;">Server error monitoring; error reports can include technical request details (<a href="https://sentry.io/privacy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">DeepL</td><td style="padding:6px 8px;">Machine translation of website text into Spanish or Hindi when a visitor chooses that language (<a href="https://www.deepl.com/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Expo</td><td style="padding:6px 8px;">Delivery of mobile app updates (<a href="https://expo.dev/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Google (Analytics &amp; Ads)</td><td style="padding:6px 8px;">Analytics and advertising measurement on our marketing website (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Meta</td><td style="padding:6px 8px;">Advertising measurement (Pixel and Conversions API) (<a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener">policy</a>)</td></tr>
           <tr><td style="padding:6px 8px;">Pinterest</td><td style="padding:6px 8px;">Advertising measurement (<a href="https://policy.pinterest.com/en/privacy-policy" target="_blank" rel="noopener">policy</a>)</td></tr>
-          <tr><td style="padding:6px 8px;">Hotjar / Contentsquare</td><td style="padding:6px 8px;">Product analytics (<a href="https://www.hotjar.com/legal/policies/privacy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Microsoft Clarity</td><td style="padding:6px 8px;">Product analytics (heatmaps and session recordings) on our marketing website, when enabled (<a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Hotjar / Contentsquare</td><td style="padding:6px 8px;">Product analytics on our marketing website (<a href="https://contentsquare.com/privacy-center/privacy-policy/" target="_blank" rel="noopener">policy</a>)</td></tr>
+          <tr><td style="padding:6px 8px;">Rewardful</td><td style="padding:6px 8px;">Affiliate referral tracking (<a href="https://www.rewardful.com/privacy-policy" target="_blank" rel="noopener">policy</a>)</td></tr>
         </tbody>
       </table>
-      <p>We may also disclose information if required by law, court order, or to protect the rights, property, or safety of our users or others.</p>
+      <p>We may also disclose information if required by law or court order, or to protect the rights, property, or safety of our users or others.</p>
 
       <h2>7. International data transfers</h2>
       <p>We are based in the United States, and our providers may store and process data in the U.S. and other countries. If you are in the EU, UK, or another region with data-transfer restrictions, your data may be transferred outside your home country. Where required, such transfers rely on appropriate safeguards such as the European Commission's Standard Contractual Clauses (SCCs) or equivalent mechanisms offered by our providers.</p>
 
       <h2>8. Data retention</h2>
-      <p>We keep your account and book content for as long as your subscription is active. When your subscription ends — whether you cancel or it is not renewed — you keep access through the end of the period you have paid for. After that, your website goes offline and the associated domain is released. We then keep your photos and stories for up to one year so you can reactivate and pick up exactly where you left off; if you do not reactivate within that period, your content is permanently deleted. You can ask us to delete your data immediately at any time, instead of waiting out the one-year window (see Section 9) — just cancel and email us. We retain limited records (such as billing and transaction records) for as long as required to meet legal, tax, and accounting obligations. If you would rather keep your domain, you can transfer it to another registrar before your term ends.</p>
+      <p>We keep your account and website content for as long as your plan is active. When your plan ends, whether you cancel or it is not renewed, you keep access through the end of the period you have paid for. After that, your website goes offline and we stop renewing the associated domain. We then keep your photos, videos, and content for <strong>one year</strong> so you can reactivate and pick up exactly where you left off. If you do not reactivate within that year, that website's content and account data are permanently deleted, including photos in storage and our photo backups, videos at our video provider, and your contact list. You can ask us to delete your data immediately at any time instead of waiting out the one-year window (see Section 9): just cancel and email us. We keep limited records (such as billing and transaction records, and a record of privacy requests) for as long as required to meet legal, tax, and accounting obligations. If you would rather keep your domain, you can transfer it to another registrar before its term ends.</p>
+      <p>Machine translations of website text are cached so they load quickly; these display-only copies are deleted along with the website content they came from. Server error reports are kept by Sentry for a limited period under its retention settings.</p>
 
       <h2>9. Your privacy rights</h2>
       <p>Depending on where you live, you may have some or all of the following rights:</p>
       <ul>
-        <li><strong>Access</strong> — a copy of the personal data we hold about you.</li>
-        <li><strong>Rectification</strong> — correct inaccurate or incomplete data (much of this you can do in the app).</li>
-        <li><strong>Erasure</strong> — delete your account and associated data ("right to be forgotten").</li>
-        <li><strong>Portability</strong> — receive your data in a portable format.</li>
-        <li><strong>Restriction / Objection</strong> — limit or object to certain processing.</li>
-        <li><strong>Withdraw consent</strong> — for anything based on consent (e.g., analytics/advertising cookies), at any time, without affecting prior processing.</li>
+        <li><strong>Access:</strong> a copy of the personal data we hold about you. You can download your data at any time from your account dashboard ("Download My Data").</li>
+        <li><strong>Rectification:</strong> correct inaccurate or incomplete data (much of this you can do yourself in the app or web editor).</li>
+        <li><strong>Erasure:</strong> delete your account and associated data.</li>
+        <li><strong>Portability:</strong> receive your data in a portable format.</li>
+        <li><strong>Restriction / Objection:</strong> limit or object to certain processing.</li>
+        <li><strong>Opt out of targeted advertising, "sale," or "sharing":</strong> see Section 10.</li>
+        <li><strong>Withdraw consent:</strong> for anything based on consent (for example analytics or advertising cookies), at any time, without affecting earlier processing.</li>
       </ul>
-      <p>To exercise any of these, email <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>. We will respond within the timeframe required by applicable law (generally within 30 days). You will not be discriminated against for exercising your rights.</p>
-      <p><strong>EU/UK users:</strong> you also have the right to lodge a complaint with your local data protection authority. <strong>California users (CCPA/CPRA):</strong> we do not sell your personal information, and you may request access to or deletion of your data using the contact above.</p>
+      <p>To exercise any of these, email <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>. We may need to verify your identity (usually by confirming the request from the email address on your account). You can use an authorized agent; we may ask the agent for proof of your permission. We will respond within the time required by applicable law (generally within 30 days, or 45 days where US state law allows). If we decline a request, you can appeal by replying to our decision. You will not be discriminated against for exercising your rights.</p>
+      <p><strong>EU/UK users:</strong> you also have the right to lodge a complaint with your local data protection authority.</p>
 
-      <h2>10. Your book visitors</h2>
-      <p>When someone visits a published book using the password you shared, we collect minimal technical information (such as IP address and browser type) for security and performance. We do not use this to track those visitors across other websites.</p>
+      <h2 id="california">10. California and other US state privacy rights, including "Do Not Sell or Share"</h2>
+      <p>This section applies to residents of California (CCPA as amended by the CPRA) and of other US states with similar laws (for example Colorado, Connecticut, Virginia, Texas, and Oregon).</p>
+      <ul>
+        <li><strong>Categories we collect:</strong> identifiers (name, email, IP address); customer records (billing records, domain registrant details); commercial information (purchases and gifts); internet activity on our marketing website; photos, videos, and other content you upload; and limited inferences used for advertising measurement. Sources, purposes, and recipients are described in Sections 2, 3, and 6, and retention in Section 8.</li>
+        <li><strong>No sale for money.</strong> We do not sell personal information for money.</li>
+        <li><strong>"Sharing" for advertising.</strong> Our marketing website uses advertising pixels from Google, Meta, and Pinterest (Section 5). Under California law, allowing these partners to collect information for cross-context behavioral advertising can be considered "sharing," and under other state laws it can be "targeted advertising." In the past 12 months, the categories involved were identifiers (such as IP address, device and cookie IDs, and a hashed email address when you purchase or sign up) and internet activity on our marketing website. <strong>Your website's content and your child's information are never shared for advertising.</strong></li>
+        <li><strong>Children and teens.</strong> We do not knowingly sell or share the personal information of anyone under 16.</li>
+        <li><strong>Sensitive personal information.</strong> We use it only to provide the Service you request, not to infer characteristics about you.</li>
+      </ul>
+      <p><strong>How to opt out.</strong> Use our <a href="/do-not-sell-or-share">Do Not Sell or Share My Personal Information</a> page. Opting out there turns off advertising pixels on our marketing website in that browser, and if you give us your email address, we also stop sending your purchase and sign-up events to advertising partners from our servers. We also honor the <strong>Global Privacy Control (GPC)</strong> signal: if your browser sends GPC, we treat it as an opt-out for that browser automatically. Analytics that help us run and improve our own website may continue.</p>
+      <p>You also have the rights to know, access, correct, and delete your personal information, and not to be discriminated against for using these rights (Section 9). To make a request, email <a href="mailto:help@legacyodyssey.com">help@legacyodyssey.com</a>.</p>
 
-      <h2>11. Children's privacy</h2>
-      <p>The Service is intended for use by parents and legal guardians, who must be adults. Accounts may only be created and managed by an adult, and we do not knowingly allow children to create accounts or knowingly collect personal information directly from a child. A book may contain information and photos about a child, which the account holder provides and is responsible for, having the authority to do so.</p>
+      <h2>11. Your website visitors</h2>
+      <p>When someone visits a Legacy Odyssey Website, we and our hosting providers (including Approximated for custom domains and Cloudflare) process minimal technical information, such as IP address and browser type, to deliver the page securely. If a visitor chooses Spanish or Hindi, we remember that choice in a cookie and send the website's text to DeepL for translation. We do not use analytics, advertising, or affiliate trackers on Legacy Odyssey Websites, and we do not track your visitors across other websites. People you add to Your Contacts can unsubscribe from update emails at any time using the link in those emails.</p>
+
+      <h2>12. Children's privacy</h2>
+      <p>The Service is intended for parents and legal guardians, who must be adults. Accounts may only be created and managed by an adult, and we do not knowingly allow children to create accounts or knowingly collect personal information directly from a child. A Legacy Odyssey Website may contain information, photos, and videos about a child, which the account holder provides and is responsible for, having the authority to do so.</p>
       <p>We design with children's privacy in mind, consistent with the U.S. Children's Online Privacy Protection Act (COPPA) and, where applicable, GDPR protections for children's data. If you believe a child has provided us personal information without proper authorization, contact us and we will delete it.</p>
 
-      <h2>12. Changes to this policy</h2>
+      <h2>13. Data breaches</h2>
+      <p>If a security incident affects your personal information, we will investigate promptly and notify you and the relevant authorities as required by applicable law.</p>
+
+      <h2>14. Changes to this policy</h2>
       <p>We may update this Privacy Policy from time to time. We will post the updated version here with a new "Last updated" date and, for material changes, notify account holders by email.</p>
 
-      <h2>13. Contact us</h2>
+      <h2>15. Contact us</h2>
       <p>Questions or concerns about this policy or how we handle your data:</p>
       <p>
         <strong>DOR Industries</strong> (Legacy Odyssey)<br>
@@ -161,6 +197,7 @@
         <li><a href="/#pricing">Pricing</a></li>
         <li><a href="/terms">Terms</a></li>
         <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/do-not-sell-or-share">Do Not Sell or Share My Personal Information</a></li>
         <li><a href="mailto:help@legacyodyssey.com">Contact</a></li>
       </ul>
       <div class="footer-copy">&copy; 2026 Legacy Odyssey. All rights reserved.</div>

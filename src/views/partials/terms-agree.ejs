@@ -1,0 +1,10 @@
+<%# "I agree to the Terms + Privacy" checkbox for every signup / checkout / redeem
+     flow (C-008). Params: id (required), name (default acceptTerms),
+     required (adds the HTML required attribute, for plain <form> posts),
+     note (optional extra sentence). Pages also gate their submit button in JS
+     and send acceptTerms:true; the server re-checks (config/legal.js). %>
+<% var _id = (typeof id !== 'undefined' && id) ? id : 'loAcceptTerms'; %>
+<label for="<%= _id %>" class="lo-terms-agree" style="display:flex;gap:10px;align-items:flex-start;margin:14px 0 6px;font-size:13px;line-height:1.5;color:#5e564a;text-align:left;cursor:pointer;">
+  <input type="checkbox" id="<%= _id %>" name="<%= (typeof name !== 'undefined' && name) ? name : 'acceptTerms' %>" value="true" <%= (typeof required !== 'undefined' && required) ? 'required' : '' %> style="margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:#c8a96e;">
+  <span>I agree to the <a href="/terms" target="_blank" rel="noopener" style="color:#b08e4a;">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener" style="color:#b08e4a;">Privacy Policy</a>.<% if (typeof note !== 'undefined' && note) { %> <%= note %><% } %></span>
+</label>

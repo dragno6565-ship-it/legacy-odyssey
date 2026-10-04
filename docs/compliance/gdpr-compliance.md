@@ -1,7 +1,7 @@
 # GDPR / Privacy Compliance Record
 
 **Status:** Draft — pending legal review (task G6). Not legal advice.
-**Last updated:** 2026-05-25
+**Last updated:** 2026-10-04 (legal-fixes-2026-10 branch, pending deploy)
 **Owner:** DOR Industries (Legacy Odyssey)
 
 This is the internal record backing the public Privacy Policy (`/privacy`). It documents
@@ -18,7 +18,11 @@ status, so we (and our lawyer) can show how we comply.
   US business; revisit if EU traffic/customers grow. Flag for lawyer (G6).
 
 ## 2. What we process
-- **Account:** email, password (hashed by Supabase auth), display name.
+- **Account:** email, login password (hashed by Supabase auth), display name.
+- **Website viewing password:** stored retrievable (NOT hashed) so the owner can see/share it;
+  disclosed in Privacy Policy 2.2 (C-004).
+- **Your Contacts:** names/emails/phones of people the owner adds (only picked phone contacts).
+- **Gifts:** buyer + recipient names/emails, note.
 - **Book content:** photos, text (stories, letters, recipes, milestones), child info
   (name, birth details), family member info. *Includes children's data — see §7.*
 - **Payment:** handled by Stripe; we store only limited billing records (no card numbers).
@@ -49,6 +53,9 @@ status, so we (and our lawyer) can show how we comply.
     once the one-year retention window lapses — expiry-based deletion is presently manual. A
     guarded `data_retain_until`-driven purge job should be built (and reviewed) so retention is
     enforced automatically; until then, periodically purge expired archived families by hand.
+  - 🟡 **Built 2026-10-04 (C-005):** `src/jobs/dataRetentionPurge.js`, weekly, dry run unless
+    `RETENTION_PURGE_ENABLED=true`; needs migration 035. `softCancelFamily` now sets
+    `data_retain_until`. 9 older cancelled sites have no date and are listed for manual handling.
 - Billing/transaction records: retained as required by tax/accounting law.
 - Earlier deletion available on request (§5).
 
@@ -86,6 +93,7 @@ status, so we (and our lawyer) can show how we comply.
   notify the relevant supervisory authority **within 72 hours** of becoming aware, and
   notify affected users without undue delay if high risk. Log every incident + response.
 - ⬜ Designate who owns this (currently the founder) and keep an incident log.
+- ✅ Full procedure + templates: `docs/compliance/breach-response-runbook.md` (C-007, 2026-10-04).
 
 ## 10. Processors / sub-processors & DPA status (task G3)
 | Processor | Role | DPA |
@@ -100,6 +108,13 @@ status, so we (and our lawyer) can show how we comply.
 | Meta | Advertising | Auto via Business Tools Terms |
 | Pinterest | Advertising | Auto via advertising terms |
 | Hotjar/Contentsquare | Product analytics | Incorporated via Contentsquare GMSA (Hotjar merged) |
+| Cloudflare Stream | Video storage/streaming | Cloudflare customer DPA |
+| Approximated | Custom-domain proxy/TLS (sees visitor IP + Host) | ⬜ request/confirm DPA |
+| Sentry | Server error monitoring | Sentry DPA (self-serve in settings) |
+| DeepL | Machine translation (ES/HI) | ⬜ Local key is API **Free** (`:fx`). Confirm the prod key; DeepL Free terms may allow use of submitted text, so move to API Pro (DPA, no retention) before relying on it for children's stories |
+| Expo | App update delivery | Expo DPA |
+| Microsoft Clarity | Product analytics (when enabled) | Clarity terms / Microsoft DPA |
+| Rewardful | Affiliate tracking | ⬜ confirm DPA |
 
 Keep a copy/confirmation of each on file as compliance evidence.
 
@@ -108,5 +123,6 @@ Keep a copy/confirmation of each on file as compliance evidence.
 - [ ] EU/UK Art. 27 representative — decide if required.
 - [ ] COPPA posture — lawyer confirm (G6).
 - [ ] Optional: self-serve web "Delete my account."
-- [ ] Designate breach owner + start an incident log.
+- [ ] Designate breach owner + start an incident log. (Runbook written 2026-10-04.)
+- [ ] CCPA/CPRA: "Do Not Sell or Share" link + GPC honoring built 2026-10-04 (C-009), pending deploy + migration 034.
 - [ ] G6 legal review, then G7 (display a "GDPR compliant" badge only after sign-off).
