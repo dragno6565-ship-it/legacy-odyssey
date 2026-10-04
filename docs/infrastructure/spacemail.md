@@ -2,7 +2,7 @@
 
 **Status:** partially configured (mailboxes exist, forwarding incomplete)
 **Owner:** Legacy Odyssey inbound email at `@legacyodyssey.com`
-**Last touched:** earlier April 2026
+**Last touched:** earlier April 2026; archive-review additions 2026-10-04 at the bottom
 
 ## What it is
 Spaceship's email product (Spacemail) — provides MX records and mailboxes for the `legacyodyssey.com` domain. Inbound email service only; outbound transactional goes through Resend.
@@ -30,3 +30,9 @@ Spaceship's email product (Spacemail) — provides MX records and mailboxes for 
 ## Open issues / quirks
 - **Per-mailbox forwarding to gmail is NOT set up** at the Spacemail level. The code's `replyTo: legacyodysseyapp@gmail.com` is the working safety net so customer replies still reach a usable inbox.
 - Eventual cleanup: configure each mailbox's forwarding rule properly, then drop the `replyTo` workaround.
+
+
+## Update 2026-10-04 (archive review, May 2026 facts)
+- Settings: POP3 mail.spacemail.com:995 SSL; IMAP 993 SSL; SMTP 465/587. The Spaceship UI has NO external-forward option (aliases, IMAP and POP only), and the catch-all dropdown accepts only an existing mailbox.
+- 2026-05-13: catch-all set to dan@legacyodyssey.com. Plan chosen by Dan ("Option B"): pull all 4 mailboxes (dan@, hello@, help@, info@) into legacyodysseyapp@gmail.com with Gmail's POP3 fetch. Paused because Chrome was signed in as dragno6565@; needs Dan on legacyodysseyapp@ typing the 4 mailbox passwords himself. Completion not recorded. Dan: "hello@ is a real mailbox".
+- DMARC aggregate reports (rua dmarc@) land in the dan@ catch-all as gzipped XML; they are legitimate.

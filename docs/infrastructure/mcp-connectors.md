@@ -53,3 +53,11 @@ remote connector — there is no config file to edit.**
 
 ## Related
 - `infrastructure/railway.md` (secret source), `infrastructure/supabase.md`, `infrastructure/cloudflare.md`.
+
+
+## Update 2026-10-04 (archive review)
+- The Supabase PAT was set to NEVER expire by Dan (2026-06-24, Claude recommended 30 days). Dan's decision is to leave it; do not nag (memory project_exposed_keys_accepted). Rotation method is in supabase.md.
+- `claude mcp list` itself prints MCP server env values, including the live Stripe key. Do not run it in a transcript.
+- Stripe MCP: one write tool (`create_refund`). Optional later: swap to a restricted read-only key. It cannot change account settings (branding is Dashboard-only).
+- Google Search Console connector not set up (needs a Google service-account JSON). The GA4 connector reaches only the EMPTY property 530710619 (403 on the live 531219463): read GA4 in Dan's Chrome as legacyodysseyapp@ with `get_page_text` (screenshots froze the renderer); put the date range in the report URL (e.g. `date00=20260701&date01=20260708`) because the date picker is unreliable.
+- Moving a secret from a browser page into config without it entering the chat: see local-dev.md.

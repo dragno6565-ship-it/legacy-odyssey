@@ -40,3 +40,12 @@
 4. If you have uncommitted changes that are complete work, commit ONLY your own files with a clear message. Never commit other sessions' files. Never push a deploy unless Dan agreed to it this session.
 5. End with a 3-line goodnight summary for Dan to carry to the Dispatcher: what shipped today / what's first tomorrow / what you need from Dan.
 6. Do not start anything new after the trigger.
+
+## Archive review 2026-10-04 (retired content-organic and email sessions)
+- Two live blog posts duplicate each other: /blog/getting-started-guide and /blog/getting-started-with-legacy-odyssey (both routed in src/routes/book.js and the sitemap). Dan has not picked the canonical one (open).
+- Never written though flagged as deserving a post: the /demo walkthrough (write it around plain legacyodyssey.com, never link /demo), gift options (gifting a site, gift codes) and Their Keepsakes. The eco post `marketing/blog/11-sustainable-baby-book.md` was approved by Dan 2026-06-30 ("I want the blog posted") but no blog-*.ejs exists for it as of 2026-10-04.
+- Live blog `blog-circles-sharing.ejs` still says "circles" 21 times and some audit edits may never have been published; blog-what-to-write-in-baby-book.ejs has old banned words (leave per the do-not-chase rule unless Dan asks).
+- UI labels change: verify the live editor before quoting nav labels in posts (the hub was "My Book" with Your Contacts > Contact List and Circles in June).
+- Canva brand kit "Legacy Odyssey" (id kAHFKVqrch0): generate-design with cream #faf7f2 and soft gold returned on-brand text cards.
+- Lessons: check the roster and role before building a deliverable (a full 2-week calendar duplicated facebook's job); verify product claims against shipped code before writing walkthroughs (a draft claimed the editor ships with preset family members; it is a clean slate). Dan iterates heavily per post, so build one sample and get approval before batching.
+- TikTok stand-up (Reel candidates 1, 5, 8) was blocked on Dan's greenlight; no answer recorded.

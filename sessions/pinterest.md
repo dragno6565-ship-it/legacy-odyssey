@@ -159,3 +159,6 @@ Pins 98–100 dates are beyond today's 30-day cap (Jun 15 + 30 = Jul 15). Schedu
 4. If you have uncommitted changes that are complete work, commit ONLY your own files with a clear message. Never commit other sessions' files. Never push a deploy unless Dan agreed to it this session.
 5. End with a 3-line goodnight summary for Dan to carry to the Dispatcher: what shipped today / what's first tomorrow / what you need from Dan.
 6. Do not start anything new after the trigger.
+
+## Archive review 2026-10-04
+Dan decided to LEAVE the old priced/old-hook pins as they are (do not audit or edit). The queue has almost certainly been EMPTY since about 2026-08-09: verify and refill with a clean batch (rule #16, no price) after reading the board. Full traps and facts: `marketing/pinterest/pinterest.md` (Archive review additions).

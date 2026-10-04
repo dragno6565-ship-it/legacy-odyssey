@@ -2,7 +2,7 @@
 
 **Status:** active (production hosting since Feb 2026)
 **Owner:** Legacy Odyssey Express server hosting
-**Last touched:** 2026-06-10
+**Last touched:** 2026-06-10; archive-review additions 2026-10-04 at the bottom
 
 ## What it is
 Railway Pro — hosts the production Express server (Node 20). Auto-deploys from `dragno6565-ship-it/legacy-odyssey` on push to `main`.
@@ -69,3 +69,29 @@ Critical: Railway's edge **gates traffic by Host header**. Any Host not in this 
   - **Access path to delete:** sign into railway.com via GitHub as `dragno65` in a private window (the local machine's git is authenticated as `dragno6565-ship-it`, so creds for `dragno65` aren't on disk here).
   - Delete only after eyeballing project name "romantic-creation" + version 2.1.0 + URL `...a9d1.up.railway.app` — do NOT touch the live `bountiful-expression` project.
 - **Railway env vars** — `RAILWAY_API_TOKEN`, `RAILWAY_SERVICE_ID`, `RAILWAY_ENVIRONMENT_ID` in `.env`: **CLAUDE.md (2026-06-08 correction) says these point to LIVE production (`27622203`)**; older HANDOFF.md/DEV.md (now archived) said they point to the OLD `25a7cbc7` zombie project. Treat as ambiguous until reconfirmed — do NOT use this token to delete anything. Delete the zombie via the dashboard UI only.
+
+
+## Update 2026-10-04 (archive review)
+
+### The .env token points at LIVE production (settled)
+The "ambiguous" note above is resolved: on 2026-06-15 REWARDFUL_API_SECRET was found under project `27622203` through this token, so `RAILWAY_API_TOKEN` / `RAILWAY_SERVICE_ID` / `RAILWAY_ENVIRONMENT_ID` in `.env` point at LIVE production (bountiful-expression). Never use it to delete anything. (Claude nearly deleted production on 2026-06-08 because an old note said otherwise.)
+
+### GraphQL API recipes
+- Endpoint `https://backboard.railway.com/graphql/v2`, bearer `RAILWAY_API_TOKEN`; project, environment and service ids are in `.env`.
+- `variables` query: read env vars. `variableUpsert` mutation: set one variable (triggers a redeploy; used for CLARITY_PROJECT_ID, PUPPETEER_SKIP_DOWNLOAD, STRIPE_SECRET_KEY, DEEPL_API_KEY).
+- `deployments`: SUCCESS/FAILED status by commit. `deploymentLogs`: runtime logs. `domains`: custom-domain status.
+- Inline GraphQL in bash/PowerShell gets mangled: put the query in a script file. Scratch helpers `.tmp/rwpoll.js` (deploy poll), `.tmp/rwstatus.js`, `.tmp/rwlog.js` (log fetch) live in the gitignored `.tmp/` folder and print a harmless libuv "Assertion failed" on Windows exit. They are not version-controlled; recreate from these notes if lost.
+- Secrets pulled this way (e.g. RESEND_API_KEY for a send) go into a one-shot env var or temp file that is deleted after the run; never printed.
+
+### Deploy and verify routine
+Push to main, poll the deployment until SUCCESS, wait 1 to 3 minutes (the rollover serves mixed old/new responses for 1 to 2 minutes), then verify with curl using a marker that exists ONLY in the new code plus a cache-buster (`?cb=$(date +%s)`). Text present in both old and new HTML gives a false "deployed". Static CSS/JS is cached by Cloudflare for 4 hours (see cloudflare.md). Ask Dan whether he is mid-edit before pushing; batch small fixes (a deploy restarts the server and kills in-flight uploads).
+
+### Outage triage (origin vs edge vs platform)
+1. Direct origin: `https://legacy-odyssey-production.up.railway.app` serves the full site.
+2. Railway edge target for the apex: `d3rlkmxd.up.railway.app` with header `Host: legacyodyssey.com` (200 = Railway fine).
+3. Then the public domain. This located the 2026-06-24 apex DNS fault (dead Fastly IP) in minutes.
+4. Platform outage signature (2026-05-19): about 4 of 5 requests return 404 "Application not found" after a 10 s hang, even on the direct *.up.railway.app URL, and the Railway dashboard itself shows Not Found. Check status.railway.com before rolling back or debugging code.
+5. Use Sentry timestamps (Sentry flagged one 500 three minutes BEFORE a deploy) and Railway runtime logs before blaming a deploy. curl-only views can mislead.
+
+### Zombie service status
+Dan said on 2026-06-08 "I deleted that railway account", yet the zombie URL still answered 200 / v2.1.0 right after and again on 2026-10-04. Unresolved which account was deleted. `/admin/health` now reports the zombie check as an informational PASS (commit 0b29266), not a WARN.

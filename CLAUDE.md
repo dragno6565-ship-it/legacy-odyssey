@@ -41,10 +41,10 @@
 
 Legacy Odyssey is a **subscription SaaS baby book platform**. Parents fill in their baby's
 story (milestones, photos, recipes, letters) via the iOS/Android app or the web editor, and
-family views the finished book at a custom domain (e.g., `kateragno.com`) purchased
+family views it at a custom domain (e.g., `your-childs-name.com`) purchased
 automatically via the Spaceship API at checkout.
 
-**Status: LIVE and accepting real payments since March 29, 2026.** ~9 paying customers.
+**Status: LIVE and accepting real payments since March 29, 2026.** Paying-customer count: VERIFY LIVE every time (Stripe vs `families`, excluding comps, tests, demo and owner rows); never quote a stored number. Dan has corrected "active" vs "paying" repeatedly; the old "~9" was stale (corrected 2026-10-04).
 
 ### ✅ CANONICAL PRODUCT DESCRIPTION (use verbatim everywhere)
 
@@ -74,7 +74,7 @@ automatically via the Spaceship API at checkout.
 12. **Word bans (memory hard rules):** never "forever", never "chapter" (use section/page/area), never "family book / family's story" (it's a BABY book about the CHILD), never analogize to scrapbook/journal/photo album. The mobile app is NOT required — the web editor is equal.
 13. **REAL OUTSIDE NAMES — ASK FIRST (Dan, 2026-06-23, resolves the 06-16/06-17 conflict).** Before putting any real outside person's name, @handle, or their child's name (influencers, customers, partners, etc.) into ANY brand content — caption, post, ad, email, creative — ASK Dan whether it's appropriate *in that specific situation*. It is NOT a blanket ban (so the old BRAND-VOICE-GUIDE "never" line is retired) and "credit the influencer" does not pre-authorize it — the rule is per-instance approval. (Distinct from rule #3, which is an absolute ban on the owner's own FAMILY names in placeholders/demos.)
 14. **The product is a WEBSITE, not "a book"** (facebook hard rule, 2026-06-22). The sharing feature is **"Your Contacts"** (sub-areas: Contact List + Circles) — the old "Circles" label is retired in customer-facing copy.
-15. **DAN-FACING DELIVERABLES MUST BE READABLE — never hand Dan a raw `.md` to read (Dan, 2026-06-23, emphatic).** Any report / plan / analysis / summary meant for Dan to READ must be generated as an HTML file (double-click → browser) — run `python scripts/md-to-html.py <file.md> "C:\Users\dragn\Desktop\LO-reports\<name>.html"`. Tell Dan the exact Desktop path. (PDF is fine too via reportlab if a session prefers.) INTERNAL coordination files — `STATUS.md`, `sessions/`, `docs/`, `TODO.md`, `ops/*` working files — stay `.md`; only things Dan opens to read get converted. If you write a Dan-facing `.md`, you are NOT done until you've also produced the readable version and given Dan the path.
+15. **DAN-FACING DELIVERABLES MUST BE READABLE — never hand Dan a raw `.md` to read (Dan, 2026-06-23, emphatic).** Any report / plan / analysis / summary meant for Dan to READ must be generated as an HTML file (double-click → browser) — run `python scripts/md-to-html.py <file.md> "F:\legacy-odyssey\reports\<name>.html"` (updated 2026-10-04: NO files on Dan's Desktop, his rule since 2026-08-11). Prefer putting what he must read in chat, or in a Google Doc opened in his Chrome (memory `feedback_deliverables_in_chat_not_files`). (PDF is fine too via reportlab if a session prefers.) INTERNAL coordination files — `STATUS.md`, `sessions/`, `docs/`, `TODO.md`, `ops/*` working files — stay `.md`; only things Dan opens to read get converted. If you write a Dan-facing `.md`, you are NOT done until you've also produced the readable version and given Dan the path.
 16. **POSITIONING — "NOT JUST A BABY BOOK. A LIFE'S JOURNEY." (Dan, 2026-06-30 → refined 2026-07-01, applies to EVERY session).** The core message, in Dan's words: **"Legacy Odyssey is not just a baby book built on your child's own website. It's here to track your child's whole life journey: every milestone, birthday, holiday, report card, award, artwork, and lineage."** The focus phrase is **"not just a baby book,"** and **"a Legacy Odyssey is a life's journey."** It starts as a baby book (still the entry point + the SEO/ASO category term) but it keeps growing through the child's whole life and stays with them. Goal: retain each customer through age 18 and ideally past it. ALL marketing, the landing page, ad copy, captions, emails, blog, and listings must lead with this "not just a baby book / whole life journey" framing — NEVER cap the value at infancy or "the first year." The intro **price** is "$29 first year" (a billing fact, fine where allowed) — the **product's purpose is lifelong**.
     - **Approved hero (home), 2026-07-01:** Headline — "Not just a baby book. Your child's whole life journey on their own .com." Sub — "Legacy Odyssey tracks your child's whole life journey: every milestone, birthday, holiday, report card, award, piece of artwork, and their lineage. Add it from your phone or the web, on a private website that's truly theirs, and it keeps growing with them year after year."
     - **Approved one-line positioning statement:** "Legacy Odyssey isn't just a baby book. It's your child's whole life journey, on a website of their own."
@@ -90,7 +90,7 @@ Only hard limit: raw DDL can't run via the Supabase REST API — use the SQL edi
 - **Supabase migrations (DDL):** SQL editor via the Chrome extension. REST/service-role can do DML, not DDL.
 - **App builds:** `cd mobile && npx eas-cli build --platform all --profile production --non-interactive --no-wait`. EAS CLI logged in; credentials EAS-managed.
 - **Store submission:** `eas submit --platform ios|android` — ONLY with explicit permission (rules #1/#2); recommend a device test first.
-- **Browser actions:** Chrome extension (`mcp__claude-in-chrome__*`) drives Supabase, Stripe, ASC, Play Console. Check `list_connected_browsers` first.
+- **Browser actions:** Chrome extension (`mcp__claude-in-chrome__*`) drives Supabase, ASC, Play Console. Check `list_connected_browsers` first. Exception: Claude's browser tools CANNOT open dashboard.stripe.com (financial-site restriction); Dan clicks Stripe dashboard steps, and reads go through the Stripe MCP/API (docs/infrastructure/stripe.md).
 
 ### Accounts — ⚠️ NOT all the same email. Verify before acting.
 | Service | Account / identity | Notes |
@@ -105,7 +105,7 @@ Only hard limit: raw DDL can't run via the Supabase REST API — use the SQL edi
 | **Google Ads** | legacyodysseyapp@gmail.com · 517-079-2970 | Conversion = Website **"Purchase"** page-load on `/stripe/success` (gtag **AW-18137400874**) — independent of GA4. Don't import a GA4 purchase too (double-counts). |
 | **GA4 (analytics)** | **legacyodysseyapp@gmail.com** · property **`531219463`** (acct 389874162) · tag **`G-LMJVX82M3Q`** | ⚠️ LIVE property with the data. Property **`530710619`** (dragno6565@, acct 389453707) is an **EMPTY DUPLICATE — do NOT use**. The GA4 Admin API/MCP is bound to the empty `530710619`, so it reports "0"; read `531219463` in-browser as legacyodysseyapp@ (u/1) instead. Verified 2026-06-29. |
 | Railway / Spaceship / Resend / Approximated / Rewardful | dragno6565@gmail.com | details in `docs/infrastructure/` |
-| **Sentry** | **dragno6565@gmail.com** (email login) · backend errors only (no app SDK) · DSN in `src/instrument.js` (org o4511084567396352) | Confirmed by Dan 2026-08-06 |
+| **Sentry** | **dragno6565@gmail.com** (email login) · backend errors only (no app SDK) · DSN in `src/instrument.js` (org o4511084567396352) | Confirmed by Dan 2026-08-06. The backend project is literally named `node-express`; org slug `dor-industries` also holds the `albumer` project, so org-level changes touch both. |
 
 ---
 
@@ -116,7 +116,7 @@ Only hard limit: raw DDL can't run via the Supabase REST API — use the SQL edi
   service `59190e65-...`. **⚠️ The `.env` Railway token points at LIVE PRODUCTION — deleting
   that service takes down prod.**
 - **🧟 Zombie service:** `legacy-odyssey-production-a9d1.up.railway.app` (stale v2.1.0) lives
-  in a DIFFERENT Railway account; benign; `/admin/health` WARN expected. Don't chase it.
+  in a DIFFERENT Railway account; benign; `/admin/health` reports it as an informational PASS (WARN until 2026-06-08). Don't chase it.
 - **DB/Storage/Auth:** Supabase ref `vesaydfwwdbbajydbzmq` (us-west-2). DDL via SQL editor only.
 - **Payments (Stripe, LIVE):** Annual intro **$29 first year → $49.99/yr** (primary offer,
   price `price_1TLojVJk2GIrL5uS0oQORYsr` + coupon `sX2lEPb6`); additional domain $12.99/yr.

@@ -133,7 +133,7 @@ Ranked by US%, female%, target age (25–44), engagement, and price-to-value. ~2
 
 > Hi [Name], love your content — [specific genuine compliment about a recent post].
 >
-> I'm the founder of Legacy Odyssey. We built a digital baby book where every parent gets their child's own .com domain — like sophiasmith.com — and a real, private website. You fill it in from the iOS/Android app or the web editor, and family views it at your-childs-name.com.
+> I'm the founder of Legacy Odyssey. We built a digital baby book where every parent gets their child's own .com domain — like your-childs-name.com — and a real, private website. You fill it in from the iOS/Android app or the web editor, and family views it at your-childs-name.com.
 >
 > I'd love to gift you a free account to try it out. Zero strings attached — if you love it, we can talk about something paid (or our 35% recurring affiliate program). If not, no worries at all.
 >
@@ -170,7 +170,7 @@ Business cards at:
 - Baby boutique stores
 - Childbirth class locations
 
-**Files:** `F:\legacy-odyssey\business-cards.html`. Cards A/B PNGs in Downloads. MOO order status NOT verified this session.
+**Files:** `F:\legacy-odyssey\business-cards.html`. CORRECTED 2026-10-04: cards were ordered at Staples in Mesa (design 6B cream, "The baby book that comes with a real website."; back = contact card with QR), NOT MOO. Files: `marketing/facebook/fb-posts/bc_6b_cream_front.png`, `bc_back_cream.png`.
 
 ---
 
@@ -184,7 +184,7 @@ Business cards at:
 - [ ] First gifting batch sent (target: 10 free accounts via /admin)
 - [ ] Hand off best-fit creators to affiliates session for Rewardful recruitment
 - [ ] First press/roundup mention
-- [ ] Business cards ordered + physical drops scheduled
+- [x] Business cards ordered (Staples, May 2026); [ ] physical drops scheduled
 
 ## Work log
 - **2026-06-10 — Influencer session** —
@@ -197,3 +197,38 @@ Business cards at:
   - Refreshed `sessions/influencer.md` and this detail file per the 2026-06-10 cross-session reorg protocol.
 - **2026-05-07** — Sarah Baraldi accepted #105567 (May 13 delivery). Giulia Busetto #107326 placed ($154) — first-time mom, 33k, 24.7% engagement, brief with domain hook angle.
 - **Pre-May 2026** — Collabstr account set up. Order #105567 placed.
+
+
+---
+
+## Archive review additions (2026-10-04, from the retired influencer and affiliates sessions)
+
+### Standing rules (Dan)
+- Never tick "shipping a physical product" on Collabstr and never ask for a mailing address; content approval = Yes; using content for ads = No. Dan reviews every filled form before submit and normally pays himself.
+- Lead creator deals with cash. A comp code may be added so the creator can use the product, but it is never the pay ("They will not receive a free one year subscription", 2026-05-20).
+- Do not tell creators our internal copy rules. Always rewrite AI auto-filled brief text from Collabstr, Social Cat or Intellifluence (it injects "story", "preserve memories", "permanent home").
+- Instagram handle trap, UNRESOLVED: this file's briefs use @legacyodesseyapp ("odessey", per a Dan correction on 2026-05-22), but other sessions verified the profile as instagram.com/legacyodysseyapp (2026-05-25, 2026-07-11). Open the live profile and confirm the exact spelling before putting the handle in any brief. Verify scraped contact emails before passing them on (an AI-search email for one creator was fabricated).
+- For a founder-DM motion target nano/micro creators (under 30K) and propose the efficient sourcing route (Collabstr, not hand-clicking Instagram) before grinding. Verify every named target before it enters a deliverable.
+
+### Collabstr mechanics
+- Price and follower filters need the logged-in brand account. Only the homepage search works for brand accounts: the /search route and URL query filters do not stick, some profile URLs redirect home, and Age/Ethnicity/Language filters are Premium. Set the price slider with JS. The tab froze after a dropdown click once; recovered via list_connected_browsers + select_browser.
+- Fee: 10% on top of the creator price ($250 becomes $275). 72-hour acceptance window; unaccepted or declined orders refund to the Collabstr balance (about $115.50 left after the June 2026 order).
+- Placing an order (worked 2026-06-16): open creator, select package, Add to Cart, checkout ("Use Balance" is the default tab), Step 2 Submit Requirements (pre-fill from the saved campaign "Legacy Odyssey - Influencer - May 2026", then edit; single post, not "3 posts"), Dan reviews, then confirm placement in the Billing ledger (an AI campaign-brief modal pops up and cannot be closed by synthetic clicks).
+- The "Content approval required" checkbox is a custom control that could not be verified visually: confirm in the order chat that the creator sends a draft first.
+- The Chrome tool cannot open file pickers; Dan uploads images himself (also true for Staples, Facebook, ASC).
+- Draft campaign 54475 ($1,000, min 5k followers) was left unpublished (its AI title was rejected).
+- Brand profile (2026-05-20): Mesa AZ, categories Family & Children + Technology, cover infcover_d_cream_bold.png at 1500x750 (Collabstr rejects under 700 px tall); the profile photo (app icon) upload was never confirmed saved.
+
+### Other platforms and vendors (prices as seen in May 2026)
+- Intellifluence: one social network per campaign (run separate campaigns for TikTok/Pinterest); right categories Baby, Family, Gifts, Kids, Mommy; logo file `mobile/assets/icon.png`.
+- Social Cat: Pro plan $299/mo (30 creators, unlimited campaigns, 7-day trial; Essentials $99, Performance $199). Account created 2026-05-20 under legacyodysseyapp@; onboarding stopped at "Payment option"; Dan: "I'm all done with the social cat for now." Whether a card was entered or the trial lapsed is NOT recorded (possible recurring charge; open item).
+- Declined: Minisocial ($3,000 minimum for 10 creators), Statusphere ($10,000 initial). Not pursued: JoinBrands, Billo, Heartbeat, SHOUT, Tomoson, Trend.io, Insense, Aspire, Creator.co. Dan prefers no paid influencer-database tooling (Modash ~$120/mo, Heepsy ~$49/mo).
+- The Bump national ad sales: expect $10k to $50k+; rejected.
+- Social-media agency shortlist (2026-05-12, unverified estimates): 3 Peas Marketing (baby-only, retainers ~$1.5k to $3k/mo; Dan said he was contacting them 2026-05-21, no reply recorded), Quimby Digital, Loud Bird Marketing, Upwork/Fiverr. Dan chose to keep working with Claude.
+
+### Order history details not elsewhere
+- Sarah Baraldi #105567: 1 IG Reel $295, @prenataltocradlesleep (45.7k, only 41% US); paid by Dan 2026-04-30; later cancel requested; refund status not recorded.
+- Giulia #107326: transcript shows 1 IG Reel $140 + $14 fee = $154 placed 2026-05-07; this file's ledger says a $759 Reel. Not reconciled: check the Collabstr ledger before quoting.
+- Carina (2026-05-22, 3 feed posts $275 from balance) declined 2026-05-25. Dan eliminated Ariel Shearer ($600), Adaeze ($900), Irene; Lianne on hold. Data rejects: Amanda Moseley (86% male), Ona (21% US), Aurelija G (27% US), Tyree Jones (39% US).
+- Creator DMs (2026-06-10, Dan's Instagram inbox): one creator asked for $150 via PayPal to a differently named payee (Dan said he was working with that person) and another said she had not received email or payment yet. Outcomes not recorded (open item).
+- Marketing Tracker Google Sheet: https://docs.google.com/spreadsheets/d/1-J6gsYdq2lPJFBZOYasy-OZpMo2F8QO1ighCrAucqvM/edit (12 columns: Date, Channel, Name, Handle, Platform, Found via, Type, Action, Status, Rating, Next step, Notes; rows 2-24 Tier-A affiliate targets, rows 25-32 past creators with outcomes; Jayna ghosted/refunded, do not re-order).

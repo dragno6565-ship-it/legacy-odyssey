@@ -91,13 +91,13 @@ installation detector; tracking is confirmed working. **Recruitment is now unblo
 
 - [x] **Task 1 — Rewardful JS snippet** added to `<head>` of all 28 public marketing pages (key `0a0312`). Commit `dd2ed36`.
 - [x] **Task 2 — Stripe `client_reference_id`** passed from `window.Rewardful.referral` through 4 checkout endpoints (create-checkout, create-founder-checkout, create-founder-page-checkout, create-childhood-checkout), set only when present. Commit `2b163b5`.
-- [x] **Task 3 — refund/void trace.** ⚠️ Finding: there is **no automatic Stripe refund** on domain-registration failure (no `refunds.create` anywhere) — the customer keeps an active subscription + a working book on the subdomain, so the sale (and commission) is legitimate. Rewardful's native `charge.refunded` auto-void still works for any *manual* refund Dan issues. **Decision needed:** should domain failure auto-refund? (separate business call — not implemented.)
+- [x] **Task 3 — refund/void trace.** ⚠️ Finding: there is **no automatic Stripe refund** on domain-registration failure (no `refunds.create` anywhere) — the customer keeps an active subscription + a working book on the subdomain, so the sale (and commission) is legitimate. Rewardful's native `charge.refunded` auto-void still works for any *manual* refund Dan issues. **Decided (Dan 2026-06-09): NO auto-refund, no refunds ever** (CLAUDE.md rule #11). Closed 2026-10-04.
 - [x] **Task 4 — `/affiliates` landing page** + route (`book.js`) + footer links (landing-v2-cro/landing/landing-v2). Commit `2645c16`.
 - [x] **Task 5 — asset pack** in `affiliate-assets/` (product desc, 5 captions, 3 email swipes, brand-rules, 10-Q&A FAQ, 3 SVG banners). Commit `692ac4c`. **Still to do:** upload to Rewardful Asset Library (needs the UI); export SVG banners→PNG if required.
 - [x] **Merged to main + deployed + verified live** (merge `6e6cbd6`, 2026-06-08). `/affiliates` serves 200; snippet confirmed live; real `?via=` referral tracked on Rewardful dashboard.
 - [x] **Add `REWARDFUL_API_SECRET` to Railway env** — DONE (Dan, 2026-06-15) + VERIFIED by coding: set in Railway prod (length 32) and authenticates (GET /v1/campaigns → 200). The webhook's `recordConversion()` uses the same Basic-auth, so gift/branded-signup conversions will authenticate. Remaining = affiliates' real referred test purchase to confirm a conversion in the dashboard.
 - [ ] **Upload asset pack to Rewardful Asset Library** (Dan / needs the UI). Files in `affiliate-assets/`; export SVG banners → PNG if the library requires raster.
-- [ ] **Decision (Task 3): should domain-registration failure auto-refund?** Currently NO refunds at all (per Dan — no-refund policy; customer keeps subscription + subdomain book). Nothing to implement unless policy changes.
+- [x] **Decision (Task 3): should domain-registration failure auto-refund?** CLOSED 2026-10-04: Dan said NO on 2026-06-09 (no refunds ever). Currently NO refunds at all (per Dan — no-refund policy; customer keeps subscription + subdomain book). Nothing to implement unless policy changes.
 - [ ] **Follow-up:** the branded Payment-Intent signup flow (`create-signup-intent`) + gift checkouts are NOT yet Rewardful-attributed (they use PaymentIntents, not Checkout Sessions — need separate handling).
 
 ---
@@ -342,3 +342,71 @@ multiple circles (many-to-many).
 - Branded embedded checkout (Payment Element) — gift flow cut over + live-tested; signup flow built.
 - Monthly plan removed from all new-customer surfaces (foreverearley grandfathered).
 - Comp (free) gift minting for influencers/promos — admin-only.
+
+## From archive review 2026-10-04
+
+Unresolved items found in the retired sessions' transcripts. One line each, owner in brackets. Items Dan already decided (old Pinterest pins stay, old exposed keys and the never-expiring Supabase PAT stay, homepage testimonials stay, Rewardful cancelled, no auto-refund) are deliberately NOT listed.
+
+### Coding
+- [ ] [coding] Remove the /affiliates page and its footer links (route in src/routes/book.js; landing.ejs, landing-v2.ejs, landing-v2-cro.ejs) and verify on the LIVE site (routed 2026-10-01).
+- [ ] [coding] Coming Home (and other card sections) show "(untitled)" when an entry has no title; show nothing on the public viewer, web editor and app (updateSectionCards writes the placeholder).
+- [ ] [coding] Old /preview/* landings post to /create-checkout ($49.99, no coupon): align with the live price or remove them.
+- [ ] [coding] Google Ads conversion: count gift purchases (/gift/success) and pass the real purchase value (currently a default $1).
+- [ ] [coding] Verify META_CAPI_ACCESS_TOKEN is set in Railway and whether gift-success fires a Meta Purchase.
+- [ ] [coding] GA4 landing_variant tracking is broken (93% "(not set)"); fix it in gtag config or retire the A/B split and the ?lov override (ask Dan which).
+- [ ] [coding] Supabase advisor warnings: photos bucket allows listing (test carefully, the app hardcodes public URLs) and one function without a fixed search_path; schedule with Dan available.
+- [ ] [coding] Confirm F:\backups\backup.py covers tables added after May 2026 (videos, custom_galleries, circles/contacts, content_translations, page_views).
+- [ ] [coding] Add untracked sensitive files in the repo root (business plan PDF, generate_accounts_pdf.py, generate_business_plan_pdf.py) to .gitignore or move them out.
+- [ ] [coding] Hardcoded-PII script scripts/send-contact-section-announcement.js is untracked in the tree; ask Dan whether to delete it.
+- [ ] [coding] Audit the other LO app screens for Android safe-area insets and keyboard overlap (only the v1.0.24 screens were fixed).
+- [ ] [coding] Video uploads have no server-side dedup; a real network failure plus retries can still create duplicates.
+- [ ] [coding] Autofill guard on gallery name fields (autocomplete="off" on web; autoComplete/textContentType in GalleriesScreen). Low.
+- [ ] [coding] Add a .easignore (an EAS upload swept 292 MB of marketing assets). Low.
+- [ ] [coding] Legacy hosted gift checkout thumbnail points at /images/og-image.png (404). Low.
+- [ ] [coding] Contact page says hello@ while the backend routes to help@; make them match. Low.
+- [ ] [coding] Play Console 7in and 10in tablet screenshots carried the old banned "Your Family's Story" image (last checked 2026-06-25); verify and replace.
+- [ ] [coding] Demo (your-childs-name.com, Spaceship cPanel): self-host the hot-linked Unsplash images; check whether the demo still needs a refresh against current features (Dan: keep static, keep updated). Needs Dan's Spaceship login.
+- [ ] [coding] Rename the Sentry backend project from node-express to legacy-odyssey (offered, minor).
+- [ ] [coding] Real repeatable email send path (Resend Audience/Broadcast or server endpoint) with one-click unsubscribe that writes families.unsubscribed_at; needs Dan's approval as a project.
+- [ ] [coding + Dan] Supervised live test of the $450 Entire Childhood purchase and gift flows before any promotion.
+- [ ] [coding + Dan] Google Postmaster Tools signup (TXT record via Cloudflare after Dan signs in).
+
+### Marketing
+- [ ] [marketing] Pinterest queue has almost certainly been empty since about 2026-08-09: verify and refill with a clean batch (no price, rule #16).
+- [ ] [marketing] Verify the Pinterest tag 2613467907928 fires (conflicting records).
+- [ ] [marketing] Facebook/IG: nothing posted since 2026-07-14; start the content-organic batch once Dan picks the first post.
+- [ ] [marketing] Publish or drop the approved eco blog post (marketing/blog/11-sustainable-baby-book.md; Dan said "I want the blog posted" 2026-06-30, no page exists).
+- [ ] [marketing] Unwritten feature posts: gift options, Their Keepsakes, and a demo walkthrough pointed at plain legacyodyssey.com.
+- [ ] [marketing] Confirm the exact Instagram handle spelling (legacyodysseyapp vs legacyodesseyapp in briefs) from the live profile and fix the briefs.
+- [ ] [marketing] Reconcile the Giulia Collabstr order amount ($154 in the transcript vs $759 in influencer.md) from the Collabstr ledger.
+- [ ] [marketing] Find out whether the two creators from the 2026-06-10 Instagram DMs (a $150 PayPal request; one still waiting on email/payment) were resolved.
+- [ ] [marketing] Check blog-circles-sharing.ejs and the other live blog pages received the June audit edits (blog is the CTA target for feature emails).
+- [ ] [marketing] Google Ads: no post-overhaul Clarity/GA4 read was ever done for the Jul 16-20 spend; do it before any restart proposal.
+
+### Dan (decisions or logins)
+- [ ] [Dan] Check Social Cat (Pro $299/mo after a 7-day trial, account made 2026-05-20) and cancel if a card was entered.
+- [ ] [Dan] Confirm Rewardful sent the cancellation email and nothing bills after 2026-10-23.
+- [ ] [Dan] legacyodysseytest8.com and legacyodysseytest9.com: live paid test sites (renew at $49.99 plus domain renewals); keep or cancel.
+- [ ] [Dan] Sweep the two canceled test families under the legacyotest1 test account? (offered 2026-06-11)
+- [ ] [Dan] A third $29 Stripe charge on 2026-06-29 19:22 has no matching account (probably a cleaned-up test); confirm.
+- [ ] [Dan] The outside "internet marketer" dropped by 2026-08-05: confirm nothing still bills and they hold no access.
+- [ ] [Dan] Zombie Railway service still answers (legacy-odyssey-production-a9d1); which account was deleted on 2026-06-08?
+- [ ] [Dan] Google Ads: resume at all? If yes, first change the paused Campaign 3 ($50/day, homepage, no end date). Also: link Ads to the live GA4 property 531219463 for remarketing? Check the unrelated Ads account 345-823-5608 (cancelled) holds no billing or credit.
+- [ ] [Dan] Meta "business verification" banner was never handled; do it before any Meta restart.
+- [ ] [Dan] Pick the canonical getting-started blog page (two live duplicates).
+- [ ] [Dan] Facebook/IG: which content batch post goes first (P2 swaddle vs sleep-sack, or P1 tummy time); one funny reference example if the funny experiment continues; switch @legacyodysseyapp to a Creator account for collab music, or not; should IG posts also go to your personal Facebook; paid stock (Adobe Stock) or stay on free Pexels; page CTA button, reviews, Group; confirm 2FA on the page admin account; leave or correct the May wet-diaper post numbers.
+- [ ] [Dan] Pinterest bio and the "Baby First Year Milestones" board name cap at baby/first year: approve a rewrite?
+- [ ] [Dan] TikTok: greenlight or not.
+- [ ] [Dan] Domain extensions: keep or drop .us, .xyz and .net as alternatives when .com is taken.
+- [ ] [Dan] Strip the old share picker from the Your Contacts page (sharing now lives in "Share your website")?
+- [ ] [Dan] Friendlier default viewing passwords and/or a self-serve "resend my website password" link?
+- [ ] [Dan] Video delivery cost: a tighter per-site cap (60 to 120 minutes suggested) or wait for monitor data.
+- [ ] [Dan] Hidden /preview/founder page ($29/yr flat): keep live?
+- [ ] [Dan] Backup routine after the move to F:\legacy-odyssey: keep the E: mirror task or replace it?
+- [ ] [Dan] OK to move or delete the old reports in C:\Users\dragn\Desktop\LO-reports?
+- [ ] [Dan] Spacemail: finish pulling dan@/hello@/help@/info@ into legacyodysseyapp@gmail.com via Gmail POP3 (Dan types the mailbox passwords).
+- [ ] [Dan] Search Console: click "Validate Fix" on the duplicate-canonical report.
+- [ ] [Dan] GA4 data retention to 14 months (Admin > Data collection > Data retention).
+- [ ] [Dan] Facebook page vanity URL (then swap the landing footer link).
+- [ ] [Dan] Compliance gaps C-001 to C-009 in ops/FILINGS.md have no owner (Terms still dated March 21 2026; no CCPA link; retention purge unbuilt).
+- [ ] [Dan] Collabstr: Sarah Baraldi order #105567 ($295, cancel requested in May) refund status.

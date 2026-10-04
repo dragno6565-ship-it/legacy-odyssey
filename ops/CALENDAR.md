@@ -38,6 +38,10 @@ Last updated: 2026-06-04
 | Monthly | Sentry | VERIFY tier |
 | Monthly | Hotjar | VERIFY tier |
 | Monthly | Meta Ads | If on, ~$1,500/mo. Verify campaigns daily during active periods. |
+| **2026-10-23** | Rewardful (cancelled 2026-10-01) | Last paid cycle ends; account locks. Confirm no further $49 charge. |
+| **2027-05-25** | Homepage "Introductory pricing ends in..." countdown (`data-end` in landing-v2-cro.ejs; verified live 2026-10-04) | Hits zero; after that it prints "ends in today". Dan to set a real date, extend or remove it before then (no fake resetting clocks). |
+| **~March-April 2027** | First annual renewals (Mar-Apr 2026 cohort) | First real renewal-rate read for the LTV model. Not before. |
+| **~May 2027** | Comp-gift recipients start billing $49.99 (e.g. the June 2026 comp redemptions) | Watch for "who is this charge" questions; comps are tagged `comp_` in gift_codes. |
 | Rolling | Spaceship domain renewals | Auto-renew on, $50 wallet topped from Visa ending 6181. Each customer .com renews on its anniversary date. |
 | Annual | `legacyodyssey.com` itself | VERIFY anniversary |
 | Annual | All 7 customer custom domains | Each on its own anniversary; Spaceship auto-renews |

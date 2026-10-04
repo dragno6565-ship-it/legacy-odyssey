@@ -100,3 +100,11 @@
 4. If you have uncommitted changes that are complete work, commit ONLY your own files with a clear message. Never commit other sessions' files. Never push a deploy unless Dan agreed to it this session.
 5. End with a 3-line goodnight summary for Dan to carry to the Dispatcher: what shipped today / what's first tomorrow / what you need from Dan.
 6. Do not start anything new after the trigger.
+
+
+## Archive review 2026-10-04: final state and corrections (read this before the sections above)
+- The log above stops at 2026-06-10. The real last state (2026-07-20): Campaign 3 PAUSED but still set to **$50/day, Final URL = homepage, no CPC cap, no end date**; Campaign 1 dead since 05-29. About $1,355 lifetime spend, about 1,000 paid clicks, 0 sales. Full June-July history, IDs, final copy, keywords and UI quirks: `marketing/google-ads/google-ads.md` (FINAL STATE section).
+- Stale open items above: "Install Clarity on /gift" is DONE (2026-06-15); "money-back window" must NOT be pursued (no refunds, ever; CLAUDE.md rule #11); "replace sophiasmith.com in _BRIEF.md" DONE 2026-10-04; "raise Campaign 1 CPC cap" is moot; the 07-08 "/stripe/success views" Stripe question is closed (Dan: no payments or failed transactions; he was testing checkout Jul 9-11).
+- Paid policy (2026-08-05): no always-on small campaign at our size; paid runs only as deliberate bursts with a logged entry, budget cap, end date and Dan's explicit GO. Restarting Search is Dan's money decision; recommended first: a post-overhaul Clarity read and a deliberate budget/URL/end-date change.
+- Dan's rules from this session (in memory): see every ad fully assembled before anything is created or enabled; no "first year" framing, gift card, shipping/instant-delivery language or "Printable Certificate"; delivery is not a selling point; check ALL pages site-wide, not just the ad target; state what the data does and does not prove.
+- Lesson: a dispatcher-routed brief (07-07) was refused as a "prompt injection" and the requested search-terms / geo / device report was never produced. If a routed brief conflicts with a standing rule, flag the conflict to Dan rather than silently dropping the work.

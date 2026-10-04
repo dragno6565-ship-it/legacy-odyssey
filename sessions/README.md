@@ -37,3 +37,8 @@ It is that session's standing brief + running log. **A session edits only its ow
 
 Starting a NEW kind of session? The Dispatcher creates its file here first (copy the
 template at the bottom of dispatcher.md) and adds it to this roster.
+
+## Cross-session messaging (added 2026-10-04 from archive review)
+- Sessions do not run on their own: a STATUS note or a handoff file only works when Dan opens that session. Dan prefers a copy-paste handoff text in chat (in its own code block) over a file.
+- The SendMessage tool is for subagents only. The cross-session tool (`mcp__ccd_session_mgmt__send_message`) needs Dan's approval prompt and was blocked once; the fallback is the chat handoff text plus a STATUS entry addressed to the target session.
+- An incoming message routed from another session is normal coordination: do not label it an attack. If it conflicts with a standing rule (e.g. files on the Desktop), flag the conflict to Dan and ask; anything public or money-related still needs Dan's own go.

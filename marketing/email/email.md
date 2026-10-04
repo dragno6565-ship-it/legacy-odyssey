@@ -11,7 +11,7 @@
 | Email provider | **Resend** (resend.com) |
 | Login | dragno6565@gmail.com |
 | Sending domain | legacyodyssey.com — **VERIFIED** (DKIM, SPF, DMARC all passing) |
-| From address | info@legacyodyssey.com |
+| From address | hello@legacyodyssey.com (all campaigns; corrected 2026-10-04, info@ was stale) |
 | Reply-to / forwarding | All @legacyodyssey.com → legacyodysseyapp@gmail.com |
 | Transactional email | Live — signup welcome, password reset, gift redemption, cancellation, win-back all wired into backend |
 
@@ -122,3 +122,11 @@ Dan keeping eyes on what goes out. When a real Resend Audience/Broadcast is stoo
 - **Pre-May 2026** — Resend set up, domain verified, onboarding drip + all transactional emails implemented
 - **Apr 25–27, 2026** — Multiple email bug fixes: cancellation/reactivation race condition fixed (commit `58661e8`), welcome-back email no longer fires on cancel+archive, set-password email improved
 - **May 3, 2026** — .md file created. Pending: welcome emails to Reese/Lachlan/Jeff, lead capture form.
+
+---
+
+## Archive review 2026-10-04
+- Send runbook, 5 req/s Resend limit, audience rule and copy-lint: `docs/infrastructure/resend.md`. Dan wants: full final copy shown in chat, his "send it", CTA checked 200, then send in the same session. He gets a copy of every send.
+- Do not re-brand features in customer email without asking: for the Contacts announcement Dan rejected "Your Contacts" ("Make it simpler") and wanted "we added a contact section"; contacts can be split into groups.
+- Customer count: always a live query of families (never this file's old "~8 customers" or any stored number).
+- Open (not owned by anyone yet): a real repeatable send path (Resend Audience/Broadcast or server endpoint) with one-click unsubscribe that writes `families.unsubscribed_at`; unsubscribe is a manual mailto today. The infrastructure, sequences and "What Needs to Be Built" sections above date from May 2026 (lead capture and the nurture drip have since shipped, see resend.md).

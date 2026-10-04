@@ -101,3 +101,24 @@ Boards used in rotation: Digital Baby Book Ideas, Baby First Year Milestones, Ba
 - **2026-06-10** — Scheduled pins 41–70 (May 21–Jun 18, 2026 at 12:00 PM). Pin 70 fell on Jun 18 due to 30-day cap.
 - **~2026-05-20** — Scheduled pins 1–40 (prior session, dates not individually logged).
 - **2026-05-03** — Initial file created; account and boards set up.
+
+
+---
+
+## Archive review additions (2026-10-04, retired pinterest session, 2026-05-03 to 2026-07-11)
+
+**Decisions:** Dan decided 2026-10-04 to LEAVE the old pins as they are, including priced ones ("$29") and older hooks (Time Vault, "Yours forever", pin 74 "not a scrapbook"); do not audit or edit them. New pins stay clean (no price, word bans, rule #16). 2026-05-07: "We only do baby books now": the board "Family Photo Album Ideas" was deleted (pins 18, 25, 29, 30 went with it) and "family albums" removed from the bio; the differentiator is the baby book on their own .com, not the Vault (bio rewritten to lead with .com). 2026-06-15 Dan asked about following people: advice was at most 20-30 relevant accounts once, never rapid follow/unfollow; no decision.
+
+**State to check:** the scheduled queue was last filled through about 2026-08-09 and no Pinterest session ran after 07-11, so it is almost certainly EMPTY (Dan's standard: 15-30 pins scheduled ahead, one per day at 12:00 PM). Verify at profile > Created > Scheduled. Bio and the top SEO board "Baby First Year Milestones" still cap at baby/first year; rewriting needs Dan's approval. Click-through is the known gap (817 impressions to 1 outbound click in 30 days, June).
+
+**Facts:** business ID 1127729700350112226 (used in pin-builder and bookmarklet URLs). Boards: Baby First Year Milestones, Digital Baby Book Ideas, Letters to My Child, Meaningful Gifts for New Parents (holds pins 13, 19, 24), Baby Shower Gift Ideas (created 2026-05-20). Pinterest tag 2613467907928: a May doc claimed it was verified firing; later notes say unverified (re-check). Generators: scripts/gen_pins.py (11-30), gen_pins_31_40.py, gen_pins_41_70.py (has the dark_photo_pin template), gen_pins_71_100.py; uploader scripts/upload_pins_to_supabase.py (public `pinterest-pins` bucket, x-upsert; its filename filter missed pin40 once). Files in F:\legacy-odyssey\pinterest-pins. Pins 11-30 were bulk-published on 05-07 (not scheduled); 31-40 scheduled May 8-17 at 12 PM. Top pins (06-15): "A digital baby book at your child's own .com" (358 impressions), "What to write in your baby's book" (109).
+
+**How-tos and traps:**
+- Schedule ONLY in https://www.pinterest.com/pin-creation-tool/. pin-builder is the ads tool and cannot schedule ("Save from URL" redirects there). The bookmarklet URL (`pin/create/bookmarklet/?url=&media=&description=&actingBusinessId=`) publishes immediately with no title or scheduling: never use it for scheduled content.
+- Image injection: the target input is `#storyboard-upload-input`. Pinterest CSP blocks fetch/XHR to Supabase, but `img-src *` allows loading the image into a canvas. The extension file_upload fails with CDP -32000.
+- The `type` action drops characters (".com" became ".om"): set bio/textarea values with the native value setter plus an input event. Ctrl+A in an empty field injects a stray "a": click and type.
+- Same-day scheduling after 12:00 PM only offers later slots; start a batch tomorrow. The time dropdown must be scrolled to reach 12:00 PM. The +30 day is NOT selectable: the effective window is today + 29.
+- Date cells need a real click; aria-labels use ordinals ("June 22nd, 2026"), so regexes with `\b` after the number miss them.
+- The MCP drives only its own tab group: the controllable Pinterest tab has a green-check icon; a normal red-P tab cannot be driven; programmatic focus is blocked, so Dan must click the tab. Forcing React suspense (`$RC`/`$RS`), faking visibilityState and DOM surgery all failed.
+- Claude's own browser could not render Pinterest (logged out); use Dan's Chrome.
+- Read the board and current rules BEFORE generating a batch (a 26-pin batch was built against old rules on 07-11).
