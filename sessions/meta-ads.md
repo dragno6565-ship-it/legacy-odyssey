@@ -75,3 +75,31 @@ When restarting: Name Check ad ($20/day) is the right first move — domain excl
 4. If you have uncommitted changes that are complete work, commit ONLY your own files with a clear message. Never commit other sessions' files. Never push a deploy unless Dan agreed to it this session.
 5. End with a 3-line goodnight summary for Dan to carry to the Dispatcher: what shipped today / what's first tomorrow / what you need from Dan.
 6. Do not start anything new after the trigger.
+
+
+## Archive review 2026-10-04 (retired meta-ads and facebook transcripts, May 2026)
+Meta paid is OFF (all campaigns paused 2026-08-05). Facts and decisions worth keeping if paid ever restarts:
+
+**Rules (memory has the full text):** never publish or turn on an ad without Dan's explicit go; build the complete ad (creative + caption) outside the platform, show it, wait for "yes". After turning a campaign on, check ad-level toggles (old ads still ON reactivate). Paid restarts only as deliberate bursts (Sales objective, 100+ click readable sample, show-first pages, logged entry, Dan's GO). Dan likes ads with a real baby photo (feet, hands); he rejected the dark text-graphic gift ad (the one photo ad tested worst, so this is taste, not data).
+
+**Decisions not recorded elsewhere:**
+- "Domain Hook (Founder Pricing)" ad with "locked forever" copy: Dan said do NOT delete it but NEVER turn it on (2026-05-01). On 05-18 its image was rewritten and republished (ad_founder_rewrite.png: FOR NEW PARENTS, "Introductory rate: $29 your first year, then $49.99/year"; primary text "Is your baby's name still available as a .com?..."). The Name Check, Gift and "Demo Hook - See Your Family's Book" ads were never audited for the same wording.
+- 05-03: Photo Hook paused ($181.68, 0 purchases); active ad set narrowed to Women 24-38 with Parents (up to 12 months), Baby shower, Pregnancy, Pampers interests; Domain Hook back on. 05-18: New Parents budget cut $50 to $20/day (Dan); the facebook session paused that campaign 05-27 for a clean Website Privacy test.
+- Website Privacy Test (05-27 to 06-05, $20/day x 10 days, Dan approved after 4 rounds): image AD-new-website-privacy.png (baby gripping a parent's thumb), headline "A guided digital baby book on their own .com", CTA "Get offer", destination legacyodyssey.com/#pricing, US broad, built by DUPLICATING Domain Hook (inherits Sales objective, pixel, purchase event). Meta's $27/day upsell declined.
+- 2026-05-06: Claude deployed a new landing page without the final go (commit 8ace395); Dan: "Undo every single thing you did" (reverted b7d1411). The v1 landing backup is at F:\legacy-odyssey-backups\landing-v1-backup-2026-05-05\.
+
+**Facts:**
+- BabyCenter is NOT targetable (publisher interests removed). Advantage+ Sales campaigns lock placements to automatic; manual placements need a non-Advantage+ setup.
+- Funnel at about $729 spend (05-05): 19,065 impressions, 539 link clicks (2.83% CTR), 322 landing page views (40% of clickers never loaded the page; never diagnosed), about 1 Stripe purchase. Meta over-attributes about 4x; Stripe is truth.
+- Meta "Start verification" / business verification banner (05-03) was never actioned: check Business Settings > Security Center before any restart.
+- Whether the Meta Purchase pixel fires on /stripe/success is not verified end-to-end; META_CAPI_ACCESS_TOKEN status in Railway unverified.
+- Ten photo ads adF to adO (off-repo, C:\Users\dragn\Desktop\Legacy Odyssey\Marketing Ideas\) were never picked; several use price or "most valuable asset" (now banned). Name collision: old adJ_fomo vs the live adJ_features.
+- Other tags on the landing page (05-06): Pinterest tag 2613467907928, Hotjar/Contentsquare 38cdf4e1f1a56, AdSense. GA4 event-scoped custom dimension "Landing Variant" (param landing_variant) registered about 2026-05-07; the landing_variant tracking was diagnosed broken (93% "(not set)") and the fix (pass it in gtag config) looks unapplied in src/views/partials/tracking.ejs. A/B testing is premature at current traffic.
+
+**Ads Manager how-tos:**
+- Image upload cannot be automated (file_upload, JS drops, clipboard, GraphQL all failed): click Upload, Dan picks the file in the native dialog (it may open on the second monitor), Claude finishes the wizard.
+- Edited live ads stay "Unpublished edits" until Publish, then "Processing". In the media picker DESELECT old images ("2 of 10 selected" trap).
+- Turn OFF: Advantage+ text variations (uncheck "Apply all" AND "Tailor variations to personas"; they generated banned copy), AI image generation, AI video, Generate CTA, Enhance media text, Add overlays, Add music, Text improvements, Visual touch-ups (crops designed text; needs two clicks to stick). Translation defaults to auto-translate into 11 languages: set 0. Remove auto-added "Related media" cards. The start date silently stays in the past: reset to today; set an end date; verify the destination URL; decline the budget upsell.
+- Toggles are input[role=switch]; click via JS (a direct click opens a preview pane). Fields are contenteditable.
+- Reading numbers: the table is virtualized; use the "Performance and clicks" preset plus custom columns, drag the horizontal scrollbar; the default range excludes today ("Maximum" for all-time).
+- Comments on boosted ads live on the ad object (Business Suite > Inbox > Instagram comments), not the organic post. Reply policy: memory feedback_negative_ad_comments.

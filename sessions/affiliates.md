@@ -1,5 +1,11 @@
 # Session: Affiliates (Rewardful)
 
+> **2026-10-04: PROGRAM CANCELLED, NOT LIVE.** Dan cancelled Rewardful himself on 2026-10-01 and chose
+> "Leave it as cancelled" over a support-chat pause (billing ends 2026-10-23). Do not recruit, do not
+> send DMs, do not offer the 35% link. Everything below is pre-cancellation history. Revival steps,
+> billing facts and what to fix first are at the top of `docs/infrastructure/rewardful.md`. Dan never
+> approved the 50-page plan as written; its phases and budget are a draft, not policy.
+
 > The "Friends of Legacy Odyssey" affiliate program — Rewardful admin, recruitment
 > strategy + assets, target-list sourcing/verification. 35% recurring forever
 > commission. Code integration is DONE, live, and verified end-to-end.

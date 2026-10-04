@@ -153,3 +153,34 @@ and it sells without trying.
 5. Warm — would the reader feel seen, not mocked?
 
 If all five are yes, it's on-voice.
+
+
+---
+
+## Added 2026-10-04 (archive review of the retired facebook and meta-ads sessions)
+
+### Emojis
+Allowed in social posts and captions. Banned in the product UI (app and web), Dan 2026-10-04. The old "Emojis. Anywhere. Ever." line in older briefs is retired.
+
+### Privacy objection replies (Dan-approved, 2026-07-08)
+Use as templates; check whether the commenter is real first; never hide a genuine objection; hide trolls; nothing public without Dan's go. No em dash, no price, no links. Never claim 100% private. Approved public wording: "far more private than posting on Facebook or Instagram."
+
+Genuine concern:
+```
+Thank you for your comment and concern. We agree that nothing can be 100% private when posted on the internet, which is why we keep our sites password-protected, invite-only, and we block search engines from indexing them. Nothing is public or searchable, and only the people you choose can see it. Our sites are far more private than posting on Facebook, Instagram, or other social media platforms.
+```
+
+Vaguer or hostile comment:
+```
+We're sorry you believe so. We find our current customers love them. For what it's worth, they are private and password-protected, invite-only, never public or searchable. Only the people you choose can see it, and you can remove anyone anytime.
+```
+
+### Copy patterns Dan pushed for
+- Feature posts: "Legacy Odyssey now has X", then what it does, where it lives on the website/app, what you can do with it. No metaphor, no poetry.
+- Plain, product-tied wording beats clever lines (chose "Worth every ounce" over "We regret nothing"; "More often than not, they're just tired." over "A nap, not a new strategy"; "Custom photo galleries for all of life's adventures"; "Upload video to your child's Legacy Odyssey website").
+- Never write UI actions that do not exist (the real Keepsakes flow is photograph the drawing, add a one-line label, save). Verify against the live product.
+- The proven hook must read "Is your baby's name still available as a .com?" (never shortened).
+- Re-paste approved copy verbatim; "..." abbreviations made Dan think content was dropped.
+- Gallery posts: cohesive photos matching the theme with at least one baby. The word "book" is fine where the UI itself shows it ("My Book"), otherwise website.
+- Every post needs a visual (IG will not take text-only; FB buries it): a text card for useful posts, a real photo for funny ones. No two text cards back to back. Alternate color and B&W.
+- Competitor scan (2026-05-12): humor-led pages (Chatbooks "Real Mom") outperform product posts in this niche.

@@ -9,7 +9,7 @@ Marketing demo of the baby book product. **No corresponding row in the `families
 This is sibling to "Your Family" (which DOES have a families row, for the photo album product) but architected differently: this one is purely static-content, no SaaS plumbing.
 
 ## How it's served
-- Express middleware (currently): when Host header is `your-childs-name.com`, serves `src/public/your-childs-name-demo.html` (42 KB)
+- STALE (corrected 2026-10-04): the live demo is NOT served by Express. It is `/home/wnuazicufx/your-childs-name.com/index.html` on Spaceship cPanel (see docs/domains/your-childs-name.com.md). The repo file `src/public/your-childs-name-demo.html` (42 KB) is not live.
 - Spaceship hosting (target post-migration): serves `index.html` directly from cPanel website folder (386 KB version)
 
 ## Related

@@ -56,8 +56,9 @@
 
 ## Open items (next session — refreshed 2026-06-27)
 - **#1 highest-value next pull: FIRST-RENEWAL RATE from Stripe** (intro $29 → $49.99, Mar–Apr 2026
-  cohort, due now). It's the one number that turns the LTV model from hypothesis into fact and resets
-  the affordable-CAC policy. Offered to Dan; do this when he says go.
+  cohort). CORRECTED 2026-10-04: NOT due now. Annual plans started 2026-03-29, so there is no
+  renewal data until about March 2027; do not chase it before then (dispatcher correction 2026-06-30).
+  It's the one number that turns the LTV model from hypothesis into fact and resets the affordable-CAC policy.
 - **Affordable-CAC policy is live:** target ~$40, hard ceiling ~$125, judge vs LTV not $29
   (`ops/UNIT-ECONOMICS-LTV.md`). Keep Meta off at $213; affiliate + organic lead; one sponsored test OK.
 - **App Store listing — copy APPROVED by Dan (may edit pre-submit).** Coding cleared to STAGE
@@ -153,3 +154,14 @@
 4. If you have uncommitted changes that are complete work, commit ONLY your own files with a clear message. Never commit other sessions' files. Never push a deploy unless Dan agreed to it this session.
 5. End with a 3-line goodnight summary for Dan to carry to the Dispatcher: what shipped today / what's first tomorrow / what you need from Dan.
 6. Do not start anything new after the trigger.
+
+## Archive review 2026-10-04 (retired chief-of-staff and main-man transcripts)
+- Rewardful: Dan's FINAL call 2026-10-01 was "Leave it as cancelled" (he declined the support-chat pause). Billing facts now in ops/SUBSCRIPTIONS.md and ops/CALENDAR.md (Oct 23). Social Cat Pro ($299/mo) may still be billing: check (ops/SUBSCRIPTIONS.md).
+- Ask Dan questions as a NUMBERED list (his rule 2026-06-17). Pull real numbers from his accounts, never generic consultant advice (2026-06-08 "You haven't given me anything valuable").
+- Not used anywhere in LO (searched 2026-06-08): Atlassian, Loom, Statuspage, Opsgenie, Jira, Trello, Bitbucket. Tracking = TODO.md + GitHub; support = help@ to Gmail; no status page or pager. ("loom" hits are "heirloom".)
+- Competitors (2026-06-24 App Store research): Tinybeans $74.99/yr (150k+ ratings), Qeepsake $95.88/yr (~17k), BabyPage $44.99/yr, Lifecake discontinued 2023. ASA model: US baby/parenting CPT about $2.25, tap-to-install about 60%, so about $3.75 per install; at 1 to 2% install-to-pay CAC is $188 to $375. Verdict: ASO yes; ASA only after the listing converts, as a small capped test (about $100 to 150, kill if CAC above target). Do not cite the cold Meta test as proof that paid fails (Dan: "They were sending it to random people").
+- Paying customers: verify live (Stripe subscription plus a non-gift paid charge = real; comps show in gift_codes; exclude owner, demos, tests). The "18 paying" (07-11) and "~9" figures were wrong.
+- Freelancer preference (2026-07-01): ONE person or studio who learns the product, makes the video themselves (not from Dan's screen recordings) AND does ongoing marketing; prefers American. Shortlist ops/freelancer-shortlist.txt; Dan never picked or set a budget. An outside "internet marketer" was hired about July and dropped by 2026-08-05; name, contract and any remaining access are not recorded (one question for Dan).
+- Compliance gaps C-001 to C-009 in ops/FILINGS.md are all still open (subprocessor rows, retention purge, Terms dated March 21 2026, breach runbook, ToS checkbox check, CCPA link). GDPR vendor DPAs: Dan said "those are all done" 2026-05-25 (Hotjar's DPA now lives in the Contentsquare GMSA). GA4 data retention should be 14 months (unconfirmed).
+- Old reports still sit in C:\Users\dragn\Desktop\LO-reports (pre-dating the no-Desktop rule); several ops docs link there. Moving or deleting them needs Dan's OK.
+- ffmpeg for marketing/app-store/make_video.py: `npm i ffmpeg-static --no-save`, never commit it.

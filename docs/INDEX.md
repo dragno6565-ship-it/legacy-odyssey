@@ -90,7 +90,9 @@ When you create/touch any entity not yet listed: write its file from the standar
 - [infrastructure/supabase.md](infrastructure/supabase.md) — Postgres + Storage + Auth. Pro plan ($25/mo). Project ref `vesaydfwwdbbajydbzmq`.
 - [infrastructure/stripe.md](infrastructure/stripe.md) — Live mode payments. Account `acct_1T3N7kJk2GIrL5uS`.
 - [infrastructure/resend.md](infrastructure/resend.md) — Outbound transactional email. Sender domain verified.
-- [infrastructure/rewardful.md](infrastructure/rewardful.md) — Affiliate program tracking. Friends of Legacy Odyssey campaign, 35% recurring forever, $49/mo Starter plan.
+- [infrastructure/rewardful.md](infrastructure/rewardful.md) — Affiliate program tracking. CANCELLED by Dan 2026-10-01 (not live; history and revival steps in the file).
+- [infrastructure/local-dev.md](infrastructure/local-dev.md): local server, shell and browser-tool gotchas (APP_DOMAIN=localhost, dummy keys, Windows pitfalls, CSS traps). Added 2026-10-04.
+- [infrastructure/backups.md](infrastructure/backups.md): nightly data backup, daily repo mirror, snapshots and the open question on the E: mirror. Added 2026-10-04.
 - [infrastructure/clarity.md](infrastructure/clarity.md) — Microsoft Clarity heatmaps/session recordings. Project `x7mt9cszyp`, site-wide + consent-gated, env-driven (`CLARITY_PROJECT_ID`). Free.
 - [infrastructure/spacemail.md](infrastructure/spacemail.md) — Inbound mail at `@legacyodyssey.com`. Mailboxes exist; per-mailbox forwarding to gmail not yet set up.
 

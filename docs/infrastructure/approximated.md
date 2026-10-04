@@ -2,7 +2,7 @@
 
 **Status:** active (added Apr 27 2026)
 **Owner / who it's for:** Legacy Odyssey customer-domain TLS termination + proxy
-**Last touched:** 2026-04-28
+**Last touched:** 2026-04-28; archive-review additions 2026-10-04 at the bottom
 
 ## What it is
 SaaS proxy service that handles per-customer-domain TLS termination via Caddy On-Demand TLS (Let's Encrypt). Each customer's apex+www points DNS at our Approximated cluster IP; Approximated terminates the TLS connection and proxies to our Railway origin with the original Host header preserved.
@@ -50,3 +50,11 @@ Founder: Tyler. Indie SaaS, responsive direct support.
 - **`redirect: true` sticky bug** — workaround: delete + recreate vhost.
 - **No published SLA at $20/mo tier.** Custom SLAs require contacting sales.
 - **Single point of failure** for ALL customer-domain traffic. If Approximated cluster goes down, all 8 customer sites are unreachable until rollback (point DNS back at older path).
+
+
+## Update 2026-10-04 (archive review): the apx-incoming-host header contract
+- Approximated rewrites the upstream Host to `legacyodyssey.com` and passes the customer's real domain in the **`apx-incoming-host`** header (confirmed empirically 2026-07-14 with a temporary /health echo, since removed). The `keep_host` behavior noted above is therefore NOT what production relies on.
+- `src/utils/realHost.js` reads `apx-incoming-host` ONLY when the transport host is our own domain (anti-spoof). Used by resolveFamily, customerNoindex, the robots.txt route and recordPageView. `www.<appDomain>` 301s to the apex in server.js.
+- Ignoring this header caused the 11-week custom-domain outage (fixed 2026-07-14). Monitoring must check page CONTENT per customer domain, not just status codes.
+- Pulse history: 2026-07-15 06:10 Approximated proxy blip (ECONNABORTED on proxied domains only, self-recovered); from 2026-08-08 03:00 an in-container "hairpin" failure after a redeploy (the pulse could not reach its own public domains; the site was up). `cron_runs` (name, last_success_at, last_error, consecutive_failures) is the authoritative record; a 7 s run means the pulse saw everything, blind runs take about 20 s.
+- The hourly pulse excludes Dan's test sites (legacyodysseytest8/9) and your-family-photo-album.com so alerts mean real customers.

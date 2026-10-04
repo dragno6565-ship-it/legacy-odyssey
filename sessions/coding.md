@@ -310,3 +310,22 @@
 4. If you have uncommitted changes that are complete work, commit ONLY your own files with a clear message. Never commit other sessions' files. Never push a deploy unless Dan agreed to it this session.
 5. End with a 3-line goodnight summary for Dan to carry to the Dispatcher: what shipped today / what's first tomorrow / what you need from Dan.
 6. Do not start anything new after the trigger.
+
+
+## Archive review 2026-10-04 (retired coding sessions: new-coding, lo-coding-3)
+Facts and how-tos were filed into docs: `docs/infrastructure/{stripe,supabase,railway,resend,approximated,cloudflare,apple-app-store,google-play,expo-eas,spaceship-registrar,local-dev,backups}.md` and `docs/domains/your-childs-name.com.md`. Standing rules are in memory (deploy timing, question is not an order, never touch DNS unless asked, RLS on new tables, apply migrations before code, never `git add -A`, no emojis in the product UI, parity deferral is Dan's call). Product decisions worth knowing before touching code:
+- Texting contacts = the customer's own phone, from the APP only (expo-sms + GET `/api/contacts/mine/contacts/:id/sms` builds the prefilled message with the contact's magic link). Texting NEVER sends the site password: each person gets their own magic link, N people = N messages. Web sharing is email-only with a plain "texting needs the app" note; Dan removed "Each gets their own private link" wording. The server `/mine/share-text` group endpoint is dead code.
+- "Send an Update > Everyone" counts only contacts WITH an email (the update is an emailed magic link); sends to one contact skip the 10-minute broadcast cooldown.
+- Sharing lives in the "Share your website" card on My Account (partial `src/views/partials/share-update.ejs`); the app has a gold "Share your site" button at the top of the home screen. Open: strip the old picker from the Your Contacts page (asked 2026-06-26, unanswered).
+- Month-by-Month visibility: a month shows publicly if ANY real field is filled; seed text must never render publicly (cleanup 2026-06-27 covered months only; other sections in seedData.js still seed).
+- Domain suggestions: same name, different extension only (see spaceship-registrar.md).
+- Per-photo upload cap stays 10 MB on web and app (Dan declined 25 MB, 2026-06-11).
+- Landing pricing-card order (2026-06-11): Gift left, Annual middle (highlighted), Childhood right; phone stack Annual, Gift, Childhood.
+- Numbered "Chapter/Section" eyebrows were removed; KEEP the descriptive eyebrows ("The day you arrived", "Your Beginning", "In motion", "Your collections", "The First Year").
+- Hindi/Spanish marketing announcements are not coding's job (route to facebook/content).
+- Investigate influencer- or customer-reported bugs yourself; do not send Dan back to the reporter, and never put the reporter's name or handle in customer-facing text.
+- Viewing password is an 8-char random hex; viewing (site password) and editing (legacyodyssey.com/account login) are separate doors; in-app path Settings > Website Password. `/verify-password` limiter: 30 attempts per 15 min per visitor; blank book_password is refused; the gate fails closed.
+- HEIC: iOS returns original HEIC files on multi-select; the server converts in `photoService.upload`; `scripts/backfill-heic-photos.js` (dry run by default, `--fix`) repaired the affected photos.
+- The private book viewer layouts (book, keepsake/celebration/recipe detail) carry ZERO trackers and must stay that way; every marketing template includes `partials/tracking.ejs`.
+- "Made with Legacy Odyssey" badge, GA bot filter: status unverified.
+- Search Console "Duplicate without user-selected canonical" was fixed 2026-07-20; Dan can click "Validate Fix" in the report.

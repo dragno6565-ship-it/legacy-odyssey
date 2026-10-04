@@ -1,5 +1,15 @@
 # Rewardful — Affiliate Program (Friends of Legacy Odyssey)
 
+> **STATUS 2026-10-04: CANCELLED, NOT LIVE.** Dan cancelled the Starter plan himself on 2026-10-01 (self-serve; billing through 2026-10-23, account locks after that; campaign set private). Offered a support-chat "pause" instead, he said "Leave it as cancelled." Lifetime result: 8 signups, 44 visitors, 0 leads, 0 conversions, $0 commissions. Everything below is historical setup detail, kept for a possible revival. Do NOT recruit affiliates or send the Tier-A DMs.
+>
+> - Billing facts: Starter $49/mo, trial ended 2026-06-23, cycles on the 23rd, 9% transaction fee on Starter. "Starter covers up to $7,500/mo tracked revenue" was never verified.
+> - Revival (Dan's call only): resubscribe at app.getrewardful.com/subscription, un-check "Make this campaign private" on the campaign edit page, then re-verify the public signup page. In June the signup page 404'd ("This page doesn't exist") until Dan clicked through ALL the Rewardful setup/company tabs; the setup wizard does not auto-detect the snippet. The dashboard banner "Add Rewardful to your website" only clears after the first PAID conversion (not an install detector).
+> - Verification method (June): a fake `?via=` token gives `Rewardful.referral` null; a real test affiliate's link returns a UUID and fires `r.wdfl.co/rw.js` + `api.getrewardful.com/referrals/track`; the affiliate shows "Referrals: 1" after about 2 minutes. Delete the test affiliate afterwards (a DELETE request with the CSRF token worked; the Turbo delete link ignored .click()). The Chrome extension was blocked on app.getrewardful.com until Dan granted access.
+> - Gift and branded-signup attribution was never proven with a real referred purchase.
+> - Before a revival: the asset pack and live ToS Section 8 may still name the old demo your-family-photo-album.com (fixed in this repo's text files 2026-10-04; banner SVGs and build-plan.js still have it), the Tier-A DM pack was never written as a file (only 3 drafts in chat; regenerate), and @prayersforpaisley in verified-affiliate-targets.md is a dead account.
+> - Dan never approved the 50-page plan as written (2026-06-10 "I'm not sure I like your plan"): its 45% "Founding 100" rate, ~$37,740 budget, VAs and paid tooling are a draft, not policy. Dan prefers no paid influencer-database tooling (Modash/Heepsy). Awin ($49/mo + 3.5%, 3-month minimum) was looked at and set aside 2026-06-08.
+> - Per-creator workflow if revived: mint ONE comp gift code per creator at /admin/gift-codes (so each can be revoked), paste it in the DM, log Date/Status "Sent"/Action = code in the Marketing Tracker sheet.
+
 > Single source of truth for the Legacy Odyssey affiliate program.
 > Set up June 8, 2026. **Live in Rewardful; code integration NOT YET deployed.**
 > Last touched: 2026-06-08 (initial setup session).
@@ -101,7 +111,7 @@ Plan: 30 min/week reviewing /affiliates and /referrals for anomalies. Anomaly = 
 5. Taxes — W-9 for US, W-8BEN intl, 1099-NEC at $600+/yr
 6. Permitted promotion — blog/IG/TikTok/etc. with FTC disclosure
 7. **Prohibited tactics (12 items)** — self-referrals, coordinated cross-referrals, coupon/cashback/deal sites, brand-term PPC, brand-domain squatting, cookie stuffing, incentivized signups, spam, misrepresentation, adult/hate/conspiracy/MLM platforms, stolen payment methods, marketing to minors
-8. **Brand & content rules** — no "family book / family album / family story / scrapbook", no "forever", no "chapter", no real children's names in demos, use your-family-photo-album.com as demo
+8. **Brand & content rules** — no "family book / family album / family story / scrapbook", no "forever", no "chapter", no real children's names in demos, use your-childs-name.com as demo (corrected 2026-10-04; the old your-family-photo-album.com text may still be in the live ToS Section 8, fix before any revival)
 9. **Changes to program** — rate cuts: 30-day notice + applies only to NEW referrals (grandfathering, see above)
 10. Termination — paid commissions survive, pending may be voided if linked to violation
 11. Independent contractor; liability capped at unpaid commissions
@@ -215,7 +225,7 @@ If Rewardful doesn't void automatically, we'd need to register a webhook endpoin
 - 5 sample IG/TikTok caption swipes (parenting voice, not corporate)
 - 3 email-newsletter swipe templates
 - Banner images: 728x90, 300x250, 1080x1080 (matches our gold/cream brand colors)
-- Demo link: `https://your-family-photo-album.com`
+- Demo link: `https://your-childs-name.com` (corrected 2026-10-04; the demo is ONLY your-childs-name.com)
 - Brand-rules one-pager (forbidden words: forever (re: product), chapter, family book/album/story/scrapbook; no real children's names; use the demo site, not real customer sites)
 - FAQ doc affiliates can copy answers from when their audience asks
 

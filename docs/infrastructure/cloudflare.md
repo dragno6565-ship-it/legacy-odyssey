@@ -2,7 +2,7 @@
 
 **Status:** active (since Apr 26 2026)
 **Owner:** DNS authority for `legacyodyssey.com` zone, R2 photo backup, no longer used for customer domains
-**Last touched:** 2026-04-28
+**Last touched:** 2026-04-28; archive-review additions 2026-10-04 at the bottom
 
 ## What it is
 Cloudflare account (Free plan + Pro for SaaS subscription that should be cancelled). Two roles:
@@ -49,3 +49,11 @@ Cloudflare account (Free plan + Pro for SaaS subscription that should be cancell
 - **API token is too narrow** for any future CF-for-SaaS use — would need account-scoped Zone:Edit which the custom-token UI doesn't expose. Workaround if revisited: Global API Key (with IP allowlist) or Tenants API (Enterprise).
 - **Roy is the only customer on Cloudflare NS.** Eventually consolidate by moving him back to Spaceship NS, OR keep as exception.
 - **R2 backup** is independent of all this; uses separate IAM token, separate billing line.
+
+
+## Update 2026-10-04 (archive review)
+- **Static asset cache is 4 hours** (`cf-cache-status: REVALIDATED`, `max-age=14400`). CSS/JS served after a deploy can be stale for hours. Bust it by bumping a query string on the link/script URL, e.g. `admin.css?v=20260529`, `book.js?v=20260527`. Claude cannot purge the CF cache. Server-rendered EJS is not cached. Verify deploys with `?cb=<timestamp>` and a marker unique to the new code.
+- **Audit log:** dash.cloudflare.com/<account-id>/audit-log. The zone-scoped CLOUDFLARE_API_TOKEN in .env can edit DNS but CANNOT read the audit log (Dan must be logged in). On 2026-06-24 the account had exactly one account API token, `legacy-odyssey-backup-cron` (R2 write only).
+- **Managed robots.txt:** Cloudflare prepends `Allow: /` above our `Disallow: /` on customer hosts, so robots.txt is not an authoritative privacy layer. Customer-site privacy relies on the X-Robots-Tag header plus the meta tag (and the password gate).
+- **Stream (video):** live since 2026-06-03 on account bc2ebc94444d987c7a78809a1d9449cb; Railway env CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_STREAM_API_TOKEN; health at `/api/videos/health`. Token template "Read and write to Cloudflare Stream and Images" (includes Account Analytics Read), no expiry. That token was pasted in chat once; Dan decided to leave it as is (do not nag). Cap: 1,000 minutes per site; the weekly `videoUsageMonitor.js` flags 80%. Delivery cost is not capped (a 60 to 120 minute cap was suggested; no answer).
+- Client country for consent comes from the CF-IPCountry header (`middleware/consentRegion.js`; EU/EEA/UK need consent; test with `?consent=eu` or `?consent=us`).

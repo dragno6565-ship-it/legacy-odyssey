@@ -85,11 +85,11 @@ to customers without Dan's review):
   Day · Coming Home · Month by Month.
 - **Family & Memories**: Our Family · Your Firsts · Celebrations · Letters · Recipes · The Vault ·
   Custom Galleries · Video Moments.
-- **Contact** (its OWN section, pulled out of "My Book"): Contact List + Circles. Plumbing already
+- **Your Contacts** (its OWN section, pulled out of "My Book"; label corrected 2026-10-04 to Dan's own wording, he said "Your Contacts", not "Contact"): Contact List + Circles. Plumbing already
   exists (Circles Phase 1+2) — this is re-home + declutter.
 - **Notify-after-section prompt:** when a whole NEW section is added, prompt "notify a circle or
   one contact?" — user chooses each time; NOT after every edit; revisit the 10-min cooldown.
-- **Build order:** (1) Contact section, (2) editor regroup. Mockup approved 2026-06-17.
+- **Build order:** (1) Your Contacts section, (2) editor regroup. Mockup approved 2026-06-17.
 
 ### D-013 — Web staging environment — ✅ APPROVED 2026-06-17 (routed to coding/infra)
 - Stand up a non-customer-facing staging copy of the web app so web changes are reviewed before

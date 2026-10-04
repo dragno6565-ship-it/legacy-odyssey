@@ -122,3 +122,55 @@ All specific long-tail terms: digital baby book, online baby book, baby book app
 6. Their Story at Their Own .com  ← replaced "Baby's First Year, Beautifully Told"
 7. Mobile App + Website Included
 8. Digital Baby Book + Real .com
+
+
+---
+
+## FINAL STATE AND JUNE-JULY HISTORY (added 2026-10-04 from the retired google-ads session transcript)
+
+### Live state as of 2026-07-20 16:50 (last session action)
+- **Campaign 3 "Search-3 - Gift / Baby Shower"** (campaignId 23809382073): PAUSED 07-20 on Dan's "yes, pause the ads". Still configured with **$50/day budget**, Final URL **https://legacyodyssey.com (homepage, NOT /gift)**, Maximize Clicks with NO CPC cap, NO end date. Anyone who clicks Enable spends $50/day to the homepage immediately: change budget, URL and end date on purpose first.
+- **Campaign 1 "Campaign #1"** (23809337940, ad group 199883662967): paused since 05-29 (confirmed 06-30), effectively dead. Raising its CPC cap is moot.
+- Live RSA adId 807692101154 (older gift ad 807947539584).
+- Approximate lifetime spend: May run $726.75 (549 clicks) + Jun 29 $7.35 + Jul 1-20 $621.24 (447 clicks, 8,849 impressions, 5.05% CTR, $1.39 CPC) = about **$1,355 over about 1,000 paid clicks, 0 sales**.
+
+### Run history June 29 to July 20
+- 06-30: Dan: "I want to run a tight ad with the least amount of money loss." Decision: run ONLY Campaign 3 (gift), phrase + exact match, no broad, no CPC cap (the cap caused "bid setting limited"), budget via the daily cap only. Enabled 06-30 at $20/day as a "$200 / 10 days" test (Dan: "How about $20 per day for 10 days?").
+- 07-01 to 07-08: 2,709 impressions, 117 clicks, 4.33% CTR, $1.18 CPC, $137.97, 0 conversions. Paused 07-08 on Dan's order.
+- 07-09: re-enabled with Final URL changed /gift to the homepage (Dan's homepage-vs-/gift test). Budget raised to $50/day (Dan). Result: homepage engagement no better (Clarity Jul 9-13: 15.13% scroll, 14 s), so page choice was not the cause.
+- 07-13: Dan paused again (Jul 1-13: 241 clicks, $318.99, 0 sales).
+- 07-16: re-enabled at $50/day after the show-first landing overhaul, no keyword/bid changes.
+- 07-20: paused (Jul 1-20: 447 clicks, $621.24, 0 sales; about $302 in the Jul 16-20 post-overhaul window). No post-overhaul Clarity/GA4 read was ever done.
+- Budget history: $5/day each (05-03), $15/day each (Dan 05-07), paused 05-19 and 05-30 (Dan reacted to $30/day), $20/day Campaign 3 only (06-30), $50/day (07-09). Note: the 05-18 pause did not stick (about $306 more spent to 05-29); always re-read status after pausing.
+
+### Final configuration of Campaign 3
+Search only (Search Partners and Display off), US + Canada, English, "No EU political ads", business name "Legacy Odyssey". Keywords (only these 4 Eligible on 06-30): [baby shower gift], "baby shower gift", "baby shower gift ideas", [baby shower gift ideas]. 16 campaign negatives (broad): free, cheap, DIY, homemade, amazon, walmart, target, etsy, registry, list, wholesale, bulk, books, literature, story books, picture books. Sitelinks "Blog Center", "Give As A Gift".
+
+### Final ad copy (06-30)
+Headlines: Give the Baby Their Own .com / Not Another Onesie / Baby Gifts Fade. Not This One. / Gift That Grows With the Child / There's Only One of Their .com / Gift for the Whole Childhood / A Baby Book at Their Own .com / Still Meaningful in 10 Years / One-of-a-Kind - Like the Baby / An Unexpected Baby Shower Gift / A Gift the Whole Family Visits / No Subscription on You - Ever / Give Their Baby a Real Website / Deliver It Whenever You Choose / Their .com. Start Their Story.
+Descriptions: "There's only one of their .com. Your gift claims it first - a book that grows with them." / "Not a blanket. Not a toy. A real .com in the baby's name - a digital book they build." / "Photos, milestones, letters at the baby's own .com. A keepsake that grows with the child." / "The baby shower gift they'll actually use. Milestones, photos, letters at their .com."
+(On 06-30 "$29" was found in 4 old headlines/descriptions and "forever" in one; both stripped.) The copy has no privacy line; lead with privacy in any future copy.
+
+### Keyword Planner (US, Jun 2025 to May 2026, pulled 06-30)
+baby books 40,500/mo (High, $0.23-2.47, -18% YoY, ambiguous with children's books); baby shower gift ideas 14,800 ($0.13-0.56); gift for new parents 5,400 ($0.25-2.24); newborn gift ideas 5,400 ($0.19-1.09). NO reportable volume: digital baby book, online baby book, baby book app, baby memory book, baby milestone tracker, personalized baby book, baby book gift, baby shower gift. The "digital baby book" category has no search demand. Real CPCs ran $1.18-1.39, well above planner ranges.
+
+### Click quality (July)
+Clarity Jul 1-8 site-wide: 350 sessions (233 bots excluded), 18.45% avg scroll, 18 s active, 96% new. /gift: 113 sessions, 11 taps total; scroll reach 25% = 27.7%, 50% = 12.5%, 100% = 0%. GA4 Jul 1-8: /gift 153 views, 11 s engagement, 0 key events; home 307 views, 4 s. Much "traffic" was organic, social, Dan and bots (ads were 56 of 152 sessions Jul 9-11).
+
+### Tracking facts
+- Ads was linked on 05-03 to GA4 property **530710619, the EMPTY duplicate**; it has never been linked to the live 531219463, so GA4 audiences/remarketing cannot flow to Ads. Linking needs legacyodysseyapp@ admin on the live property.
+- Dan's dragno6565@ login reaches only Ads account **345-823-5608** (CANCELED, zero conversion actions; unrelated). Do not edit it; the real account is 517-079-2970.
+- Purchase conversion action id 7597919758 (Primary, page-load "URL starts with legacyodyssey.com/stripe/success"). It was Inactive until the AW-18137400874 tag was installed 2026-06-29. Open: gift purchases (/gift/success) are not counted; conversion value is a default $1. The branded flow fires its own conversion on /start/welcome. There has never been end-to-end proof that a REAL customer purchase registers in Ads.
+- Older tag ids seen 05-03: G-KW9QM24HZT and GT-M3SS3GMH (dragno6565@, not in use). Account time zone (GMT-07:00) Phoenix.
+- Statistical honesty: at a true 1% conversion rate, P(0 sales in 117 visits) = 30.8% (2%: 9.5%). With about 1,000 paid clicks and 0 sales, "not enough data" is no longer a safe answer; further spend is Dan's decision, not a default.
+
+### Google Ads UI quirks (Chrome)
+- Every save of an ad or budget triggers "Confirm it's you" (push to the phone signed into legacyodysseyapp@); Dan approves, then click Try again / Save again.
+- New accounts are locked in the guided wizard until the first campaign is published and payment entered; the wizard defaults to Performance Max (choose "view other campaign types" > Search); set bidding to Clicks; ignore the pushed $88/day budgets.
+- Final URL field doubles text on edit: use form_input on the field ref, or Ctrl+A, Delete, type. Tab in headline fields jumps to the pin icon and drops text: click each field. "Clear all prefills" removes Google's AI headlines (check twice). Headline max 30 characters, description 90.
+- No "save as paused": save, then pause from the status dot. Bulk Edit > Change budgets: Apply stays disabled (use the inline pencil). Bulk Edit > Pause menu coordinates are unreliable (one click hit Remove): use find refs, or the status dot for one campaign.
+- Classic URLs 404 in the new UI: navigate by menu (Tools > Data manager; Keywords > Negative keywords). The Search terms report was never opened successfully.
+- Navigating without the ocid params loads the wrong Google account.
+
+### Ideas raised but never approved or built
+Display retargeting of /gift visitors (blocked by the wrong GA4 link), email capture on /gift, exit survey, Wynter message test (~$200), Upwork CRO audit ($200-800). Do not build without Dan's go. Never suggest a money-back guarantee (no refunds, ever).

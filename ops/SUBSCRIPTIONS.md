@@ -69,7 +69,7 @@ revenue per customer ($29 first year → $49.99/yr renewal). Healthy margin.
 |---|---|---|---|---|---|---|
 | **Apple Developer Program** | Individual or Org | $99/yr | annual — **VERIFY DATE** | `dragno6565@gmail.com` / Team `Y3J2B5YA4N` | iOS distribution | KEEP — required. **DO NOT let lapse** — apps get pulled. Add to CALENDAR. |
 | **Google Play Developer** | one-time | $25 (paid once) | — | `albumerapp2@gmail.com` | Android distribution | KEEP — required |
-| **Expo / EAS** | Production? Free? | VERIFY | monthly | account `dragno65` | Mobile build pipeline | VERIFY tier; we're hitting the free-tier build queue (CLAUDE.md says iOS sat ~1h). $19/mo Production tier removes that wait. |
+| **Expo / EAS** | **Starter** (Dan upgraded 2026-06-26) | ~$19 (VERIFY on Expo billing) | monthly | account `dragno65` | Mobile build pipeline | Keep. Free plan had 15 iOS builds/month and the queue held builds for an hour or more. |
 
 ---
 
@@ -89,8 +89,11 @@ revenue per customer ($29 first year → $49.99/yr renewal). Healthy margin.
 
 | Vendor | Plan | $/mo | Notes |
 |---|---|---|---|
-| **Meta Ads** | self-serve | ~$1,500/mo at $50/day (when on) | Account `605508002865292`. Total spend ~$520 as of May 6. Verify current state. |
-| **Google Ads** | n/a yet | $0 | Folder exists; not yet active |
+| **Meta Ads** | self-serve | $0 now (all campaigns OFF since 2026-08-05) | Account `605508002865292`. Spent $1,141.87 in the 30 days May 9 to Jun 7 alone (the "~$520 as of May 6" figure is stale). Restart only as a logged burst with Dan's GO. |
+| **Google Ads** | self-serve | $0 now (paused 2026-07-20) | Account 517-079-2970. DID run: about $1,355 lifetime, 0 sales. Paused Campaign 3 is still set to $50/day to the homepage with no end date: change before any Enable. |
+| **Rewardful** (affiliates) | Starter $49/mo | $0 after 2026-10-23 | CANCELLED by Dan 2026-10-01 (self-serve; last cycle ends 2026-10-23, then the account locks). 9% transaction fee on Starter. Results: 8 signups, 0 conversions. Confirm the cancellation email arrived and no charge after Oct 23. |
+| **Social Cat** | Pro $299/mo (after 7-day trial) | VERIFY | Account created 2026-05-20 under legacyodysseyapp@; Dan said he was done with it; whether a card was entered or the trial lapsed is unknown. Check and cancel if live. |
+| **Collabstr** | pay per order (+10% fee) | $0 | About $115.50 balance left (June 2026). |
 | **Pinterest Ads** | n/a yet | $0 | Folder exists; not yet active |
 
 ---

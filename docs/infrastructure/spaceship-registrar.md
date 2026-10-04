@@ -2,7 +2,7 @@
 
 **Status:** active (primary registrar)
 **Owner:** Legacy Odyssey customer-domain registration + DNS for ~all customer domains
-**Last touched:** 2026-04-28
+**Last touched:** 2026-04-28; archive-review additions 2026-10-04 at the bottom
 
 ## What it is
 Spaceship is the user's domain registrar (owned by Namecheap). Registers customer .com domains automatically at SaaS checkout. Also serves DNS for almost all customer domains (Roy is the exception — on Cloudflare NS).
@@ -54,3 +54,32 @@ Below-wholesale pricing: $9.98/yr renewal for .com.
 - **No bulk auto-renew toggle.** Disabling auto-renew on multiple lapsing domains requires 1 API call each.
 - **Order failures don't auto-disable auto-renew.** Code added Apr 26 to handle this on post-registration failures (legacyodysseytest5.com, legacyodysseytest6.com lost ~$25.98 before this fix).
 - **Domain Manager UI** is needed for: nameserver changes, URL Redirect connection removal, Connections panel inspection. No API equivalent.
+
+
+## Update 2026-10-04 (archive review)
+
+### TLD prices (verified in the Spaceship dashboard 2026-06-29; register / renew per year, USD)
+| TLD | Register | Renew | Notes |
+|---|---|---|---|
+| .com | 8.88 | 9.98 | primary |
+| .us | 3.11 | 6.48 | forbids WHOIS privacy |
+| .net | 11.20 | 11.20 | |
+| .me | 8.70 | 15.53 | |
+| .xyz | 0.78 | 12.52 | feels generic |
+| .co | 3.48 | 25.98 | |
+| .love | 4.68 | 22.77 | |
+| .mom | 1.04 | 25.80 | |
+| .life | 1.55 | 28.98 | |
+| .family | 31.05 | 31.05 | |
+| .baby | 1.04 | 51.60 | |
+
+- The availability API returns a price ONLY for registry-premium names; standard prices come back null. So `underBudget` defaulted to true and the $20 `MAX_REGISTRATION_PRICE` cap never caught .baby/.family renewals. Check renewal price, not just registration.
+- Country TLDs need local residency (.fr EU/EEA and "currently unavailable at Spaceship", .de Germany, .ca Canada, .au ABN): none usable for US customers. .name behaved unreliably. Restricted TLDs like .kids are out (Dan: ".kids is not real?").
+- Current code (`src/services/domainService.js`) offers .com/.me/.net primary and .us/.xyz extras when .com is taken. Keeping or dropping .us/.xyz/.net is an open decision for Dan.
+
+### Domain suggestion rules (Dan, 2026-06-29)
+Same name, different extension ONLY. No prefixes (our/the/little/baby), no guessed middle names, no name mangling ("ouremma.com" made him angry). A prominent "add a middle name, a nickname, or a hyphen" input instead. If we say "these are available", show more than one. A bare common first name looks taken: nudge to the full name. The user-visible search is `loHeroSearch` in landing-v2-cro.ejs (not the old domain-search.js).
+
+### More API quirks
+9. DELETE matched by address only can return 204 without deleting (2026-05-10). Pass the full record and re-read the zone to verify.
+10. Never change DNS, vhosts or registrar settings unless Dan asked for that specific change (memory feedback_never_touch_dns_unless_asked).

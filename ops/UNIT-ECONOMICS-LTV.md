@@ -40,6 +40,6 @@ collect ~$17 of margin — anything above that is financed by unproven renewals.
   6yr payback on cash fronted today.
 
 ## What we need to validate (priority)
-1. **First-renewal rate** (intro $29 → $49.99) — THE number; first real read is the Mar–Apr 2026 cohort, due now.
+1. **First-renewal rate** (intro $29 → $49.99) — THE number; first real read is the Mar–Apr 2026 cohort, due about March to April 2027 (corrected 2026-10-04: annual plans renew one year after signup, so there is no renewal data before then).
 2. 2nd/3rd-year renewal rates. 3. Cohort retention curves by signup month. 4. Voluntary vs failed-card churn.
 Re-run this model the moment a first-renewal number exists — it collapses the scenario spread into reality.
