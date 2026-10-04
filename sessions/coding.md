@@ -3,7 +3,43 @@
 > Product + infrastructure engineering: Express server, web editors/viewer, mobile apps,
 > Supabase, deploys. The only session that writes feature code.
 
-**Last session:** 2026-06-17 (shipped GA consent-timing fix — live; built the editor-IA Contact section + alphabetical contacts, web+mobile, UNCOMMITTED/undeployed pending Dan's review)
+**Last session:** 2026-10-04 (HANDOFF before Legacy Odyssey moved to its own F:\legacy-odyssey home + LO-only memory at `.claude\projects\F--legacy-odyssey\memory`. This session ran long and covered branded checkout, privacy hardening, the 11-week domain-outage root-cause + monitoring overhaul, v1.0.28 ship, HEIC fix, landing/gift overhaul, forgot-password scanner fix, pulse false-alarm fix, waitlist protection + a server-side visitor counter, and today removed a stray global GA4 MCP that was popping a Google OAuth on every launch. A new "LO Coding" session will start in F:\legacy-odyssey and replace me.)
+
+---
+
+## 🔑 2026-10-04 SWITCHOVER HANDOFF — read this first
+
+**Repo / working-tree state (verified today):**
+- Branch `main`. **All my code is committed and live.** HEAD = `3d9ce7f`. Recent mine: `3d9ce7f` (waitlist bot protection + blocker-proof visitor counter), `d1db1d9` (forgot-password scanner-safe reset link), `3bd0ddb` (pulse false-alarm fix), `96e5674` (Family Album brainstorm, design-only). **Nothing uncommitted in `src/` or `mobile/`.**
+- The large pile of modified/untracked files in `git status` (marketing/, pinterest-pins/, screenshots/, blog posts, fb-posts, other `sessions/*.md`, STATUS.md) is **other sessions' work — do NOT blanket-commit.** `.tmp/`, `.temp/`, `.backups/`, `*.stackdump` are junk.
+- **Session-only context (outside the repo):** the recurring Google OAuth popup "Stape GA4 MCP" was a **global `ga4` MCP server** in `C:\Users\dragn\.claude.json` (ran `npx mcp-remote https://mcp-google-analytics.stape.io/mcp`). I **deleted that entry today** (file still valid JSON). Dan must **fully quit + reopen Claude** for it to stop. If it ever recurs, clear the leftover `~/.mcp-auth` token cache. GA4 truth (see memory `project_ga4_ads_truth`): live property **531219463 under legacyodysseyapp@gmail.com**; 530710619 is the empty duplicate the MCP read as "0".
+
+**What shipped across this session (all live unless noted):**
+- **Branded checkout** — embedded Stripe Payment Element + brand-styled checkout/success/gift pages through the whole flow (the "#3" half). The "#1" half (Stripe **Dashboard** branding: logo/colors in Stripe settings) is still **Dan's to do in the Stripe dashboard**.
+- **Checkout audit → 4 bugs fixed/deployed:** (1) webhook read `invoice.subscription` but Stripe Basil+ puts it at `invoice.parent.subscription_details.subscription`; (2) `/start/welcome` fallback provisioning when the webhook lags; (3) gift flow had no conversion tracking; (4) checkout pages were missing the tracking partial. Google Ads conversion fires URL-based on `/stripe/success` (AW-18137400874/5Qh2CI6c_KYcEKqMy8hD), plus Meta CAPI + gtag/fbq/pintrk.
+- **Privacy hardening (Dan approved #1–3):** `requireBookPassword.js` is now fail-safe (removed the Railway-host bypass; no password ⇒ locked page, never open); customer `X-Robots-Tag: noindex` middleware; customer domains removed from the sitemap. ("Invite-only" wording stays — Dan's ruling: giving out the password is the customer's responsibility.)
+- **"books" → "websites/sites"** in customer-facing emails (do NOT rename public-site nav "The Book" or the App Store listing — Dan's ruling). Added **`scripts/copy-lint.js`** guard that blocks outbound copy containing "book", "web address", em-dashes, wrong greeting, or a price.
+- **11-week custom-domain outage root-cause + monitoring overhaul** (the big lesson — see memory `feedback_monitoring_must_verify_correctness`): health checks are now **content-aware** (`siteHealthCheck.js`: 200 AND body has `/verify-password` marker AND NOT marketing markers); `block2Domains.js` content-verifies every customer domain; `publicPulseCron.js` rewritten with a **monitor-blindness guard** (self-checks homepage first; an in-container hairpin/egress failure ⇒ "monitor offline, NOT confirmed outage", throttled, no customer alarm); added `domain-reputation` check (Norton Safe Web + Google Safe Browsing); `prod-health` connection errors are WARN not FAIL (Approximated/Cloudflare hairpin can't reach our own public URL from inside the container).
+- **Outage announcement email — ALREADY SENT, do NOT touch.** (Its subject said "web address"; Dan was furious; copy-lint.js exists so it can't happen again.)
+- **App v1.0.28** built + submitted BOTH stores (book→website wording, EN/ES/HI). **v1.0.29 is the next build — see `mobile/NEXT-APP-BUILD.md`** (native video-playback retest pending Dan; verify `default_language` honoring). Do NOT trigger an EAS build until those are in. Hard rule: never submit to a store without Dan's explicit OK.
+- **SEO "Duplicate without user-selected canonical" fix:** `www.<appDomain>` 301→apex in `server.js` (customers' own www untouched); customer domains out of the sitemap; noindex on customer domains.
+- **HEIC fix:** `photoService.js` `isHeic()` + `toJpegIfHeic()` (magic-byte `ftyp` brand detect + heic-convert on upload).
+- **Landing + /gift show-first overhaul** (`views/marketing/landing-v2-cro.ejs`, `gift-landing.ejs`, real demo screenshots via `scripts/capture-landing-screens.js`).
+- **Forgot-password "link doesn't work" FIXED** (`d1db1d9`, `src/routes/account.js`): root cause was email scanners consuming the single-use `action_link` on GET before the user clicked. Now emails a scanner-safe `token_hash` link (`/account/reset-password?token_hash=...&type=recovery`, verified on submit via `verifyOtp`). **OPEN:** the **set-password / welcome-email link has the SAME scanner-consumption pattern** — apply the same `token_hash` fix next.
+- **Clarity "nobody's visiting" mystery → resolved + two features (`3d9ce7f`):** Clarity actually works; the "nobody but 2 waitlist signups" was direct-POST **bots** (the waitlist was wide open while the contact form had protection). Added waitlist protection (rate limit + Origin/Referer guard + honeypot + Turnstile-ready) in `src/routes/api/waitlist.js`, and a **blocker-proof server-side visitor counter**: migration `033_page_views_counter.sql` (page_views table, RLS-closed), `src/middleware/recordPageView.js` (logs human marketing-page GETs, bots filtered), surfaced as the **`site-visitors`** check on the **admin health page** (`block1Infra.js`). This is the TRUE visitor count since Clarity/GA4 are client-side and ad-blocked.
+
+**Open / standing items for the new session (most are Blocked on Dan):**
+1. **set-password/welcome-email link** scanner-safety fix (same `token_hash` pattern as forgot-password) — code task, do next.
+2. **Stripe Dashboard branding** (the "#1" half of branded checkout) — Dan, in Stripe settings.
+3. **v1.0.29** app build: native video retest + `default_language` honoring, then build+submit on Dan's OK (`NEXT-APP-BUILD.md`).
+4. **Norton dispute** filed 2026-08-05, awaiting response — the daily `domain-reputation` health check tracks it.
+5. **$29 test purchase** to confirm a real end-to-end conversion (Dan).
+6. **ga4 MCP popup** — fixed today; confirm it's gone after Dan's next full restart.
+7. Ads were **paused** (zombie campaign); GA4 "1-second engagement" was concluded to be bot traffic. Mobile-app Sentry SDK still wanted for a future build.
+
+**Carry-over rules that bit us (full set now in the LO memory folder):** customer sites are "website/site", never "book", never "web address/page/URL"; no em-dashes in public copy; mass emails greet "Hi Legacy Odyssey Customer,"; no price in marketing unless Dan says; never real family names; **never do Albumer work in this session** (route it to the Albumer session); health checks must verify CONTENT not just status codes.
+
+---
 
 ## Scope
 - All code in `src/`, `mobile/`, `supabase/`, `scripts/`; deploys via push to `main`
@@ -18,8 +54,13 @@
 - `git log --oneline -20` + `git status` — other coding work may be in flight; never
   blanket-commit files you didn't change.
 
-## Current state (2026-06-10)
-- **Live:** v1.0.17 on BOTH stores (June 4). Backend auto-deploys from `main`.
+## Current state (2026-06-23)
+- **iOS 1.0.19 = "Ready for Distribution"** (passed review). **v1.0.20 SUBMITTED to BOTH stores 2026-06-23** —
+  iOS **Waiting for Review** (build 34), Android **Play production** (in review). 1.0.20 = **import contacts
+  from phone** (new) + the D-012 step-2 editor regroup (mobile). 1.0.19 shipped "Your Contacts" + alphabetical
+  list + gift-admin (all live on web prod). Backend auto-deploys from `main`.
+- **⚠️ Apple agreement watch:** iOS submits 403 (`REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`) whenever an Apple
+  agreement lapses — Dan signs it at App Store Connect → **Business** (`/business`). Hit this on 1.0.20; resolved.
 - **Affiliate (Rewardful) — fully integrated + verified live.** JS snippet on all 28
   marketing pages; referral → `client_reference_id` on the 4 Checkout-Session endpoints
   (verified end-to-end with a real test affiliate). **Gift + branded-signup PaymentIntent
@@ -52,20 +93,21 @@
 - Known parity drift: web rotate control in only ~4 of ~12 editors.
 
 ## Open items (next session, in order)
-1. **⏳ Editor IA revamp — Contact section (D-012 step 1): BUILT, UNCOMMITTED, awaiting Dan's deploy
-   decision.** Web + mobile lockstep, "relabel in place" (Dan's call). Files changed (uncommitted):
-   web `account-dashboard.ejs` (card "Your Circles"→"Contact"), `account-book-circles.ejs`
-   (title/breadcrumb/h1→"Contact", "People"→"Contact List"); mobile `DashboardScreen.js` (pulled
-   `circles` out of SECTIONS into its own "Contact" ListHeaderComponent), `CirclesScreen.js` + `App.js`
-   (relabel). PLUS **alphabetical Contact List** — `contactService.listContacts` now sorts case-insensitive
-   (server-side → fixes web + LIVE app, no rebuild). Plan doc: `docs/editor-ia-revamp.md`. Verified (web
-   render-shown to Dan, mobile parses). **NEXT: get Dan's go → commit + push web; mobile rides next EAS
-   build (TestFlight review).** Web previews saved to `.tmp/contact-preview/` + Dan's Desktop.
-2. **Editor regroup (D-012 step 2)** — once Contact ships: regroup the flat editor into 4 groups (Main page
-   [Child Info · Your Journey to Us · **Family Intro NEW**] · Your Odyssey · Family & Memories · Contact),
-   web `account-book.ejs` (flat grid today) + mobile `DashboardScreen` SECTIONS. + notify-after-NEW-section
-   prompt. + **D-013 web staging env** (web deploys straight to prod today — stand up a review copy). Full
-   spec: `docs/editor-ia-revamp.md` + `ops/DECISIONS.md` D-012/013/014. Family sites DEFERRED (D-014).
+1. **✅ DONE — Editor IA "Your Contacts" section (D-012 step 1): SHIPPED.** Web pushed to prod (commits through
+   `8a559af` on `origin/main`); mobile shipped in **1.0.19** (submitted to both stores 2026-06-22). Final label
+   is **"Your Contacts"** (Dan's correction from "Contact"), sub-areas "Contact List" + "Circles". Includes
+   alphabetical Contact List (`listContacts` case-insensitive sort). **Watch: iOS 1.0.19 review outcome** (≤48h)
+   + Android production rollout. ⚠️ DECISIONS.md D-012 still says "Contact" — flag chief-of-staff to fix to "Your Contacts".
+2. **✅ DONE — Editor regroup (D-012 step 2): SHIPPED lockstep (`17b2e39`).** `account-book.ejs` (web) +
+   `DashboardScreen.js` (mobile) both regrouped into Main page [Child Info · Your Journey to Us · **Family Intro**
+   = disabled "Coming soon" card] · Your Odyssey · Family & Memories · Your Contacts (+ Manage footer). **Web is
+   LIVE** (deployed, healthy). **Mobile committed + JSX-validated, rides the next app build (1.0.20)** — not
+   auto-deployed; needs Dan's store-submit OK after 1.0.19 clears review. Still TODO: **Family Intro** real
+   feature (design pass — placeholder now); notify-after-NEW-section prompt; **D-013 web staging env**. Spec:
+   `docs/editor-ia-revamp.md` + `ops/DECISIONS.md` D-012/013/014. Family sites DEFERRED (D-014).
+   - **✅ DONE — `/demo` guided walkthrough LIVE** (`legacyodyssey.com/demo`, `d0ac004`). Shareable tap-through
+     tour for in-person/link sharing. Self-contained, `noindex`, no real names. Future tweaks if Dan wants:
+     more steps, a "share" button, swap/add demo photos (`src/public/demo-assets/`).
 3. **✅ GA consent-mode timing — SHIPPED + LIVE (`4fdbdd0`).** Added a `loOnTrackingReady()` queue to the
    tracking partial that `loEnableTracking` flushes AFTER granting consent; wrapped the `purchase` events on
    success/gift-success/signup-welcome. Logic verified (queued→flushed on grant→never on decline). Real
@@ -101,11 +143,15 @@
   malformed/bot POSTs instead of 500/Sentry pages.
 
 ### ⚠️ Working-tree / repo notes
-- **GA consent-timing fix (`4fdbdd0`) is PUSHED + LIVE.** origin caught up through it.
-- **⚠️ The Contact section feature is COMMITTED LOCALLY (`3d54f6a`) but NOT PUSHED** — held pending Dan's
-  deploy review. **The next `git push` WILL deploy it** (web). So before any unrelated push, know that
-  Contact rides along — confirm Dan's OK on Contact first, or cherry-pick. Mobile part ships in the next
-  EAS build regardless.
+- **`origin/main` is caught up through `17b2e39` (editor regroup).** NO unpushed code commits. Shipped this
+  session: "Your Contacts" + gift-admin + `/demo` + the D-012 step-2 regroup (web live; mobile committed, awaits
+  next app build).
+- **Mobile regroup is in the repo but NOT in any released build** — it ships when the next EAS build (1.0.20) is
+  cut + submitted (needs Dan's OK; 1.0.19 still in review). Until then the live app shows the pre-regroup grid.
+- **`/demo` is ON HOLD (Dan: too thin)** — still live/unlinked/`noindex` at `legacyodyssey.com/demo`. Keep-or-404
+  is Dan's call; `marketing/demo.ejs` + `/demo` route + `src/public/demo-assets/*.jpg`.
+- **⚠️ `mobile/.../DashboardScreen.js` `DEMO_BOOK` still uses a fake name "Sophia Smith"** (no-invented-names rule
+  violation, pre-existing) — fix next session.
 - `docs/INDEX.md` is modified by chief-of-staff (customer reclassification) — not mine, leave it.
 - `TODO.md` stays uncommitted (coding working-list convention).
 - Still uncommitted (other sessions', leave alone): `marketing/facebook/BRAND-VOICE-GUIDE.md`,
@@ -114,6 +160,54 @@
   previews in `.tmp/contact-preview/` (also copied to Dan's Desktop).
 
 ## Log
+- **2026-06-23** — Big session: new feature + both-store submit + brand-safety cleanup.
+  • **Import contacts from phone (app):** `expo-contacts ~15.0.11`; Your Contacts gets a permission-gated,
+    searchable multi-select picker (marks already-added). Server `POST /api/contacts/mine/contacts/import`
+    (`contactService.importContacts` — de-dupe by email/phone/name + within-batch; bulk insert). Migration
+    `030_book_contacts_source.sql` adds `book_contacts.source` — **optional**: insert falls back without it if
+    unapplied (no DB access from here to apply; manual in Supabase). app.json: Contacts permission (iOS+Android),
+    **v1.0.20**. Web-parity exception logged in TODO (browsers can't read the OS address book). Commit `e0506aa`.
+  • **Built + submitted 1.0.20 to BOTH stores.** EAS build all → Android versionCode 33 / iOS build 34. `eas submit`
+    iOS failed 4× with a generic error → diagnosed via the EAS submission log (browser): **403
+    `FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`** — an expired Apple agreement. Dan signed it in ASC →
+    iOS uploaded → I drove the ASC version flow (created 1.0.20, What's New, attached build 34, export-compliance
+    auto-cleared) → **Submitted for Review** (Dan authorized). Android went to Play production.
+  • **Emergency banned-word / wrong-demo-link sweep** (Dan caught "your-family-photo-album.com" + "finished book"
+    on `/affiliates`): fixed the affiliates demo link → your-childs-name.com; cleaned the waitlist email
+    (removed family-album demo button + "chapters"/"preserve"/"family's memories") and the Day-3 onboarding email
+    ("preserve"); **deleted `src/public/family-album-demo.html` + its routing** (`book.js` DEMO_BOOK_DOMAINS/SITES,
+    `requireBookPassword.js`); fixed demo-book upsell banners (4 layout files), Vault "Protected Forever", and a
+    "preserve" in the iOS photo-permission string. Sent emails verified clean. The bad affiliates copy traced to
+    old commit `2645c16`, not this session.
+  • Lessons: `eas submit --non-interactive` needs `--latest` (or `--id`) or it errors on archive source. The real
+    iOS submit error lives on the EAS submission web log, not the CLI (`--verbose-fastlane` didn't surface it
+    locally). Apple "Something went wrong" on submit while builds succeed + Android works == an account-level
+    agreement (`/business`) needs signing. ASC: after attaching a build, Save and confirm the ✓ before Add for Review.
+- **2026-06-22 (later)** — **Shipped a guided product demo — LIVE at `legacyodyssey.com/demo`** (`d0ac004`,
+  Dan-approved push). Self-contained tap-through tour (`marketing/demo.ejs` + `/demo` route in `book.js`,
+  defined before resolveFamily so it renders on the main domain; photos in `src/public/demo-assets/`): pick a
+  name → availability ✓ → reserve → 4-group editor → add photos → publish → finished example site → $29 pitch.
+  No DB/auth, resets each run, `noindex`, no real names, word-ban clean (verified on live page + a demo-asset
+  image both 200). Built with vanilla JS step nav; verified by driving the tour in headless Chrome (no console
+  errors) via `scripts/preview-demo.js`. **Editor regroup (D-012 step 2) web-side also built but HELD** —
+  `account-book.ejs` regrouped into the 4 groups (Family Intro = disabled "Coming soon" card); preview on
+  Dan's Desktop (`contact-preview/editor-regroup-*.png` via `scripts/preview-account-book.js`). Deploy gated
+  on Dan's lockstep-vs-web-first call; mobile `DashboardScreen` regroup not built yet.
+- **2026-06-22** — Shipped "Your Contacts" + submitted 1.0.19 to both stores.
+  • **Gift-admin tools** (commit `e2982a1`): resend gift email, edit recipient email/message, default the
+    "Confirmation copy to" field to the ops inbox (`legacyodysseyapp@gmail.com`) instead of admin's login.
+  • **"Your Contacts" relabel** (`a85e2e2`): Dan corrected "Contact" → **"Your Contacts"** everywhere (web
+    card + page, mobile screens/nav); sub-areas stay "Contact List" + "Circles".
+  • **Pushed web to prod** + **built & submitted 1.0.19 to BOTH stores** (`8a559af`): iOS → App Store,
+    **Waiting for Review** (build 33; export compliance auto-cleared via `ITSAppUsesNonExemptEncryption:false`,
+    no prompt); Android → **Google Play production**. Per Dan's "Submit iOS now, Android when ready" + backups-first.
+  • **ASC recovery:** mid-submit the App Store Connect tab's renderer froze with the build attachment unsaved
+    (a beforeunload "Leave site?" dialog blocked reload, even with force). Recovered by opening a FRESH tab —
+    the version + What's New + app-review info had saved server-side, so only the build attach was lost;
+    re-attached build 33, saved (verified the ✓), Add for Review → Submit. Single clean 1.0.19 submission.
+  • Lesson: in ASC, after attaching a build click **Save and confirm the ✓** before doing anything else — the
+    page re-renders and a too-fast follow-up click lands on blank space, leaving an unsaved/ frozen state. A
+    fresh tab is the clean escape from a stuck beforeunload dialog (server-side saves persist).
 - **2026-06-17** — Two things.
   • **GA consent-timing fix — SHIPPED + LIVE (`4fdbdd0`).** `purchase` events fired before the deferred
     consent.js granted analytics_storage → Consent Mode v2 dropped them (GA $0). Added `loOnTrackingReady()`
